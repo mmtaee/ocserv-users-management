@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 from django.http import Http404 
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
+from django.conf import settings
 
 from jalali_date import date2jalali
 
@@ -34,7 +35,8 @@ class LoginPageView(View):
     def get(self, request, *args, **kwargs):
         form = self.form_class
         context = {
-            'form' : form ,
+            'form' : form,
+            'site_key' : settings.GOOGLE_RECAPTCHA_SITE_KEY,
         }
         return render(request, self.template_name, context)
 
@@ -66,6 +68,7 @@ class LoginPageView(View):
  
         context = {
             'form' : form,
+            'site_key' : settings.GOOGLE_RECAPTCHA_SITE_KEY,
         }
         return render(self.request, self.template_name, context)
 
