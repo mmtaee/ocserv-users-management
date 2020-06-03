@@ -1,0 +1,63 @@
+{% load static i18n %}
+
+
+<style>
+    .navbar-brand {
+    color: white !important;
+    }
+
+    .nav-link{
+        color:black !important;
+    }
+
+
+</style>
+
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+<script>
+    $(".navbar-nav").addClass("mr-auto");
+</script>
+
+{% else %}
+<script>
+    $(".navbar-nav").addClass("ml-auto");
+</script>
+
+{% endif %}
+
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #36a1ee;">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01"
+        aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarToggler">
+        <a class="navbar-brand" href="">{% trans 'Wellcome to our Web Site' %}</a>
+        
+        <ul class="navbar-nav mt-2 mt-lg-0">
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'pannel:home'%}"> {% trans 'Home' %} </a>
+            </li>
+        </ul>
+    </div>
+    {% if user.is_authenticated %}
+        <a class="nav-link" href="{% url 'pannel:logout' %}">{% trans 'Logout' %}</a>
+
+    {% else %}
+        <a class="nav-link" href="{% url 'pannel:login' %}">{% trans 'Login' %}</a>
+    
+    {% endif %}
+
+    {% get_current_language as LANGUAGE_CODE %}
+        {% if LANGUAGE_CODE == 'fa' %}
+        <a href="/en/">
+            <img src="{% static '/img/us-flag.jpg' %}" alt="us-flag" width="25px" style="background: transparent; background-color: #36a1ee; border-radius: 15%;">
+        </a>
+    {% else %}
+        <a href="/fa/">
+            <img src="{% static '/img/iran-flag.png' %}" alt="iran-flag" width="25px" style="background: transparent; background-color: #36a1ee; border-radius: 15%;">
+        </a>
+    {% endif %}
+</nav>
+
+<br><br><br>

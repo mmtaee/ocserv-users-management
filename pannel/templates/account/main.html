@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+
+{% block title %}
+    {% trans 'Main Page' %}
+{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+
+{% block css %}
+    .container{
+        margin-top : 70px;
+    }
+
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == 'fa' %}
+    
+    .container{
+        margin-right: 100px;
+    }
+    
+    {% else %}
+    
+    .container{
+        margin-left: 100px;
+    }
+    
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+{% include 'account/navbar.html'%}
+
+<script>
+    $("#main").addClass('active');    
+</script>
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-lg-6">
+            <h4>{% trans 'Users whose accounts expire in 15 days' %}</h4>
+        </div>
+
+        <div class="col-lg-6">
+            <h4>{% trans 'Blocked IPs of attackers' %}</h4>
+        </div>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+
+{% block title %}
+    {% trans 'Add Page' %}
+{% endblock %}
+
+{% block head %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+
+    <link rel="stylesheet" href="{% static 'admin/jquery.ui.datepicker.jalali/themes/base/jquery-ui.min.css' %}">
+    <script src="{% static 'admin/js/django_jalali.min.js' %}"></script>
+
+{% else %}
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.datepicker').datepicker();
+    });
+</script>
+
+{% endif %}
+
+
+{% endblock %}
+
+
+{% block css %}
+.container{
+margin-top : 70px;
+}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+
+.container{
+margin-right: 100px;
+}
+
+{% else %}
+
+.container{
+margin-left: 100px;
+}
+
+{% endif %}
+
+{% endblock %}
+
+
+{% block content %}
+{% include 'account/navbar.html'%}
+
+<script>
+    $("#add").addClass('active');    
+</script>
+
+<div class="container">
+
+    <form method="post">{% csrf_token %}
+        <div class="form-group">
+            <label class="form-check-label" for="name">{% trans 'Name' %} :</label>
+            <br>
+            {{ form.name }} <br>
+            <span id="message">
+                {% for error in form.name.errors %}
+                <div class="alert alert-warning" style="width:19%;">
+                    <center>
+                    {{ error }}
+                    </center>
+                </div>
+                {% endfor %}
+            </span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label" for="family">{% trans 'Family' %} :</label>
+            <br>
+            {{ form.family }} <br>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label" for="password">{% trans 'Password' %} :</label>
+            <br>
+            {{ form.password }} <br>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label" for="tell">{% trans 'Tell Number' %} :</label>
+            <br>
+            {{ form.tell_number }} <br>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label" for="order">{% trans 'Order Date' %} :</label>
+            <br>
+            {{ form.order_date }} <br>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label" for="expire">{% trans 'Order Expiry Date' %} :</label>
+            <br>
+            {{ form.order_expire }} <br> <br>
+            <span id="message">
+                {% for error in form.order_expire.errors %}
+                <div class="alert alert-warning" style="width:35%;">
+                    <center>
+                    {{ error }}
+                    </center>
+                </div>
+                {% endfor %}
+            </span>
+        </div>
+        <br>
+        <input class="btn btn-md btn-primary" type="submit" value='{% trans "Add" %}'>
+    </form>
+    {% if messages %}
+    <br>
+    {% for message in messages %}
+    <div class="alert alert-success" style="width:35%;">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+
+
+{% endblock %}

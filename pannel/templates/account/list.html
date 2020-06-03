@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% load jalali_tags %}
+
+
+{% block title %}
+    {% trans 'List Page' %}
+{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+
+{% block css %}
+
+.container{
+    margin-top : 70px;
+    margin-left: 100px;
+    <!-- text-align : right; -->
+}
+
+{% endblock %}
+
+
+{% block content %}
+{% include 'account/navbar.html'%}
+
+<script>
+    $("#list").addClass('active');    
+</script>
+
+<div class="container">
+
+    <h4>{% trans 'List of the active accounts' %} :</h4>
+    <br>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">{% trans '#' %}</th>
+                <th scope="col">{% trans 'Name' %}</th>
+                <th scope="col">{% trans 'Family' %}</th>
+                <th scope="col">{% trans 'Tell Number' %}</th>
+                <th scope="col">{% trans 'Order Date' %}</th>
+                <th scope="col">{% trans 'Order Expiry Date' %}</th>
+
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in object_list %}
+            <tr id="table">
+                <th scope="row" id="row">{{ forloop.counter }}</th>
+                <td>{{ user.name | title }}</td>
+                <td id='family'>{{ user.family | title }}</td>
+                <td id="tell">{{ user.tell_number }}</td>
+
+                {% get_current_language as LANGUAGE_CODE %}
+                {% if LANGUAGE_CODE == 'fa' %}
+                    <td id="order">{{ user.order_date | to_jalali:'%Y-%m-%d' }}</td>
+                    <td id="expire">{{ user.order_expire | to_jalali:'%Y-%m-%d' }}</td>
+                {% else %}
+                    <td id="order">{{ user.order_date | date:"Y-m-d" }}</td>
+                    <td id="expire">{{ user.order_expire | date:"Y-m-d" }}</td>
+                {% endif %}
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+
+
+<nav aria-label="Page navigation example" dir="LTR">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link"href="?page=1">&laquo; {% trans 'First' %}</a>
+        </li>
+        
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans 'Previous' %}</a>
+        </li>
+        {% endif %}
+
+        {% for i in page_obj.paginator.page_range %}
+            {% if page_obj.number == i %}
+            <li class="page-item active"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+            {% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}" >{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans 'Next' %}</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{% trans 'Last' %} &raquo;</a>
+        </li>
+        {% endif %}
+
+    </ul>
+</nav>
+
+
+</div>
+
+
+
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+
+<script src="{% static 'js/persianumber.js' %}"></script>
+<script>
+
+    $("tbody #table").each(function () {
+
+        var hastag = $(this).children("#row").html();
+        var hastag_persian = persianJs(hastag).arabicChar().englishNumber().arabicNumber().toString();
+        $(this).children("#row").html(hastag_persian);
+
+
+        var order = $(this).children("#order").html();
+        var order_persian = persianJs(order).arabicChar().englishNumber().arabicNumber().toString();
+        $(this).children("#order").html(order_persian);
+
+        var expire = $(this).children("#expire").html();
+        var expire_persian = persianJs(expire).arabicChar().englishNumber().arabicNumber().toString();
+        $(this).children("#expire").html(expire_persian);
+
+        var tell = $(this).children("#tell").html();
+
+        if(tell == "None"){
+            $(this).children("#tell").html("-");
+        }else{
+            var tell_persian = persianJs(tell).arabicChar().englishNumber().arabicNumber().toString();
+            $(this).children("#tell").html(tell_persian);
+
+        }
+
+        var family = $(this).children("#family").html();
+        if (tell == "None") {
+            $(this).children("#family").html("-");
+        }
+
+    })
+
+
+$(".page-link").each(function () {
+    var page = $(this).html();
+    var page_persian = persianJs(page).arabicChar().englishNumber().arabicNumber().toString();
+    $(this).html(page_persian);
+})
+
+
+</script>
+
+
+{% endif %}
+
+
+{% endblock %}
