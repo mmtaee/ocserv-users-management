@@ -1,0 +1,16 @@
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+.env
+db.sqlite3
+.venv/
+venv/
+media/
+TODO.txt
+migrations/
+note.txt
+.vscode
+trash/
+*.zip
