@@ -45,17 +45,27 @@
     <div class="row">
 
         <div class="col-lg-6">
-            <h4>{% trans 'Users whose accounts expire in 15 days' %}</h4>
+            <h5 id="num">{% trans 'Users whose accounts expire in 15 days' %}</h5>
         </div>
 
         <div class="col-lg-6">
-            <h4>{% trans 'Blocked IPs of attackers' %}</h4>
+            <h5>{% trans 'Blocked IPs of attackers' %}</h5>
         </div>
 
     </div>
 
-
 </div>
+
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == 'fa' %}
+    <script src="{% static 'js/persianumber.js' %}"></script>
+
+    <script>
+        var num = $('#num').html();
+        var num_persian = persianJs(num).arabicChar().englishNumber().arabicNumber().toString(); 
+        $('#num').html(num_persian);
+    </script>
+    {% endif %}
 
 
 {% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+
+{% block title %}
+{% trans 'Main Page' %}
+{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+
+{% block css %}
+.container{
+margin-top : 70px;
+}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+
+.container{
+margin-right: 100px;
+}
+
+{% else %}
+
+.container{
+margin-left: 100px;
+}
+
+{% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+{% include 'account/navbar.html'%}
+
+<script>
+    $("#service").addClass('active');    
+</script>
+
+<div class="container">
+
+
+</div>
+
+<!-- {% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+<script src="{% static 'js/persianumber.js' %}"></script>
+
+<script>
+    var num = $('#num').html();
+    var num_persian = persianJs(num).arabicChar().englishNumber().arabicNumber().toString();
+    $('#num').html(num_persian);
+</script>
+{% endif %} -->
+
+
+{% endblock %}

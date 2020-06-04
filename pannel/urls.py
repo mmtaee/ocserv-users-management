@@ -13,14 +13,7 @@ urlpatterns = [
     path('main/', MainPageView.as_view(), name="main"),
     path('add/', AddAccountView.as_view(), name="add"),
     path('list/', ListAccountView.as_view(), name="list"),
-    path('edit/', EditPageView.as_view(), name="edit"),
-    path('edit_account/<int:id>/', EditAccountView.as_view(), name="edit_account"),
-
-    path('edit/<str:name>/<int:id>/', Edit2AccountView.as_view(), name="edit2"),
-
-
-
-
-
+    path('edit/', EditPageView.as_view(), name="edit_view"),
+    path('edit/<int:id>/<str:name>/', EditAccountView.as_view(), name="edit_account"),
 
 ]

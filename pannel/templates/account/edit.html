@@ -77,12 +77,12 @@
 
                 <td style="text-align: center;">
                     {% if user.lock %}
-                    <a class="btn btn-sm btn-dark" href="{% url 'pannel:edit2' name='unlock' id=user.id %}">{% trans 'Unlock' %}</a>
+                    <a class="btn btn-sm btn-dark" href="{% url 'pannel:edit_account' name='unlock' id=user.id %}">{% trans 'Unlock' %}</a>
                     {% else %}
 
                     <button class="btn btn-sm btn-warning" type="button" data-toggle="modal" data-target="#myModal-{{ user.id }}" data-backdrop="static" data-keyboard="false">{% trans 'Edit' %}</button>
-                    <a class="btn btn-sm btn-info" href="{% url 'pannel:edit2' name='lock' id=user.id %}">{% trans 'Lock' %}</a>
-                    <a class="btn btn-sm btn-danger" href="{% url 'pannel:edit2' name='delete' id=user.id %}" onclick="return confirm('Delete {{ user.name|title }} ?');">Delete</a>
+                    <a class="btn btn-sm btn-info" href="{% url 'pannel:edit_account' name='lock' id=user.id %}">{% trans 'Lock' %}</a>
+                    <a class="btn btn-sm btn-danger" href="{% url 'pannel:edit_account' name='delete' id=user.id %}" onclick="return confirm('Delete {{ user.name|title }} ?');">Delete</a>
                     
                     {% endif %}
                 </td>
@@ -99,7 +99,7 @@
                             </h4>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" action="{% url 'pannel:edit_account' id=user.id %}">{% csrf_token %}
+                            <form method="POST" action="{% url 'pannel:edit_account' id=user.id name=None %}">{% csrf_token %}
         
                                 <label for="add-month">{% trans 'Add Mounth' %}</label><br>
                                 <input name="month" type="number" style="width: 20%;" min="0"><br>

@@ -15,6 +15,7 @@ from .decorators import *
 from .models import *
 
 import os
+from datetime import datetime
 from dateutil.relativedelta import *
 
 
@@ -139,15 +140,53 @@ class EditPageView(generic.ListView):
 
 class EditAccountView(generic.RedirectView):
 
+    def dispatch(self, request, *args, **kwargs):
+        mode = self.kwargs.get('name', None)
+        id = self.kwargs.get('id')
+        user = get_object_or_404(Users, id=id)
+        if not mode :
+            return super().dispatch(request, *args, **kwargs)
+
+        if mode == "unlock" :
+            user.lock = False
+            user.order_date = datetime.now().date()
+            user.order_expire = datetime.now().date()
+
+            # command = f'ocpasswd -c /etc/ocserv/ocpasswd -u {user.name}'
+            # os.system(command)
+
+            user.save()
+            
+        elif mode == "lock" :
+            user.lock = True
+            user.save()
+
+            # command = f'ocpasswd -c /etc/ocserv/ocpasswd -l {user.name}'
+            # os.system(command)
+
+        elif mode == "delete" :
+            user.delete()
+
+            # command = f'ocpasswd -c /etc/ocserv/ocpasswd -d {user.name}'
+            # os.system(command)
+
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         id = self.kwargs.get('id')
         user = get_object_or_404(Users, id=id)
         password = request.POST.get('password', None)
         month = request.POST.get('month', None)
+
         if password :
             new_password = make_password(password)
             user.password = new_password
+
+            # command = f"echo -e '{new_password}\n{new_password}\n'|ocpasswd -c /etc/ocserv/ocpasswd {user.name}"
+            # os.system(command)
+
             user.save()
+
         if month :
             from datetime import datetime
             old_expiry = datetime.strptime(str(user.order_expire), '%Y-%m-%d').date()
@@ -162,31 +201,9 @@ class EditAccountView(generic.RedirectView):
         self.url = f"/{lang}/edit/"
         return super().get_redirect_url(*args, **kwargs)
 
- 
-class Edit2AccountView(generic.RedirectView):
-    
+     
+class ServiceView(generic.RedirectView):
+
     def dispatch(self, request, *args, **kwargs):
-        mode = self.kwargs.get('name')
-        id = self.kwargs.get('id')
-        user = get_object_or_404(Users, id=id)
-        if mode == "unlock" :
-            user.lock = False
-            user.save()
-            
-        elif mode == "lock" :
-            user.lock = True
-            user.save()
-
-        elif mode == "delete" :
-            user.delete()
-
-        return super().post(request, *args, **kwargs)
-
-    def get_redirect_url(self, *args, **kwargs):
-        lang = self.request.LANGUAGE_CODE
-        self.url = f"/{lang}/edit/"
-        return super().get_redirect_url(*args, **kwargs)
-
-    
-
+        pass
     

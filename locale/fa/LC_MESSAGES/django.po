@@ -1,0 +1,253 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-06-04 19:45+0430\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: ocserv/settings.py:106
+msgid "Persian"
+msgstr ""
+
+#: ocserv/settings.py:107
+msgid "English"
+msgstr ""
+
+#: pannel/decorators.py:41
+msgid "Invalid reCAPTCHA. Please try again."
+msgstr "کپچا نادرست میباشد . دوباره سعی کنید"
+
+#: pannel/forms.py:16 pannel/templates/home.html:43
+#: pannel/templates/login.html:52
+msgid "Username"
+msgstr "نام کاربری"
+
+#: pannel/forms.py:17 pannel/templates/account/add.html:89
+#: pannel/templates/login.html:58
+#, fuzzy
+#| msgid "password"
+msgid "Password"
+msgstr "رمز ورود"
+
+#: pannel/forms.py:54
+msgid "Name is Already Exist"
+msgstr "نام قبلاً موجود است"
+
+#: pannel/forms.py:62
+msgid "The order expiry date cannot be earlier or equal than the order date"
+msgstr "تاریخ انقضا سفارش نمی تواند زودتر یا مساوی از تاریخ سفارش باشد"
+
+#: pannel/models.py:8
+msgid "name"
+msgstr "نام"
+
+#: pannel/models.py:9
+msgid "family"
+msgstr "نام خانوادگی"
+
+#: pannel/models.py:10
+msgid "password"
+msgstr "رمز ورود"
+
+#: pannel/models.py:14
+msgid "lock"
+msgstr "قفل"
+
+#: pannel/models.py:20
+msgid "User Account"
+msgstr ""
+
+#: pannel/templates/account/add.html:6
+#, fuzzy
+#| msgid "Page"
+msgid "Add Page"
+msgstr "صفحه"
+
+#: pannel/templates/account/add.html:68 pannel/templates/account/edit.html:56
+#: pannel/templates/account/list.html:42
+msgid "Name"
+msgstr "نام"
+
+#: pannel/templates/account/add.html:83 pannel/templates/account/edit.html:57
+#: pannel/templates/account/list.html:43
+msgid "Family"
+msgstr "نام خانوادگی"
+
+#: pannel/templates/account/add.html:95 pannel/templates/account/list.html:44
+msgid "Tell Number"
+msgstr "شماره تلفن"
+
+#: pannel/templates/account/add.html:101 pannel/templates/account/edit.html:58
+#: pannel/templates/account/list.html:45
+msgid "Order Date"
+msgstr "تاریخ ثبت سفارش"
+
+#: pannel/templates/account/add.html:107 pannel/templates/account/edit.html:59
+#: pannel/templates/account/list.html:46
+msgid "Order Expiry Date"
+msgstr "تاریخ انقضای سفارش"
+
+#: pannel/templates/account/add.html:121
+#: pannel/templates/account/navbar.html:48
+msgid "Add"
+msgstr "اضافه کردن"
+
+#: pannel/templates/account/edit.html:7
+#, fuzzy
+#| msgid "Login Page"
+msgid "Edit Page"
+msgstr "صفحه ورود"
+
+#: pannel/templates/account/edit.html:55 pannel/templates/account/list.html:41
+msgid "#"
+msgstr ""
+
+#: pannel/templates/account/edit.html:60 pannel/templates/account/edit.html:83
+#: pannel/templates/account/navbar.html:52
+msgid "Edit"
+msgstr "ویرایش"
+
+#: pannel/templates/account/edit.html:80
+msgid "Unlock"
+msgstr "باز کردن قفل"
+
+#: pannel/templates/account/edit.html:84
+msgid "Lock"
+msgstr "قفل کردن"
+
+#: pannel/templates/account/edit.html:104
+msgid "Add Mounth"
+msgstr "اضافه کردن ماه"
+
+#: pannel/templates/account/edit.html:109
+#, fuzzy
+#| msgid "password"
+msgid "Change Password"
+msgstr "رمز ورود"
+
+#: pannel/templates/account/edit.html:113
+msgid "Change"
+msgstr "تغییر"
+
+#: pannel/templates/account/edit.html:130 pannel/templates/account/list.html:80
+msgid "First"
+msgstr "اولین"
+
+#: pannel/templates/account/edit.html:134 pannel/templates/account/list.html:84
+msgid "Previous"
+msgstr "قبلی"
+
+#: pannel/templates/account/edit.html:148 pannel/templates/account/list.html:98
+msgid "Next"
+msgstr "بعدی"
+
+#: pannel/templates/account/edit.html:151
+#: pannel/templates/account/list.html:101
+msgid "Last"
+msgstr "آخرین"
+
+#: pannel/templates/account/list.html:7
+#, fuzzy
+#| msgid "Login Page"
+msgid "List Page"
+msgstr "صفحه ورود"
+
+#: pannel/templates/account/list.html:35
+msgid "List of the active accounts"
+msgstr "لیست حسابهای فعال"
+
+#: pannel/templates/account/main.html:6
+#, fuzzy
+#| msgid "Login Page"
+msgid "Main Page"
+msgstr "صفحه ورود"
+
+#: pannel/templates/account/main.html:48
+msgid "Users whose accounts expire in 15 days"
+msgstr "کاربرانی که اکانت آنها در 15 روز آینده منقضی می شود "
+
+#: pannel/templates/account/main.html:52
+msgid "Blocked IPs of attackers"
+msgstr "ای پی های بلاک شده حمله کننده ها"
+
+#: pannel/templates/account/navbar.html:30
+msgid "Accounts Manage Page"
+msgstr "صفحه مدیریت حساب ها"
+
+#: pannel/templates/account/navbar.html:40
+msgid "Main"
+msgstr "صفحه اصلی"
+
+#: pannel/templates/account/navbar.html:44
+msgid "list"
+msgstr "فهرست"
+
+#: pannel/templates/account/navbar.html:56
+msgid "Services"
+msgstr "سرویس ها"
+
+#: pannel/templates/account/navbar.html:76 pannel/templates/navbar.html:44
+msgid "Logout"
+msgstr "خروج"
+
+#: pannel/templates/home.html:44
+msgid "Enter Your Username Here"
+msgstr "نام کاربری خود را وارد کنید "
+
+#: pannel/templates/home.html:46
+msgid "Enter a username to view the expiration date of your account"
+msgstr "برای مشاهده تاریخ انقضای اکانت خود نام کاربری  را وارد نمایید"
+
+#: pannel/templates/home.html:50
+msgid "Get Result"
+msgstr "دریافت نتیجه"
+
+#: pannel/templates/login.html:6 pannel/templates/login.html:41
+msgid "Login Page"
+msgstr "صفحه ورود"
+
+#: pannel/templates/login.html:64
+msgid "Remember Me"
+msgstr "من را به یاد بیاور"
+
+#: pannel/templates/login.html:91 pannel/templates/navbar.html:47
+msgid "Login"
+msgstr "ورود"
+
+#: pannel/templates/navbar.html:35
+msgid "Wellcome to our Web Site"
+msgstr "به وب سایت ما خوش آمدید"
+
+#: pannel/templates/navbar.html:39
+msgid "Home"
+msgstr "خانه"
+
+#~ msgid "days"
+#~ msgstr "روز آینده منقضی می شود"
+
+#~ msgid "User"
+#~ msgstr "کاربر"
+
+#~ msgid "Users"
+#~ msgstr "کاربرها"
+
+#~ msgid "Invalid Username"
+#~ msgstr "نام کاربری نادرست است"
+
+#, fuzzy
+#~| msgid "Username"
+#~ msgid "Username "
+#~ msgstr "نام کاربری"
