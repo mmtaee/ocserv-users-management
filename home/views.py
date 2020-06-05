@@ -2,10 +2,14 @@ from django.shortcuts import render, get_object_or_404
 from django.views import generic, View
 from django.utils.decorators import method_decorator
 from django.contrib.auth import login, authenticate, logout
+from django.http import JsonResponse, Http404
+from django.utils import translation
+
 
 
 from pannel.forms import *
 from pannel.decorators import *
+from pannel.task import get_user_expiry
 
 
 # TODO : home page template 
@@ -75,4 +79,30 @@ class LogoutView(generic.RedirectView):
 
 # Ajax
 class GetAccountExpiryDateAjaxView(View):
-    pass
+    template_name = "ajax_home.html"
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax:
+            name = (request.GET.get("name", None)).strip()
+            lang = (request.GET.get("lang", None)).strip()
+            if lang == "en" :
+                translation.activate('en')
+            _ip = request.META.get('REMOTE_ADDR')
+            user = get_user_expiry.delay(name, lang, _ip)
+            user = user.get()
+            if user :
+                context = {
+                    'name' : user['name'],
+                    'order' : user['order'],
+                    'expire' : user['expire'],
+                }
+                return render(request, self.template_name, context)
+            else :
+                user_ip, create = BlockIP.objects.get_or_create(ip=_ip)
+                user_ip.faild_try += 1
+                user_ip.save()
+                if user_ip.faild_try > 5 :
+                    user_ip.block = True
+                    user_ip.save()
+                
+        return JsonResponse({}, status=400)

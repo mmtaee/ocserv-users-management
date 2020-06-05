@@ -3,18 +3,12 @@ from django.views import generic, View
 from django.utils.decorators import method_decorator
 
 from django.utils.translation import ugettext as _
-from django.http import Http404 
+from django.http import Http404, JsonResponse
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.conf import settings
-from django.http import JsonResponse
 from django.utils import translation
-from django.core.paginator import Paginator
-from django.core.paginator import EmptyPage
-from django.core.paginator import PageNotAnInteger
 
-
-from jalali_date import date2jalali
 
 from .forms import AddAccountsForm
 from .decorators import *

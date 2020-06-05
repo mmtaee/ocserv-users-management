@@ -1,0 +1,45 @@
+{% load static i18n %}
+{% load jalali_tags %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">{% trans 'Name' %}</th>
+            <th scope="col">{% trans 'Order Date' %}</th>
+            <th scope="col">{% trans 'Order Expiry Date' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr id="table">
+            <td>{{ name | title }}</td>
+
+            {% get_current_language as LANGUAGE_CODE %}
+            {% if LANGUAGE_CODE == 'fa' %}
+            <td id="order">{{ order }}</td>
+            <td id="expire">{{ expire }}</td>
+            {% else %}
+            <td id="order">{{ order }}</td>
+            <td id="expire">{{ expire }}</td>
+            {% endif %}
+        </tr>
+    </tbody>
+</table>
+
+
+
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+
+<script src="{% static 'js/persianumber.js' %}"></script>
+<script>
+    var order = $("#order").html();
+    var order_persian = persianJs(order).arabicChar().englishNumber().arabicNumber().toString();
+    $("#order").html(order_persian);
+
+    var expire = $("#expire").html();
+    var expire_persian = persianJs(expire).arabicChar().englishNumber().arabicNumber().toString();
+    $("#expire").html(expire_persian);
+
+</script>
+
+{% endif %}

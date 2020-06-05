@@ -10,6 +10,7 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name="logout"),
 
     # Ajax
-    # path('home/', HomePageView.as_view(),),
+    path('ajax/account_result/', GetAccountExpiryDateAjaxView.as_view()),
+
 ]
 

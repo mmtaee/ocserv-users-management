@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load static i18n %}
 
 {% block head %}
 
@@ -41,8 +41,8 @@
 
     <div class="row">
 
-        <div class="col-lg-5" >
-            <div class="form-inline align-items-center">
+        <div class="col-lg-5">
+            <div class="form-inline">
                     <input type="text" class="form-control mb-2" id="name" placeholder="{% trans 'Enter Your Username Here' %}">
                     <button class="btn btn-primary mb-2" style="margin-left: 10px; margin-right: 10px;">{% trans 'Get Result' %}</button>
                     <small id="usernameHelp" class="form-text text-muted mb-2">
@@ -51,9 +51,9 @@
             </div>
         </div>
 
-        
-        <div class="col-lg-5" style="margin-left: 10rem;" id="result">
-            <h2>hererer</h2>
+
+        <div class="col-lg-7" id="result">
+            
         </div>
 
     </div>
@@ -61,24 +61,40 @@
 
 </div>
 
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'en' %}
+<script>
+    var lang = 'en';
+</script>
+{% else %}
+<script>
+    var lang = 'fa';
+</script>
+{% endif %}
 <script>
 
     $("button").click(function () {
-
-        var username = $("#name").val();
-        if (name){
+        var name = $("#name").val();
+        if (name) {
             $.ajax({
                 url: "/ajax/account_result/",
                 data: {
                     'name': name,
+                    'lang': lang,
                 },
                 success: function (data) {
-
+                    $("#result").html(data);
                 },
-            }); //end ajax
-        } //endif 
-       
-    });
+                error: function (data) {
+                    location.reload();
+                },
+            });
+
+        } else {
+            $("#result").html("")
+        }
+    })
+
 
 </script>
 
