@@ -12,7 +12,8 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
-    path('', include('pannel.urls')),
+    path('pannel/', include('pannel.urls')),
+    path('', include('home.urls')),
 )
 
 if settings.DEBUG:

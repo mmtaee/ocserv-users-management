@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block head %}
+
+{% endblock %}
+
+
+
+{% block css %}
+
+    .container{
+        margin-top:100px;
+    }
+
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == 'fa' %}
+    
+    .container{
+        margin-right: 100px;
+
+    }
+    
+    {% else %}
+    
+    .container{
+        margin-left: 100px;
+    }
+    
+    {% endif %}
+    
+{% endblock %}
+
+
+
+{% block content %}
+
+{% include 'navbar.html' %}
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-lg-5" >
+            <div class="form-inline align-items-center">
+                    <input type="text" class="form-control mb-2" id="name" placeholder="{% trans 'Enter Your Username Here' %}">
+                    <button class="btn btn-primary mb-2" style="margin-left: 10px; margin-right: 10px;">{% trans 'Get Result' %}</button>
+                    <small id="usernameHelp" class="form-text text-muted mb-2">
+                        {% trans 'Enter a username to view the expiration date of your account' %}
+                    </small>
+            </div>
+        </div>
+
+        
+        <div class="col-lg-5" style="margin-left: 10rem;" id="result">
+            <h2>hererer</h2>
+        </div>
+
+    </div>
+
+
+</div>
+
+<script>
+
+    $("button").click(function () {
+
+        var username = $("#name").val();
+        if (name){
+            $.ajax({
+                url: "/ajax/account_result/",
+                data: {
+                    'name': name,
+                },
+                success: function (data) {
+
+                },
+            }); //end ajax
+        } //endif 
+       
+    });
+
+</script>
+
+
+{% endblock %}

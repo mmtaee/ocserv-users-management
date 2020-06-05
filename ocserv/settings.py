@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'jalali_date',
     'pannel.apps.PannelConfig',
+    'home.apps.HomeConfig',
     'django_celery_results',
 ]
 

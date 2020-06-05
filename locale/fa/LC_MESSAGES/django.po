@@ -71,10 +71,8 @@ msgid "User Account"
 msgstr ""
 
 #: pannel/templates/account/add.html:6
-#, fuzzy
-#| msgid "Page"
 msgid "Add Page"
-msgstr "صفحه"
+msgstr "صفحه افزودن اکانت"
 
 #: pannel/templates/account/add.html:68 pannel/templates/account/edit.html:56
 #: pannel/templates/account/list.html:42 pannel/templates/account/main.html:52
@@ -264,7 +262,7 @@ msgstr "شروع مجدد سرویس Ocserv"
 #~ msgid "Invalid Username"
 #~ msgstr "نام کاربری نادرست است"
 
-#, fuzzy
+
 #~| msgid "Username"
 #~ msgid "Username "
 #~ msgstr "نام کاربری"

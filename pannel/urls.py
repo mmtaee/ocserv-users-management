@@ -5,10 +5,6 @@ app_name = "pannel"
 
 
 urlpatterns = [
-    path('', HomePageView.as_view(), name="home"),
-    path('home/', HomePageView.as_view(),),
-    path('login/', LoginPageView.as_view(), name="login"),
-    path('logout/', LogoutView.as_view(), name="logout"),
 
     path('main/', MainPageView.as_view(), name="main"),
     path('add/', AddAccountView.as_view(), name="add"),
@@ -22,7 +18,7 @@ urlpatterns = [
     # Ajax
     path('ajax/get_accounts/', GetAccountsAjaxView.as_view()),
     path('ajax/get_editform/', GetEditFormAjaxView.as_view()),
+    path('ajax/account_result/', GetEditFormAjaxView.as_view()),
 
-
-
+    
 ]
