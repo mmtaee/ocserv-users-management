@@ -71,3 +71,8 @@ class LogoutView(generic.RedirectView):
         logout(request)
         return super().get(request, *args, **kwargs)
 
+
+
+# Ajax
+class GetAccountExpiryDateAjaxView(View):
+    pass

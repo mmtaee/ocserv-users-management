@@ -8,5 +8,8 @@ urlpatterns = [
     path('home/', HomePageView.as_view(),),
     path('login/', LoginPageView.as_view(), name="login"),
     path('logout/', LogoutView.as_view(), name="logout"),
+
+    # Ajax
+    # path('home/', HomePageView.as_view(),),
 ]
 

@@ -195,7 +195,7 @@
         $("#user").autocomplete({
             source: function (request, response) {
                 $.ajax({
-                    url: "/ajax/get_accounts/",
+                    url: "/pannel/ajax/get_accounts/",
                     success: function (data) {
                         var query = data.results;
                         var query = query.split(",");
@@ -211,7 +211,7 @@
         var name = $("#user").val();
         if (name){
             $.ajax({
-                url: "/ajax/get_editform/",
+                url: "/pannel/ajax/get_editform/",
                 data: {
                     'name': name,
                     'lang': lang,
