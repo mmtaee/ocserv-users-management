@@ -9,7 +9,6 @@ from django.contrib import messages
 from django.conf import settings
 from django.utils import translation
 
-
 from .forms import AddAccountsForm
 from .decorators import *
 from .models import *
@@ -199,7 +198,6 @@ class ServiceView(generic.TemplateView):
         return redirect("pannel:service_view")
         
     
-
 # Ajax
 
 class GetAccountsAjaxView(View):

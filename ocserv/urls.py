@@ -4,6 +4,8 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf import settings
 from django.conf.urls.static import static
 
+from decorator_include import decorator_include
+from pannel.decorators import *
 
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')), 
@@ -11,9 +13,11 @@ urlpatterns = [
 
 
 urlpatterns += i18n_patterns(
-    path('admin/', admin.site.urls),
-    path('pannel/', include('pannel.urls')),
-    path('', include('home.urls')),
+    # TODO : change url in deployment
+    path('secret/', admin.site.urls),
+    path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
+    path('pannel/', decorator_include([user_access, superuser_required], 'pannel.urls')),
+    path('', decorator_include(user_access, 'home.urls')),
 )
 
 if settings.DEBUG:

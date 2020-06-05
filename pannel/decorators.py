@@ -1,15 +1,17 @@
 from django.shortcuts import redirect
+from django.http import Http404
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _
 
 # from functools import wraps
-
 import requests
 
+from .models import BlockIP
 
-def staffuser_required(view_func):
+
+def superuser_required(view_func):
 
     def wrap(request, *args, **kwargs):
 
@@ -20,6 +22,18 @@ def staffuser_required(view_func):
 
     return wrap
 
+
+def user_access(view_func):
+
+    def wrap(request, *args, **kwargs):
+        ip = request.META.get('REMOTE_ADDR')
+        user_ip, create = BlockIP.objects.get_or_create(ip=ip)
+        if user_ip.block == True :
+            raise Http404(_("Your access to this website is blocked"))
+
+        return view_func(request, *args, **kwargs)
+
+    return wrap
 
 
 def check_recaptcha (view_func):

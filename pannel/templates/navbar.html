@@ -58,7 +58,9 @@
         </ul>
 
     </div>
-
+        <a class="nav-link">{{ user.username | title }}</a>
+        <a class="nav-link disabled" href="{% url 'home:logout' %}">{% trans 'Logout'%}</a>
+        
         {% get_current_language as LANGUAGE_CODE %}
         {% if LANGUAGE_CODE == 'fa' %}
         {% change_current_url_lang request.path 'en' as url%}
@@ -73,6 +75,6 @@
                 style="background: transparent; background-color: #36a1ee; border-radius: 15%;">
         </a>
         {% endif %}
-        <a class="nav-link disabled" href="{% url 'home:logout' %}">{% trans 'Logout'%}</a>
+
 
 </nav>

@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'pannel.apps.PannelConfig',
     'home.apps.HomeConfig',
     'django_celery_results',
+    'admin_honeypot',
 ]
 
 MIDDLEWARE = [

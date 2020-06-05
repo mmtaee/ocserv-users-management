@@ -41,6 +41,7 @@
         </ul>
     </div>
     {% if user.is_authenticated %}
+        <a class="nav-link">{{ user.username | title }}</a>
         <a class="nav-link" href="{% url 'home:logout' %}">{% trans 'Logout' %}</a>
 
     {% else %}
@@ -60,4 +61,3 @@
     {% endif %}
 </nav>
 
-<br><br><br>

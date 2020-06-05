@@ -5,15 +5,10 @@ from django.contrib.auth import login, authenticate, logout
 from django.http import JsonResponse, Http404
 from django.utils import translation
 
-
-
 from pannel.forms import *
 from pannel.decorators import *
 from pannel.task import get_user_expiry
 
-
-# TODO : home page template 
-# TODO : decorator for blocked ips
 class HomePageView(generic.TemplateView):
     template_name = "home.html"
 
@@ -69,12 +64,15 @@ class LoginPageView(View):
 
 
 class LogoutView(generic.RedirectView):
-    url = "/"
 
     def get(self, request, *args, **kwargs):
         logout(request)
         return super().get(request, *args, **kwargs)
 
+    def get_redirect_url(self, *args, **kwargs):
+        lang = self.request.LANGUAGE_CODE
+        self.url = f"/{lang}/"
+        return super().get_redirect_url(*args, **kwargs)
 
 
 # Ajax
