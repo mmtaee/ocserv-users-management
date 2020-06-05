@@ -50,7 +50,7 @@ class AddAccountsForm(forms.ModelForm):
     def clean_name(self):
         clean_data = super().clean()
         name = self.cleaned_data['name']
-        if Users.objects.filter(name=name):
+        if Users.objects.filter(name__iexact=name):
             raise forms.ValidationError(_("Name is Already Exist"))
         return name
 

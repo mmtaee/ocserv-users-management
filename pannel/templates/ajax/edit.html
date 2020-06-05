@@ -1,0 +1,115 @@
+{% load static i18n %}
+{% load jalali_tags %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">{% trans 'Name' %}</th>
+            <th scope="col">{% trans 'Family' %}</th>
+            <th scope="col">{% trans 'Order Date' %}</th>
+            <th scope="col">{% trans 'Order Expiry Date' %}</th>
+            <th scope="col" style="text-align: center;">{% trans 'Edit' %}</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr id="table">
+            <td>{{ user_edit.name | title }}</td>
+            <td id='family-edit'>{{ user_edit.family | title }}</td>
+            {% get_current_language as LANGUAGE_CODE %}
+            {% if LANGUAGE_CODE == 'fa' %}
+            <td id="order-edit">{{ user_edit.order_date | to_jalali:'%Y-%m-%d' }}</td>
+            <td id="expire-edit">{{ user_edit.order_expire | to_jalali:'%Y-%m-%d' }}</td>
+            {% else %}
+            <td id="order-edit">{{ user_edit.order_date | date:"Y-m-d" }}</td>
+            <td id="expire-edit">{{ user_edit.order_expire | date:"Y-m-d" }}</td>
+            {% endif %}
+
+            <td style="text-align: center;">
+                {% if user_edit.lock %}
+                <a class="btn btn-sm btn-dark"
+                    href="{% url 'pannel:edit_account' name='unlock' id=user_edit.id %}">{% trans 'Unlock' %}</a>
+                {% else %}
+
+                <button class="btn btn-sm btn-warning" type="button" data-toggle="modal"
+                    data-target="#myModal-edit" data-backdrop="static"
+                    data-keyboard="false">{% trans 'Edit' %}</button>
+                <a class="btn btn-sm btn-info"
+                    href="{% url 'pannel:edit_account' name='lock' id=user_edit.id %}">{% trans 'Lock' %}</a>
+                <a class="btn btn-sm btn-danger" href="{% url 'pannel:edit_account' name='delete' id=user_edit.id %}"
+                    onclick="return confirm('Delete {{ user_edit.name|title }} ?');">{% trans 'Delete' %}</a>
+
+                {% endif %}
+            </td>
+        </tr>
+
+    </tbody>
+</table>
+
+<div class="modal fade" id="myModal-edit" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header bg-primary" dir="RTL">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    {{ user_edit.name | title }}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'pannel:edit_account' name='None' id=user_edit.id %}">
+                    {% csrf_token %}
+
+                    <label for="add-month">{% trans 'Add Mounth' %}</label><br>
+                    <input name="month" type="number" style="width: 20%;" min="0"><br>
+
+                    <br>
+
+                    <label for="password">{% trans 'Change Password' %}</label><br>
+                    <input name="password" type="password"><br>
+
+                    <br>
+                    <input type="submit" class="btn btn-primary" value="{% trans 'Change' %}">
+
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br><br>
+
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+
+<script src="{% static 'js/persianumber.js' %}"></script>
+<script>
+
+    var order = $("#order-edit").html();
+    var order_persian = persianJs(order).arabicChar().englishNumber().arabicNumber().toString();
+    $("#order-edit").html(order_persian);
+
+    var expire = $("#expire-edit").html();
+    var expire_persian = persianJs(expire).arabicChar().englishNumber().arabicNumber().toString();
+    $("#expire-edit").html(expire_persian);
+
+    var lock = $("#lock-edit").html();
+
+    if (lock === "False") {
+        $("#lock-edit").html("فعال");
+        $("#lock-edit").css('color', 'green');
+    } else {
+        $("#lock-edit").html("مسدود");
+        $("#lock-edit").css('color', 'red');
+    }
+
+    var family = $("#family-edit").html();
+    if (family == "None") {
+        $("#family-edit").html("-");
+    }
+
+</script>
+
+{% endif %}

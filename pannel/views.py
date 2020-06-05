@@ -7,19 +7,27 @@ from django.http import Http404
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.conf import settings
+from django.http import JsonResponse
+from django.utils import translation
+from django.core.paginator import Paginator
+from django.core.paginator import EmptyPage
+from django.core.paginator import PageNotAnInteger
+
 
 from jalali_date import date2jalali
 
 from .forms import UserLoginForm, AddAccountsForm
 from .decorators import *
 from .models import *
+from .task import status_ocserv, restart_ocserv
 
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import *
 
 
-# TODO : main page template
+# TODO : home page template 
+# TODO : decorator for blocked ips
 class HomePageView(generic.TemplateView):
     template_name = "home.html"
 
@@ -82,8 +90,10 @@ class LogoutView(generic.RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class MainPageView(generic.TemplateView):
+class MainPageView(generic.ListView):
     template_name = 'account/main.html'
+    paginate_by = 10
+    queryset = Users.objects.filter(order_expire__gte=datetime.today(), order_expire__lte=datetime.today()+timedelta(days=15))
 
 
 class AddAccountView(View):
@@ -177,6 +187,7 @@ class EditAccountView(generic.RedirectView):
         user = get_object_or_404(Users, id=id)
         password = request.POST.get('password', None)
         month = request.POST.get('month', None)
+        next_url = request.META.get('HTTP_REFERER', None)
 
         if password :
             new_password = make_password(password)
@@ -193,6 +204,9 @@ class EditAccountView(generic.RedirectView):
             new_expiry = old_expiry + relativedelta(months=int(month))
             user.order_expire = new_expiry
             user.save()
+
+        if next_url :
+            return redirect(next_url)
         
         return super().post(request, *args, **kwargs)
 
@@ -202,8 +216,93 @@ class EditAccountView(generic.RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
      
-class ServiceView(generic.RedirectView):
+class ServiceView(generic.TemplateView):
+    template_name = "service.html"
+
 
     def dispatch(self, request, *args, **kwargs):
-        pass
+        name = self.kwargs.get('name', None)
+
+        if name is None :
+            return super().dispatch(request, *args, **kwargs)
+
+        if name == "status" :
+            service_status = status_ocserv.delay()
+            result = service_status.get()
+
+            if 'status' not in result:
+                messages.error(request, f"Service : {result['service']} , Disabled")
+
+            elif "running" in result['status']:
+                messages.success(request, f"Service : {result['service']}")
+                messages.success(request, f"Status : {result['status']}")
+                messages.success(request, f"Since : {result['since']}")
+                messages.success(request, f"Uptime : {result['uptime']}")
+
+            else :
+                messages.warning(request, f"Service : {result['service']}")
+                messages.warning(request, f"Status : {result['status']}")
+                messages.warning(request, f"Since : {result['since']}")
+                messages.warning(request, f"Downtime : {result['uptime']}")
+        
+        if name == "restart":
+            service_restart = restart_ocserv.delay()
+            result = service_restart.get()
+            if 'status' not in result:
+                messages.warning(request, f"Restart : {result['restart']}")
+                messages.error(request, f"Service : {result['service']} , Disabled")
+
+            elif "running" in result['status']:
+                messages.success(request, f"Restart : {result['restart']}")
+                messages.success(request, f"Service : {result['service']}")
+                messages.success(request, f"Status : {result['status']}")
+                messages.success(request, f"Since : {result['since']}")
+                messages.success(request, f"Uptime : {result['uptime']}")
+
+            else :
+                messages.success(request, f"Restart : {result['restart']}")
+                messages.warning(request, f"Service : {result['service']}")
+                messages.warning(request, f"Status : {result['status']}")
+                messages.warning(request, f"Since : {result['since']}")
+                messages.warning(request, f"Downtime : {result['uptime']}")
+
+        return redirect("pannel:service_view")
+        
     
+
+# Ajax
+
+class GetAccountsAjaxView(View):
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax:
+            queryset = Users.objects.all().order_by("-name")
+            query = None
+            for item in queryset :
+                if query == None :
+                    query = ""
+                    query += str(item.name)
+                else :
+                    query = query +  "," + str(item.name)
+            return JsonResponse(data={'results': query.rstrip()}, status=200)
+        return JsonResponse({}, status=400)
+
+
+class GetEditFormAjaxView(View):
+    template_name = "ajax/edit.html"
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax:
+            name = (request.GET.get("name", None)).strip()
+            lang = (request.GET.get("lang", None)).strip()
+
+            user = Users.objects.filter(name__iexact=name).first()
+            
+
+            if lang == "en" :
+                translation.activate('en')
+            context = {
+                'user_edit' : user,
+            }
+            return render(request, self.template_name, context)
+        return JsonResponse({}, status=400)

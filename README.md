@@ -1,4 +1,4 @@
-A Django 3.0 project 
+A Django 3.0 project  (Not Completed)
     - A pannel for managing user accounts in ocserv vpn 
         and designed with bootstrap 4
 
@@ -8,7 +8,7 @@ A Django 3.0 project
 
     - Lock and unlock user accounts
     
-    - restart/disable/enable ocserv 
+    - Restart/status ocserv service with celery
 
 
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-04 19:45+0430\n"
+"POT-Creation-Date: 2020-06-05 13:20+0430\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: ocserv/settings.py:106
+#: ocserv/settings.py:107
 msgid "Persian"
 msgstr ""
 
-#: ocserv/settings.py:107
+#: ocserv/settings.py:108
 msgid "English"
 msgstr ""
 
@@ -77,7 +77,7 @@ msgid "Add Page"
 msgstr "صفحه"
 
 #: pannel/templates/account/add.html:68 pannel/templates/account/edit.html:56
-#: pannel/templates/account/list.html:42
+#: pannel/templates/account/list.html:42 pannel/templates/account/main.html:52
 msgid "Name"
 msgstr "نام"
 
@@ -96,7 +96,7 @@ msgid "Order Date"
 msgstr "تاریخ ثبت سفارش"
 
 #: pannel/templates/account/add.html:107 pannel/templates/account/edit.html:59
-#: pannel/templates/account/list.html:46
+#: pannel/templates/account/list.html:46 pannel/templates/account/main.html:53
 msgid "Order Expiry Date"
 msgstr "تاریخ انقضای سفارش"
 
@@ -112,15 +112,17 @@ msgid "Edit Page"
 msgstr "صفحه ورود"
 
 #: pannel/templates/account/edit.html:55 pannel/templates/account/list.html:41
+#: pannel/templates/account/main.html:51
 msgid "#"
 msgstr ""
 
 #: pannel/templates/account/edit.html:60 pannel/templates/account/edit.html:83
+#: pannel/templates/account/main.html:54 pannel/templates/account/main.html:80
 #: pannel/templates/account/navbar.html:52
 msgid "Edit"
 msgstr "ویرایش"
 
-#: pannel/templates/account/edit.html:80
+#: pannel/templates/account/edit.html:80 pannel/templates/account/main.html:75
 msgid "Unlock"
 msgstr "باز کردن قفل"
 
@@ -128,34 +130,38 @@ msgstr "باز کردن قفل"
 msgid "Lock"
 msgstr "قفل کردن"
 
-#: pannel/templates/account/edit.html:104
+#: pannel/templates/account/edit.html:104 pannel/templates/account/main.html:99
 msgid "Add Mounth"
 msgstr "اضافه کردن ماه"
 
 #: pannel/templates/account/edit.html:109
-#, fuzzy
-#| msgid "password"
+#: pannel/templates/account/main.html:104
 msgid "Change Password"
-msgstr "رمز ورود"
+msgstr " تغییر رمز ورود"
 
 #: pannel/templates/account/edit.html:113
+#: pannel/templates/account/main.html:108
 msgid "Change"
 msgstr "تغییر"
 
 #: pannel/templates/account/edit.html:130 pannel/templates/account/list.html:80
+#: pannel/templates/account/main.html:125
 msgid "First"
 msgstr "اولین"
 
 #: pannel/templates/account/edit.html:134 pannel/templates/account/list.html:84
+#: pannel/templates/account/main.html:129
 msgid "Previous"
 msgstr "قبلی"
 
 #: pannel/templates/account/edit.html:148 pannel/templates/account/list.html:98
+#: pannel/templates/account/main.html:143
 msgid "Next"
 msgstr "بعدی"
 
 #: pannel/templates/account/edit.html:151
 #: pannel/templates/account/list.html:101
+#: pannel/templates/account/main.html:146
 msgid "Last"
 msgstr "آخرین"
 
@@ -169,19 +175,19 @@ msgstr "صفحه ورود"
 msgid "List of the active accounts"
 msgstr "لیست حسابهای فعال"
 
-#: pannel/templates/account/main.html:6
+#: pannel/templates/account/main.html:7 pannel/templates/service.html:6
 #, fuzzy
 #| msgid "Login Page"
 msgid "Main Page"
 msgstr "صفحه ورود"
 
-#: pannel/templates/account/main.html:48
+#: pannel/templates/account/main.html:46
 msgid "Users whose accounts expire in 15 days"
 msgstr "کاربرانی که اکانت آنها در 15 روز آینده منقضی می شود "
 
-#: pannel/templates/account/main.html:52
-msgid "Blocked IPs of attackers"
-msgstr "ای پی های بلاک شده حمله کننده ها"
+#: pannel/templates/account/main.html:155
+msgid "No account available"
+msgstr "حساب کاربری موجود نمی باشد"
 
 #: pannel/templates/account/navbar.html:30
 msgid "Accounts Manage Page"
@@ -234,6 +240,17 @@ msgstr "به وب سایت ما خوش آمدید"
 #: pannel/templates/navbar.html:39
 msgid "Home"
 msgstr "خانه"
+
+#: pannel/templates/service.html:37
+msgid "Status Ocserv Service"
+msgstr "وضعیت سرویس Ocserv"
+
+#: pannel/templates/service.html:38
+msgid "Restart Ocserv Service"
+msgstr "شروع مجدد سرویس Ocserv"
+
+#~ msgid "Blocked IPs of attackers"
+#~ msgstr "ای پی های بلاک شده حمله کننده ها"
 
 #~ msgid "days"
 #~ msgstr "روز آینده منقضی می شود"

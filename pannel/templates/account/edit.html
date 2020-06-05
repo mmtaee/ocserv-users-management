@@ -4,10 +4,19 @@
 
 
 {% block title %}
-{% trans 'Edit Page' %}
+    {% trans 'Edit Page' %}
 {% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
+<style>
+    .ui-autocomplete-loading {
+        background: white url("https://jqueryui.com/images/ui-anim_basic_16x16.gif") right center no-repeat;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 {% endblock %}
 
@@ -47,7 +56,18 @@
 
 <div class="container">
 
-<br>
+
+    <div class="ui-widget form-inline" style="width: 40%;">
+        <input id="user" class="form-control autocomplete" placeholder="{% trans 'Enter a Name' %}">
+        <button type="button" class="btn btn-dark" style="margin-right: 10px;margin-left: 10px;">{% trans 'Edit' %}</button>
+    </div>
+
+    <br>
+
+    <div id="extra_table">
+
+    </div>
+
 
     <table class="table table-striped">
         <thead>
@@ -82,7 +102,7 @@
 
                     <button class="btn btn-sm btn-warning" type="button" data-toggle="modal" data-target="#myModal-{{ user.id }}" data-backdrop="static" data-keyboard="false">{% trans 'Edit' %}</button>
                     <a class="btn btn-sm btn-info" href="{% url 'pannel:edit_account' name='lock' id=user.id %}">{% trans 'Lock' %}</a>
-                    <a class="btn btn-sm btn-danger" href="{% url 'pannel:edit_account' name='delete' id=user.id %}" onclick="return confirm('Delete {{ user.name|title }} ?');">Delete</a>
+                    <a class="btn btn-sm btn-danger" href="{% url 'pannel:edit_account' name='delete' id=user.id %}" onclick="return confirm('Delete {{ user.name|title }} ?');">{% trans 'Delete' %}</a>
                     
                     {% endif %}
                 </td>
@@ -122,7 +142,7 @@
             {% endfor %}
         </tbody>
     </table>
-
+{% if page_obj.has_next or page_obj.has_previous %}
     <nav aria-label="Page navigation example" dir="LTR">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
@@ -154,11 +174,59 @@
 
         </ul>
     </nav>
-
+{% endif %}
 
 </div>
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'en' %}
+<script>
+    var lang = 'en';
+</script>
+{% else %}
+<script>
+    var lang = 'fa';
+</script>
+{% endif %}
+<!-- Autocomplete search input -->
+<script>
+    $(function () {
+
+        $("#user").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ajax/get_accounts/",
+                    success: function (data) {
+                        var query = data.results;
+                        var query = query.split(",");
+                        response(query);
+                    }
+                });
+            },
+            minLength: 1,
+        });
+    });
+
+    $("button").click(function() {
+        var name = $("#user").val();
+        if (name){
+            $.ajax({
+                url: "/ajax/get_editform/",
+                data: {
+                    'name': name,
+                    'lang': lang,
+                },
+                success: function (data) {
+                    $("#extra_table").html(data);
+                }
+            });
+
+        }else{
+            $("#extra_table").html("")
+        }
+    })
 
 
+</script>
 
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'fa' %}
@@ -197,10 +265,7 @@
         if (family == "None") {
             $(this).children("#family").html("-");
         }
-
-
     })
-
 
     $(".page-link").each(function () {
         var page = $(this).html();
@@ -208,14 +273,9 @@
         $(this).html(page_persian);
     })
 
-
-
-
 </script>
 
-
 {% endif %}
-
 
 
 {% endblock %}
