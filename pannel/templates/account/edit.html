@@ -7,42 +7,34 @@
     {% trans 'Edit Page' %}
 {% endblock %}
 
+
 {% block head %}
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
-<style>
-    .ui-autocomplete-loading {
-        background: white url("https://jqueryui.com/images/ui-anim_basic_16x16.gif") right center no-repeat;
-    }
-</style>
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 {% endblock %}
 
 
 {% block css %}
 
-.container{
-    margin-top : 70px;
-}
-
+    .container{
+        margin-top : 70px;
+    }
 
 
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'fa' %}
 
-.container{
-    margin-right: 100px;
-}
+    .container{
+        margin-right: 100px;
+    }
 
 {% else %}
 
-.container{
-    margin-left: 100px;
-}
+    .container{
+        margin-left: 100px;
+    }
 
 {% endif %}
+
 {% endblock %}
 
 
@@ -55,7 +47,6 @@
 </script>
 
 <div class="container">
-
 
     <div class="ui-widget form-inline" style="width: 40%;">
         <input id="user" class="form-control autocomplete" placeholder="{% trans 'Enter a Name' %}">
@@ -234,8 +225,6 @@
 
 <script src="{% static 'js/persianumber.js' %}"></script>
 <script>
-
-
 
     $("tbody #table").each(function () {
 
