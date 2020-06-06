@@ -8,11 +8,13 @@ A Django project
     - Celery for send user acount expiry request in home page 
         and ocserv services 
 
-    - Create/edit/delete accounts
+    - Create/edit/delete accounts and ocservc command 
+        create >> command : f'/usr/bin/echo -e "{pass}\n{pass}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {name}'
+        >> os.system(command)
 
     - Check the expiration date of user accounts
 
-    - Lock and unlock user accounts
+    - Lock and unlock user accounts and ocservc ommand
     
     - Restart/status ocserv service with celery
 
