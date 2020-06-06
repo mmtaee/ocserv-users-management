@@ -28,8 +28,9 @@
 </script>
 
 <div class="container">
-    <h4>{% trans 'List of the active accounts' %} :</h4>
+    <h5>{% trans 'List of the active accounts' %} :</h5>
     <br>
+    {% if object_list %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -88,6 +89,9 @@
             {% endif %}
         </ul>
     </nav>
+    {% endif %}
+    {% else %}
+    <h6 style="color:blue">{% trans 'No account available' %}</h6>
     {% endif %}
 </div>
 

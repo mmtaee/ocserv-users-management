@@ -20,7 +20,7 @@ from dateutil.relativedelta import *
 class MainPageView(generic.ListView):
     template_name = 'account/main.html'
     paginate_by = 10
-    queryset = Users.objects.filter(order_expire__gte=datetime.today(), order_expire__lte=datetime.today()+timedelta(days=15)).order_by("-name")
+    queryset = Users.objects.filter(order_expire__gte=datetime.today(), order_expire__lte=datetime.today()+timedelta(days=15), lock=False).order_by("-name")
 
 
 class AddAccountView(View):
@@ -135,7 +135,7 @@ class EditAccountView(generic.RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         lang = self.request.LANGUAGE_CODE
-        self.url = f"/{lang}/edit/"
+        self.url = f"/{lang}/pannel/edit/"
         return super().get_redirect_url(*args, **kwargs)
 
      

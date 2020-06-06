@@ -36,6 +36,11 @@
             <li class="nav-item active">
                 <a class="nav-link" href="{% url 'home:home'%}"> {% trans 'Home' %} </a>
             </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'pannel:main'%}"> {% trans 'Main' %} </a>
+            </li>
+            {% endif %}
         </ul>
     </div>
     {% if user.is_authenticated %}
@@ -44,6 +49,7 @@
     {% else %}
         <a class="nav-link" href="{% url 'home:login' %}">{% trans 'Login' %}</a>
     {% endif %}
+    <span style="visibility: hidden;">--</span>
     {% get_current_language as LANGUAGE_CODE %}
         {% if LANGUAGE_CODE == 'fa' %}
         <a href="/en/">

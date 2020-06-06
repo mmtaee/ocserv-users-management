@@ -2,7 +2,7 @@ from django.shortcuts import redirect
 from django.http import Http404
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _
 
 # from functools import wraps
@@ -16,7 +16,8 @@ def superuser_required(view_func):
     def wrap(request, *args, **kwargs):
 
         if not request.user.is_superuser :
-            raise PermissionDenied()
+            # raise PermissionDenied
+            return redirect("home:home")
         
         return view_func(request, *args, **kwargs)
 
