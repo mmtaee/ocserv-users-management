@@ -2,7 +2,6 @@ from django.utils.translation import gettext_lazy as _
 import os
 from decouple import config, Csv
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = config('SECRET_KEY')
@@ -10,7 +9,6 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -57,30 +55,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ocserv.wsgi.application'
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': '3306',
+        'OPTIONS': {
+             'charset': 'utf8mb4',
+             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'", 
+    },
+    },
 }
-
-# TODO : uncomment in  deployment
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST'),
-#         'PORT': '3306',
-#         'OPTIONS': {
-#              'charset': 'utf8mb4',
-#              'init_command': "SET sql_mode='STRICT_TRANS_TABLES'", 
-#     },
-#     },
-# }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -120,23 +116,23 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
+if DEBUG:
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
 
-# TODO : uncomment in  deployment
-
-# STATIC_ROOT = os.path.join(BASE_DIR, "static/")
-# STATICFILES_FINDERS = (
-#     'django.contrib.staticfiles.finders.FileSystemFinder',
-#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-# )
-
+else :
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+    STATICFILES_FINDERS = (
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    )
 
 GOOGLE_RECAPTCHA_SECRET_KEY = config('RECAPTCHA_SECRET_KEY')
 
 GOOGLE_RECAPTCHA_SITE_KEY = config('RECAPTCHA_SITE_KEY')
-
 
 # defaults
 JALALI_DATE_DEFAULTS = {
@@ -162,7 +158,6 @@ JALALI_DATE_DEFAULTS = {
         }
     },
 }
-
 
 # django cach
 CACHES = {

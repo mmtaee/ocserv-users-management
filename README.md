@@ -9,8 +9,8 @@ A Django project
         and ocserv services 
 
     - Create/edit/delete accounts and ocservc command 
-        create >> command : f'/usr/bin/echo -e "{pass}\n{pass}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {name}'
-        >> os.system(command)
+        create command :>> f'/usr/bin/echo -e "{pass}\n{pass}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {name}'
+        execute :>> os.system(command)
 
     - Check the expiration date of user accounts
 
