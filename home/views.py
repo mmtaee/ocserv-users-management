@@ -74,7 +74,6 @@ class LogoutView(generic.RedirectView):
         self.url = f"/{lang}/"
         return super().get_redirect_url(*args, **kwargs)
 
-
 # Ajax
 class GetAccountExpiryDateAjaxView(View):
     template_name = "ajax_home.html"

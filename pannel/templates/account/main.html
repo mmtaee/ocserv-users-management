@@ -58,30 +58,24 @@
         {% for user in object_list %}
         <tr id="table">
             <th scope="row" id="row">{{ forloop.counter }}</th>
-
             <td>{{ user.name | title }}</td>
-
-
             {% get_current_language as LANGUAGE_CODE %}
             {% if LANGUAGE_CODE == 'fa' %}
             <td id="expire">{{ user.order_expire | to_jalali:'%Y-%m-%d' }}</td>
             {% else %}
             <td id="expire">{{ user.order_expire | date:"Y-m-d" }}</td>
             {% endif %}
-
             <td style="text-align: center;">
                 {% if user.lock %}
                 <a class="btn btn-sm btn-dark"
                     href="{% url 'pannel:edit_account' name='unlock' id=user.id %}">{% trans 'Unlock' %}</a>
                 {% else %}
-
                 <button class="btn btn-sm btn-warning" type="button" data-toggle="modal"
                     data-target="#myModal-{{ user.id }}" data-backdrop="static"
                     data-keyboard="false">{% trans 'Edit' %}</button>
                   {% endif %}
             </td>
         </tr>
-
         <div class="modal fade" id="myModal-{{ user.id }}" role="dialog">
             <div class="modal-dialog">
                 <!-- Modal content-->
@@ -95,25 +89,18 @@
                     <div class="modal-body">
                         <form method="POST" action="{% url 'pannel:edit_account' id=user.id name=None %}?next={{next}}">
                             {% csrf_token %}
-
                             <label for="add-month">{% trans 'Add Mounth' %}</label><br>
                             <input name="month" type="number" style="width: 20%;" min="0"><br>
-
                             <br>
-
                             <label for="password">{% trans 'Change Password' %}</label><br>
                             <input name="password" type="password"><br>
-
                             <br>
                             <input type="submit" class="btn btn-primary" value="{% trans 'Change' %}">
-
                         </form>
                     </div>
-
                 </div>
             </div>
         </div>
-
         {% endfor %}
     </tbody>
 </table>
@@ -124,12 +111,10 @@
         <li class="page-item">
             <a class="page-link" href="?page=1">&laquo; {% trans 'First' %}</a>
         </li>
-
         <li class="page-item">
             <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans 'Previous' %}</a>
         </li>
         {% endif %}
-
         {% for i in page_obj.paginator.page_range %}
         {% if page_obj.number == i %}
         <li class="page-item active"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
@@ -137,7 +122,6 @@
         <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
         {% endif %}
         {% endfor %}
-
         {% if page_obj.has_next %}
         <li class="page-item">
             <a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans 'Next' %}</a>
@@ -146,7 +130,6 @@
             <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{% trans 'Last' %} &raquo;</a>
         </li>
         {% endif %}
-
     </ul>
 </nav>
 {% endif %}
@@ -154,43 +137,29 @@
 {% else %}
     <h6 style="color:blue">{% trans 'No account available' %}</h6>
 {% endif %}
-        
-
-
 </div>
 
-    {% get_current_language as LANGUAGE_CODE %}
-    {% if LANGUAGE_CODE == 'fa' %}
-    <script src="{% static 'js/persianumber.js' %}"></script>
-
-    <script>
-        var num = $('#num').html();
-        var num_persian = persianJs(num).arabicChar().englishNumber().arabicNumber().toString(); 
-        $('#num').html(num_persian);
-
-
-        $("tbody #table").each(function () {
-
-            var hastag = $(this).children("#row").html();
-            var hastag_persian = persianJs(hastag).arabicChar().englishNumber().arabicNumber().toString();
-            $(this).children("#row").html(hastag_persian);
-
-
-            var expire = $(this).children("#expire").html();
-            var expire_persian = persianJs(expire).arabicChar().englishNumber().arabicNumber().toString();
-            $(this).children("#expire").html(expire_persian);
-
-        })
-
-
-        $(".page-link").each(function () {
-            var page = $(this).html();
-            var page_persian = persianJs(page).arabicChar().englishNumber().arabicNumber().toString();
-            $(this).html(page_persian);
-        })
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+<script src="{% static 'js/persianumber.js' %}"></script>
+<script>
+    var num = $('#num').html();
+    var num_persian = persianJs(num).arabicChar().englishNumber().arabicNumber().toString(); 
+    $('#num').html(num_persian);
+    $("tbody #table").each(function () {
+        var hastag = $(this).children("#row").html();
+        var hastag_persian = persianJs(hastag).arabicChar().englishNumber().arabicNumber().toString();
+        $(this).children("#row").html(hastag_persian);
+        var expire = $(this).children("#expire").html();
+        var expire_persian = persianJs(expire).arabicChar().englishNumber().arabicNumber().toString();
+        $(this).children("#expire").html(expire_persian);
+    })
+    $(".page-link").each(function () {
+        var page = $(this).html();
+        var page_persian = persianJs(page).arabicChar().englishNumber().arabicNumber().toString();
+        $(this).html(page_persian);
+    })
 </script>
-
-
 {% endif %}
 
 {% endblock %}

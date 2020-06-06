@@ -10,45 +10,34 @@
 
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'fa' %}
-
     <link rel="stylesheet" href="{% static 'admin/jquery.ui.datepicker.jalali/themes/base/jquery-ui.min.css' %}">
     <script src="{% static 'admin/js/django_jalali.min.js' %}"></script>
-
 {% else %}
-
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 <script>
     $(document).ready(function () {
         $('.datepicker').datepicker();
     });
 </script>
-
 {% endif %}
-
 
 {% endblock %}
 
 
 {% block css %}
-.container{
-margin-top : 70px;
-}
+    .container{
+        margin-top : 70px;
+    }
 
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'fa' %}
-
-.container{
-margin-right: 100px;
-}
-
+    .container{
+        margin-right: 100px;
+    }
 {% else %}
 
-.container{
-margin-left: 100px;
-}
-
+    .container{
+        margin-left: 100px;
+    }
 {% endif %}
 
 {% endblock %}
@@ -62,7 +51,6 @@ margin-left: 100px;
 </script>
 
 <div class="container">
-
     <form method="post">{% csrf_token %}
         <div class="form-group">
             <label class="form-check-label" for="name">{% trans 'Name' %} :</label>
@@ -78,31 +66,26 @@ margin-left: 100px;
                 {% endfor %}
             </span>
         </div>
-
         <div class="form-group">
             <label class="form-check-label" for="family">{% trans 'Family' %} :</label>
             <br>
             {{ form.family }} <br>
         </div>
-
         <div class="form-group">
             <label class="form-check-label" for="password">{% trans 'Password' %} :</label>
             <br>
             {{ form.password }} <br>
         </div>
-
         <div class="form-group">
             <label class="form-check-label" for="tell">{% trans 'Tell Number' %} :</label>
             <br>
             {{ form.tell_number }} <br>
         </div>
-
         <div class="form-group">
             <label class="form-check-label" for="order">{% trans 'Order Date' %} :</label>
             <br>
             {{ form.order_date }} <br>
         </div>
-
         <div class="form-group">
             <label class="form-check-label" for="expire">{% trans 'Order Expiry Date' %} :</label>
             <br>
@@ -129,6 +112,5 @@ margin-left: 100px;
     {% endfor %}
     {% endif %}
 </div>
-
 
 {% endblock %}

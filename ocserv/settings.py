@@ -106,8 +106,8 @@ LOCALE_PATHS = (
 )
 
 LANGUAGES = (
-  ('fa', _('Persian')),
   ('en', _('English')),
+  ('fa', _('Persian')),
 )
 
 TIME_ZONE = 'Asia/Tehran'

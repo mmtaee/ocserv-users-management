@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import generic, View
 from django.utils.decorators import method_decorator
-
 from django.utils.translation import ugettext as _
 from django.http import Http404, JsonResponse
 from django.contrib.auth.hashers import make_password
@@ -17,7 +16,6 @@ from .task import status_ocserv, restart_ocserv
 import os
 from datetime import datetime, timedelta
 from dateutil.relativedelta import *
-
 
 class MainPageView(generic.ListView):
     template_name = 'account/main.html'
@@ -47,21 +45,18 @@ class AddAccountView(View):
             new.user = request.user
             new.save()
 
-            # command = f'/usr/bin/echo -e "{password}\n{password}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {name}'
-            # os.system(command)
+            command = f'/usr/bin/echo -e "{password}\n{password}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {name}'
+            os.system(command)
 
             msg = f"{name} Added to Ocserv Successfully"
             messages.success(request, msg)
-
             context = {
                 'form' : self.form_class,
             }
-
         else :
             context = {
                 'form' : form,
             }
-
         return render(self.request, self.template_name, context)
 
 
@@ -73,8 +68,8 @@ class ListAccountView(generic.ListView):
 
 class EditPageView(generic.ListView):
     template_name = "account/edit.html"
-    paginate_by = 10
     queryset = Users.objects.all().order_by('-name')
+    paginate_by = 10
 
 
 class EditAccountView(generic.RedirectView):
@@ -83,6 +78,7 @@ class EditAccountView(generic.RedirectView):
         mode = self.kwargs.get('name', None)
         id = self.kwargs.get('id')
         user = get_object_or_404(Users, id=id)
+
         if not mode :
             return super().dispatch(request, *args, **kwargs)
 
@@ -90,24 +86,23 @@ class EditAccountView(generic.RedirectView):
             user.lock = False
             user.order_date = datetime.now().date()
             user.order_expire = datetime.now().date()
-
-            # command = f'ocpasswd -c /etc/ocserv/ocpasswd -u {user.name}'
-            # os.system(command)
-
             user.save()
-            
+
+            command = f'ocpasswd -c /etc/ocserv/ocpasswd -u {user.name}'
+            os.system(command)
+
         elif mode == "lock" :
             user.lock = True
             user.save()
 
-            # command = f'ocpasswd -c /etc/ocserv/ocpasswd -l {user.name}'
-            # os.system(command)
+            command = f'ocpasswd -c /etc/ocserv/ocpasswd -l {user.name}'
+            os.system(command)
 
         elif mode == "delete" :
             user.delete()
 
-            # command = f'ocpasswd -c /etc/ocserv/ocpasswd -d {user.name}'
-            # os.system(command)
+            command = f'ocpasswd -c /etc/ocserv/ocpasswd -d {user.name}'
+            os.system(command)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -121,11 +116,10 @@ class EditAccountView(generic.RedirectView):
         if password :
             new_password = make_password(password)
             user.password = new_password
-
-            # command = f"echo -e '{new_password}\n{new_password}\n'|ocpasswd -c /etc/ocserv/ocpasswd {user.name}"
-            # os.system(command)
-
             user.save()
+
+            command = f"echo -e '{new_password}\n{new_password}\n'|ocpasswd -c /etc/ocserv/ocpasswd {user.name}"
+            os.system(command)
 
         if month :
             from datetime import datetime
@@ -147,7 +141,6 @@ class EditAccountView(generic.RedirectView):
      
 class ServiceView(generic.TemplateView):
     template_name = "service.html"
-
 
     def dispatch(self, request, *args, **kwargs):
         name = self.kwargs.get('name', None)
@@ -177,6 +170,7 @@ class ServiceView(generic.TemplateView):
         if name == "restart":
             service_restart = restart_ocserv.delay()
             result = service_restart.get()
+
             if 'status' not in result:
                 messages.warning(request, f"Restart : {result['restart']}")
                 messages.error(request, f"Service : {result['service']} , Disabled")
@@ -223,14 +217,14 @@ class GetEditFormAjaxView(View):
         if request.is_ajax:
             name = (request.GET.get("name", None)).strip()
             lang = (request.GET.get("lang", None)).strip()
-
             user = Users.objects.filter(name__iexact=name).first()
-            
 
             if lang == "en" :
                 translation.activate('en')
+
             context = {
                 'user_edit' : user,
             }
             return render(request, self.template_name, context)
+            
         return JsonResponse({}, status=400)

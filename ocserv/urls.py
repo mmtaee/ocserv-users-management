@@ -13,7 +13,7 @@ urlpatterns = [
 
 
 urlpatterns += i18n_patterns(
-    # TODO : change url in deployment
+    # TODO : change secret  url in deployment
     path('secret/', admin.site.urls),
     path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('pannel/', decorator_include([user_access, superuser_required], 'pannel.urls')),

@@ -28,6 +28,7 @@ def user_access(view_func):
     def wrap(request, *args, **kwargs):
         ip = request.META.get('REMOTE_ADDR')
         user_ip, create = BlockIP.objects.get_or_create(ip=ip)
+
         if user_ip.block == True :
             raise Http404(_("Your access to this website is blocked"))
 
@@ -40,6 +41,7 @@ def check_recaptcha (view_func):
 
     def wrap(request, *args, **kwargs):
         request.recaptcha_is_valid = None
+
         if request.method == 'POST':
             recaptcha_response = request.POST.get('g-recaptcha-response')
             data = {
@@ -48,17 +50,19 @@ def check_recaptcha (view_func):
             }
             r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
             result = r.json()
+
             if result['success']:
                 request.recaptcha_is_valid = True
+
             else:
                 request.recaptcha_is_valid = False
                 messages.error(request, _('Invalid reCAPTCHA. Please try again.'))
+                
         return view_func(request, *args, **kwargs)
 
     return wrap
 
 
-# TODO : change return path !Important
 def anonymous_required(view_func, redirect_to=None):
 
     def wrap(request, *args, **kwargs):

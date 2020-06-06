@@ -6,41 +6,34 @@
 {% endblock %}
 
 
-
 {% block css %}
 
     .container{
         margin-top:100px;
     }
 
-    {% get_current_language as LANGUAGE_CODE %}
-    {% if LANGUAGE_CODE == 'fa' %}
-    
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'fa' %}
+
     .container{
         margin-right: 100px;
-
     }
-    
-    {% else %}
-    
+
+{% else %}
+
     .container{
         margin-left: 100px;
     }
-    
-    {% endif %}
+
+{% endif %}
     
 {% endblock %}
 
 
-
 {% block content %}
-
 {% include 'navbar_home.html' %}
-
 <div class="container">
-
     <div class="row">
-
         <div class="col-lg-5">
             <div class="form-inline">
                     <input type="text" class="form-control mb-2" id="name" placeholder="{% trans 'Enter Your Username Here' %}">
@@ -50,15 +43,9 @@
                     </small>
             </div>
         </div>
-
-
         <div class="col-lg-7" id="result">
-            
         </div>
-
     </div>
-
-
 </div>
 
 {% get_current_language as LANGUAGE_CODE %}
@@ -72,7 +59,6 @@
 </script>
 {% endif %}
 <script>
-
     $("button").click(function () {
         var name = $("#name").val();
         if (name) {
@@ -94,9 +80,6 @@
             $("#result").html("")
         }
     })
-
-
 </script>
-
 
 {% endblock %}

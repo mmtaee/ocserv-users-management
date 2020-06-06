@@ -12,7 +12,6 @@
     <tbody>
         <tr id="table">
             <td>{{ name | title }}</td>
-
             {% get_current_language as LANGUAGE_CODE %}
             {% if LANGUAGE_CODE == 'fa' %}
             <td id="order">{{ order }}</td>
@@ -25,8 +24,6 @@
     </tbody>
 </table>
 
-
-
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'fa' %}
 
@@ -35,11 +32,9 @@
     var order = $("#order").html();
     var order_persian = persianJs(order).arabicChar().englishNumber().arabicNumber().toString();
     $("#order").html(order_persian);
-
     var expire = $("#expire").html();
     var expire_persian = persianJs(expire).arabicChar().englishNumber().arabicNumber().toString();
     $("#expire").html(expire_persian);
-
 </script>
 
 {% endif %}

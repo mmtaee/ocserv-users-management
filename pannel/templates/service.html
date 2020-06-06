@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-
 {% block title %}
-{% trans 'Main Page' %}
+    {% trans 'Main Page' %}
 {% endblock %}
+
 
 {% block head %}
 
@@ -12,7 +12,6 @@
 
 
 {% block css %}
-
 .container{
     margin-top : 150px;
 }
@@ -22,38 +21,30 @@
 }
 {% endblock %}
 
-
 {% block content %}
-
 {% include 'navbar.html'%}
-
 <script>
     $("#service").addClass('active');    
 </script>
 
 <div class="container">
-
     <center>
         <a href="{% url 'pannel:service_action' name='status' %}" class='btn btn-lg btn-success'>{% trans 'Status Ocserv Service' %}</a>
         <a href="{% url 'pannel:service_action' name='restart' %}" class='btn btn-lg btn-warning' onclick="return confirm('Restart ocserv service ?');">{% trans 'Restart Ocserv Service' %}</a>
     </center>
-
     <br><br>
     <center>
         {% if messages %}
         {% for message in messages %}
             {% if message.tags == 'error' %}
-
             <div class="alert alert-danger alert-dismissible" role="alert" style="width: 40%;text-align: left;background-color: #d4edda;">
                 {{ message }}
             </div>
-
             {% else %}
             <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert" style="width: 40%;text-align: left;">
                 {{ message }}
             </div>
             {% endif %}
-
         {% endfor %}
         {% endif %}
     </center>
@@ -61,16 +52,10 @@
 </div>
 
 <script>
-
     $(document).ready(function () {
             setTimeout(function () {
                 $(".alert").alert('close');
             }, 8000);
         });
-
-
-
-
-
 </script>
 {% endblock %}

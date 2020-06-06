@@ -13,7 +13,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="{% static '/bootstrap-4/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/jquery-ui.css'%}">
+    <link rel="stylesheet" href="{% static '/css/jquery-ui.css'%}">
+    <link rel="stylesheet" href="{% static '/persian-fonts/css/fonts.css'%}">
     <script src="{% static '/js/jquery-3.min.js' %}"></script>
     <script src="{% static '/js/popper.min.js' %}"></script>
     <script src="{% static '/bootstrap-4/js/bootstrap.min.js' %}"></script>
@@ -25,19 +26,27 @@
 
     <style>
 
-        body{
-            background-color:#e3f2fd;
-        }
 
     {% get_current_language as LANGUAGE_CODE %}
     {% if LANGUAGE_CODE == 'fa' %}
 
+        body{
+            background-color:#e3f2fd;
+            font-family: "BMorvarid" ;
+            /* font-family: 'Arial, sans-serif'; */
+
+        }
         .main{
             text-align: right;
         }
 
     {% else %}
+        body{
+            background-color:#e3f2fd;
+            /* font-family: "BBaran", ; */
+            font-family: 'sans-serif';
 
+        }
         .main{
             text-align: left;
         }

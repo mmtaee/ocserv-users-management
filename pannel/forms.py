@@ -3,13 +3,13 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.utils.translation import get_language
-
 from jalali_date.fields import JalaliDateField, SplitJalaliDateTimeField
 from jalali_date.widgets import AdminJalaliDateWidget, AdminSplitJalaliDateTime
 
 from .models import *
 
 from functools import partial
+
 DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 
 class UserLoginForm(AuthenticationForm):
@@ -32,10 +32,7 @@ class AddAccountsForm(forms.ModelForm):
         # fields = '__all__'
         exclude = ['user', 'lock']
 
-
-
     def __init__(self, *args, **kwargs):
-
         lang = get_language()
         super().__init__(*args, **kwargs)
         if lang == 'fa' :
@@ -44,8 +41,6 @@ class AddAccountsForm(forms.ModelForm):
 
         self.fields['family'].required = False
         self.fields['tell_number'].required = False
-
-
 
     def clean_name(self):
         clean_data = super().clean()

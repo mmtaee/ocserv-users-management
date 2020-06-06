@@ -14,32 +14,25 @@
 
 
 {% block css %}
-
     .container{
         margin-top : 70px;
     }
 
-
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'fa' %}
-
     .container{
         margin-right: 100px;
     }
-
 {% else %}
-
     .container{
         margin-left: 100px;
     }
-
 {% endif %}
 
 {% endblock %}
 
 
 {% block content %}
-
 {% include 'navbar.html'%}
 
 <script>
@@ -47,19 +40,13 @@
 </script>
 
 <div class="container">
-
     <div class="ui-widget form-inline" style="width: 40%;">
         <input id="user" class="form-control autocomplete" placeholder="{% trans 'Enter a Name' %}">
         <button type="button" class="btn btn-dark" style="margin-right: 10px;margin-left: 10px;">{% trans 'Edit' %}</button>
     </div>
-
     <br>
-
     <div id="extra_table">
-
     </div>
-
-
     <table class="table table-striped">
         <thead>
             <tr>
@@ -85,20 +72,16 @@
                 <td id="order">{{ user.order_date | date:"Y-m-d" }}</td>
                 <td id="expire">{{ user.order_expire | date:"Y-m-d" }}</td>
                 {% endif %}
-
                 <td style="text-align: center;">
                     {% if user.lock %}
                     <a class="btn btn-sm btn-dark" href="{% url 'pannel:edit_account' name='unlock' id=user.id %}">{% trans 'Unlock' %}</a>
                     {% else %}
-
                     <button class="btn btn-sm btn-warning" type="button" data-toggle="modal" data-target="#myModal-{{ user.id }}" data-backdrop="static" data-keyboard="false">{% trans 'Edit' %}</button>
                     <a class="btn btn-sm btn-info" href="{% url 'pannel:edit_account' name='lock' id=user.id %}">{% trans 'Lock' %}</a>
                     <a class="btn btn-sm btn-danger" href="{% url 'pannel:edit_account' name='delete' id=user.id %}" onclick="return confirm('Delete {{ user.name|title }} ?');">{% trans 'Delete' %}</a>
-                    
                     {% endif %}
                 </td>
             </tr>
-
             <div class="modal fade" id="myModal-{{ user.id }}" role="dialog">
                 <div class="modal-dialog">
                     <!-- Modal content-->
@@ -111,25 +94,18 @@
                         </div>
                         <div class="modal-body">
                             <form method="POST" action="{% url 'pannel:edit_account' id=user.id name=None %}">{% csrf_token %}
-        
                                 <label for="add-month">{% trans 'Add Mounth' %}</label><br>
                                 <input name="month" type="number" style="width: 20%;" min="0"><br>
-                                
                                 <br>
-
                                 <label for="password">{% trans 'Change Password' %}</label><br>
                                 <input name="password" type="password"><br>
-
                                 <br>
                                 <input type="submit" class="btn btn-primary" value="{% trans 'Change' %}">
-
                             </form>
                         </div>
-            
                     </div>
                 </div>
             </div>
-
             {% endfor %}
         </tbody>
     </table>
@@ -140,12 +116,10 @@
             <li class="page-item">
                 <a class="page-link" href="?page=1">&laquo; {% trans 'First' %}</a>
             </li>
-
             <li class="page-item">
                 <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans 'Previous' %}</a>
             </li>
             {% endif %}
-
             {% for i in page_obj.paginator.page_range %}
             {% if page_obj.number == i %}
             <li class="page-item active"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
@@ -153,7 +127,6 @@
             <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
             {% endif %}
             {% endfor %}
-
             {% if page_obj.has_next %}
             <li class="page-item">
                 <a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans 'Next' %}</a>
@@ -162,11 +135,9 @@
                 <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{% trans 'Last' %} &raquo;</a>
             </li>
             {% endif %}
-
         </ul>
     </nav>
 {% endif %}
-
 </div>
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'en' %}
@@ -178,11 +149,9 @@
     var lang = 'fa';
 </script>
 {% endif %}
-
 <!-- Autocomplete search input -->
 <script>
     $(function () {
-
         $("#user").autocomplete({
             source: function (request, response) {
                 $.ajax({
@@ -197,7 +166,6 @@
             minLength: 1,
         });
     });
-
     $("button").click(function() {
         var name = $("#user").val();
         if (name){
@@ -211,38 +179,26 @@
                     $("#extra_table").html(data);
                 }
             });
-
         }else{
             $("#extra_table").html("")
         }
     })
-
-
 </script>
-
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'fa' %}
-
 <script src="{% static 'js/persianumber.js' %}"></script>
 <script>
-
     $("tbody #table").each(function () {
-
         var hastag = $(this).children("#row").html();
         var hastag_persian = persianJs(hastag).arabicChar().englishNumber().arabicNumber().toString();
         $(this).children("#row").html(hastag_persian);
-
-
         var order = $(this).children("#order").html();
         var order_persian = persianJs(order).arabicChar().englishNumber().arabicNumber().toString();
         $(this).children("#order").html(order_persian);
-
         var expire = $(this).children("#expire").html();
         var expire_persian = persianJs(expire).arabicChar().englishNumber().arabicNumber().toString();
         $(this).children("#expire").html(expire_persian);
-
         var lock = $(this).children("#lock").html();
-
         if (lock === "False") {
             $(this).children("#lock").html("فعال"); 
             $(this).children("#lock").css('color' , 'green');
@@ -250,22 +206,17 @@
             $(this).children("#lock").html("مسدود");
             $(this).children("#lock").css('color', 'red');
         }
-
         var family = $(this).children("#family").html();
         if (family == "None") {
             $(this).children("#family").html("-");
         }
     })
-
     $(".page-link").each(function () {
         var page = $(this).html();
         var page_persian = persianJs(page).arabicChar().englishNumber().arabicNumber().toString();
         $(this).html(page_persian);
     })
-
 </script>
-
 {% endif %}
-
 
 {% endblock %}
