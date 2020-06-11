@@ -35,8 +35,10 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-5">
-            <div class="form-inline">
+            <div class="form-group">
+                    <span style="color:red">*</span><label for="username">{% trans 'Username' %} :</label>
                     <input type="text" class="form-control mb-3" id="name" placeholder="{% trans 'Enter Your Username Here' %}">
+                    <span style="color:red">*</span><label for="password">{% trans 'Ocserv Password' %}</label>
                     <input type="password" class="form-control mb-3" id="password" placeholder="{% trans 'Enter Your Password Here' %}">
                     <small id="usernameHelp" class="form-text text-muted mb-2">
                         {% trans 'Enter your username and password to view the expiration date of your account' %}

@@ -53,7 +53,7 @@
 <div class="container">
     <form method="post">{% csrf_token %}
         <div class="form-group">
-            <label class="form-check-label" for="name">{% trans 'Name' %} :</label>
+            <label class="form-check-label" for="name"><span style="color:red">*</span>{% trans 'Name' %} :</label>
             <br>
             {{ form.name }} <br>
             <span id="message">
@@ -72,7 +72,7 @@
             {{ form.family }} <br>
         </div>
         <div class="form-group">
-            <label class="form-check-label" for="password">{% trans 'Password' %} :</label>
+            <label class="form-check-label" for="password"><span style="color:red">*</span>{% trans 'Password' %} :</label>
             <br>
             {{ form.password }} <br>
         </div>
@@ -82,12 +82,12 @@
             {{ form.tell_number }} <br>
         </div>
         <div class="form-group">
-            <label class="form-check-label" for="order">{% trans 'Order Date' %} :</label>
+            <label class="form-check-label" for="order"><span style="color:red">*</span>{% trans 'Order Date' %} :</label>
             <br>
             {{ form.order_date }} <br>
         </div>
         <div class="form-group">
-            <label class="form-check-label" for="expire">{% trans 'Order Expiry Date' %} :</label>
+            <label class="form-check-label" for="expire"><span style="color:red">*</span>{% trans 'Order Expiry Date' %} :</label>
             <br>
             {{ form.order_expire }} <br> <br>
             <span id="message">
