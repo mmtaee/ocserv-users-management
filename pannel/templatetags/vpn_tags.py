@@ -8,5 +8,8 @@ register = template.Library()
 
 @register.simple_tag
 def change_current_url_lang(url, lang):
-    path = re.findall(r'/(fa|en)/(.*)', url)[0][1]
-    return f'/{lang}/{path}'
+    if lang == "fa":
+        return f"/{lang}{url}"
+    path = re.findall(r'/\w./(.*)', url)[0]
+    return f'/{path}'
+
