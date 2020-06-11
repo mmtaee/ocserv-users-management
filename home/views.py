@@ -71,7 +71,10 @@ class LogoutView(generic.RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         lang = self.request.LANGUAGE_CODE
-        self.url = f"/{lang}/"
+        if lang == "fa" :
+            self.url = f"/{lang}/"
+        else:
+            self.url = "/"
         return super().get_redirect_url(*args, **kwargs)
 
 # Ajax
