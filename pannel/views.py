@@ -62,7 +62,7 @@ class AddAccountView(View):
 
 class ListAccountView(generic.ListView):
     template_name = "account/list.html"
-    queryset = Users.objects.filter(lock=False)
+    queryset = Users.objects.filter(lock=False).order_by("-name")
     paginate_by = 10
 
 
