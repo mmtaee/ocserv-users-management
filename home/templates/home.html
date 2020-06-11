@@ -36,11 +36,12 @@
     <div class="row">
         <div class="col-lg-5">
             <div class="form-inline">
-                    <input type="text" class="form-control mb-2" id="name" placeholder="{% trans 'Enter Your Username Here' %}">
-                    <button class="btn btn-primary mb-2" style="margin-left: 10px; margin-right: 10px;">{% trans 'Get Result' %}</button>
+                    <input type="text" class="form-control mb-3" id="name" placeholder="{% trans 'Enter Your Username Here' %}">
+                    <input type="password" class="form-control mb-3" id="password" placeholder="{% trans 'Enter Your Password Here' %}">
                     <small id="usernameHelp" class="form-text text-muted mb-2">
-                        {% trans 'Enter a username to view the expiration date of your account' %}
+                        {% trans 'Enter your username and password to view the expiration date of your account' %}
                     </small>
+                    <button class="btn btn-primary mb-2" style="margin-left: 0px; margin-right: 0px;">{% trans 'Get Result' %}</button>
             </div>
         </div>
         <div class="col-lg-7" id="result">
@@ -61,11 +62,13 @@
 <script>
     $("button").click(function () {
         var name = $("#name").val();
+        var password = $("#password").val();
         if (name) {
             $.ajax({
                 url: "/ajax/account_result/",
                 data: {
                     'name': name,
+                    'password': password,
                     'lang': lang,
                 },
                 success: function (data) {

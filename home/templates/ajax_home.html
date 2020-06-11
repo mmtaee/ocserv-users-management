@@ -12,14 +12,8 @@
     <tbody>
         <tr id="table">
             <td>{{ name | title }}</td>
-            {% get_current_language as LANGUAGE_CODE %}
-            {% if LANGUAGE_CODE == 'fa' %}
             <td id="order">{{ order }}</td>
             <td id="expire">{{ expire }}</td>
-            {% else %}
-            <td id="order">{{ order }}</td>
-            <td id="expire">{{ expire }}</td>
-            {% endif %}
         </tr>
     </tbody>
 </table>
