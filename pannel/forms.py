@@ -24,20 +24,21 @@ class UserLoginForm(AuthenticationForm):
 
 class AddAccountsForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
-    order_expire = forms.DateField(widget=DateInput())
+    # order_expire = forms.DateField(widget=DateInput())
     order_date = forms.DateField(widget=DateInput())
+    month_expire = forms.IntegerField(min_value=0)
     
     class Meta:
         model = Users
-        # fields = '__all__'
-        exclude = ['user', 'lock']
+        fields = ['name', 'family', 'password', 'tell_number', 'order_date', 'month_expire']
+        # exclude = ['user', 'lock', 'order_expire']
 
     def __init__(self, *args, **kwargs):
         lang = get_language()
         super().__init__(*args, **kwargs)
         if lang == 'fa' :
             self.fields['order_date'] = JalaliDateField(widget=AdminJalaliDateWidget)
-            self.fields['order_expire'] = JalaliDateField(widget=AdminJalaliDateWidget)
+            # self.fields['order_expire'] = JalaliDateField(widget=AdminJalaliDateWidget)
 
         self.fields['family'].required = False
         self.fields['tell_number'].required = False
@@ -49,11 +50,11 @@ class AddAccountsForm(forms.ModelForm):
             raise forms.ValidationError(_("Name is Already Exist"))
         return name
 
-    def clean_order_expire(self):
-        clean_data = super().clean()
-        order_date = self.cleaned_data['order_date']
-        order_expire = self.cleaned_data['order_expire']
-        if order_date >= order_expire :
-            raise forms.ValidationError(_("The order expiry date cannot be earlier or equal than the order date"))
-        return order_expire
+    # def clean_order_expire(self):
+    #     clean_data = super().clean()
+    #     order_date = self.cleaned_data['order_date']
+    #     order_expire = self.cleaned_data['order_expire']
+    #     if order_date >= order_expire :
+    #         raise forms.ValidationError(_("The order expiry date cannot be earlier or equal than the order date"))
+    #     return order_expire
 

@@ -22,6 +22,12 @@ INSTALLED_APPS = [
     'home.apps.HomeConfig',
     'django_celery_results',
     'admin_honeypot',
+
+
+    # rest framework
+    'api.apps.ApiConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [

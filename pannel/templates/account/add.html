@@ -27,6 +27,9 @@
     .container{
         margin-top : 70px;
     }
+    #id_month_expire{
+        width:80px;
+    }
 
 {% get_current_language as LANGUAGE_CODE %}
 {% if LANGUAGE_CODE == 'fa' %}
@@ -86,20 +89,13 @@
             <br>
             {{ form.order_date }} <br>
         </div>
+
+
         <div class="form-group">
-            <label class="form-check-label" for="expire"><span style="color:red">*</span>{% trans 'Order Expiry Date' %} :</label>
-            <br>
-            {{ form.order_expire }} <br> <br>
-            <span id="message">
-                {% for error in form.order_expire.errors %}
-                <div class="alert alert-warning" style="width:35%;">
-                    <center>
-                    {{ error }}
-                    </center>
-                </div>
-                {% endfor %}
-            </span>
+            <label class="form-check-label" for="month_expire"><span style="color:red">*</span>{% trans 'Order Expiry Month' %} :</label> <br>
+            {{ form.month_expire }}
         </div>
+        <br>
         <input class="btn btn-md btn-primary" type="submit" value='{% trans "Add" %}'>
     </form>
     {% if messages %}

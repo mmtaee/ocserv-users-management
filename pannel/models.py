@@ -10,7 +10,7 @@ class Users(models.Model):
     password = models.CharField(_('password'), max_length=200)
     tell_number = models.CharField(max_length=12, null=True, blank=True)
     order_date = models.DateField()
-    order_expire = models.DateField(null=True)
+    order_expire = models.DateField(null=True, blank=True)
     lock = models.BooleanField(_('lock'), default=False)
 
     def __str__(self):

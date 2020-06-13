@@ -36,13 +36,16 @@ class AddAccountView(View):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-
+        print(form.is_valid())
         if form.is_valid():
             name = form.cleaned_data.get('name')
             password = form.cleaned_data.get('password')
+            order_date = form.cleaned_data.get("order_date")
+            month = form.cleaned_data.get('month_expire')
             new = form.save(commit=False)
             new.password = make_password(password)
             new.user = request.user
+            new.order_expire = order_date + relativedelta(days=int(month)*31)
             new.save()
 
             command = f'/usr/bin/echo -e "{password}\n{password}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {name}'
@@ -124,7 +127,7 @@ class EditAccountView(generic.RedirectView):
         if month :
             from datetime import datetime
             old_expiry = datetime.strptime(str(user.order_expire), '%Y-%m-%d').date()
-            new_expiry = old_expiry + relativedelta(months=int(month))
+            new_expiry = old_expiry + relativedelta(days=int(month)*31)
             user.order_expire = new_expiry
             user.save()
 
