@@ -91,20 +91,20 @@ class EditAccountView(generic.RedirectView):
             user.order_expire = datetime.now().date()
             user.save()
 
-            command = f'ocpasswd -c /etc/ocserv/ocpasswd -u {user.name}'
+            command = f'sudo /usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd -u {user.name}'
             os.system(command)
 
         elif mode == "lock" :
             user.lock = True
             user.save()
 
-            command = f'ocpasswd -c /etc/ocserv/ocpasswd -l {user.name}'
+            command = f'sudo /usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd -l {user.name}'
             os.system(command)
 
         elif mode == "delete" :
             user.delete()
 
-            command = f'ocpasswd -c /etc/ocserv/ocpasswd -d {user.name}'
+            command = f'sudo /usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd -d {user.name}'
             os.system(command)
 
         return super().dispatch(request, *args, **kwargs)
@@ -121,7 +121,7 @@ class EditAccountView(generic.RedirectView):
             user.password = new_password
             user.save()
 
-            command = f"echo -e '{new_password}\n{new_password}\n'|ocpasswd -c /etc/ocserv/ocpasswd {user.name}"
+            command = f"echo -e '{new_password}\n{new_password}\n'|/usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {user.name}"
             os.system(command)
 
         if month :

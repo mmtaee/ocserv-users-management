@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-12 01:26+0430\n"
+"POT-Creation-Date: 2020-06-13 13:16+0430\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgid "Username"
 msgstr "نام کاربری"
 
 #: api/serializers.py:16 home/templates/login.html:49 pannel/forms.py:17
-#: pannel/templates/account/add.html:75
+#: pannel/templates/account/add.html:78
 msgid "Password"
 msgstr "رمز ورود"
 
@@ -40,21 +40,21 @@ msgstr "نام کاربری یا رمزعبور نادرست است"
 msgid "Invalid token"
 msgstr "توکن نامعتبر است"
 
-#: home/templates/ajax_home.html:7 pannel/templates/account/add.html:56
+#: home/templates/ajax_home.html:7 pannel/templates/account/add.html:59
 #: pannel/templates/account/edit.html:54 pannel/templates/account/list.html:38
 #: pannel/templates/account/main.html:52 pannel/templates/ajax/edit.html:7
 msgid "Name"
 msgstr "نام"
 
-#: home/templates/ajax_home.html:8 pannel/templates/account/add.html:85
+#: home/templates/ajax_home.html:8 pannel/templates/account/add.html:88
 #: pannel/templates/account/edit.html:56 pannel/templates/account/list.html:41
 #: pannel/templates/ajax/edit.html:9
 msgid "Order Date"
 msgstr "تاریخ ثبت سفارش"
 
-#: home/templates/ajax_home.html:9 pannel/templates/account/add.html:90
-#: pannel/templates/account/edit.html:57 pannel/templates/account/list.html:42
-#: pannel/templates/account/main.html:53 pannel/templates/ajax/edit.html:10
+#: home/templates/ajax_home.html:9 pannel/templates/account/edit.html:57
+#: pannel/templates/account/list.html:42 pannel/templates/account/main.html:53
+#: pannel/templates/ajax/edit.html:10
 msgid "Order Expiry Date"
 msgstr "تاریخ انقضای سفارش"
 
@@ -123,13 +123,9 @@ msgstr "دسترسی شما به این وب سایت مسدود شده است"
 msgid "Invalid reCAPTCHA. Please try again."
 msgstr "کپچا نادرست میباشد . دوباره سعی کنید"
 
-#: pannel/forms.py:49
+#: pannel/forms.py:50
 msgid "Name is Already Exist"
 msgstr "نام قبلاً موجود است"
-
-#: pannel/forms.py:57
-msgid "The order expiry date cannot be earlier or equal than the order date"
-msgstr "تاریخ انقضا سفارش نمی تواند زودتر یا مساوی از تاریخ سفارش باشد"
 
 #: pannel/models.py:8
 msgid "name"
@@ -155,16 +151,20 @@ msgstr ""
 msgid "Add Page"
 msgstr "صفحه افزودن اکانت"
 
-#: pannel/templates/account/add.html:70 pannel/templates/account/edit.html:55
+#: pannel/templates/account/add.html:73 pannel/templates/account/edit.html:55
 #: pannel/templates/account/list.html:39 pannel/templates/ajax/edit.html:8
 msgid "Family"
 msgstr "نام خانوادگی"
 
-#: pannel/templates/account/add.html:80 pannel/templates/account/list.html:40
+#: pannel/templates/account/add.html:83 pannel/templates/account/list.html:40
 msgid "Tell Number"
 msgstr "شماره تلفن"
 
-#: pannel/templates/account/add.html:103 pannel/templates/navbar.html:40
+#: pannel/templates/account/add.html:95
+msgid "Order Expiry Month"
+msgstr "ماه انقضای سفارش"
+
+#: pannel/templates/account/add.html:99 pannel/templates/navbar.html:40
 msgid "Add"
 msgstr "اضافه کردن"
 
@@ -275,6 +275,9 @@ msgstr "وضعیت سرویس Ocserv"
 #: pannel/templates/service.html:33
 msgid "Restart Ocserv Service"
 msgstr "شروع مجدد سرویس Ocserv"
+
+#~ msgid "The order expiry date cannot be earlier or equal than the order date"
+#~ msgstr "تاریخ انقضا سفارش نمی تواند زودتر یا مساوی از تاریخ سفارش باشد"
 
 #~ msgid "Blocked IPs of attackers"
 #~ msgstr "ای پی های بلاک شده حمله کننده ها"
