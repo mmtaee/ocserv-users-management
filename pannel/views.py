@@ -201,7 +201,8 @@ class GetAccountsAjaxView(View):
 
     def get(self, request, *args, **kwargs):
         if request.is_ajax:
-            queryset = Users.objects.all().order_by("-name")
+            name = (request.GET.get("name", None)).strip()
+            queryset = Users.objects.filter(name__icontains=name).order_by("-name")
             query = None
             for item in queryset :
                 if query == None :
@@ -210,6 +211,7 @@ class GetAccountsAjaxView(View):
                 else :
                     query = query +  "," + str(item.name)
             return JsonResponse(data={'results': query.rstrip()}, status=200)
+
         return JsonResponse({}, status=400)
 
 

@@ -154,7 +154,11 @@
     $(function () {
         $("#user").autocomplete({
             source: function (request, response) {
+                var name = $("#user").val();
                 $.ajax({
+                    data: {
+                        'name': name,
+                    },
                     url: "/pannel/ajax/get_accounts/",
                     success: function (data) {
                         var query = data.results;
