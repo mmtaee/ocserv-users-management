@@ -18,8 +18,15 @@ A Django project
     
     - Restart/status ocserv service with celery
 
-    - Block ip after 4 faild try in login  
+    - Block ip after 4 faild try in login 
         and 6 invalid username in home page
+        
+    - DONT'T FORGET add linux commands to get user from db in 
+    
+      LINUX_CRONTAB 
+      
+      everyday,lock expired users in db and in next line ocserv 
+      command to lock users . 
 
     - Create your own .env file in root dir with parameters :
 
