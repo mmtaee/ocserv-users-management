@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import login, authenticate, logout
 from django.http import JsonResponse, Http404
 from django.utils import translation
+from django.urls import reverse_lazy
 
 from pannel.forms import *
 from pannel.decorators import *
@@ -64,7 +65,8 @@ class LoginPageView(View):
 
 
 class LogoutView(generic.RedirectView):
-
+    url = reverse_lazy("home:home")
+    
     def get(self, request, *args, **kwargs):
         logout(request)
         return super().get(request, *args, **kwargs)

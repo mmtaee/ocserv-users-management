@@ -52,11 +52,11 @@
     <span style="visibility: hidden;">--</span>
     {% get_current_language as LANGUAGE_CODE %}
         {% if LANGUAGE_CODE == 'fa' %}
-        <a href="/">
+        <a href="/en/">
             <img src="{% static '/img/us-flag.jpg' %}" alt="us-flag" width="25px" style="background: transparent; background-color: #36a1ee; border-radius: 15%;">
         </a>
     {% else %}
-        <a href="/fa/">
+        <a href="/">
             <img src="{% static '/img/iran-flag.png' %}" alt="iran-flag" width="25px" style="background: transparent; background-color: #36a1ee; border-radius: 15%;">
         </a>
     {% endif %}

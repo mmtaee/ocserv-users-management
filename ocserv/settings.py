@@ -23,9 +23,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'admin_honeypot',
 
-
     # rest framework
-    'api.apps.ApiConfig',
     'rest_framework',
     'rest_framework.authtoken',
 ]
@@ -101,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'fa'
 
 LOCALE_PATHS = (
    os.path.join(BASE_DIR, 'locale'),

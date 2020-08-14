@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.conf import settings
 from django.utils import translation
+from django.urls import reverse_lazy
 
 from .forms import AddAccountsForm
 from .decorators import *
@@ -20,7 +21,11 @@ from dateutil.relativedelta import *
 class MainPageView(generic.ListView):
     template_name = 'account/main.html'
     paginate_by = 10
-    queryset = Users.objects.filter(order_expire__gte=datetime.today(), order_expire__lte=datetime.today()+timedelta(days=15), lock=False).order_by("-name")
+    queryset = Users.objects.filter(
+        order_expire__gte=datetime.today(),
+        order_expire__lte=datetime.today()+timedelta(days=15), 
+        lock=False
+        ).order_by("-name")
 
 
 class AddAccountView(View):
@@ -76,6 +81,7 @@ class EditPageView(generic.ListView):
 
 
 class EditAccountView(generic.RedirectView):
+    url = reverse_lazy('pannel:edit_view')
 
     def dispatch(self, request, *args, **kwargs):
         mode = self.kwargs.get('name', None)
@@ -135,11 +141,6 @@ class EditAccountView(generic.RedirectView):
             return redirect(next_url)
         
         return super().post(request, *args, **kwargs)
-
-    def get_redirect_url(self, *args, **kwargs):
-        lang = self.request.LANGUAGE_CODE
-        self.url = f"/{lang}/pannel/edit/"
-        return super().get_redirect_url(*args, **kwargs)
 
      
 class ServiceView(generic.TemplateView):

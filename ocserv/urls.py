@@ -18,7 +18,6 @@ urlpatterns += i18n_patterns(
     path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('pannel/', decorator_include([user_access, superuser_required], 'pannel.urls')),
     path('', decorator_include(user_access, 'home.urls')),
-    path('api/', include('api.urls')),
     prefix_default_language=False,
 )
 

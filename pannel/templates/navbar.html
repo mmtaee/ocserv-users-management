@@ -52,13 +52,13 @@
         <span style="visibility: hidden;">---</span>
         {% get_current_language as LANGUAGE_CODE %}
         {% if LANGUAGE_CODE == 'fa' %}
-        {% change_current_url_lang request.path 'en' as url%}
+        {% change_current_url_lang request.path 'fa' as url%}
         <a href="{{ url }}">
             <img src="{% static '/img/us-flag.jpg' %}" alt="us-flag" width="25px"
                 style="background: transparent; background-color: #36a1ee; border-radius: 15%;">
         </a>
         {% else %}
-        {% change_current_url_lang request.path 'fa' as url%}
+        {% change_current_url_lang request.path 'en' as url%}
         <a href="{{ url }}">
             <img src="{% static '/img/iran-flag.png' %}" alt="iran-flag" width="25px"
                 style="background: transparent; background-color: #36a1ee; border-radius: 15%;">
