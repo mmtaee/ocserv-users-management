@@ -1,5 +1,6 @@
 {% load static i18n %}
 {% load vpn_tags %}
+{% load jalali_tags %}
 
 <style>
     .navbar-brand {
@@ -47,10 +48,16 @@
             </li>
         </ul>
     </div>
+        {% if LANGUAGE_CODE == 'fa' %}
+        <a class="nav-link">{% jalali_now '%Y-%m-%d' %}</a>
+        {% else %}
+        <a class="nav-link">{% now 'Y-m-d'  %}</a>
+        {% endif %}
         <a class="nav-link">{{ user.username | title }}</a>
         <a class="nav-link disabled" href="{% url 'home:logout' %}">{% trans 'Logout'%}</a>
         <span style="visibility: hidden;">---</span>
         {% get_current_language as LANGUAGE_CODE %}
+        
         {% if LANGUAGE_CODE == 'fa' %}
         {% change_current_url_lang request.path 'fa' as url%}
         <a href="{{ url }}">
