@@ -1,5 +1,5 @@
 celery==4.4.4
-Django==3.0.7
+Django==3.0.14
 django-admin-honeypot==1.1.0
 django-celery-results==1.2.1
 django-decorator-include==3.0
