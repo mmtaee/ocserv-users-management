@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from django.contrib.auth import login , logout, authenticate
+from django.contrib.auth import login as django_login , logout as django_logout, authenticate
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.views.generic import *
@@ -16,7 +16,7 @@ from ratelimit.decorators import ratelimit
 from.models import *
 from .forms import *
 
-@ratelimit(key='ip', rate='10/d')
+@method_decorator(ratelimit(key='ip', rate='10/d'), name='dispatch')
 class Login(View):
     template_name = 'login.html'
 
@@ -30,7 +30,7 @@ class Login(View):
         password = request.POST.get('password')
         auth = authenticate(username=username, password=password)
         if auth:
-            login(request, auth)
+            django_login(request, auth)
             if password == 'admin':
                 return redirect('app:change_password')
             return redirect("app:home")
@@ -39,12 +39,12 @@ class Login(View):
         }
         return render(request, self.template_name, context=context)
 
-@ratelimit(key='ip', rate='50/d')
+@method_decorator(ratelimit(key='ip', rate='50/d'), name='dispatch')
 class Logout(RedirectView):
     url = "/login/"
 
     def get(self, request, *args, **kwargs):
-        logout(request)
+        django_logout(request)
         return super().get(request, *args, **kwargs)
 
 
