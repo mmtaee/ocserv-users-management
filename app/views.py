@@ -11,10 +11,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 
 import os
+from ratelimit.decorators import ratelimit
 
 from.models import *
 from .forms import *
 
+@ratelimit(key='ip', rate='10/d')
 class Login(View):
     template_name = 'login.html'
 
@@ -37,7 +39,7 @@ class Login(View):
         }
         return render(request, self.template_name, context=context)
 
-
+@ratelimit(key='ip', rate='50/d')
 class Logout(RedirectView):
     url = "/login/"
 
@@ -94,7 +96,8 @@ class AddUser(View):
     def post(self, request, *args, **kwargs):
         form = AddUserForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get("oc_username", None)
+            username = form.cleaned_data.get("oc_username")
+            password = form.cleaned_data.get("oc_password")
             form.save()
             command = f'/usr/bin/echo -e "{password}\n{password}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {username}'
             os.system(command)
@@ -113,7 +116,6 @@ class DelUser(View):
             obj.delete()
             return JsonResponse({}, status=200)
         return JsonResponse({}, status=400)
-
 
 
 @method_decorator(login_required, name='dispatch')

@@ -1,44 +1,18 @@
-A Django project
+Ocserv and Ocserv User Management Pannel
+    script for automatic :
+    ""install ocserv in ubuntu server""
+    ""deploy web app with complete installation (nginx, ...)"" 
 
-    - A pannel for managing user accounts in ocserv vpn 
-        and designed with bootstrap 4
-    
-    - English and Persian languages 
-    
-    - Celery for send user acount expiry request in home page 
-        and ocserv services 
+login : 
+username : admin
+password : admin
 
-    - Create/edit/delete accounts and ocservc command 
-        create command :>> f'/usr/bin/echo -e "{pass}\n{pass}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {name}'
-        execute :>> os.system(command)
 
-    - Check the expiration date of user accounts
 
-    - Lock and unlock user accounts and ocservc ommand
-    
-    - Restart/status ocserv service with celery
 
-    - Block ip after 4 faild try in login 
-        and 6 invalid username in home page
-        
-    - DONT'T FORGET add linux commands to get user from db in 
-    
-      LINUX_CRONTAB 
-      
-      everyday,lock expired users in db and in next line ocserv 
-      command to lock users . 
 
-    - Create your own .env file in root dir with parameters :
 
-            SECRET_KEY
-            DEBUG
-            ALLOWED_HOSTS
-            DB_NAME
-            DB_USER
-            DB_PASSWORD
-            DB_HOST
-            RECAPTCHA_SECRET_KEY
-            RECAPTCHA_SITE_KEY
+
 
 
     
