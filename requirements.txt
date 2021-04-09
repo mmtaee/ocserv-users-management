@@ -1,16 +1,2 @@
-celery==4.4.4
-Django==3.0.7
-django-admin-honeypot==1.1.0
-django-celery-results==1.2.1
-django-decorator-include==3.0
-django-jalali-date==0.3.1
-future==0.18.2
-python-dateutil==2.8.1
-python-decouple==3.3
-pytz==2020.1
-redis==3.5.3
-requests==2.22.0
-six==1.14.0
-sqlparse==0.3.1
-urllib3==1.25.8
+Django==3.2
 
