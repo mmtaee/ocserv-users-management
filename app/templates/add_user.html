@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="d-flex justify-content-center mt-5">
+    <div class="py-4 px-5 rounded col-6" style="border: 2px solid black;width: 80%;">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group mb-2">
+                <label class="mb-2" for="oc_username">Oc Username : </label>
+                {{ form.oc_username }}
+            </div>
+            {% if error %}
+            <div class="bg-danger px-2 py-1 rounded text-center my-2" style="font-size: 12px;">
+                {{ form.oc_username.errors.0 }}
+            </div>
+            {% endif %}
+            <div class="form-group mb-4">
+                <label class="mb-2" for="oc_password">Oc Password : </label>
+                {{ form.oc_password }}
+            </div>
+            <input type="submit" value="Add User">
+        </form>
+        {% if success %}
+        <div class="bg-success px-2 py-1 rounded text-center my-2" style="font-size: 12px;">
+            User added successfully
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -79,12 +79,18 @@ class ChangePassword(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class Home(View):
+class Home(ListView):
     template_name = "home.html"
+    queryset = OcservUser.objects.all()
+
+
+
+@method_decorator(login_required, name='dispatch')
+class AddUser(View):
+    template_name = "add_user.html"
 
     def get(self, request, *args, **kwargs):
         context = {
-            'users' : OcservUser.objects.all(),
             'form' : AddUserForm
         }
         return render(request, self.template_name, context)
@@ -99,16 +105,16 @@ class Home(View):
             command = f'/usr/bin/echo -e "{password}\n{password}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {username}'
             os.system(command)
             context = {
-                'users' : OcservUser.objects.all(),
-                'form' : AddUserForm
+                'form' : AddUserForm,
+                'success' : True,
             }
         else:
             context = {
-                'users' : OcservUser.objects.all(),
                 'form' : form,
                 'error' : True,
             }
         return render(request, self.template_name, context)
+
 
 
 @method_decorator(login_required, name='dispatch')

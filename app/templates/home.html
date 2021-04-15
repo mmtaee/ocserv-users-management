@@ -2,34 +2,7 @@
 
 {% block body %}
 <h2 class="mb-4 mt-4">User Management Page</h2>
-<div class="row">
     
-    <div class="col-4">
-        <div class="d-flex justify-content-center">
-            <div class="py-4 px-5 rounded" style="border: 2px solid black;width: 80%;">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group mb-2">
-                        <label class="mb-2" for="oc_username">Oc Username : </label>
-                       {{ form.oc_username }}
-                    </div>
-                    {% if error %}
-                    <div class="bg-danger px-2 py-1 rounded text-center my-2" style="font-size: 12px;">
-                        {{ form.oc_username.errors.0 }}
-                      </div>
-                    {% endif %}
-                    <div class="form-group mb-4">
-                        <label class="mb-2" for="oc_password">Oc Password : </label>
-                       {{ form.oc_password }}
-                    </div>
-                    <input type="submit" value="Add User">
-                </form>
-
-            </div>
-        </div>
-    </div>
-
-    <div class="col-8">
             <table class="table table-striped table-dark">
                 <thead>
                     <tr class="text-center">
@@ -41,7 +14,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user in users %}
+                    {% for user in object_list %}
                     <tr class="text-center">
                         <th scope="row">{{ forloop.counter }}</th>
                         <td>{{ user.oc_username }}</td>
@@ -63,7 +36,7 @@
                             <button class="btn btn-outline-danger btn-sm" onclick="deleteUser('{{ user.id }}')"
                                 id="del-{{ user.id }}">Delete</button>
                             <button class="btn btn-outline-danger btn-sm" style="display: none;"
-                                onclick="confirmDelete('{{ user.id }}')" id="confirm-{{ user.id }}">Yes Delete</button>
+                                onclick="confirmDelete('{{ user.id }}')" id="confirm-{{ user.id }}">Delete</button>
                             <button class="btn btn-outline-light btn-sm mx-1" style="display: none;"
                                 onclick="cancelDelete('{{ user.id }}')" id="cancel-{{ user.id }}">Cancel</button>
                         </td>
@@ -71,21 +44,8 @@
                     {% endfor %}
                 </tbody>
             </table>
-</div>
-
-</div>
-
-
 
 <script>
-    function addUser() {
-        let params = `popUpWindow,scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=600,height=400,left=250,top=250`;
-        var newWindow = open('/add_user/', 'Add User Page', params);
-        $(newWindow).bind("beforeunload", function () {
-            location.reload(true);
-        });
-    }
-
     function deleteUser(userId) {
         $('#del-' + userId).css('display', 'none');
         $('#confirm-' + userId).css('display', 'inline');
