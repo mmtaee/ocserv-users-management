@@ -39,6 +39,7 @@ class Login(View):
         }
         return render(request, self.template_name, context=context)
 
+
 @method_decorator(ratelimit(key='ip', rate='50/d'), name='dispatch')
 class Logout(RedirectView):
     url = "/login/"
@@ -78,20 +79,16 @@ class ChangePassword(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class Home(ListView):
+class Home(View):
     template_name = "home.html"
-    queryset = OcservUser.objects.all()
-
-
-@method_decorator(login_required, name='dispatch')
-class AddUser(View):
-    template_name = 'add_user.html'
 
     def get(self, request, *args, **kwargs):
         context = {
-            'form' : AddUserForm,
+            'users' : OcservUser.objects.all(),
+            'form' : AddUserForm
         }
         return render(request, self.template_name, context)
+
 
     def post(self, request, *args, **kwargs):
         form = AddUserForm(request.POST)
@@ -101,8 +98,18 @@ class AddUser(View):
             form.save()
             command = f'/usr/bin/echo -e "{password}\n{password}\n"|sudo /usr/bin/ocpasswd -c /etc/ocserv/ocpasswd {username}'
             os.system(command)
-            code = "<script>window.close();</script>"
-            return HttpResponse(code)
+            context = {
+                'users' : OcservUser.objects.all(),
+                'form' : AddUserForm
+            }
+        else:
+            context = {
+                'users' : OcservUser.objects.all(),
+                'form' : form,
+                'error' : True,
+            }
+        return render(request, self.template_name, context)
+
 
 @method_decorator(login_required, name='dispatch')
 class DelUser(View):
