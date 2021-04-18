@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 
+
 {% block body %}
 <h2 class="mb-4 mt-4">User Management Page</h2>
     
+<button class="btn btn-outline-success my-5" onclick="syncDb()"><i class="fa fa-refresh mx-1" aria-hidden="true"></i>Ocpasswd Synchronise</button>
+
+
             <table class="table table-striped table-dark">
                 <thead>
                     <tr class="text-center">
@@ -92,6 +96,19 @@
             }
         });
     }
+
+    function syncDb() {
+        $.ajax({
+            url: "sync_db/",
+            success: function (response) {
+                location.reload(true);
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+        });
+    }
+
 
 </script>
 

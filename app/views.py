@@ -150,3 +150,35 @@ class HandlerUser(View):
             return JsonResponse({}, status=200)
         return JsonResponse({}, status=400)
 
+
+@method_decorator(login_required, name='dispatch')
+class SyncDb(View):
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax :
+            ocpasswd_users = {}
+            with open("/etc/ocserv/ocpasswd", "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    user_items = line.strip().split(":")
+                    ocpasswd_users[user_items[0]] = False if  user_items[2].startswith("!") else True
+            oc_queryset = OcservUser.objects.all()
+            for user in oc_queryset:
+                if user.oc_username not in ocpasswd_users:
+                    user.delete()
+                else:
+                    user.oc_active = ocpasswd_users[user.oc_username]
+                    user.save()
+            for user in ocpasswd_users:
+                filtered = oc_queryset.filter(oc_username=user)
+                if not filtered.exists():              
+                    OcservUser.objects.create(
+                        oc_username=user,
+                        oc_password="PCSERV_HASH_PASSWORD",
+                        oc_active=ocpasswd_users[user]
+                    )
+            return JsonResponse({}, status=200)
+        return JsonResponse({}, status=400)
+
+
+
