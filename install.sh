@@ -270,6 +270,9 @@ PRO_VENV() {
     echo -e yes\n |./manage.py collectstatic
 
     chown -R www-data /var/www/html/ocserv_pannel/
+
+    echo www-data ALL = NOPASSWD: /usr/bin/ocpasswd >> /etc/sudoers
+
 }
 
 PRO_SERVICES() {
