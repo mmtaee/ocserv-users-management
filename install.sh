@@ -279,28 +279,27 @@ PRO_SERVICES() {
     mv /var/www/html/ocserv_pannel/configs/ocserv_nginx.conf /etc/nginx/conf.d/
     mv /var/www/html/ocserv_pannel/configs/ocserv_uwsgi.service /lib/systemd/system
     systemctl restart nginx ocserv_uwsgi.service;systemctl enable nginx ocserv_uwsgi.service;
-    # NGINX_STATE=`systemctl is-active nginx`
-    # if [    "$NGINX_STATE" == "active"]; then
-    #     echo -e "\e[0;32m"Nginx Is Started."\e[0m"
-    # else
-    #     echo -e "\e[0;31m"Nginx Is Not Running."\e[0m"
-    #     exit 1
-    # fi
-    
-    # OCSERV_STATE=`systemctl is-active ocserv`
-    # if [    "$OCSERV_STATE" == "active"]; then
-    #     echo -e "\e[0;32m"Ocserv Is Started."\e[0m"
-    # else
-    #     echo -e "\e[0;31m"Ocserv Is Not Running."\e[0m"
-    #     exit 1
-    # fi  
-    #     OCSERV_UWSGI_STATE=`systemctl is-active ocserv_uwsgi.`
-    # if [    "$OCSERV_UWSGI_STATE=" == "active"]; then
-    #     echo -e "\e[0;32m"Ocserv_Uwsgi Is Started."\e[0m"
-    # else
-    #     echo -e "\e[0;31m"Ocserv_Uwsgi Is Not Running."\e[0m"
-    #     exit 1
-    # fi        
+    NGINX_STATE=`systemctl is-active nginx`
+    if [    "$NGINX_STATE" = "active"  ]; then
+        echo -e "\e[0;32m"Nginx Is Started."\e[0m"
+    else
+        echo -e "\e[0;31m"Nginx Is Not Running."\e[0m"
+        exit 1
+    fi
+    OCSERV_STATE=`systemctl is-active ocserv`
+    if [    "$OCSERV_STATE" = "active"  ]; then
+        echo -e "\e[0;32m"Ocserv Is Started."\e[0m"
+    else
+        echo -e "\e[0;31m"Ocserv Is Not Running."\e[0m"
+        exit 1
+    fi  
+        OCSERV_UWSGI_STATE=`systemctl is-active ocserv_uwsgi`
+    if [    "$OCSERV_UWSGI_STATE" = "active"   ]; then
+        echo -e "\e[0;32m"Ocserv_Uwsgi Is Started."\e[0m"
+    else
+        echo -e "\e[0;31m"Ocserv_Uwsgi Is Not Running."\e[0m"
+        exit 1
+    fi        
     
 }
 
