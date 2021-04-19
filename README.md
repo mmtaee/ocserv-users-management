@@ -6,9 +6,6 @@ Ocserv and Ocserv User Management Pannel
 
 download install.sh and run only in your server to install ocserv and ocserv user managemnet pannel
 
-add to end of visudo :
-    
-    www-data ALL = NOPASSWD: /usr/bin/ocpasswd
     
 to sync db with ocpasswd file in pannel:
     
