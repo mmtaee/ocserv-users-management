@@ -1,0 +1,27 @@
+[Unit]
+Description = ocserv uwsgi service
+After = network-online.target
+After = syslog.target
+
+[Service]
+Type = simple
+User = root
+Group = www-data
+ExecStart = /var/www/html/ocserv_pannel/venv/bin/uwsgi --autoload --http 8000 --ini /var/www/html/ocserv_pannel/configs/uwsgi.ini
+ExecReload = /var/www/html/ocserv_pannel/venv/bin/uwsgi --reload /var/run/uwsgi_ocserv.pid
+TimeoutSec = 120
+Restart = on-failure
+RestartSec = 2
+Slice = uwsgi.slice
+CPUAccounting = True
+BlockIOAccounting = True
+MemoryAccounting = True
+TasksAccounting = True
+PrivateTmp = False
+PrivateDevices = False
+PrivateNetwork = False
+
+
+[Install]
+WantedBy = multi-user.target
+

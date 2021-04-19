@@ -174,7 +174,7 @@ class SyncDb(View):
                 if not filtered.exists():              
                     OcservUser.objects.create(
                         oc_username=user,
-                        oc_password="PCSERV_HASH_PASSWORD",
+                        oc_password="OCSERV_HASH_PASSWORD",
                         oc_active=ocpasswd_users[user]
                     )
             return JsonResponse({}, status=200)

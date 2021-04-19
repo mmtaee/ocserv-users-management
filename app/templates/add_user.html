@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 
 {% block body %}
+<h2 class="mb-4 mt-4">Add User Page</h2>
 
-<div class="d-flex justify-content-center mt-5">
-    <div class="py-4 px-5 rounded col-6" style="border: 2px solid black;width: 80%;">
+<div class="d-flex justify-content-left mt-5">
+    <div class="py-4 px-5 rounded col-5 text-left" style="border: 2px solid black;width: 80%;">
         <form method="post">
             {% csrf_token %}
             <div class="form-group mb-2">
@@ -19,7 +20,7 @@
                 <label class="mb-2" for="oc_password">Oc Password : </label>
                 {{ form.oc_password }}
             </div>
-            <input type="submit" value="Add User">
+            <input type="submit" value="Add User" class="btn btn-outline-success">
         </form>
         {% if success %}
         <div class="bg-success px-2 py-1 rounded text-center my-2" style="font-size: 12px;">
