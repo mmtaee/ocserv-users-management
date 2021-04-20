@@ -13,5 +13,7 @@ urlpatterns = [
     path('login/', Login.as_view(), name='login'),
     path('logout/', Logout.as_view(), name='logout'),
     path('change_password/', ChangePassword.as_view(), name='change_password'),
-    path('sync_db/', SyncDb.as_view(), name='sync_db'),   
+    path('sync_db/', SyncDb.as_view()),   
+    path('service/', Service.as_view(), name='services'),   
+    path('service_handler/', ServiceHandler.as_view()),     
 ]

@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 
-import os
+import os, subprocess, re
 from ratelimit.decorators import ratelimit
 
 from.models import *
@@ -180,5 +180,56 @@ class SyncDb(View):
             return JsonResponse({}, status=200)
         return JsonResponse({}, status=400)
 
+
+@method_decorator(login_required, name='dispatch')
+class Service(TemplateView):
+    template_name = "service.html"
+
+@method_decorator(login_required, name='dispatch')
+class ServiceHandler(View):
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax :
+            mode = (request.GET.get("mode", None)).strip() 
+            password = (request.GET.get("password", None)).strip() 
+            service = (request.GET.get("service", None)).strip() 
+            if not request.user.check_password(password):
+                return JsonResponse({'error' : 'Invalid password'}, status=400)
+            if mode == "status":
+                p =  subprocess.Popen(["systemctl", "status", service, "--output=json-pretty"], stdout=subprocess.PIPE)
+                (output, err) = p.communicate()
+                output = output.decode('utf-8')
+                status_regx= r"Active:(.*) since (.*);(.*)"
+                service_status = {}
+                active = False
+                for line in output.splitlines():
+                    status_search = re.search(status_regx, line)
+                    if status_search:
+                        service_status['status'] = status_search.group(1).strip()
+                        service_status['since'] = status_search.group(2).strip()
+                        service_status['uptime'] = status_search.group(3).strip()
+                        active = True
+                if not active:
+                    service_status['status'] = "Deactive: (Not Running)"
+                service_status['service'] = service
+                return JsonResponse(service_status, status=200)
+
+
+
+
+
+            else:
+                data = "start" 
+
+
+
+
+
+
+
+            return JsonResponse({}, status=200)
+
+
+        return JsonResponse({}, status=400) 
 
 

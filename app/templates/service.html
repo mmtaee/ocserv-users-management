@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+
+{% block body %}
+<h2 class="mt-4">Ocserv Service Page</h2>
+
+<div class="d-flex justify-content-center">
+    <div class="py-4 px-5 rounded text-center">
+        <h6 class="text-capitalize">To chack Status and restart ocserv service you shoul type your password agin !!</h6>
+        <button type="button" class="btn btn-outline-success my-2 mx-2" data-toggle="modal" data-target="#Modal"
+            id="restartbtn">
+            <i class="fa fa-play mx-1" aria-hidden="true"></i>
+            Restart
+        </button>
+
+        <button type="button" class="btn btn-outline-success my-4 mx-2" data-toggle="modal" data-target="#Modal"
+            id="statusbtn">
+            <i class="fa fa-cogs mx-1" aria-hidden="true"></i>
+            Status
+        </button>
+
+        <div class="bg-success px-4 py-3 col-9 mr-auto ml-auto text-capitalize rounded text-left" id="statusResult"
+            style="border: 2px solid black;display: none;">
+            <p>
+                service : <span id="service"></span><br>
+                status : <span id="status"></span><br>
+                since : <span id="since"></span><br>
+                uptime : <span id="uptime"></span><br>
+            </p>
+        </div>
+
+        <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-bottom-0">
+                        <button type="button" class="close">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-title text-center text-dark mb-4">
+                            <h4><span id="mode"></span> Ocserv Service</h4>
+                        </div>
+                        <div class="d-flex flex-column text-center mb-4">
+                            <form id="form">
+                                <div class="form-group mb-4">
+                                    <input type="password" class="form-control" id="password"
+                                        placeholder="Enter your password ...">
+                                    <div class="bg-danger px-2 py-1 rounded text-center my-2"
+                                        style="font-size: 12px;display: none;" id="errorForm">
+                                        Invalid password
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-info btn-block btn-round" id="btnConfirm"
+                                    disabled></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function closeModal() {
+            $("#errorForm").hide();
+            $("#password").val("");
+            $('#Modal').modal('hide');
+        }
+        $(".close").click(function () {
+            closeModal()
+        });
+
+        $("#restartbtn").click(function () {
+            let mode = "Restart";
+            $("#mode").html(mode);
+            $("#btnConfirm").html(mode);
+            $('#Modal').modal('show');
+        });
+
+        $("#statusbtn").click(function () {
+            let mode = "Status";
+            $("#mode").html(mode);
+            $("#btnConfirm").html(mode);
+            $('#Modal').modal('show');
+        });
+
+        $("#password").keyup(function () {
+            var inputPassword = $("#password").val()
+            if (inputPassword.length > 0) {
+                $("#btnConfirm").prop("disabled", false);
+            } else {
+                $("#btnConfirm").prop("disabled", true);
+            }
+        });
+
+        $("#btnConfirm").click(function () {
+            var mode = $("#btnConfirm").html().toLowerCase()
+            var password = $("#password").val()
+            var loading = '<i class="fa fa-spinner fa-spin mx-1"></i>Please wait...';
+            var self = $("#restartConfirm");
+            self.html(loading);
+            self.prop("disabled", true);
+            $.ajax({
+                url: "/service_handler/",
+                data: {
+                    'mode': mode,
+                    'password': password,
+                    'service' : "ocserv",
+                },
+                success: function (response) {
+                    for (let key in response) {
+                        if (response[key] == "Deactive: (Not Running)"){
+                            $("#statusResult").removeClass('bg-success')
+                            $("#statusResult").addClass('bg-danger')
+                        }
+                        $("#" + key).html(response[key])
+                    }
+                    $("#statusResult").show();
+                    $("#result").html(mode);
+                    closeModal();
+                },
+                error: function (response) {
+                    $("#errorForm").show();
+                }
+            });
+        });
+
+    </script>
+
+
+    {% endblock %}
