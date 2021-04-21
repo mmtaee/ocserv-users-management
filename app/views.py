@@ -190,17 +190,26 @@ class ServiceHandler(View):
 
     def get(self, request, *args, **kwargs):
         if request.is_ajax :
+            service_status = {}
             mode = (request.GET.get("mode", None)).strip() 
             password = (request.GET.get("password", None)).strip() 
             service = (request.GET.get("service", None)).strip() 
             if not request.user.check_password(password):
                 return JsonResponse({'error' : 'Invalid password'}, status=400)
-            if mode == "status":
-                p =  subprocess.Popen(["systemctl", "status", service, "--output=json-pretty"], stdout=subprocess.PIPE)
+
+            def subprocess_handler(_mode):
+                p =  subprocess.Popen(["systemctl", _mode, service, "--output=json-pretty"], stdout=subprocess.PIPE)
                 (output, err) = p.communicate()
                 output = output.decode('utf-8')
+                if err:
+                    return False
+                elif output:
+                    return output
+                # for restart mode result
+                return None
+
+            def status_handler(output):
                 status_regx= r"Active:(.*) since (.*);(.*)"
-                service_status = {}
                 active = False
                 for line in output.splitlines():
                     status_search = re.search(status_regx, line)
@@ -212,24 +221,23 @@ class ServiceHandler(View):
                 if not active:
                     service_status['status'] = "Deactive: (Not Running)"
                 service_status['service'] = service
-                return JsonResponse(service_status, status=200)
+                return service_status
 
+            if mode == "restart":
+                output = subprocess_handler(mode)
+                if output is None:
+                    output = subprocess_handler("status")
+                    if output and output is not None:
+                        service_status = status_handler(output)
+                else:
+                    service_status['status'] = "Restarting Error: (Not Running)"
+            
+            elif mode == "status":
+                output = subprocess_handler(mode)
+                if output and output is not None:
+                    service_status = status_handler(output)
 
-
-
-
-            else:
-                data = "start" 
-
-
-
-
-
-
-
-            return JsonResponse({}, status=200)
-
-
+            return JsonResponse(service_status, status=200)
         return JsonResponse({}, status=400) 
 
 
