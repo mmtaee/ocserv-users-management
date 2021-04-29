@@ -82,8 +82,7 @@ class ChangePassword(View):
 class Home(ListView):
     template_name = "home.html"
     queryset = OcservUser.objects.all()
-
-
+    paginate_by = 10
 
 @method_decorator(login_required, name='dispatch')
 class AddUser(View):
@@ -91,10 +90,10 @@ class AddUser(View):
 
     def get(self, request, *args, **kwargs):
         context = {
-            'form' : AddUserForm
+            'form' : AddUserForm,
+            'last_users' : OcservUser.objects.all().order_by("-create")[:7],
         }
         return render(request, self.template_name, context)
-
 
     def post(self, request, *args, **kwargs):
         form = AddUserForm(request.POST)
@@ -106,15 +105,15 @@ class AddUser(View):
             os.system(command)
             context = {
                 'form' : AddUserForm,
-                'success' : True,
+                'success' : username,
             }
         else:
             context = {
                 'form' : form,
                 'error' : True,
             }
+        context['last_users'] = OcservUser.objects.all().order_by("-create")[:7]
         return render(request, self.template_name, context)
-
 
 
 @method_decorator(login_required, name='dispatch')
@@ -184,6 +183,7 @@ class SyncDb(View):
 @method_decorator(login_required, name='dispatch')
 class Service(TemplateView):
     template_name = "service.html"
+
 
 @method_decorator(login_required, name='dispatch')
 class ServiceHandler(View):

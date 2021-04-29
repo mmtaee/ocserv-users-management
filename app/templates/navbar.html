@@ -1,5 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #eee;">
-  <a class="navbar-brand mx-5" href="#">Ocserv User Pannel</a>
+  <span class="d-inline-block text-dark mx-5" tabindex="0" data-toggle="tooltip" title=" Powered By : mmtaee64@gmail.com" style="font-size: 22px;">
+        Ocserv User Pannel
+  </span>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -17,7 +19,7 @@
         <a class="nav-link" href="{% url 'app:services' %}">Ocserv Services</a>
       </li>
     </ul>
-    <ul class="navbar-nav ml-auto">
+    <ul class="navbar-nav ml-auto mx-5">
       <li class="nav-item active" id="auth">
         <a class="nav-link" href="{% url 'app:change_password' %}">Change Password</a>
       </li>

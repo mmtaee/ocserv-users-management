@@ -110,6 +110,7 @@ Print_Variable() {
 
 Install_Ocserv() {
     echo -e "\e[0;36m"Installing Ocserv..."\e[0m"
+    apt-get update
     apt-get install -y ocserv gnutls-bin
     if [    "$?" = "0" ];then
         echo -e "\e[0;32m"Ocserv Installation Was Successful."\e[0m"
@@ -272,7 +273,10 @@ PRO_VENV() {
     chown -R www-data /var/www/html/ocserv_pannel/
 
     echo www-data ALL = NOPASSWD: /usr/bin/ocpasswd >> /etc/sudoers
-
+    
+    echo www-data ALL = NOPASSWD: /usr/bin/systemctl restart ocserv.service >> /etc/sudoers
+    
+    echo www-data ALL = NOPASSWD: /usr/bin/systemctl status ocserv.service >> /etc/sudoers
 }
 
 PRO_SERVICES() {
