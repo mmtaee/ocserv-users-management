@@ -25,6 +25,6 @@ class AddUserForm(forms.ModelForm):
 
     def clean_expire_date(self):
         expire_date = self.cleaned_data['expire_date']  
-        if expire_date and expire_date < timezone.now().date():
-            raise forms.ValidationError("the expiration date cannot be less than the current date".title())
+        if expire_date and expire_date <= timezone.now().date():
+            raise forms.ValidationError("the expiration date cannot be less than or equal the current date".title())
         return expire_date

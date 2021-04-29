@@ -14,7 +14,7 @@ class OcservUser(models.Model):
 
     @property
     def expire(self):
-        if self.expire_date and self.expire_date < timezone.now().date():
+        if self.expire_date and self.expire_date <= timezone.now().date():
             return True
         return False
 

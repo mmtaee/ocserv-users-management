@@ -36,7 +36,7 @@
 <table class="table table-striped table-dark">
     <thead>
         <tr class="text-center">
-            <th scope="col">Row</th>
+            <th scope="col">Create At</th>
             <th scope="col">Ocserv Username</th>
             <th scope="col">Ocserv Password</th>
             <th scope="col">Expire Date</th>
@@ -47,7 +47,7 @@
     <tbody>
         {% for user in object_list %}
         <tr class="text-center">
-            <th scope="row">{{ forloop.counter }}</th>
+            <th scope="row">{{ user.create | date:'Y-m-d' }}</th>
             <td>{{ user.oc_username }}</td>
             <td>{{ user.oc_password }}</td>
             <td>{{ user.expire_date | date:'Y-m-d' }}</td>

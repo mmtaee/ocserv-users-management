@@ -81,7 +81,7 @@ class ChangePassword(View):
 @method_decorator(login_required, name='dispatch')
 class Home(ListView):
     template_name = "home.html"
-    queryset = OcservUser.objects.all()
+    queryset = OcservUser.objects.all().order_by("create")
     paginate_by = 10
 
 @method_decorator(login_required, name='dispatch')
