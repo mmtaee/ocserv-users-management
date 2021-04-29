@@ -21,8 +21,7 @@ to deactive expire users add this line to crontab :
     # 1 0 * * *  /var/www/html/ocserv_pannel/venv/bin/python3 /var/www/html/ocserv_pannel/./manage.py deactive_account
 
 
-
-# special thanks to :  linkedin.com/in/shahab-taee-b5510a170 
+special thanks to :  linkedin.com/in/shahab-taee-b5510a170 
 
 
 
