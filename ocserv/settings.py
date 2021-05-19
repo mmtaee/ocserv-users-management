@@ -93,3 +93,6 @@ else:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
+
+GOOGLE_CAPTCHA_SITE_KEY = None
+GOOGLE_CAPTCHA_SECRET_KEY = None

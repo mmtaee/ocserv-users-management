@@ -14,14 +14,26 @@
                 <label class="mb-2" for="password">Password</label>
                 <input type="password" class="form-control" id="password" placeholder="Password" name="password">
             </div>
+            {% if GOOGLE_CAPTCHA_SITE_KEY %}
+            <script src='https://www.google.com/recaptcha/api.js'></script>
+            <div class="g-recaptcha" data-sitekey="{{ GOOGLE_CAPTCHA_SITE_KEY }}"></div>
+            <br>
+            {% endif %}
             <input class="btn btn-lg btn-light mb-3" type="submit" value="Login">
         </form>
         {% if error %}
         <center>
-        <h6 class="bg-danger px-5 py-2 rounded">
-            {{ error }}
-        </h6>
+            <h6 class="bg-danger px-5 py-2 rounded">
+                {{ error }} {{ message }}
+            </h6>
         <center>
+        {% endif %}
+        {% if messages %}
+            {% for message in messages %}
+            <h6 class="bg-danger px-5 py-2 rounded">
+                {{ message }}
+            </h6>
+            {% endfor %}
         {% endif %}
     </div>
 </div>

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import login as django_login , logout as django_logout, authenticate
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -8,35 +8,43 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
-from django.http import JsonResponse
+from django.db.models import Q
+from django.core.serializers import serialize
 
-import os, subprocess, re
+import os, subprocess, re, json
 from ratelimit.decorators import ratelimit
 
 from.models import *
 from .forms import *
+from .decorators import *
 
 @method_decorator(ratelimit(key='ip', rate='10/d'), name='dispatch')
+@method_decorator(reCAPTCHA, name='post')
 class Login(View):
     template_name = 'login.html'
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect("app:home")
-        return render(request, self.template_name)
+        context = {
+            'GOOGLE_CAPTCHA_SITE_KEY' : settings.GOOGLE_CAPTCHA_SITE_KEY
+        }
+        return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        auth = authenticate(username=username, password=password)
-        if auth:
-            django_login(request, auth)
-            if password == 'admin':
-                return redirect('app:change_password')
-            return redirect("app:home")
         context = {
-            'error' : 'Invalid username or password',
+                'GOOGLE_CAPTCHA_SITE_KEY' : settings.GOOGLE_CAPTCHA_SITE_KEY
         }
+        if request.recaptcha_is_valid:
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            auth = authenticate(username=username, password=password)
+            if auth:
+                django_login(request, auth)
+                if password == 'admin':
+                    return redirect('app:change_password')
+                return redirect("app:home")
+            context ['error'] = 'Invalid username or password'
         return render(request, self.template_name, context=context)
 
 
@@ -83,6 +91,25 @@ class Home(ListView):
     template_name = "home.html"
     queryset = OcservUser.objects.all().order_by("create")
     paginate_by = 10
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["search"] = True
+        return context
+
+@method_decorator(login_required, name='dispatch')
+class SearchView(View):
+    template_name = "home.html"
+
+    def get(self, request, *args, **kwargs):
+        id = kwargs.get("id")
+        if id:
+            oc_user = OcservUser.objects.filter(id=id)
+            return render(request, self.template_name, context={'object_list' : oc_user, 'search' : False})
+        code = "<script>window.close();</script>"
+        return HttpResponse(code)
+
+
 
 @method_decorator(login_required, name='dispatch')
 class AddUser(View):
@@ -241,3 +268,25 @@ class ServiceHandler(View):
         return JsonResponse({}, status=400) 
 
 
+
+@method_decorator(login_required, name='dispatch')
+class SerchUserHandler(View):
+    
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax :
+            search_param = (request.GET.get("search_param", None)).strip() 
+            oc_users = OcservUser.objects.filter(
+                Q(oc_username__icontains=search_param)|
+                Q(oc_password__icontains=search_param)|
+                Q(desc__icontains=search_param)
+            )
+            response = list(map( lambda user:{
+                "id" : user.id,
+                "value" : user.oc_username ,
+                "oc_password": user.oc_password ,
+                "oc_active": user.oc_active ,
+                "expire_date": user.expire_date.strftime("%Y-%m-%d") if user.expire_date else None,
+                "desc": user.desc ,
+            }, oc_users ))
+            return JsonResponse(response, status=200, safe=False)
+        return JsonResponse({}, status=400) 
