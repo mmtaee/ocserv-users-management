@@ -18,5 +18,5 @@ urlpatterns = [
     path('service/', Service.as_view(), name='services'),   
     path('service_handler/', ServiceHandler.as_view()),   
     path('search_user/', SerchUserHandler.as_view()),     
-
+    path('online_users/', OnlineUsers.as_view()),     
 ]

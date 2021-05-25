@@ -176,6 +176,7 @@ _EOF_
     sed -i "s/cookie-timeout = 300/cookie-timeout = 86400/g" "${confdir}/ocserv.conf"
     sed -i 's/user-profile = profile.xml/#user-profile = profile.xml/g' "${confdir}/ocserv.conf"
     sed -i 's/^#mtu/mtu = 1420/g' "${confdir}/ocserv.conf"
+    sed -i 's/auth = "pam\[gid-min=1000\]"/#auth = "pam\[gid-min=1000\]"/g'  "${confdir}/ocserv.conf"
     ######################PAMMMMMM
 }
 
@@ -285,7 +286,7 @@ PRO_SERVICES() {
     rm -rf /etc/nginx/sites-enabled/default
     mv /var/www/html/ocserv_pannel/configs/ocserv_nginx.conf /etc/nginx/conf.d/
     mv /var/www/html/ocserv_pannel/configs/ocserv_uwsgi.service /lib/systemd/system
-    systemctl restart nginx ocserv_uwsgi.service;systemctl enable nginx ocserv_uwsgi.service;
+    systemctl daemon-reload;systemctl restart nginx ocserv_uwsgi.service;systemctl enable nginx ocserv_uwsgi.service;
     NGINX_STATE=`systemctl is-active nginx`
     if [    "$NGINX_STATE" = "active"  ]; then
         echo -e "\e[0;32m"Nginx Is Started."\e[0m"

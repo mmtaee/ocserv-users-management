@@ -11,7 +11,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
 from django.core.serializers import serialize
 
-import os, subprocess, re, json
+import os, subprocess, re, json, subprocess
 from ratelimit.decorators import ratelimit
 
 from.models import *
@@ -289,4 +289,17 @@ class SerchUserHandler(View):
                 "desc": user.desc ,
             }, oc_users ))
             return JsonResponse(response, status=200, safe=False)
+        return JsonResponse({}, status=400) 
+
+
+@method_decorator(login_required, name='dispatch')
+class OnlineUsers(View):
+    
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax :
+            p =  subprocess.Popen(["sudo", "occtl", "-j",  "show", "users", "--output=json-pretty"], stdout=subprocess.PIPE)
+            (output, err) = p.communicate()
+            output = json.loads(output.decode('utf-8'))
+            output = [i['Username'] for i in output]
+            return JsonResponse(output, status=200, safe=False)
         return JsonResponse({}, status=400) 
