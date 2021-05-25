@@ -274,6 +274,8 @@ PRO_VENV() {
     chown -R www-data /var/www/html/ocserv_pannel/
 
     echo www-data ALL = NOPASSWD: /usr/bin/ocpasswd >> /etc/sudoers
+
+    echo www-data ALL = NOPASSWD: /usr/bin/occtl >> /etc/sudoers
     
     echo www-data ALL = NOPASSWD: /usr/bin/systemctl restart ocserv.service >> /etc/sudoers
     

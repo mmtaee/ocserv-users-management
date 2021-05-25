@@ -299,7 +299,12 @@ class OnlineUsers(View):
         if request.is_ajax :
             p =  subprocess.Popen(["sudo", "occtl", "-j",  "show", "users", "--output=json-pretty"], stdout=subprocess.PIPE)
             (output, err) = p.communicate()
-            output = json.loads(output.decode('utf-8'))
-            output = [i['Username'] for i in output]
-            return JsonResponse(output, status=200, safe=False)
+            if output:
+                output = output.decode('utf-8')
+                if len(output) > 0:
+                    output = json.loads(output)
+                    output = [i['Username'] for i in output]
+                else:
+                    output = []
+                return JsonResponse(output, status=200, safe=False)
         return JsonResponse({}, status=400) 
