@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../src/components/VOtpInput/index.ts"],"names":[],"mappings":"AAAA,OAAO,SAAP,MAAsB,aAAtB;AAEA,SAAS,SAAT;AACA,eAAe,SAAf","sourcesContent":["import VOtpInput from './VOtpInput'\n\nexport { VOtpInput }\nexport default VOtpInput\n"],"sourceRoot":"","file":"index.js"}

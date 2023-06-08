@@ -39,6 +39,7 @@ class AdminViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["POST"], url_path="create")
     def create_admin_configs(self, request):
+        print(request.data)
         admin_config = cache.get("admin_config")
         if admin_config or AdminConfig.objects.all().exists():
             return Response({"error": ["Admin config exists!"]}, status=400)

@@ -25,7 +25,7 @@
                 </v-col>
                 <v-col md="4" cols="12" class="ma-0 pa-1" v-if="!editMode">
                   <v-text-field
-                    :value="input.password"
+                    v-model="input.password"
                     :type="passwordShow ? 'text' : 'password'"
                     :rules="[rules.required]"
                     label="Password"
@@ -41,7 +41,7 @@
                 <v-col md="3" cols="12" class="ma-0 pa-1">
                   <v-text-field
                     v-model="input.default_traffic"
-                    label="Default Traffic"
+                    label="Default Traffic(GB)"
                     outlined
                     :rules="[rules.required]"
                     dense
@@ -244,7 +244,7 @@ export default Vue.extend({
     changePassword: {
       immediate: false,
       handler() {
-        if (!this.changePassword) {
+        if (this.editMode && !this.changePassword) {
           this.input.password = null;
           this.input.new_password = null;
         }
