@@ -1,0 +1,19 @@
+{
+  "name": "vue-cli-plugin-axios",
+  "version": "0.0.4",
+  "description": "Vue-cli-3 plugin: axios",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "Axios",
+    "axios",
+    "vue-axios",
+    "vue",
+    "axios",
+    "vue",
+    "plugin",
+    "axios"
+  ],
+  "author": "Canh Kieu <minhcanhdn0704@gmail.com>",
+  "license": "MIT"
+}

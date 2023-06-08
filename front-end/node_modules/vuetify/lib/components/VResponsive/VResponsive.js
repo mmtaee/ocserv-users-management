@@ -1,0 +1,54 @@
+import "../../../src/components/VResponsive/VResponsive.sass"; // Mixins
+
+import Measurable from '../../mixins/measurable'; // Utils
+
+import mixins from '../../util/mixins';
+import { getSlot } from '../../util/helpers';
+/* @vue/component */
+
+export default mixins(Measurable).extend({
+  name: 'v-responsive',
+  props: {
+    aspectRatio: [String, Number],
+    contentClass: String
+  },
+  computed: {
+    computedAspectRatio() {
+      return Number(this.aspectRatio);
+    },
+
+    aspectStyle() {
+      return this.computedAspectRatio ? {
+        paddingBottom: 1 / this.computedAspectRatio * 100 + '%'
+      } : undefined;
+    },
+
+    __cachedSizer() {
+      if (!this.aspectStyle) return [];
+      return this.$createElement('div', {
+        style: this.aspectStyle,
+        staticClass: 'v-responsive__sizer'
+      });
+    }
+
+  },
+  methods: {
+    genContent() {
+      return this.$createElement('div', {
+        staticClass: 'v-responsive__content',
+        class: this.contentClass
+      }, getSlot(this));
+    }
+
+  },
+
+  render(h) {
+    return h('div', {
+      staticClass: 'v-responsive',
+      style: this.measurableStyles,
+      on: this.$listeners
+    }, [this.__cachedSizer, this.genContent()]);
+  }
+
+});
+//# sourceMappingURL=VResponsive.js.map
