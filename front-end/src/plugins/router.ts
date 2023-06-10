@@ -19,24 +19,24 @@ const routes: RouteConfig[] = [
       requireAuth: true
     }
   },
-  {
-    path: '/config',
-    name: "Config",
-    component: () => import("@/views/Configs.vue"),
-    meta: {
-      title: "Config",
-      requireAuth: false
-    }
-  },
-  {
-    path: '/login',
-    name: "Login",
-    component: () => import("@/views/Login.vue"),
-    meta: {
-      title: "Login",
-      requireAuth: false
-    }
-  },
+  // {
+  //   path: '/config',
+  //   name: "Config",
+  //   component: () => import("@/views/Configs.vue"),
+  //   meta: {
+  //     title: "Config",
+  //     requireAuth: false
+  //   }
+  // },
+  // {
+  //   path: '/login',
+  //   name: "Login",
+  //   component: () => import("@/views/Login.vue"),
+  //   meta: {
+  //     title: "Login",
+  //     requireAuth: false
+  //   }
+  // },
   {
     path: '*',
     name: 'NotFound',

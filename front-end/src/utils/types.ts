@@ -1,15 +1,3 @@
-interface URLS {
-    admin: Object,
-    users: Object
-}
-
-interface UrlsParams {
-    urlName: keyof URLS,
-    urlPath: string,
-    pk?: string | number | null,
-    params?: object | null
-}
-
 declare interface AminLogin {
     username: string | null;
     password: string | null;
@@ -25,16 +13,28 @@ declare interface AdminConfig {
     default_traffic: number | null
 }
 
-
 declare type OcservConfigItems = {
     label: string;
     model: string;
 };
 
+declare interface Config {
+    captcha_site_key: string | null,
+    config: boolean,
+    token?: string
+}
+
+declare interface Dashboard {
+    online_users: Array<string>,
+    server_stats: object,
+}
+
+
+
 export {
-    URLS,
-    UrlsParams,
     AminLogin,
     AdminConfig,
     OcservConfigItems,
+    Config,
+    Dashboard,
 }

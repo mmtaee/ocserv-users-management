@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import httpRequest from "@/plugins/axios";
+import { adminServiceApi } from "@/utils/services";
 import { AxiosResponse } from "axios";
 import Vue from "vue";
 
@@ -76,11 +77,9 @@ export default Vue.extend({
   methods: {
     async logout() {
       if (localStorage.getItem("token")) {
-        let res: AxiosResponse = await httpRequest("delete", {
-          urlName: "admin",
-          urlPath: "logout",
-        });
-        if (res.status == 204) {
+        await adminServiceApi.config();
+        let status: number = adminServiceApi.status();
+        if (status == 204) {
           this.$store.commit("setIsLogin", false);
           localStorage.removeItem("token");
           this.$router.push({ name: "Login" });

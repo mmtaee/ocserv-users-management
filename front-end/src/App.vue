@@ -8,9 +8,8 @@
 </template>
 
 <script lang="ts">
-import { AxiosResponse } from "axios";
 import Vue from "vue";
-import httpRequest from "./plugins/axios";
+import { adminServiceApi } from "@/utils/services";
 
 export default Vue.extend({
   name: "App",
@@ -29,21 +28,14 @@ export default Vue.extend({
 
   methods: {
     async init() {
-      interface ConfigResponse {
-        config: Boolean;
-        captcha_site_key: String | null;
-      }
-      let res: ConfigResponse | AxiosResponse = await httpRequest("get", {
-        urlName: "admin",
-        urlPath: "config",
-      });
-      if ((res as AxiosResponse).status === 401) {
+      let data = await adminServiceApi.config();
+      let status: number = adminServiceApi.status();
+      if (status == 401) {
         this.$store.commit("setIsLogin", false);
         localStorage.removeItem("token");
         this.$router.push({ name: "Login" });
       } else {
-        this.$store.commit("setSiteKey", res.data.captcha_site_key);
-        if (!res.data.config) {
+        if (!data.config) {
           this.$router.push({ name: "Config" });
         } else {
           if (!localStorage.getItem("token")) {
@@ -58,3 +50,7 @@ export default Vue.extend({
   },
 });
 </script>
+
+function AdminServiceApi() {
+  throw new Error("Function not implemented.");
+}

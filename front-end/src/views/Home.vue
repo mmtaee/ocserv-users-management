@@ -18,8 +18,8 @@
 </template>
 
 <script lang="ts">
-import httpRequest from "@/plugins/axios";
-import { AxiosResponse } from "axios";
+import { adminServiceApi } from "@/utils/services";
+import { Dashboard } from "@/utils/types";
 import Vue from "vue";
 
 export default Vue.extend({
@@ -29,13 +29,8 @@ export default Vue.extend({
   },
 
   async mounted() {
-    let res: AxiosResponse = await httpRequest("get", {
-      urlName: "admin",
-      urlPath: "dashboard",
-    });
-
-    console.log(res.data);
-    
+    let data: Dashboard = await adminServiceApi.dashboard();
+    console.log(data);
   },
 });
 </script>

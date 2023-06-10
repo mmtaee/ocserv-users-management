@@ -9,9 +9,8 @@
 </template>
 
 <script lang="ts">
-import httpRequest from "@/plugins/axios";
+import { adminServiceApi } from "@/utils/services";
 import { AdminConfig } from "@/utils/types";
-import { AxiosResponse } from "axios";
 import Vue from "vue";
 
 export default Vue.extend({
@@ -33,11 +32,9 @@ export default Vue.extend({
 
   methods: {
     async getInit() {
-      let res: AxiosResponse = await httpRequest("get", {
-        urlName: "admin",
-        urlPath: "configuration",
-      });
-      if (res.data) this.initInput = { ...res.data };
+      let data: AdminConfig = await adminServiceApi.get_configuration();
+      let status: number = adminServiceApi.status();
+      this.initInput = data;
     },
   },
 });

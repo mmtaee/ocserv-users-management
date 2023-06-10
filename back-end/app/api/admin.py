@@ -49,7 +49,7 @@ class AdminViewSet(viewsets.ViewSet):
         admin_config = serializer.save()
         token = Token.objects.create(user=admin_config)
         cache.set("admin_config", admin_config)
-        return Response({"token": token.key, "captcha_site_key": admin_config.captcha_site_key})
+        return Response({"token": token.key, "captcha_site_key": admin_config.captcha_site_key}, status=201)
 
     @recaptcha
     @action(detail=False, methods=["POST"])

@@ -68,10 +68,9 @@
 
 <script lang="ts">
 import Vue from "vue";
-import httpRequest from "@/plugins/axios";
 import { required } from "@/utils/rules";
-import { AminLogin } from "@/utils/types";
-import { AxiosResponse } from "axios";
+import { AminLogin, Config } from "@/utils/types";
+import { adminServiceApi } from "@/utils/services";
 
 export default Vue.extend({
   name: "Login",
@@ -81,7 +80,7 @@ export default Vue.extend({
     rules: object;
     passwordShow: boolean;
     formValid: boolean;
-    loading: boolean
+    loading: boolean;
   } {
     return {
       input: {
@@ -97,19 +96,14 @@ export default Vue.extend({
 
   methods: {
     async login() {
-      this.loading = true
-      let res: AxiosResponse = await httpRequest(
-        "post",
-        {
-          urlName: "admin",
-          urlPath: "login",
-        },
-        this.input
-      );
-      localStorage.setItem("token", res.data.token);
+      this.loading = true;
+      let data: {
+        token: string;
+      } = await adminServiceApi.login(this.input);
+      localStorage.setItem("token", data.token);
       this.$store.commit("setIsLogin", true);
       this.$router.push({ name: "Home" });
-      this.loading = false
+      this.loading = false;
     },
   },
 });

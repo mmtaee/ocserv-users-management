@@ -154,10 +154,9 @@
 
 <script lang="ts">
 import Vue from "vue";
-import httpRequest from "@/plugins/axios";
 import { required } from "@/utils/rules";
-import { AdminConfig } from "@/utils/types";
-import { AxiosResponse } from "axios";
+import { AdminConfig, Config } from "@/utils/types";
+import { adminServiceApi } from "@/utils/services";
 
 export default Vue.extend({
   name: "CofigsForm",
@@ -208,24 +207,21 @@ export default Vue.extend({
   methods: {
     async save() {
       this.loading = true;
-      let res: AxiosResponse = await httpRequest(
-        this.editMode ? "patch" : "post",
-        {
-          urlName: "admin",
-          urlPath: this.editMode ? "configuration" : "createConfig",
-        },
-        this.input
-      );
-
-      if (res.data.captcha_site_key) {
-        this.$store.commit("setSiteKey", res.data.captcha_site_key);
+      let data: null | Config = this.editMode
+        ? await adminServiceApi.post_configuration(this.input)
+        : await adminServiceApi.create_configs(this.input);
+      let status: number = adminServiceApi.status();
+      if (status == 201 && data !== null) {
+        if (data.captcha_site_key) {
+          this.$store.commit("setSiteKey", data.captcha_site_key);
+        }
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          this.$store.commit("setIsLogin", true);
+          this.$router.push({ name: "Home" });
+        }
       }
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        this.$store.commit("setIsLogin", true);
-        this.$router.push({ name: "Home" });
-      }
-      if (res.status == 202) {
+      if (status == 202) {
         console.log("CofigsForm update");
         // TODO : add snackbar
       }
