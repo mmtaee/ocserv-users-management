@@ -27,9 +27,11 @@ _axios.interceptors.response.use(
     },
     (error) => {
         if (error.response) {
-            if (error.response.status == 500) {
-                return Promise.reject(error);
+            if (error.response.status == 400) {
+                return error.response
             }
+            // if (error.response.status == 500) {
+            // }
             // else {
             //     if (error.response.status == 401) {
             //         localStorage.removeItem('token');
@@ -44,7 +46,7 @@ _axios.interceptors.response.use(
             //     }
             //     return error.response
             // }
-
+            return Promise.reject(error);
         }
 
     }

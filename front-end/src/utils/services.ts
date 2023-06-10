@@ -14,6 +14,7 @@ class Services {
     }
     public async request(method: string, url: string, data?: object, params?: object): Promise<AxiosResponse> {
         let response: AxiosResponse = await this.axiosMethods[method](url = url, data = data, { params: params });
+        console.log("response : ", response)
         this.status_code = response.status
         return response
     }
@@ -46,8 +47,8 @@ class AdminServiceApi extends Services {
         let response: AxiosResponse = await this.request(method, url, data)
         return response.data
     }
-    public async post_configuration(data: object): Promise<null> {
-        let method: string = "post"
+    public async patch_configuration(data: object): Promise<null> {
+        let method: string = "patch"
         let url = "/admin/configuration/"
         await this.request(method, url, data)
         return null

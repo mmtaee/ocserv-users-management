@@ -208,7 +208,7 @@ export default Vue.extend({
     async save() {
       this.loading = true;
       let data: null | Config = this.editMode
-        ? await adminServiceApi.post_configuration(this.input)
+        ? await adminServiceApi.patch_configuration(this.input)
         : await adminServiceApi.create_configs(this.input);
       let status: number = adminServiceApi.status();
       if (status == 201 && data !== null) {
