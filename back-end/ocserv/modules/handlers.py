@@ -7,6 +7,27 @@ from ocserv.modules.logger import Logger
 logger = Logger()
 
 
+class OcservServiceHandler:
+    @staticmethod
+    def subprocess_handler(mode="status"):
+        p = subprocess.Popen(["systemctl", mode, "ocserv.service", "--output=json-pretty"], stdout=subprocess.PIPE)
+        (output, err) = p.communicate()
+        output = output.decode("utf-8")
+        if err:
+            logger.log(level="critical", message=f"subprocess handler in OcservServiceHandler class({err})")
+            return False
+        return output.splitlines() if output else None
+
+    def status(self):
+        output = self.subprocess_handler()
+        return output
+
+    def restart(self):
+        self.subprocess_handler(mode="restart")
+        output = self.subprocess_handler()
+        return output
+
+
 class OcservGroupHandler:
     GROUP_DIR = "/etc/ocserv/groups"
 
@@ -17,6 +38,8 @@ class OcservGroupHandler:
             os.system(command)
         except Exception as e:
             logger.log(level="critical", message=f"occtl reload service error ({e})")
+            return False
+        return True
 
     def add_or_update(self, name, configs=None):
         path = f"{self.GROUP_DIR}/{name}"
@@ -35,7 +58,8 @@ class OcservGroupHandler:
             f.close()
         except Exception as e:
             logger.log(level="critical", message=f"add or update ocserv group error ({e})")
-        self.reload()
+            return False
+        return self.reload()
 
     def destroy(self, name):
         path = f"{self.GROUP_DIR}/{name}"
@@ -104,6 +128,64 @@ class OcservUserHandler:
     def __init__(self, username=None):
         self.username = username
 
+    def change_group(self, password, group):
+        try:
+            command = f'/usr/bin/echo -e "{password}\n{password}\n" | /usr/bin/ocpasswd'
+            if group:
+                command += f" -g {group}"
+            command += f" -c /etc/ocserv/ocpasswd {self.username}"
+            os.system(command)
+        except Exception as e:
+            logger.log(level="critical", message=f"change user group error ({e})")
+            return False
+        return True
+
+    def status_handler(self, active=True):
+        """
+        ocserv lock method
+        """
+        try:
+            command = f"/usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd {'-l' if not active else '-u'} {self.username}"
+            os.system(command)
+        except Exception as e:
+            logger.log(level="critical", message=f"change user active error ({e})")
+            return False
+        return True
+
+    def add(self, password, group=None, active=True):
+        try:
+            command = f'/usr/bin/echo -e "{password}\n{password}\n" | /usr/bin/ocpasswd'
+            if group:
+                command += f" -g {group}"
+            command += " -u" if active else " -l"
+            command += f" -c /etc/ocserv/ocpasswd {self.username}"
+            os.system(command)
+        except Exception as e:
+            logger.log(level="critical", message=f"add user error ({e})")
+            return False
+        return True
+
+    def delete(self):
+        try:
+            command = f"/usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd -d {self.username}"
+            os.system(command)
+        except Exception as e:
+            logger.log(level="critical", message=f"delete user error ({e})")
+            return False
+        return True
+
+    def disconnect(self):
+        p = subprocess.Popen(
+            ["/usr/bin/occtl", "disconnect", "user", f"{self.username}"],
+            stdout=subprocess.PIPE,
+        )
+        output, err = p.communicate()
+        if output:
+            output = output.decode("utf-8")
+            if output.strip() != f"user '{self.username}' was disconnected":
+                return False
+        return True
+
     @staticmethod
     def online():
         users = []
@@ -160,12 +242,14 @@ class OcctlHandler:
         output = self.subprocess_handler(command)
         return {action: output}
 
-    def __call__(self, *args, **kwargs):
-        result = {}
-        action = kwargs.get("action")
-        if isinstance(action, list):
-            for act in action:
-                result.update(**self.output(act.get("action"), act.get("extra_commands", [])))
-        if isinstance(action, dict):
-            result = self.output(action.get("action"), action.get("extra_commands", []))
+    def show(self, action, extra):
+        result = self.output(action, extra)
         return result
+
+    def reload(self):
+        command = "reload"
+        return self.subprocess_handler(command)
+
+    def unban_ip(self, ip):
+        command = f"unban ip {ip}"
+        return self.subprocess_handler(command)

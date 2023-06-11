@@ -1,6 +1,5 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password
-from django.core.cache import cache
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -11,6 +10,7 @@ from app.models import AdminConfig
 from app.serializers import AminConfigSerializer
 from ocserv.modules.decorators import recaptcha
 from ocserv.modules.handlers import OcservUserHandler, OcctlHandler
+from ocserv.throttles import CustomThrottle
 
 
 # TODO: add throttle for admin
@@ -19,18 +19,9 @@ from ocserv.modules.handlers import OcservUserHandler, OcctlHandler
 class AdminViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
-    @staticmethod
-    def admin_config_cache():
-        config = cache.get("admin_config")
-        if not config:
-            config = AdminConfig.objects.first()
-            if config:
-                cache.set("admin_config", config)
-        return config
-
     @action(detail=False, methods=["GET"])
     def config(self, request):
-        admin_config = self.admin_config_cache()
+        admin_config = AdminConfig.objects.first()
         data = {
             "config": True if admin_config else False,
             "captcha_site_key": admin_config.captcha_site_key if admin_config else None,
@@ -39,20 +30,17 @@ class AdminViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["POST"], url_path="create")
     def create_admin_configs(self, request):
-        print(request.data)
-        admin_config = cache.get("admin_config")
-        if admin_config or AdminConfig.objects.all().exists():
+        if AdminConfig.objects.all().exists():
             return Response({"error": ["Admin config exists!"]}, status=400)
         data = request.data
         serializer = AminConfigSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         admin_config = serializer.save()
         token = Token.objects.create(user=admin_config)
-        cache.set("admin_config", admin_config)
         return Response({"token": token.key, "captcha_site_key": admin_config.captcha_site_key}, status=201)
 
     @recaptcha
-    @action(detail=False, methods=["POST"])
+    @action(detail=False, methods=["POST"], throttle_classes=[CustomThrottle(rate="20/hour")])
     def login(self, request):
         data = request.data
         data.get("username")
@@ -69,7 +57,7 @@ class AdminViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["GET", "PATCH"], permission_classes=[IsAuthenticated])
     def configuration(self, request):
         data = request.data.copy()
-        admin_config = self.admin_config_cache()
+        admin_config = AdminConfig.objects.first()
         if request.method == "GET":
             serializer = AminConfigSerializer(admin_config)
             return Response(serializer.data, status=200)
@@ -80,8 +68,7 @@ class AdminViewSet(viewsets.ViewSet):
                 return Response({"error": ["Invalid old password"]}, status=400)
         serializer = AminConfigSerializer(data=data, instance=admin_config, partial=True)
         serializer.is_valid(raise_exception=True)
-        admin_config = serializer.save()
-        cache.set("admin_config", admin_config)
+        serializer.save()
         return Response(status=202)
 
     @action(detail=False, methods=["GET"], permission_classes=[IsAuthenticated])

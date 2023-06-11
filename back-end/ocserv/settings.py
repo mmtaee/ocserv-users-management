@@ -138,10 +138,3 @@ else:
     LOG_PATH = "/var/log/backend.log"
 
 OSCERV_CONFIG_KEYS = ["tcp-port", "udp-port", "max-same-clients", "ipv4-network", "dns1", "dns2"]
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
-    }
-}

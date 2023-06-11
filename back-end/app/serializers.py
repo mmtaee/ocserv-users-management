@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
-from .models import AdminConfig
+from .models import AdminConfig, OcservGroup, OcservUser, MonthlyTrafficStat
 
 
 class AminConfigSerializer(serializers.ModelSerializer):
@@ -20,22 +20,12 @@ class AminConfigSerializer(serializers.ModelSerializer):
         return rep
 
 
-from rest_framework import serializers
-
-from .models import OcservGroup
-
-
 class OcservGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = OcservGroup
         fields = "__all__"
         read_only_fields = ("id",)
         extra_kwargs = {"name": {"trim_whitespace": True}}
-
-
-from rest_framework import serializers
-
-from .models import OcservUser, MonthlyTrafficStat
 
 
 class OcservUserSerializer(serializers.ModelSerializer):

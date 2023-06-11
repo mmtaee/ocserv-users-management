@@ -6,7 +6,6 @@ from datetime import datetime
 
 
 def check_stats():
-    logger = Logger()
     cmd = "journalctl -fu ocserv"
     if logfile := os.environ.get("LOG_FILE"):
         cmd = f"tail -f {logfile}"
@@ -62,3 +61,4 @@ if __name__ == "__main__":
     # from .models import MonthlyTrafficStat
     # from .models import OcservUser
     from ocserv.modules.logger import Logger
+    logger = Logger()
