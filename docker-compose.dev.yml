@@ -1,0 +1,29 @@
+# use for develop frontend
+version: '3.9'
+
+services:
+  ocserv_and_backend:
+    restart: always
+    image: ocserv_and_backend:ocserv
+    container_name: ocserv_and_backend_for_frontend
+    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfile_dev
+    ports:
+      - 20443:443/tcp
+      - 20443:443/udp
+      - 127.0.0.1:8000:8000
+    environment:
+      - CN=End-way-Cisco-VPN
+      - ORG=End-way
+      - EXPIRE=3650
+      - OC_NET=172.16.24.0/24
+      - DEBUG=True
+      - CORS_ALLOWED=http://127.0.0.1:9000
+      - SECRET_KEY=SECRET_KEY
+    volumes:
+      - "./back-end:/app"
+      - "./volumes:/etc/ocserv"
+
+# DOCKER_SCAN_SUGGEST=false docker compose -f docker-compose.dev.yml up -d --build
