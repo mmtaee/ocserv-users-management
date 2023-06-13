@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from app.models import OcservUser, OcservGroup
+
+admin.site.register(OcservGroup)
+admin.site.register(OcservUser)

@@ -17,8 +17,11 @@ class AdminConfig(User):
         verbose_name_plural = "Admin Config"
 
     def save(self, *args, **kwargs):
-        if not self.pk and AdminConfig.objects.all().exists():
-            raise RestValidationError({"error": ["Admin Config exists"]})
+        if not self.pk:
+            if AdminConfig.objects.all().exists():
+                raise RestValidationError({"error": ["Admin Config exists"]})
+            if not OcservGroup.objects.filter(name="defaults").exists():
+                OcservGroup.objects.create(name="defaults", desc="defaults group")
         if self.default_configs and type(self.default_configs) == dict:
             new_configs = {}
             for key, val in self.default_configs.items():
@@ -27,6 +30,7 @@ class AdminConfig(User):
             self.default_configs = new_configs
         else:
             self.default_configs = {}
+
         OcservGroupHandler().update_defaults(self.default_configs)
         super().save(*args, **kwargs)
 
@@ -47,7 +51,7 @@ class OcservGroup(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.name == "defaults":
+        if OcservGroup.objects.filter(name="defaults").exists():
             raise RestValidationError({"error": ["Invalid name (defaults) for group"]})
         if self.configs and type(self.configs) == dict:
             new_configs = {}
@@ -57,10 +61,13 @@ class OcservGroup(models.Model):
             self.configs = new_configs
         else:
             self.configs = {}
-        OcservGroupHandler().add_or_update(self.name, self.configs)
+        if self.name != "defaults":
+            OcservGroupHandler().add_or_update(self.name, self.configs)
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
+        if self.name == "defaults":
+            return False
         OcservGroupHandler().destroy(self.name)
         super().delete(*args, **kwargs)
 
@@ -88,7 +95,7 @@ class OcservUser(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__group = self.group
+        self.__group = self.group if hasattr(self, "group") and getattr(self, "group") else None
 
     class Meta:
         verbose_name = "Ocserv User"

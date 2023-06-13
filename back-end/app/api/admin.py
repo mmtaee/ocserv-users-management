@@ -79,8 +79,7 @@ class AdminViewSet(viewsets.ViewSet):
             {"action": "show_ip_bans"},
             {"action": "show_status"},
             {"action": "show_iroutes"},
-            {"action": "show_events"},
         ]
-        server_stats = occtl(action=actions)
-        result = {"online_users": online.online() or [], "server_stats": server_stats}
+        server_stats = occtl.show(action=actions)
+        result = {"online_users": online.online() or [], **server_stats}
         return Response(result)

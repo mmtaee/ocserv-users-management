@@ -19,7 +19,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
     def list(self, request):
         online_users = user_handler.online()
         users = OcservUser.objects.all().select_related("group").order_by("-id")
-        data = pagination(users, OcservUserSerializer, context={"online_users": online_users})
+        data = pagination(request, users, OcservUserSerializer, context={"online_users": online_users})
         return Response(data)
 
     def create(self, request):

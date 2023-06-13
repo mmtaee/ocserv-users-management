@@ -198,10 +198,23 @@ class OcservUserHandler:
             if _users:
                 if len(_users.decode("utf-8")) > 0:
                     _users = json.loads(_users)
-                    users = [i["Username"] for i in _users]
+                    users = [
+                        {
+                            "username": i["Username"],
+                            "hostname": i["Hostname"],
+                            "device": i["Device"],
+                            "remote_ip": i["Remote IP"],
+                            "user_agent": i["User-Agent"],
+                            "since": i["_Connected at"],
+                            "connected_at": i["Connected at"],
+                            "average_rx": i["Average RX"],
+                            "average_tx": i["Average TX"],
+                        }
+                        for i in _users
+                    ]
         except FileNotFoundError as e:
             logger.log(level="critical", message=f"online users error ({e})")
-        return {"users": users}
+        return users
 
 
 class OcctlHandler:
@@ -215,8 +228,8 @@ class OcctlHandler:
             "show_status": ["show", "status"],
             "show_user": ["show", "user"],
             "show_users": ["show", "users"],
-            "show_iroutes": ["show", "iroutes"],
-            "show_events": ["show", "events"],
+            "show_iroutes": ["-j", "show", "iroutes", "--output=json-pretty"],
+            # "show_events": ["show", "events"],
         }
         return cmd.get(cmd_name, [])
 
@@ -230,7 +243,7 @@ class OcctlHandler:
             if err:
                 logger.log(level="critical", message=f"subprocess handler in OcctlHandler class({err})")
                 return False
-            return output.splitlines() if output else None
+            return output
         except Exception as e:
             logger.log(level="critical", message=f"occtl command error ({e}), command: {' '.join(exc)}")
         return ""
@@ -240,10 +253,20 @@ class OcctlHandler:
         command += extra_commands
         command = list(filter(None, command))
         output = self.subprocess_handler(command)
-        return {action: output}
+        return output
 
-    def show(self, action, extra):
-        result = self.output(action, extra)
+    def show(self, action):
+        result = {}
+        if isinstance(action, list):
+            for act in action:
+                key = act.get("action")
+                args = act.get("args", [])
+                result[key.replace(" ", "_")] = self.output(key, args)
+        elif isinstance(action, dict):
+            key = action.get("action")
+            result = {key.replace(" ", "_"): self.output(key, action.get("args", []))}
+        else:
+            result = {action.replace(" ", "_"): self.output(action)}
         return result
 
     def reload(self):
