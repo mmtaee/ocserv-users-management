@@ -12,6 +12,7 @@ printf "\n"
 # django service
 printf "\e[33m########### backend service starting ... ###########\e[0m"
 printf "\n"
+mkdir -p /app/db
 python3 /app/manage.py migrate
 python3 /app/manage.py runserver 0.0.0.0:8000 &
 
