@@ -1,6 +1,6 @@
 import _axios from "@/plugins/axios";
 import { AxiosResponse } from "axios";
-import { AdminConfig, AminLogin, Config, Dashboard } from "./types";
+import { AdminConfig, AminLogin, Config, Dashboard, UserPagination } from "./types";
 
 class Services {
     private status_code: number = 500
@@ -14,7 +14,6 @@ class Services {
     }
     public async request(method: string, url: string, data?: object, params?: object): Promise<AxiosResponse> {
         let response: AxiosResponse = await this.axiosMethods[method](url = url, data = data, { params: params });
-        console.log("response : ", response)
         this.status_code = response.status
         return response
     }
@@ -68,7 +67,15 @@ class AdminServiceApi extends Services {
 }
 
 
-class OcservUserApi extends Services { }
+class OcservUserApi extends Services { 
+    public async users(): Promise<UserPagination> {
+        let method: string = "get"
+        let url = "/users/"
+        let response: AxiosResponse = await this.request(method, url)
+        return response.data
+    }
+
+}
 
 const adminServiceApi = new AdminServiceApi()
 const ocservUserApi = new OcservUserApi()

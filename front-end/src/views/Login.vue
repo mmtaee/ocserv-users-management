@@ -102,7 +102,7 @@ export default Vue.extend({
       } = await adminServiceApi.login(this.input);
       localStorage.setItem("token", data.token);
       this.$store.commit("setIsLogin", true);
-      this.$router.push({ name: "Home" });
+      this.$router.push({ name: "Dashboard" });
       this.loading = false;
     },
   },

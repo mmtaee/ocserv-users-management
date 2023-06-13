@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
-import HomeView from '../views/Home.vue';
+import Dashboard from "@/views/Dashboard.vue"
 
 const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location: any) {
@@ -12,10 +12,10 @@ Vue.use(VueRouter);
 const routes: RouteConfig[] = [
   {
     path: '/',
-    name: 'Home',
-    component: HomeView,
+    name: 'Dashboard',
+    component: Dashboard,
     meta: {
-      title: "Home",
+      title: "Dashboard",
       requireAuth: true
     }
   },

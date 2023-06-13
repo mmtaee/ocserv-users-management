@@ -20,9 +20,7 @@
 </template>
 
 <script lang="ts">
-import httpRequest from "@/plugins/axios";
 import { adminServiceApi } from "@/utils/services";
-import { AxiosResponse } from "axios";
 import Vue from "vue";
 
 export default Vue.extend({
@@ -40,8 +38,8 @@ export default Vue.extend({
       logo: require("@/assets/oc_logo.png"),
       menuTabs: [
         {
-          title: "Home",
-          icon: "mdi-home",
+          title: "Dashboard",
+          icon: "mdi-monitor-dashboard",
           to: "/",
         },
         {

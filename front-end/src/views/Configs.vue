@@ -22,7 +22,7 @@ export default Vue.extend({
 
   mounted() {
     if (localStorage.getItem("token")) {
-      this.$router.push({ name: "Home" });
+      this.$router.push({ name: "Dashboard" });
     } else {
       this.firstInit = true
     }

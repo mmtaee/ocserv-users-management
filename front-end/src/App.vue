@@ -42,7 +42,7 @@ export default Vue.extend({
             this.$router.push({ name: "Login" });
           } else {
             this.$store.commit("setIsLogin", true);
-            this.$router.push({ name: "Home" });
+            this.$router.push({ name: "Dashboard" });
           }
         }
       }

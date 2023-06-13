@@ -218,7 +218,7 @@ export default Vue.extend({
         if (data.token) {
           localStorage.setItem("token", data.token);
           this.$store.commit("setIsLogin", true);
-          this.$router.push({ name: "Home" });
+          this.$router.push({ name: "Dashboard" });
         }
       }
       if (status == 202) {

@@ -25,10 +25,30 @@ declare interface Config {
 }
 
 declare interface Dashboard {
-    online_users: Array<string>,
-    server_stats: object,
+    online_users: Array<string>;
+    show_ip_bans: string;
+    show_status: string;
+    show_iroutes: string;
 }
 
+declare interface OcservUser {
+    group: string,
+    username: string,
+    password: string,
+    active: boolean,
+    create: string,
+    desc: string,
+    traffic: number,
+    default_traffic: number,
+    tx: number,
+    rx: number
+}
+
+declare interface UserPagination {
+    result: Array<OcservUser | null>,
+    page: number,
+    pages: number,
+}
 
 
 export {
@@ -37,4 +57,6 @@ export {
     OcservConfigItems,
     Config,
     Dashboard,
+    OcservUser,
+    UserPagination,
 }
