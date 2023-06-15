@@ -40,7 +40,8 @@ class OcservUserSerializer(serializers.ModelSerializer):
         online_users = self.context.get("online_users", [])
         rep["password"] = "Hashed by ocserv" if not instance.password else instance.password
         rep["online"] = False if instance.username not in online_users else True
-        rep["group"] = instance.group.name
+        rep["group"] = instance.group.id
+        rep["group_name"] = instance.group.name
         return rep
 
 

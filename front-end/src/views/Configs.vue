@@ -9,7 +9,7 @@ export default Vue.extend({
   name: "Configs",
 
   components: {
-    CofigsForm: () => import("../components/CofigsForm.vue"),
+    ConfigsForm: () => import("../components/ConfigsForm.vue"),
   },
 
   data(): {

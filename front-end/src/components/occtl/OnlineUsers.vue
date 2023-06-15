@@ -1,7 +1,7 @@
 <template>
   <v-card flat>
     <v-card-title>
-      <v-row>
+      <v-row v-if="users.length > 5">
         <v-col md="4">
           <v-text-field
             v-model="search"
@@ -13,7 +13,12 @@
         </v-col>
       </v-row>
     </v-card-title>
-    <v-data-table :headers="headers" :items="users" :search="search" :hide-default-footer="users.length < 5">
+    <v-data-table
+      :headers="headers"
+      :items="users"
+      :search="search"
+      :hide-default-footer="users.length < 5"
+    >
       <template v-slot:[`item.host`]="{ item }">
         <span class="primary--text">Hostname:</span> {{ item.hostname }}
         <br />
@@ -41,6 +46,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+
 export default Vue.extend({
   name: "OnlineUsers",
   props: {

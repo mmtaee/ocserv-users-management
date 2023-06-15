@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -32,7 +34,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
         if OcservUser.objects.filter(username=username).exists():
             return Response({"error": ["Ocserv User exists"]}, status=404)
         user_handler.username = username
-        result = user_handler.add(password=data.get("password"), group=group.name, active=data.get("active"))
+        result = user_handler.add_or_update(password=data.get("password"), group=group.name, active=data.get("active"))
         if result:
             serializer = OcservUserSerializer(data=data)
             serializer.is_valid(raise_exception=True)
@@ -58,16 +60,16 @@ class OcservUsersViewSet(viewsets.ViewSet):
         data = request.data.copy()
         data.pop("username", None)
         data.pop("group", None)
-        old_password = request.ocserv_user.password
+        old_password = user.password
         expire_date = data.get("expire_date")
         if data.get("password") == old_password:
             update = False
-        if expire_date and expire_date <= timezone.now().date():
+        if expire_date and datetime.strptime(expire_date, "%Y-%m-%d").date() <= timezone.now().date():
             data["active"] = False
             update = True
         if update:
             user_handler.username = user.username
-            result = user_handler.add(password=data.get("password"), group=user.group.name, active=data.get("active"))
+            result = user_handler.add_or_update(password=data.get("password"), group=user.group.name, active=data.get("active"))
         if result:
             serializer = OcservUserSerializer(instance=user, data=data, partial=True)
             serializer.is_valid(raise_exception=True)
@@ -77,7 +79,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         try:
-            user = OcservUser.objects.select_related("group").get(pk=pk)
+            user = OcservUser.objects.get(pk=pk)
         except OcservUser.DoesNotExist:
             return Response({"error": ["Ocserv user does not exist"]}, status=404)
         user_handler.username = user.username

@@ -21,17 +21,17 @@ class OcctlViewSet(viewsets.ViewSet):
     show events	>> Provides information about connecting users
     """
 
-    @action(detail=False, methods=["GET"], url_path="(?P<action_command>[^/.]+)")
+    @action(detail=False, methods=["GET"], url_path="command/(?P<action_command>[^/.]+)")
     def occtl_show_result(self, request, action_command=None):
-        extra = []
-        if action_command == "show_user":
-            if user := request.GET.get("user") is None:
-                return Response({"error": ["Action 'show_user' need username in query params"]}, status=400)
-            extra.append(user)
-        result = occtl_handler.show(action=action_command, extra=extra)
+        # extra = []
+        # if action_command == "show_user":
+        #     if user := request.GET.get("user") is None:
+        #         return Response({"error": ["Action 'show_user' need username in query params"]}, status=400)
+        #     extra.append(user)
+        result = occtl_handler.show(action={"action": action_command, "args": [request.GET.get("args")]})
         if not result:
             return Response({"error": [f"Occtl command ({action_command}) not done"]}, status=400)
-        return Response(status=202)
+        return Response(result, status=200)
 
     @action(detail=False, methods=["GET"], throttle_classes=[CustomThrottle])
     def reload(self, request):
@@ -40,11 +40,11 @@ class OcctlViewSet(viewsets.ViewSet):
             return Response({"error": ["Occtl command (reload) not done"]}, status=400)
         return Response(status=202)
 
-    @action(detail=False, methods=["GET"])
-    def unban_ip(self, request):
-        if ip := request.GET.get("ip") is None:
-            return Response({"error": ["Action 'unban_ip' need ip in query params"]}, status=400)
-        result = occtl_handler.unban_ip(ip)
-        if not result:
-            return Response({"error": [f"Occtl command (unban_ip) not done for ip({ip})"]}, status=400)
-        return Response(status=202)
+    # @action(detail=False, methods=["GET"])
+    # def unban_ip(self, request):
+    #     if ip := request.GET.get("ip") is None:
+    #         return Response({"error": ["Action 'unban_ip' need ip in query params"]}, status=400)
+    #     result = occtl_handler.unban_ip(ip)
+    #     if not result:
+    #         return Response({"error": [f"Occtl command (unban_ip) not done for ip({ip})"]}, status=400)
+    #     return Response(status=202)

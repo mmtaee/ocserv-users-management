@@ -11,18 +11,19 @@
         <v-text-field
           v-model="configs[item.model]"
           :label="item.label"
-          outlined
+          :outlined="outlined"
           dense
           clearable
           @keyup="emitter()"
+          :prepend-inner-icon="innerIcon ? item.icon : ''"
         />
       </v-col>
     </v-row>
   </v-form>
 </template>
 <script lang="ts">
-import { OcservConfigItems } from "@/utils/types";
 import Vue from "vue";
+import { OcservConfigItems } from "@/utils/types";
 
 export default Vue.extend({
   name: "OcservConfigs",
@@ -43,6 +44,18 @@ export default Vue.extend({
       type: String,
       default: () => "4",
     },
+    outlined: {
+      type: Boolean,
+      default: false,
+    },
+    innerIcon: {
+      type: Boolean,
+      default: false,
+    },
+    initInput: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   data(): {
     OcservconfigItems: OcservConfigItems[];
@@ -50,12 +63,20 @@ export default Vue.extend({
   } {
     return {
       OcservconfigItems: [
-        { label: "TCP Port", model: "tcp-port" },
-        { label: "UDP Port", model: "udp-port" },
-        { label: "Max Session Per Client", model: "max-same-clients" },
-        { label: "IPV4 Network", model: "ipv4-network" },
-        { label: "DNS-1", model: "dns1" },
-        { label: "DNS-2", model: "dns2" },
+        { label: "TCP Port", model: "tcp-port", icon: "mdi-ethernet-cable" },
+        { label: "UDP Port", model: "udp-port", icon: "mdi-ethernet-cable" },
+        {
+          label: "Max Session Per Client",
+          model: "max-same-clients",
+          icon: "mdi-account-network-outline",
+        },
+        {
+          label: "IPV4 Network",
+          model: "ipv4-network",
+          icon: "mdi-ip-network-outline",
+        },
+        { label: "DNS-1", model: "dns1", icon: "mdi-dns-outline" },
+        { label: "DNS-2", model: "dns2", icon: "mdi-dns-outline" },
       ],
       configs: {},
     };
@@ -64,6 +85,15 @@ export default Vue.extend({
     emitter() {
       if (this.vmodelEmit) this.$emit("input", this.configs);
       else this.$emit("configs", this.configs);
+    },
+  },
+
+  watch: {
+    initInput: {
+      immediate: true,
+      handler() {
+        if (this.configs) this.configs = { ...this.initInput };
+      },
     },
   },
 });

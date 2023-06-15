@@ -81,6 +81,7 @@
                     label="Default Config keys"
                     valueLabel="Default Config Value"
                     vmodelEmit
+                    outlined
                     md="4"
                   />
                 </v-col>
@@ -159,10 +160,10 @@ import { AdminConfig, Config } from "@/utils/types";
 import { adminServiceApi } from "@/utils/services";
 
 export default Vue.extend({
-  name: "CofigsForm",
+  name: "ConfigsForm",
 
   components: {
-    OcservConfigs: () => import("./OcservCofigs.vue"),
+    OcservConfigs: () => import("./OcservConfigs.vue"),
   },
 
   props: {

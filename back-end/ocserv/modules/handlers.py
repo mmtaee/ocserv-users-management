@@ -130,7 +130,7 @@ class OcservUserHandler:
 
     def change_group(self, password, group):
         try:
-            command = f'/usr/bin/echo -e "{password}\n{password}\n" | /usr/bin/ocpasswd'
+            command = f"/usr/bin/ocpasswd"
             if group:
                 command += f" -g {group}"
             command += f" -c /etc/ocserv/ocpasswd {self.username}"
@@ -142,27 +142,27 @@ class OcservUserHandler:
 
     def status_handler(self, active=True):
         """
-        ocserv lock method
+        ocserv lock and unlock method
         """
         try:
-            command = f"/usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd {'-l' if not active else '-u'} {self.username}"
+            command = f'/usr/bin/ocpasswd {"-l" if not active else "-u"} -c /etc/ocserv/ocpasswd {self.username}'
             os.system(command)
         except Exception as e:
             logger.log(level="critical", message=f"change user active error ({e})")
             return False
         return True
 
-    def add(self, password, group=None, active=True):
+    def add_or_update(self, password, group=None, active=True):
         try:
             command = f'/usr/bin/echo -e "{password}\n{password}\n" | /usr/bin/ocpasswd'
             if group:
                 command += f" -g {group}"
-            command += " -u" if active else " -l"
             command += f" -c /etc/ocserv/ocpasswd {self.username}"
             os.system(command)
         except Exception as e:
             logger.log(level="critical", message=f"add user error ({e})")
             return False
+        self.status_handler(active)
         return True
 
     def delete(self):
@@ -221,16 +221,23 @@ class OcctlHandler:
     @staticmethod
     def get_command(cmd_name):
         cmd = {
-            "show_ip_bans": ["show", "ip", "bans"],
+            "show_ip_bans": ["-j", "show", "ip", "bans"],
             "show_ip_ban_points": ["show", "ip", "bans", "points"],
             "unban_ip": ["unban", "ip"],
             "reload_configs": ["reload"],
             "show_status": ["show", "status"],
             "show_user": ["show", "user"],
             "show_users": ["show", "users"],
-            "show_iroutes": ["-j", "show", "iroutes", "--output=json-pretty"],
+            "show_iroutes": ["-j", "show", "iroutes"],
+            "show_sessions_all": ["show", "sessions", "all"],
+            "show_sessions_valid": ["show", "sessions", "valid"],
+            "disconnect_user": ["disconnect", "user"],
+            "disconnect_id": ["disconnect", "id"]
             # "show_events": ["show", "events"],
         }
+        command = cmd.get(cmd_name, [])
+        if "-j" in command:
+            command += ["--output=json-pretty"]
         return cmd.get(cmd_name, [])
 
     @staticmethod
@@ -253,6 +260,7 @@ class OcctlHandler:
         command += extra_commands
         command = list(filter(None, command))
         output = self.subprocess_handler(command)
+
         return output
 
     def show(self, action):
@@ -270,9 +278,6 @@ class OcctlHandler:
         return result
 
     def reload(self):
-        command = "reload"
+        command = ["reload"]
         return self.subprocess_handler(command)
 
-    def unban_ip(self, ip):
-        command = f"unban ip {ip}"
-        return self.subprocess_handler(command)

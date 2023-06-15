@@ -14,22 +14,95 @@
             Ocserv Users
           </v-card-subtitle>
           <v-card-text>
-            <v-btn>Create New User</v-btn>
-
+            <v-row align="start" justify="start" class="my-3">
+              <v-col md="auto">
+                <v-btn color="primary" outlined @click="userFormDialog = true">
+                  <v-icon left>mdi-account-plus-outline</v-icon>
+                  Create New User
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-row
+              v-if="users.length > 5"
+              align="start"
+              justify="start"
+              class="my-3"
+            >
+              <v-col md="4">
+                <v-text-field
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Search Ocserv User"
+                  single-line
+                  hide-details
+                />
+              </v-col>
+            </v-row>
             <v-data-table
               :headers="headers"
               :items="users"
               :search="search"
               :hide-default-footer="users.length < 5"
             >
-              <template v-slot:[`item.action`]>
-                <v-icon color="primary">mdi-account-edit-outline</v-icon>
+              <template v-slot:[`item.edit`]="{ item }">
+                <v-icon
+                  color="primary"
+                  @click="
+                    (initInput = { ...item }),
+                      (userFormDialog = true),
+                      (editMode = true)
+                  "
+                >
+                  mdi-account-edit-outline
+                </v-icon>
+                <v-icon
+                  color="error"
+                  right
+                  dark
+                  @click.stop="dialogDelete = true"
+                >
+                  mdi-delete
+                </v-icon>
+                <v-dialog v-model="dialogDelete" max-width="450">
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Delete User ({{ item.username }})
+                    </v-card-title>
+                    <v-card-text>
+                      Are you sure to want to delete user
+                      <b>({{ item.username }})?</b>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" text @click="dialogDelete = false">
+                        Cancel
+                      </v-btn>
+                      <v-btn color="error" text @click="deleteUser(item)">
+                        Delete
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </template>
-
-              <template v-slot:[`item.desc`]>
-                <v-icon color="primary">mdi-email-edit-outline</v-icon>
+              <template v-slot:[`item.desc`]="{ item }">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      color="primary"
+                      dark
+                      v-bind="attrs"
+                      v-on="on"
+                      style="cursor: context-menu"
+                    >
+                      mdi-email-outline
+                    </v-icon>
+                  </template>
+                  <span v-html="item.desc" />
+                </v-tooltip>
               </template>
-
+              <template v-slot:[`item.group`]="{ item }">
+                {{ item.group_name }}
+              </template>
               <template v-slot:[`item.avrages`]="{ item }">
                 <span class="primary--text">RX:</span>
                 {{ item.rx }}
@@ -67,12 +140,26 @@
                 <v-icon v-else color="error">
                   mdi-account-cancel-outline
                 </v-icon>
+                disconnect
               </template>
             </v-data-table>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
+    <v-dialog v-model="userFormDialog" width="850">
+      <UserForm
+        v-if="userFormDialog"
+        dialog
+        :editMode="editMode"
+        @create="createUser"
+        @update="updateUser"
+        @dialog="
+          (userFormDialog = false), (initInput = null), (editMode = false)
+        "
+        :initInput="initInput"
+      />
+    </v-dialog>
   </v-container>
 </template>
 
@@ -83,6 +170,9 @@ import { OcservUser } from "@/utils/types";
 
 export default Vue.extend({
   name: "Users",
+  components: {
+    UserForm: () => import("@/components/UserForm.vue"),
+  },
   data(): {
     users: Array<OcservUser | null>;
     headers: Array<object>;
@@ -90,6 +180,10 @@ export default Vue.extend({
     pages: number;
     search: string;
     traffics: object;
+    userFormDialog: boolean;
+    initInput: OcservUser | null;
+    editMode: boolean;
+    dialogDelete: boolean;
   } {
     return {
       users: [],
@@ -108,7 +202,7 @@ export default Vue.extend({
         },
         {
           text: "Active",
-          align: "center",
+          align: "start",
           filterable: true,
           value: "active",
         },
@@ -121,14 +215,14 @@ export default Vue.extend({
         },
         {
           text: "Traffic Details",
-          align: "center",
+          align: "start",
           filterable: true,
           value: "default_traffic",
           sortable: false,
         },
         {
           text: "Avrages",
-          align: "center",
+          align: "start",
           filterable: false,
           value: "avrages",
           sortable: false,
@@ -140,12 +234,11 @@ export default Vue.extend({
           value: "desc",
           sortable: false,
         },
-
         {
-          text: "Action",
+          text: "Edit",
           align: "center",
           filterable: false,
-          value: "action",
+          value: "edit",
           sortable: false,
         },
       ],
@@ -157,6 +250,10 @@ export default Vue.extend({
         2: "Monthly",
         3: "Totally",
       },
+      userFormDialog: false,
+      initInput: null,
+      editMode: false,
+      dialogDelete: false,
     };
   },
 
@@ -165,6 +262,24 @@ export default Vue.extend({
     this.users = data.result;
     this.page = data.page;
     this.pages = data.pages;
+  },
+
+  methods: {
+    createUser(user: OcservUser) {
+      this.users.unshift(user);
+    },
+    updateUser(user: OcservUser) {
+      let index = this.users.findIndex((item) => item?.id == user.id);
+      this.users.splice(index, 1, user);
+    },
+    async deleteUser(user: OcservUser) {
+      await ocservUserApi.delete_user(user.id!);
+      if (ocservUserApi.status() == 204) {
+        let index = this.users.findIndex((item) => item?.id == user.id);
+        this.users.splice(index, 1);
+        this.dialogDelete = false;
+      }
+    },
   },
 });
 </script>

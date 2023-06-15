@@ -20,8 +20,8 @@
 </template>
 
 <script lang="ts">
-import { adminServiceApi } from "@/utils/services";
 import Vue from "vue";
+import { adminServiceApi } from "@/utils/services";
 
 export default Vue.extend({
   name: "AppBar",
@@ -43,14 +43,14 @@ export default Vue.extend({
           to: "/",
         },
         {
+          title: "Groups",
+          icon: "mdi-home-group",
+          to: "/groups",
+        },
+        {
           title: "Users",
           icon: "mdi-account-group-outline",
           to: "/users",
-        },
-        {
-          title: "Groups",
-          icon: "mdi-router-network",
-          to: "/groups",
         },
         {
           title: "Occtl",

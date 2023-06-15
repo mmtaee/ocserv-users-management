@@ -48,16 +48,16 @@
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import { adminServiceApi } from "@/utils/services";
 import { Dashboard } from "@/utils/types";
-import Vue from "vue";
 
 export default Vue.extend({
   name: "Dashboard",
 
   components: {
-    OnlineUsers: () => import("@/components/OnlineUsers.vue"),
-    Iroutes: () => import("@/components/Iroutes.vue"),
+    OnlineUsers: () => import("@/components/occtl/OnlineUsers.vue"),
+    Iroutes: () => import("@/components/occtl/Iroutes.vue"),
   },
 
   data(): {
@@ -67,15 +67,13 @@ export default Vue.extend({
     return {
       serverStats: {
         online_users: [],
+        show_iroutes: [],
         show_status: "",
-        show_iroutes: "",
-        show_ip_bans: "",
       },
       tabs: [
         { id: 1, name: "Online Users", key: "online_users" },
         { id: 2, name: "Show Iroutes", key: "show_iroutes" },
         { id: 3, name: "Show Status", key: "show_status" },
-
       ],
     };
   },
@@ -88,8 +86,12 @@ export default Vue.extend({
 
   methods: {
     iroutesToJSON(data: string): Array<object> {
-      data = "[" + data + "]";
-      return JSON.parse(data);
+      let result = [];
+      if (data.length < 2) {
+        data = "[" + data + "]";
+        result = JSON.parse(data);
+      }
+      return result;
     },
   },
 });

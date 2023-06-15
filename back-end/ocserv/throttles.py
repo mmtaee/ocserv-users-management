@@ -2,10 +2,13 @@ from rest_framework.throttling import SimpleRateThrottle
 
 
 class CustomThrottle(SimpleRateThrottle):
-    def __init__(self, rate="1/minute", scope=None):
-        self.rate = rate
-        self.scope = scope
+    THROTTLE_RATES = {}
+
+    def __init__(self, rate="1/minute"):
+        if not getattr(self, "rate", None):
+            self.rate = rate
         super().__init__()
 
-    def allow_request(self, request, view):
-        return False if self.throttle_success() else True
+    def get_cache_key(self, request, view):
+        ident = self.get_ident(request)
+        return self.cache_format % {"scope": self.scope, "ident": ident}

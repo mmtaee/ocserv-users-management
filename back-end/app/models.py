@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from rest_framework.exceptions import ValidationError as RestValidationError
 
-from ocserv.modules.handlers import OcservGroupHandler
+from ocserv.modules.handlers import OcservGroupHandler, OcservUserHandler
 
 
 class AdminConfig(User):
@@ -51,7 +51,7 @@ class OcservGroup(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if OcservGroup.objects.filter(name="defaults").exists():
+        if self.name == "defaults" and OcservGroup.objects.filter(name="defaults").exists():
             raise RestValidationError({"error": ["Invalid name (defaults) for group"]})
         if self.configs and type(self.configs) == dict:
             new_configs = {}
@@ -105,19 +105,15 @@ class OcservUser(models.Model):
         return self.username
 
     def save(self, *args, **kwargs):
+        user_handler = OcservUserHandler(username=self.username)
         if not self.pk:
             if not self.default_traffic and self.traffic != self.FREE:
                 self.default_traffic = AdminConfig.objects.last().default_traffic
-        # else:
-        #     if self.group != self.__group:
-        #         if self.group.name != "defaults":
-        #             user_handler("change_group", username=self.username, group=self.group.name, password=self.password)
-        #         else:
-        #             user_handler("change_group", username=self.username, group=None, password=self.password)
-        # if self.traffic != self.FREE and self.default_traffic < self.tx:
-        #     result = user_handler(action="deactivate", username=self.username)
-        #     if result and result.get("action"):
-        #         self.active = False
+        if self.traffic != self.FREE and self.default_traffic < self.tx:
+            self.active = False
+        user_handler.add_or_update(
+            password=self.password, group=self.group.name if self.group.name != "defaults" else None, active=self.active
+        )
         super().save(*args, **kwargs)
 
 

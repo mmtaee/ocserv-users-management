@@ -1,7 +1,7 @@
 <template>
   <v-card flat>
     <v-card-title>
-      <v-row>
+      <v-row v-if="routes.length > 5">
         <v-col md="4">
           <v-text-field
             v-model="search"
@@ -13,13 +13,19 @@
         </v-col>
       </v-row>
     </v-card-title>
-    <v-data-table :headers="headers" :items="routes" :search="search" :hide-default-footer="routes.length < 5"></v-data-table>
+    <v-data-table
+      :headers="headers"
+      :items="routes"
+      :search="search"
+      :hide-default-footer="routes.length < 5"
+    >
     </v-data-table>
   </v-card>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+
 export default Vue.extend({
   name: "Iroutes",
   props: {

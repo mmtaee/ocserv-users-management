@@ -2,21 +2,21 @@
   <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col class="d-flex justify-center" md="12" cols="12">
-        <CofigsForm :initInput="initInput" editMode />
+        <ConfigsForm :initInput="initInput" editMode />
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import { adminServiceApi } from "@/utils/services";
 import { AdminConfig } from "@/utils/types";
-import Vue from "vue";
 
 export default Vue.extend({
   name: "Configuration",
   components: {
-    CofigsForm: () => import("@/components/CofigsForm.vue"),
+    ConfigsForm: () => import("@/components/ConfigsForm.vue"),
   },
   data(): {
     initInput: AdminConfig | null;
