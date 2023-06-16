@@ -13,12 +13,18 @@
           >
             Ocserv Users
           </v-card-subtitle>
+
           <v-card-text>
             <v-row align="start" justify="start" class="my-3">
               <v-col md="auto">
                 <v-btn color="primary" outlined @click="userFormDialog = true">
                   <v-icon left>mdi-account-plus-outline</v-icon>
                   Create New User
+                </v-btn>
+              </v-col>
+              <v-col md="auto">
+                <v-btn icon @click="init">
+                  <v-icon>mdi-refresh</v-icon>
                 </v-btn>
               </v-col>
             </v-row>
@@ -45,25 +51,55 @@
               :hide-default-footer="users.length < 5"
             >
               <template v-slot:[`item.edit`]="{ item }">
-                <v-icon
-                  color="primary"
-                  @click="
-                    (initInput = { ...item }),
-                      (userFormDialog = true),
-                      (editMode = true)
-                  "
+                <v-btn icon>
+                  <v-icon
+                    color="primary"
+                    @click="
+                      (initInput = { ...item }),
+                        (userFormDialog = true),
+                        (editMode = true)
+                    "
+                  >
+                    mdi-account-edit-outline
+                  </v-icon>
+                </v-btn>
+
+                <v-dialog
+                  v-model="dialogDisconnect"
+                  max-width="450"
+                  v-if="item.online"
                 >
-                  mdi-account-edit-outline
-                </v-icon>
-                <v-icon
-                  color="error"
-                  right
-                  dark
-                  @click.stop="dialogDelete = true"
-                >
-                  mdi-delete
-                </v-icon>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="error" dark v-bind="attrs" v-on="on" icon>
+                      <v-icon color="error"> mdi-lan-disconnect </v-icon>
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Disconnect User ({{ item.username }})
+                    </v-card-title>
+                    <v-card-text>
+                      Are you sure to want to disconnect user
+                      <b>({{ item.username }})?</b>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" text @click="dialogDelete = false">
+                        Cancel
+                      </v-btn>
+                      <v-btn color="error" text @click="disconnectUser(item)">
+                        Disconnect
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+
                 <v-dialog v-model="dialogDelete" max-width="450">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="error" v-bind="attrs" v-on="on" icon>
+                      <v-icon color="error"> mdi-delete </v-icon>
+                    </v-btn>
+                  </template>
                   <v-card>
                     <v-card-title class="text-h5">
                       Delete User ({{ item.username }})
@@ -87,15 +123,9 @@
               <template v-slot:[`item.desc`]="{ item }">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                      color="primary"
-                      dark
-                      v-bind="attrs"
-                      v-on="on"
-                      style="cursor: context-menu"
-                    >
-                      mdi-email-outline
-                    </v-icon>
+                    <v-btn color="error" v-bind="attrs" v-on="on" icon>
+                      <v-icon color="primary" dark> mdi-email-outline </v-icon>
+                    </v-btn>
                   </template>
                   <span v-html="item.desc" />
                 </v-tooltip>
@@ -184,6 +214,7 @@ export default Vue.extend({
     initInput: OcservUser | null;
     editMode: boolean;
     dialogDelete: boolean;
+    dialogDisconnect: boolean;
   } {
     return {
       users: [],
@@ -254,23 +285,33 @@ export default Vue.extend({
       initInput: null,
       editMode: false,
       dialogDelete: false,
+      dialogDisconnect: false,
     };
   },
 
   async mounted() {
-    let data = await ocservUserApi.users();
-    this.users = data.result;
-    this.page = data.page;
-    this.pages = data.pages;
+    await this.init();
   },
 
   methods: {
+    async init() {
+      let data = await ocservUserApi.users();
+      this.users = data.result;
+      this.page = data.page;
+      this.pages = data.pages;
+    },
     createUser(user: OcservUser) {
       this.users.unshift(user);
     },
     updateUser(user: OcservUser) {
       let index = this.users.findIndex((item) => item?.id == user.id);
       this.users.splice(index, 1, user);
+    },
+    async disconnectUser(user: OcservUser) {
+      await ocservUserApi.disconnect_user(user.id!);
+      if (ocservUserApi.status() == 202) {
+        user.online = false;
+      }
     },
     async deleteUser(user: OcservUser) {
       await ocservUserApi.delete_user(user.id!);

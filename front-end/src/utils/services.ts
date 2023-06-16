@@ -91,12 +91,18 @@ class OcservUserApi extends Services {
         let response: AxiosResponse = await this.request(method, url)
         return response.data
     }
+    public async disconnect_user(pk: number): Promise<OcservUser> {
+        let method: string = "post"
+        let url = `/users/${pk}/disconnect/`
+        let response: AxiosResponse = await this.request(method, url)
+        return response.data
+    }
 }
 
 class OcservGroupApi extends Services {
-    public async groups(): Promise<GroupPagination> {
+    public async groups(args?: string | null): Promise<GroupPagination> {
         let method: string = "get"
-        let url = "/groups/"
+        let url = args ? `/groups/?args=${args}` : "/groups/"
         let response: AxiosResponse = await this.request(method, url)
         return response.data
     }

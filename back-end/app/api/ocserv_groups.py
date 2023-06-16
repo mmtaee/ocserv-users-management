@@ -16,7 +16,9 @@ class OcservGroupsViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
-        groups = OcservGroup.objects.all().exclude(name="defaults").order_by("-id")
+        groups = OcservGroup.objects.all()
+        if request.GET.get("args") != "defaults":
+            groups = groups.exclude(name="defaults").order_by("-id")
         data = pagination(request, groups, OcservGroupSerializer)
         return Response(data)
 

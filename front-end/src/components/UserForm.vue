@@ -180,6 +180,7 @@ export default Vue.extend({
         desc: "desc",
         traffic: 1,
         default_traffic: 20,
+        online: false,
       },
       rules: { required: required },
       userFormValid: true,
@@ -194,7 +195,7 @@ export default Vue.extend({
   },
 
   async mounted() {
-    let data = await ocservGroupApi.groups();
+    let data = await ocservGroupApi.groups("defaults");
     this.groups = data.result;
   },
 

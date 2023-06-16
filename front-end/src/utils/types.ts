@@ -30,6 +30,7 @@ declare interface OcservUser {
     id?: number | null,
     group: number | null,
     group_name: string | null | undefined,
+    online: boolean | null | undefined,
     username: string | null,
     password: string | null,
     active: boolean,
