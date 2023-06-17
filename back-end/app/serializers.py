@@ -7,7 +7,14 @@ from .models import AdminConfig, OcservGroup, OcservUser, MonthlyTrafficStat
 class AminConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminConfig
-        fields = ("username", "password", "captcha_site_key", "captcha_secret_key", "default_traffic")
+        fields = (
+            "username",
+            "password",
+            "captcha_site_key",
+            "captcha_secret_key",
+            "default_traffic",
+            "default_configs",
+        )
         read_only_fields = ("id",)
 
     def create(self, validated_data):

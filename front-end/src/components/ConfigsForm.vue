@@ -80,6 +80,7 @@
                     v-model="input.default_configs"
                     label="Default Config keys"
                     valueLabel="Default Config Value"
+                    :initInput="input.default_configs"
                     vmodelEmit
                     outlined
                     md="4"

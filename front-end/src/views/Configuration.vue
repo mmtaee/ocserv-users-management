@@ -33,7 +33,6 @@ export default Vue.extend({
   methods: {
     async getInit() {
       let data: AdminConfig = await adminServiceApi.get_configuration();
-      let status: number = adminServiceApi.status();
       this.initInput = data;
     },
   },

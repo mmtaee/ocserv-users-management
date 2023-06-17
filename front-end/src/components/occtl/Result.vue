@@ -40,7 +40,7 @@ export default Vue.extend({
 
   methods: {
     dataAnalizer() {
-        this.show_status = null
+      this.show_status = null;
       if (this.result.show_status !== undefined) {
         this.show_status = `<pre>${this.result.show_status}</pre>`;
       } else {
@@ -52,7 +52,6 @@ export default Vue.extend({
     result: {
       immediate: false,
       handler() {
-        console.log(this.result)
         if (this.result) {
           this.dataAnalizer();
         }

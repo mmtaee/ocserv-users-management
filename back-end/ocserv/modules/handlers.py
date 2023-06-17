@@ -73,7 +73,7 @@ class OcservGroupHandler:
         self.reload()
 
     def update_defaults(self, configs=None):
-        path = f"{self.GROUP_DIR}/defaults/group.conf"
+        path = "/etc/ocserv/defaults/group.conf"
         try:
             if not os.path.exists(path):
                 os.mknod(path)
@@ -280,4 +280,3 @@ class OcctlHandler:
     def reload(self):
         command = ["reload"]
         return self.subprocess_handler(command)
-
