@@ -10,16 +10,14 @@ from app.models import AdminConfig
 from app.serializers import AminConfigSerializer
 from ocserv.modules.decorators import recaptcha
 from ocserv.modules.handlers import OcservUserHandler, OcctlHandler
-from ocserv.throttles import CustomThrottle
-
-
-# TODO: add throttle for admin
+from ocserv.throttles import custom_throttle
 
 
 class AdminViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
-    @action(detail=False, methods=["GET"], throttle_classes=[CustomThrottle(rate="10/min")])
+    @custom_throttle(rate="10/minutes")
+    @action(detail=False, methods=["GET"])
     def config(self, request):
         admin_config = AdminConfig.objects.first()
         data = {
@@ -28,7 +26,8 @@ class AdminViewSet(viewsets.ViewSet):
         }
         return Response(data)
 
-    @action(detail=False, methods=["POST"], url_path="create", throttle_classes=[CustomThrottle(rate="3/min")])
+    @custom_throttle(rate="3/minutes")
+    @action(detail=False, methods=["POST"], url_path="create")
     def create_admin_configs(self, request):
         if AdminConfig.objects.all().exists():
             return Response({"error": ["Admin config exists!"]}, status=400)
@@ -39,8 +38,9 @@ class AdminViewSet(viewsets.ViewSet):
         token = Token.objects.create(user=admin_config)
         return Response({"token": token.key, "captcha_site_key": admin_config.captcha_site_key}, status=201)
 
+    @custom_throttle(rate="20/hour")
     @recaptcha
-    @action(detail=False, methods=["POST"], throttle_classes=[CustomThrottle(rate="20/hour")])
+    @action(detail=False, methods=["POST"])
     def login(self, request):
         data = request.data
         data.get("username")

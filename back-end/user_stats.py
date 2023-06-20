@@ -19,12 +19,22 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
         last_log_entry = line
         search_strings = ["reason: user disconnected", "rx", "tx"]
         if all(search_string in line for search_string in search_strings):
-            if main_match := re.search(r"main\[(.*?)\]", line):
-                username = main_match.group(1)
-            if rx_match := re.search(r"rx: (\d+)", line):
-                rx = int(rx_match.group(1))
-            if tx_match := re.search(r"tx: (\d+)", line):
-                tx = int(tx_match.group(1))
+            try:
+                if main_match := re.search(r"main\[(.*?)\]", line):
+                    username = main_match.group(1)
+                if rx_match := re.search(r"rx: (\d+)", line):
+                    rx = int(rx_match.group(1)) / 1048576
+                    if 0.5 < rx < 1:
+                        rx = 1
+                if tx_match := re.search(r"tx: (\d+)", line):
+                    tx = int(tx_match.group(1)) / 1048576
+                    if 0.5 < tx < 1:
+                        tx = 1
+            except Exception as e:
+                logger.log(level="critical", message=e)
+                logger.log(level="critical", message="unprocessable ocserv log to calculate user-rx and user-tx")
+                logger.log(level="info", message=line)
+                continue
             try:
                 ocserv_user = OcservUser.objects.get(username=username)
                 ocserv_user.rx += rx
@@ -51,12 +61,6 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
 
             except OcservUser.DoesNotExist():
                 logger.log(level="warning", message=f"user with that username ({username}) does not exists in db")
-            # else:
-            #     logger.log(level="critical", message="unprocessable ocserv log to calculate user-rx and user-tx")
-            #     logger.log(level="info", message=line)
-            finally:
-                print("changed")
-            # logger.log(level="info", message=f"rx tx changed !!")
 
 
 if __name__ == "__main__":

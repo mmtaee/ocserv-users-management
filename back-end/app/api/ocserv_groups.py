@@ -24,8 +24,6 @@ class OcservGroupsViewSet(viewsets.ViewSet):
 
     def create(self, request):
         data = request.data
-        print(data)
-        print(data.get("name") == "defaults")
         if data.get("name") == "defaults":
             return Response({"error": ["Name 'defaults' is not a valid name for group"]}, status=400)
         result = group_handler.add_or_update(name=data.get("name"), configs=data.get("configs"))

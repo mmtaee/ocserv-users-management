@@ -30,7 +30,6 @@ class AdminConfig(User):
             self.default_configs = new_configs
         else:
             self.default_configs = {}
-
         OcservGroupHandler().update_defaults(self.default_configs)
         super().save(*args, **kwargs)
 

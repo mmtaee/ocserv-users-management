@@ -53,10 +53,8 @@ def user_key_creator(users):
 
 
 def ip_bans_creator(bans):
-    print(bans)
     if isinstance(bans, str):
         bans = json.loads(bans)
-        print("json : ", bans)
     return [
         {
             "ip": i["IP"],
