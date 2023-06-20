@@ -31,12 +31,14 @@
               </v-col>
 
               <v-col md="3">
-                <v-text-field
-                  v-model="args"
-                  :label="argLable"
-                  :rules="argRequired ? [rules.required] : []"
-                  :disabled="argDisable"
-                />
+                <v-form ref="argsForm">
+                  <v-text-field
+                    v-model="args"
+                    :label="argLable"
+                    :rules="argRequired ? [rules.required] : []"
+                    :disabled="argDisable"
+                  />
+                </v-form>
               </v-col>
 
               <v-col md="auto">
@@ -50,7 +52,7 @@
                 </v-btn>
               </v-col>
             </v-row>
-           
+
             <v-col md="12">
               <Result
                 :result="result"
@@ -68,6 +70,7 @@
 import Vue from "vue";
 import { required } from "@/utils/rules";
 import { occtlServiceApi } from "@/utils/services";
+import { StringToJson } from "@/utils/methods";
 
 interface OcservCommands {
   text: string;
@@ -93,9 +96,52 @@ export default Vue.extend({
     argRequired: boolean;
     argDisable: boolean;
     result: any;
+    StringToJson: Function;
   } {
     return {
       commands: [
+        {
+          text: "Show Status",
+          command: "show_status",
+          help: "Prints the status and statistics of the server",
+          needArg: false,
+          label: null,
+        },
+        {
+          text: "Show Users",
+          command: "show_users",
+          help: "Prints the connected users",
+          needArg: false,
+          label: null,
+        },
+        {
+          text: "Show User",
+          command: "show_user",
+          help: "Prints information on the specified user",
+          needArg: true,
+          label: "Username",
+        },
+        {
+          text: "Disconnect User",
+          command: "disconnect_user",
+          help: "Disconnect the specified user",
+          needArg: true,
+          label: "Username",
+        },
+        {
+          text: "Disconnect ID",
+          command: "disconnect_id",
+          help: "Disconnect the specified ID",
+          needArg: true,
+          label: "User ID",
+        },
+        {
+          text: "Show Iroutes",
+          command: "show_iroutes",
+          help: "Prints the routes provided by users of the server",
+          needArg: false,
+          label: null,
+        },
         {
           text: "Show Ip Bans",
           command: "show_ip_bans",
@@ -124,62 +170,20 @@ export default Vue.extend({
           needArg: false,
           label: null,
         },
-        {
-          text: "Show Status",
-          command: "show_status",
-          help: "Prints the status and statistics of the server",
-          needArg: false,
-          label: null,
-        },
-        {
-          text: "Show User",
-          command: "show_user",
-          help: "Prints information on the specified user",
-          needArg: true,
-          label: "Username",
-        },
-        {
-          text: "Show Users",
-          command: "show_users",
-          help: "Prints the connected users",
-          needArg: false,
-          label: null,
-        },
-        {
-          text: "Show Iroutes",
-          command: "show_iroutes",
-          help: "Prints the routes provided by users of the server",
-          needArg: false,
-          label: null,
-        },
-        {
-          text: "Show All Sessions",
-          command: "show_sessions_all",
-          help: "Prints all the session IDs",
-          needArg: false,
-          label: null,
-        },
-        {
-          text: "Show Valid Sessions",
-          command: "show_sessions_valid",
-          help: "Prints all the valid for reconnection sessions",
-          needArg: false,
-          label: null,
-        },
-        {
-          text: "Disconnect User",
-          command: "disconnect_user",
-          help: "Disconnect the specified user",
-          needArg: true,
-          label: "Username",
-        },
-        {
-          text: "Disconnect ID",
-          command: "disconnect_id",
-          help: "Disconnect the specified ID",
-          needArg: true,
-          label: "User ID",
-        },
+        // {
+        //   text: "Show All Sessions",
+        //   command: "show_sessions_all",
+        //   help: "Prints all the session IDs",
+        //   needArg: false,
+        //   label: null,
+        // },
+        // {
+        //   text: "Show Valid Sessions",
+        //   command: "show_sessions_valid",
+        //   help: "Prints all the valid for reconnection sessions",
+        //   needArg: false,
+        //   label: null,
+        // },
       ],
       command: null,
       args: null,
@@ -188,6 +192,7 @@ export default Vue.extend({
       argDisable: true,
       rules: { required: required },
       result: null,
+      StringToJson: StringToJson,
     };
   },
 
@@ -225,15 +230,6 @@ export default Vue.extend({
       }
     },
 
-    iroutesToJSON(data: string): Array<object> {
-      let result = [];
-      if (data.length < 2) {
-        data = "[" + data + "]";
-        result = JSON.parse(data);
-      }
-      return result;
-    },
-
     CommandVars(command: OcservCommands) {
       if (command && command.needArg) {
         this.argRequired = true;
@@ -244,6 +240,7 @@ export default Vue.extend({
         this.argLable = null;
         this.argDisable = true;
       }
+      (this.$refs.argsForm as HTMLFormElement).reset();
     },
   },
 });

@@ -50,6 +50,12 @@
               :search="search"
               :hide-default-footer="users.length < 5"
             >
+
+              <template v-slot:[`item.status`]="{ item }">
+                <span class="error--text" v-if="!item.online">Offline</span>
+                <span class="success--text" v-else>Online</span>
+              </template>
+
               <template v-slot:[`item.edit`]="{ item }">
                 <v-btn icon>
                   <v-icon
@@ -170,7 +176,6 @@
                 <v-icon v-else color="error">
                   mdi-account-cancel-outline
                 </v-icon>
-                disconnect
               </template>
             </v-data-table>
           </v-card-text>
@@ -263,6 +268,13 @@ export default Vue.extend({
           align: "center",
           filterable: false,
           value: "desc",
+          sortable: false,
+        },
+        {
+          text: "Status",
+          align: "center",
+          filterable: false,
+          value: "status",
           sortable: false,
         },
         {

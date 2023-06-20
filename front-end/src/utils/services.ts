@@ -35,6 +35,7 @@ class AdminServiceApi extends Services {
     constructor() {
         super()
         this.baseUrl = "/admin/"
+        this.path = ""
     }
     public async config(): Promise<Config> {
         this.method = "get"
@@ -79,6 +80,7 @@ class OcservUserApi extends Services {
     constructor() {
         super()
         this.baseUrl = "/users/"
+        this.path = ""
     }
     public async users(): Promise<UserPagination> {
         this.method = "get"
@@ -100,7 +102,7 @@ class OcservUserApi extends Services {
     }
     public async disconnect_user(pk: number): Promise<OcservUser> {
         this.method = "post"
-        this.path = "${pk}/disconnect/"
+        this.path = `${pk}/disconnect/`
         return this.request()
     }
 }
@@ -109,6 +111,7 @@ class OcservGroupApi extends Services {
     constructor() {
         super()
         this.baseUrl = "/groups/"
+        this.path = ""
     }
     public async groups(args?: string | null): Promise<GroupPagination> {
         this.method = "get"

@@ -1,12 +1,12 @@
 <template>
-  <v-card flat max-width="1200">
+  <v-card flat max-width="1000">
     <v-card-title>
-      <v-row v-if="routes.length > 5">
+      <v-row v-if="ips.length > 5">
         <v-col md="4">
           <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
-            label="Search Iroutes"
+            label="Search IP bans"
             single-line
             hide-details
           />
@@ -15,9 +15,9 @@
     </v-card-title>
     <v-data-table
       :headers="headers"
-      :items="routes"
+      :items="ips"
       :search="search"
-      :hide-default-footer="routes.length < 5"
+      :hide-default-footer="ips.length < 5"
     >
     </v-data-table>
   </v-card>
@@ -27,49 +27,35 @@
 import Vue from "vue";
 
 export default Vue.extend({
-  name: "Iroutes",
+  name: "IPBans",
   props: {
-    routes: Array,
+    ips: Array,
   },
-  data() {
+  data(): {
+    search: string;
+    headers: Array<object>;
+  } {
     return {
       search: "",
       headers: [
         {
-          text: "ID",
-          align: "start",
-          filterable: true,
-          value: "ID",
-        },
-        {
-          text: "Username",
-          align: "start",
-          filterable: true,
-          value: "Username",
-        },
-        {
-          text: "vhost",
-          align: "start",
-          filterable: true,
-          value: "vhost",
-        },
-        {
-          text: "Device",
-          align: "start",
-          filterable: false,
-          value: "Device",
-        },
-        {
           text: "IP",
           align: "start",
           filterable: true,
-          value: "IP",
+          value: "ip",
         },
         {
-          text: "iRoutes",
+          text: "Since",
           align: "start",
-          filterable: false,
-          value: "iRoutes",
+          filterable: true,
+          value: "since",
+        },
+
+        {
+          text: "Score",
+          align: "start",
+          filterable: true,
+          value: "score",
         },
       ],
     };

@@ -21,6 +21,11 @@
                   Create New Group
                 </v-btn>
               </v-col>
+              <v-col md="auto">
+                <v-btn icon @click="init">
+                  <v-icon>mdi-refresh</v-icon>
+                </v-btn>
+              </v-col>
             </v-row>
             <v-row
               v-if="groups.length > 5"
@@ -202,13 +207,16 @@ export default Vue.extend({
   },
 
   async mounted() {
-    let data = await ocservGroupApi.groups();
-    this.groups = data.result;
-    this.page = data.page;
-    this.pages = data.pages;
+    await this.init();
   },
 
   methods: {
+    async init() {
+      let data = await ocservGroupApi.groups();
+      this.groups = data.result;
+      this.page = data.page;
+      this.pages = data.pages;
+    },
     createGroup(group: OcservGroup) {
       this.groups.unshift(group);
     },

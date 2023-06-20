@@ -36,7 +36,7 @@
 
                 <Iroutes
                   v-if="tab.key == 'show_iroutes'"
-                  :routes="iroutesToJSON(serverStats.show_iroutes)"
+                  :routes="StringToJson(serverStats.show_iroutes)"
                 />
               </v-tab-item>
             </v-tabs>
@@ -51,6 +51,7 @@
 import Vue from "vue";
 import { adminServiceApi } from "@/utils/services";
 import { Dashboard } from "@/utils/types";
+import { StringToJson } from "@/utils/methods";
 
 export default Vue.extend({
   name: "Dashboard",
@@ -63,6 +64,7 @@ export default Vue.extend({
   data(): {
     serverStats: Dashboard;
     tabs: Array<object>;
+    StringToJson: Function;
   } {
     return {
       serverStats: {
@@ -71,10 +73,11 @@ export default Vue.extend({
         show_status: "",
       },
       tabs: [
-        { id: 1, name: "Online Users", key: "online_users" },
-        { id: 2, name: "Show Iroutes", key: "show_iroutes" },
-        { id: 3, name: "Show Status", key: "show_status" },
+        { id: 1, name: "Show Status", key: "show_status" },
+        { id: 2, name: "Online Users", key: "online_users" },
+        { id: 3, name: "Show Iroutes", key: "show_iroutes" },
       ],
+      StringToJson: StringToJson,
     };
   },
 
@@ -85,14 +88,14 @@ export default Vue.extend({
   },
 
   methods: {
-    iroutesToJSON(data: string): Array<object> {
-      let result = [];
-      if (data.length < 2) {
-        data = "[" + data + "]";
-        result = JSON.parse(data);
-      }
-      return result;
-    },
+    // StringToJson(data: string): Array<object> {
+    //   let result = [];
+    //   if (data.length < 2) {
+    //     data = "[" + data + "]";
+    //     result = JSON.parse(data);
+    //   }
+    //   return result;
+    // },
   },
 });
 </script>
