@@ -3,6 +3,7 @@ import os
 import subprocess
 
 from ocserv.modules.logger import Logger
+from ocserv.modules.methods import user_key_creator, ip_bans_creator
 
 logger = Logger()
 
@@ -195,23 +196,9 @@ class OcservUserHandler:
                 stdout=subprocess.PIPE,
             )
             _users, err = p.communicate()
-            if _users:
-                if len(_users.decode("utf-8")) > 0:
-                    _users = json.loads(_users)
-                    users = [
-                        {
-                            "username": i["Username"],
-                            "hostname": i["Hostname"],
-                            "device": i["Device"],
-                            "remote_ip": i["Remote IP"],
-                            "user_agent": i["User-Agent"],
-                            "since": i["_Connected at"],
-                            "connected_at": i["Connected at"],
-                            "average_rx": i["Average RX"],
-                            "average_tx": i["Average TX"],
-                        }
-                        for i in _users
-                    ]
+            if _users and len(_users.decode("utf-8")) > 0:
+                _users = json.loads(_users)
+                users = user_key_creator(_users)
         except FileNotFoundError as e:
             logger.log(level="critical", message=f"online users error ({e})")
         return users
@@ -222,22 +209,19 @@ class OcctlHandler:
     def get_command(cmd_name):
         cmd = {
             "show_ip_bans": ["-j", "show", "ip", "bans"],
-            "show_ip_ban_points": ["show", "ip", "bans", "points"],
+            "show_ip_ban_points": ["-j", "show", "ip", "bans", "points"],
             "unban_ip": ["unban", "ip"],
             "reload_configs": ["reload"],
             "show_status": ["show", "status"],
-            "show_user": ["show", "user"],
-            "show_users": ["show", "users"],
+            "show_user": ["-j", "show", "user"],
+            "show_users": ["-j", "show", "users"],
             "show_iroutes": ["-j", "show", "iroutes"],
-            "show_sessions_all": ["show", "sessions", "all"],
-            "show_sessions_valid": ["show", "sessions", "valid"],
             "disconnect_user": ["disconnect", "user"],
-            "disconnect_id": ["disconnect", "id"]
+            "disconnect_id": ["disconnect", "id"],
+            # "show_sessions_all": ["-j" "show", "sessions", "all"],
+            # "show_sessions_valid": ["show", "sessions", "valid"],
             # "show_events": ["show", "events"],
         }
-        command = cmd.get(cmd_name, [])
-        if "-j" in command:
-            command += ["--output=json-pretty"]
         return cmd.get(cmd_name, [])
 
     @staticmethod
@@ -260,7 +244,6 @@ class OcctlHandler:
         command += extra_commands
         command = list(filter(None, command))
         output = self.subprocess_handler(command)
-
         return output
 
     def show(self, action):
@@ -275,6 +258,16 @@ class OcctlHandler:
             result = {key.replace(" ", "_"): self.output(key, action.get("args", []))}
         else:
             result = {action.replace(" ", "_"): self.output(action)}
+        if "show_users" in result or "show_user" in result:
+            result["show_users"] = user_key_creator(
+                result["show_users"] if "show_users" in result else result["show_user"]
+            )
+            result.pop("show_user", None)
+        if "show_ip_bans" in result or "show_ip_ban_points" in result:
+            result["show_ip_bans"] = ip_bans_creator(
+                result["show_ip_bans"] if "show_ip_bans" in result else result["show_ip_ban_points"]
+            )
+            result.pop("show_ip_ban_points", None)
         return result
 
     def reload(self):

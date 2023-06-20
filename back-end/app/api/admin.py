@@ -19,7 +19,7 @@ from ocserv.throttles import CustomThrottle
 class AdminViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
-    @action(detail=False, methods=["GET"])
+    @action(detail=False, methods=["GET"], throttle_classes=[CustomThrottle(rate="10/min")])
     def config(self, request):
         admin_config = AdminConfig.objects.first()
         data = {
@@ -28,7 +28,7 @@ class AdminViewSet(viewsets.ViewSet):
         }
         return Response(data)
 
-    @action(detail=False, methods=["POST"], url_path="create")
+    @action(detail=False, methods=["POST"], url_path="create", throttle_classes=[CustomThrottle(rate="3/min")])
     def create_admin_configs(self, request):
         if AdminConfig.objects.all().exists():
             return Response({"error": ["Admin config exists!"]}, status=400)
