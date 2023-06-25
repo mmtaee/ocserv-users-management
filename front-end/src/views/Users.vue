@@ -17,7 +17,11 @@
           <v-card-text>
             <v-row align="start" justify="start" class="my-3">
               <v-col md="auto">
-                <v-btn color="primary" outlined @click="userFormDialog = true">
+                <v-btn
+                  color="primary"
+                  outlined
+                  @click="(initInput = null), (userFormDialog = true)"
+                >
                   <v-icon left>mdi-account-plus-outline</v-icon>
                   Create New User
                 </v-btn>
@@ -50,7 +54,6 @@
               :search="search"
               :hide-default-footer="users.length < 5"
             >
-
               <template v-slot:[`item.status`]="{ item }">
                 <span class="error--text" v-if="!item.online">Offline</span>
                 <span class="success--text" v-else>Online</span>
@@ -192,7 +195,7 @@
         @dialog="
           (userFormDialog = false), (initInput = null), (editMode = false)
         "
-        :initInput="initInput"
+        :initInput="initInput || {}"
       />
     </v-dialog>
   </v-container>

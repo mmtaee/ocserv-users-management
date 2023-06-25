@@ -1,5 +1,5 @@
 <template>
-  <CofigsForm v-if="firstInit" />
+  <ConfigsForm v-if="firstInit" />
 </template>
 
 <script lang="ts">

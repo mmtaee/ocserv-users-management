@@ -14,7 +14,9 @@ declare interface AdminConfig {
 declare type OcservConfigItems = {
     label: string;
     model: string;
-    icon?: string;
+    type?: string;
+    rules?:string | Array<Function>|null,
+    items?:Array<object> | null
 };
 declare interface Config {
     captcha_site_key: string | null,

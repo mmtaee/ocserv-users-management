@@ -1,5 +1,5 @@
 <template>
-  <v-card :width="width" height="480">
+  <v-card :width="width" min-height="500">
     <v-card-title class="grey darken-1 mb-5 white--text text-start">
       {{ editMode ? "Update Ocserv Group" : "Create Ocserv Group" }}
       <v-spacer v-if="dialog" />
@@ -14,12 +14,13 @@
     <v-card-text>
       <v-form v-model="groupFormValid" ref="groupForm">
         <v-row align="center" justify="start">
-          <v-col md="4">
+          <v-col md="4" class="my-0 py-0 mt-3">
             <v-text-field
               v-model="groupInput.name"
               label="Group Name"
               :rules="[rules.required]"
               dense
+              outlined
               prepend-inner-icon="mdi-home-group"
             />
           </v-col>
@@ -31,7 +32,7 @@
                 label="Config keys"
                 valueLabel="Config Value"
                 vmodelEmit
-                innerIcon
+                outlined
                 md="4"
               />
             </v-col>
@@ -51,8 +52,8 @@
       </v-form>
     </v-card-text>
     <v-card-actions>
-      <v-row align="center" justify="center">
-        <v-col md="auto" class="mb-2">
+      <v-row align="center" justify="center" class="mb-2">
+        <v-col md="auto">
           <v-btn
             outlined
             color="primary"
@@ -142,7 +143,7 @@ export default Vue.extend({
     initInput: {
       immediate: true,
       handler() {
-        if (this.groupInput) this.groupInput = { ...this.initInput };
+        if (Boolean(this.initInput)) this.groupInput = { ...this.initInput };
       },
     },
   },

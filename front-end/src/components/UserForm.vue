@@ -224,7 +224,7 @@ export default Vue.extend({
     initInput: {
       immediate: true,
       handler() {
-        if (this.userInput) this.userInput = { ...this.initInput };
+        if (Boolean(this.userInput)) this.userInput = { ...this.initInput };
       },
     },
   },

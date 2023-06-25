@@ -132,7 +132,7 @@
         @dialog="
           (groupFormDialog = false), (initInput = null), (editMode = false)
         "
-        :initInput="initInput"
+        :initInput="initInput || {}"
         dialog
       />
     </v-dialog>

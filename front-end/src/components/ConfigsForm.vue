@@ -69,10 +69,10 @@
                 <v-col
                   md="12"
                   cols="12"
-                  class="text-start ma-0 pa-1 primary--text"
+                  class="text-start ma-0 pa-1 primary--text text-h5"
                 >
-                  Default ocserv configs
-                  <v-divider class="mb-3" />
+                  Default Group configs
+                  <v-divider class="mb-5 mt-1" />
                 </v-col>
 
                 <v-col md="12" cols="12" class="ma-0 pa-1">

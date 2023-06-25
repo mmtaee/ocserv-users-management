@@ -5,9 +5,17 @@
 // export default Rules;
 
 function required(v: any): any {
-    return !!v || "required"
+  return !!v || "Required";
 }
 
-export {
-    required,
+function number(v: any): any {
+  return v && isNaN(v) ? "Number Required" : true;
 }
+
+function ip(v: any): any {
+  var ipformat =
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  return v && !v.match(ipformat) ? "IP Format Required" : true;
+}
+
+export { required, number, ip };

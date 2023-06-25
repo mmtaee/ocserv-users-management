@@ -38,4 +38,8 @@ pnpm-debug.log*
 
 volumes/
 notes.txt
+note.txt
 log.txt
+db/
+
+

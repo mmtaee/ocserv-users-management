@@ -8,7 +8,7 @@
           width="850"
         >
           <v-card-subtitle class="text-h5 grey darken-1 mb-8 white--text">
-            Logs
+            Statistics
           </v-card-subtitle>
           <v-card-text></v-card-text>
         </v-card>
@@ -21,6 +21,7 @@
 import Vue from "vue";
 
 export default Vue.extend({
+  name: "Statistics"
     
 });
 </script>

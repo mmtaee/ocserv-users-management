@@ -9,13 +9,26 @@
         class="my-0 py-0 mx-0 my-0"
       >
         <v-text-field
+          v-if="item.type == 'text'"
           v-model="configs[item.model]"
           :label="item.label"
           :outlined="outlined"
           dense
           clearable
+          :rules="item.rules || []"
           @keyup="emitter()"
-          :prepend-inner-icon="innerIcon ? item.icon : ''"
+        />
+        <v-select
+          v-if="item.type == 'select'"
+          v-model="configs[item.model]"
+          :items="item.items"
+          item-text="text"
+          item-value="value"
+          :label="item.label"
+          :outlined="outlined"
+          @keyup="emitter()"
+          dense
+          clearable
         />
       </v-col>
     </v-row>
@@ -24,6 +37,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { OcservConfigItems } from "@/utils/types";
+import { number, ip } from "@/utils/rules";
 
 export default Vue.extend({
   name: "OcservConfigs",
@@ -48,10 +62,6 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
-    innerIcon: {
-      type: Boolean,
-      default: false,
-    },
     initInput: {
       type: Object,
       default: () => ({}),
@@ -63,20 +73,97 @@ export default Vue.extend({
   } {
     return {
       OcservconfigItems: [
-        { label: "TCP Port", model: "tcp-port", icon: "mdi-ethernet-cable" },
-        { label: "UDP Port", model: "udp-port", icon: "mdi-ethernet-cable" },
+        {
+          label: "RX Data(bytes/sec)",
+          model: "rx-data-per-sec",
+          type: "text",
+          rules: [number],
+        },
+        {
+          label: "TX Data(bytes/sec)",
+          model: "tx-data-per-sec",
+          type: "text",
+          rules: [number],
+        },
         {
           label: "Max Session Per Client",
           model: "max-same-clients",
-          icon: "mdi-account-network-outline",
+          type: "text",
+          rules: [number],
         },
         {
           label: "IPV4 Network",
           model: "ipv4-network",
-          icon: "mdi-ip-network-outline",
+          type: "text",
+          rules: [ip],
         },
-        { label: "DNS-1", model: "dns1", icon: "mdi-dns-outline" },
-        { label: "DNS-2", model: "dns2", icon: "mdi-dns-outline" },
+        { label: "DNS-1", model: "dns1", type: "text", rules: [ip] },
+        { label: "DNS-2", model: "dns2", type: "text", rules: [ip] },
+        {
+          label: "No UDP",
+          model: "no-udp",
+          type: "select",
+          items: [
+            { text: "True", value: 'true' },
+            { text: "False", value: "false" },
+          ],
+        },
+        {
+          label: "Keepalive(Seconds)",
+          model: "keepalive",
+          type: "text",
+          rules: [number],
+        },
+        { label: "DPD(Seconds)", model: "dpd", type: "text", rules: [number] },
+        {
+          label: "Mobile DPD(Seconds)",
+          model: "mobile-dpd",
+          type: "text",
+          rules: [number],
+        },
+        {
+          label: "Tunnel All DNS",
+          model: "tunnel-all-dns",
+          type: "select",
+          items: [
+            { text: "True", value: 'true' },
+            { text: "False", value: "false" },
+          ],
+        },
+        {
+          label: "Restrict User To Routes",
+          model: "restrict-user-to-routes",
+          type: "select",
+          items: [
+            { text: "True", value: 'true' },
+            { text: "False", value: "false" },
+          ],
+        },
+        {
+          label: "Stats Report Time(Seconds)",
+          model: "stats-report-time",
+          type: "text",
+          rules: [number],
+        },
+        { label: "MTU", model: "mtu", type: "text", rules: [number] },
+        {
+          label: "IDLE Timeout(Seconds)",
+          model: "idle-timeout",
+          type: "text",
+          rules: [number],
+        },
+        {
+          label: "Mobile IDLE Timeout(Seconds)",
+          model: "mobile-idle-timeout",
+          type: "text",
+          rules: [number],
+        },
+        {
+          label: "Session Timeout(Seconds)",
+          model: "session-timeout",
+          type: "text",
+          rules: [number],
+        },
       ],
       configs: {},
     };
