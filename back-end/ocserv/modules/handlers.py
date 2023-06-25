@@ -74,8 +74,11 @@ class OcservGroupHandler:
         self.reload()
 
     def update_defaults(self, configs=None):
-        path = "/etc/ocserv/defaults/group.conf"
+        dir_path = "/etc/ocserv/defaults"
+        path = dir_path + "/group.conf"
         try:
+            if not os.path.isdir(dir_path):
+                os.mkdir(dir_path)
             if not os.path.exists(path):
                 os.mknod(path)
             with open(path, "w") as f:
@@ -111,15 +114,11 @@ class OcservGroupHandler:
         for group in groups:
             path = f"{group_path}/group"
             with open(path, "r") as f:
-                configs = dict(
-                    line.strip().replace(" ", "").split("=") for line in f.readlines() if not line.startswith("#")
-                )
+                configs = dict(line.strip().replace(" ", "").split("=") for line in f.readlines() if not line.startswith("#"))
                 data["groups"].append({"name": group, "configs": configs})
                 f.close()
         with open(defaults_path, "r") as default_f:
-            configs = dict(
-                line.strip().replace(" ", "").split("=") for line in default_f.readlines() if not line.startswith("#")
-            )
+            configs = dict(line.strip().replace(" ", "").split("=") for line in default_f.readlines() if not line.startswith("#"))
             data["defaults"] = configs
             default_f.close()
         return data
@@ -237,7 +236,7 @@ class OcctlHandler:
             return output
         except Exception as e:
             logger.log(level="critical", message=f"occtl command error ({e}), command: {' '.join(exc)}")
-        return ""
+        raise ValueError("subprocess_handler not done, see log error")
 
     def output(self, action, extra_commands):
         command = self.get_command(action)
@@ -259,9 +258,7 @@ class OcctlHandler:
         else:
             result = {action.replace(" ", "_"): self.output(action)}
         if "show_users" in result or "show_user" in result:
-            result["show_users"] = user_key_creator(
-                result["show_users"] if "show_users" in result else result["show_user"]
-            )
+            result["show_users"] = user_key_creator(result["show_users"] if "show_users" in result else result["show_user"])
             result.pop("show_user", None)
         if "show_ip_bans" in result or "show_ip_ban_points" in result:
             result["show_ip_bans"] = ip_bans_creator(

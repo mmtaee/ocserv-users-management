@@ -86,11 +86,12 @@ class OcservUser(models.Model):
     active = models.BooleanField(default=False)
     create = models.DateField(auto_now_add=True)
     expire_date = models.DateField(null=True, blank=True)
+    deactivate_date = models.DateField(null=True, blank=True)
     desc = models.TextField(null=True, blank=True)
     traffic = models.PositiveSmallIntegerField(choices=TRAFFIC_MODE_CHOICES, default=MONTHLY)
     default_traffic = models.PositiveIntegerField(default=0)
-    tx = models.PositiveIntegerField(default=0)
-    rx = models.PositiveIntegerField(default=0)
+    tx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
+    rx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -120,8 +121,8 @@ class MonthlyTrafficStat(models.Model):
     user = models.ForeignKey(OcservUser, on_delete=models.CASCADE, related_name="user")
     year = models.PositiveSmallIntegerField(default=2023)
     month = models.PositiveSmallIntegerField(default=1)
-    tx = models.PositiveIntegerField(default=0)
-    rx = models.PositiveIntegerField(default=0)
+    tx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
+    rx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
 
     class Meta:
         verbose_name = "Monthly Traffic Stat"

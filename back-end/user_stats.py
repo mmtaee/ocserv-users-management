@@ -2,6 +2,7 @@ import os
 import django
 import subprocess
 import re
+from decimal import Decimal
 from datetime import datetime
 
 
@@ -23,13 +24,10 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
                 if main_match := re.search(r"main\[(.*?)\]", line):
                     username = main_match.group(1)
                 if rx_match := re.search(r"rx: (\d+)", line):
-                    rx = int(rx_match.group(1)) / 1048576
-                    if 0.5 < rx < 1:
-                        rx = 1
+                    rx = Decimal(int(rx_match.group(1)) / (1024**3))
                 if tx_match := re.search(r"tx: (\d+)", line):
-                    tx = int(tx_match.group(1)) / 1048576
-                    if 0.5 < tx < 1:
-                        tx = 1
+                    tx = Decimal(int(tx_match.group(1)) / (1024**3))
+
             except Exception as e:
                 logger.log(level="critical", message=e)
                 logger.log(level="critical", message="unprocessable ocserv log to calculate user-rx and user-tx")
@@ -52,13 +50,11 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
                     result = user_handler.status_handler(active=False)
                     if result:
                         ocserv_user.active = False
+                        ocserv_user.deactivate_date = datetime.now()
                         logger.log(level="info", message=f"{ocserv_user.username} is deactivated")
                     else:
-                        logger.log(
-                            level="critical", message=f"deactivate for user with that username ({username}) failed"
-                        )
+                        logger.log(level="critical", message=f"deactivate for user with that username ({username}) failed")
                 ocserv_user.save()
-
             except OcservUser.DoesNotExist():
                 logger.log(level="warning", message=f"user with that username ({username}) does not exists in db")
 

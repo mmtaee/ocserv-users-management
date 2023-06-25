@@ -40,7 +40,7 @@ class OcservUserSerializer(serializers.ModelSerializer):
         model = OcservUser
         fields = "__all__"
         read_only_fields = ("id",)
-        extra_kwargs = {"username": {"trim_whitespace": True}}
+        extra_kwargs = {"username": {"trim_whitespace": True}, "password": {"trim_whitespace": True}}
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)

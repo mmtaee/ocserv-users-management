@@ -83,6 +83,9 @@ WSGI_APPLICATION = "ocserv.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+if not os.path.exists("./db"):
+    os.mkdir("./db")
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -137,4 +140,22 @@ else:
     CORS_ALLOWED_ORIGINS = list(filter(None, os.environ.get("CORS_ALLOWED", config("CORS_ALLOWED")).split(",")))
     LOG_PATH = "/var/log/backend.log"
 
-OSCERV_CONFIG_KEYS = ["tcp-port", "udp-port", "max-same-clients", "ipv4-network", "dns1", "dns2"]
+OSCERV_CONFIG_KEYS = [
+    "rx-data-per-sec",
+    "tx-data-per-sec",
+    "max-same-clients",
+    "ipv4-network",
+    "dns1",
+    "dns2",
+    "no-udp",
+    "keepalive",
+    "dpd",
+    "mobile-dpd",
+    "tunnel-all-dns",
+    "restrict-user-to-routes",
+    "stats-report-time",
+    "mtu",
+    "idle-timeout",
+    "mobile-idle-timeout",
+    "session-timeout",
+]
