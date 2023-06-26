@@ -51,6 +51,3 @@ export default Vue.extend({
 });
 </script>
 
-function AdminServiceApi() {
-  throw new Error("Function not implemented.");
-}

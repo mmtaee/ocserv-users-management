@@ -13,8 +13,9 @@ services:
       context: .
       dockerfile: Dockerfile.Pack
     volumes:
-      - "./volumes/ocserv:/etc/ocserv"
+      - ./volumes/ocserv:/etc/ocserv
       - ./volumes/db:/app/db
+      - ./volumes/log:/var/log
       - shared-ssl:/etc/ocserv/certs
     ports:
       - ${PORT:-20443}:443/tcp
