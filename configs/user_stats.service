@@ -1,0 +1,19 @@
+[Unit]
+Description=ocserv uwsgi service
+After=network-online.target
+After=syslog.target
+
+[Service]
+Type=simple
+User=root
+Group=www-data
+PIDFile=/run/user_stats.pid
+WorkingDirectory=/var/www/site/backend
+ExecStart=venv/bin/python user_stats.py
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

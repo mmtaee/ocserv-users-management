@@ -1,0 +1,47 @@
+version: "3.9"
+
+volumes:
+  shared-ssl:
+
+services:
+  ocserv_and_backend:
+    restart: always
+    image: ocserv_and_backend:ocserv
+    container_name: ocserv_and_backend
+    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfile.Pack
+    volumes:
+      - "./volumes/ocserv:/etc/ocserv"
+      - ./volumes/db:/app/db
+      - shared-ssl:/etc/ocserv/certs
+    ports:
+      - ${PORT:-20443}:443/tcp
+      - ${PORT:-20443}:443/udp
+      - 127.0.0.1:8000:8000
+    environment:
+      - CN=${CN:-End-way-Cisco-VPN}
+      - ORG=${ORG:-End-way}
+      - EXPIRE=${EXPIRE:-3650}
+      - OC_NET=${OC_NET:-172.16.24.0/24}
+      - DEBUG=${DEBUG:-False}
+      - CORS_ALLOWED=http://${HOST},https://${HOST}
+      - HOST=${HOST}
+
+  nginx:
+    restart: always
+    image: nginx:ocserv
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: Dockerfile.Front
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - ocserv_and_backend
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - shared-ssl:/etc/nginx/certs

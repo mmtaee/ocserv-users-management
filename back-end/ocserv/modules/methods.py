@@ -38,15 +38,15 @@ def user_key_creator(users):
         users = json.loads(users)
     return [
         {
-            "username": i["Username"],
-            "hostname": i["Hostname"],
-            "device": i["Device"],
-            "remote_ip": i["Remote IP"],
-            "user_agent": i["User-Agent"],
-            "since": i["_Connected at"],
-            "connected_at": i["Connected at"],
-            "average_rx": i["Average RX"],
-            "average_tx": i["Average TX"],
+            "username": i.get("Username"),
+            "hostname": i.get("Hostname"),
+            "device": i.get("Device"),
+            "remote_ip": i.get("Remote IP"),
+            "user_agent": i.get("User-Agent"),
+            "since": i.get("_Connected at"),
+            "connected_at": i.get("Connected at"),
+            "average_rx": i.get("Average RX"),
+            "average_tx": i.get("Average TX"),
         }
         for i in users
     ]
@@ -57,9 +57,9 @@ def ip_bans_creator(bans):
         bans = json.loads(bans)
     return [
         {
-            "ip": i["IP"],
-            "since": i["Since"],
-            "score": i["Score"],
+            "ip": i.get("IP"),
+            "since": i.get("Since"),
+            "score": i.get("Score"),
         }
         for i in bans
     ]

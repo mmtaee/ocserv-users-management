@@ -24,10 +24,9 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
                 if main_match := re.search(r"main\[(.*?)\]", line):
                     username = main_match.group(1)
                 if rx_match := re.search(r"rx: (\d+)", line):
-                    rx = Decimal(int(rx_match.group(1)) / (1024**3))
+                    rx = Decimal(float(rx_match.group(1)) / (1024**3))
                 if tx_match := re.search(r"tx: (\d+)", line):
-                    tx = Decimal(int(tx_match.group(1)) / (1024**3))
-
+                    tx = Decimal(float(tx_match.group(1)) / (1024**3))
             except Exception as e:
                 logger.log(level="critical", message=e)
                 logger.log(level="critical", message="unprocessable ocserv log to calculate user-rx and user-tx")

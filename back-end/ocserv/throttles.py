@@ -9,7 +9,7 @@ from functools import wraps
 class CustomThrottle(SimpleRateThrottle):
     THROTTLE_RATES = {}
 
-    def __init__(self, rate="1/minutes"):
+    def __init__(self, rate="1/minute"):
         if not getattr(self, "rate", None):
             self.rate = rate
         super().__init__()

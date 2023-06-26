@@ -110,7 +110,6 @@ _EOF_
         --template server.tmpl --outfile ${servercert} >>/tmp/cert.txt 2>&1
     echo "Server Cert pin: $(grep -r 'pin-sha256' /tmp/cert.txt | tr -d '[:space:]')" >>/etc/ocserv/public_key_pin
     echo "Docker Host ip: $(hostname -i)" >>/etc/ocserv/public_key_pin
-    # echo "masoud:*:\$5\$wK/pZHd.2KiFWCSu\$UTrCnrr7t2BlhXW2SZ.HM12Uz.TyyTOJPu7kULbmxy0" >>/etc/ocserv/ocpasswd
     rm -rf /tmp/cert.txt
     cp "${servercert}" /etc/ocserv/certs/cert.pem
     cp "${serverkey}" /etc/ocserv/certs/cert.key
@@ -138,5 +137,7 @@ cat <<\EOT >/etc/logrotate.d/ocserv
     endscript
 }
 EOT
+
+python3 /app/manage.py migrate
 
 exec "$@"

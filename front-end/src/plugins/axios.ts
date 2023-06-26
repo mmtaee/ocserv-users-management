@@ -3,7 +3,7 @@ import router from './router';
 
 
 let config: AxiosRequestConfig = {
-    baseURL: process.env.NODE_ENV == "production" ? location.origin : "http://127.0.0.1:8000/api",
+    baseURL: process.env.NODE_ENV == "production" ? `${location.origin}/api` : "http://127.0.0.1:8000/api",
 };
 
 const _axios: AxiosInstance = axios.create(config);
