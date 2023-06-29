@@ -8,3 +8,4 @@ sqlparse==0.4.4
 typing_extensions==4.6.2
 requests==2.31
 tzdata
+uvicorn

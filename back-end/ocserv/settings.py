@@ -159,3 +159,5 @@ OSCERV_CONFIG_KEYS = [
     "mobile-idle-timeout",
     "session-timeout",
 ]
+
+WS_TOKEN = os.environ.get("WS_TOKEN", config("WS_TOKEN"))

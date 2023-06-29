@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.core.cache import cache
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -46,12 +47,15 @@ class AdminViewSet(viewsets.ViewSet):
         data.get("username")
         if user := authenticate(request, username=data.get("username"), password=data.get("password")):
             token, _ = Token.objects.get_or_create(user=user)
+            cache.set(token.key)
             return Response({"token": token.key})
         return Response({"error": ["Invalid username or password"]}, status=400)
 
     @action(detail=False, methods=["DELETE"], permission_classes=[IsAuthenticated])
     def logout(self, request):
-        Token.objects.get(user=request.user).delete()
+        token = Token.objects.get(user=request.user)
+        cache.delete(token.key)
+        token.delete()
         return Response(status=204)
 
     @action(detail=False, methods=["GET", "PATCH"], permission_classes=[IsAuthenticated])
