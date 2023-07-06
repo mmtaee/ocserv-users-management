@@ -1,1 +1,0 @@
-LOG_FILE=./log.txt WS_SERVER=ws://127.0.0.1:8000 ./log_monitor

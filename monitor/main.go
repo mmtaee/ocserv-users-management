@@ -2,70 +2,157 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
-	"os/exec"
+	"net/http"
 	"os"
-	"encoding/json"
+	"os/exec"
+	"path/filepath"
+	"strings"
+
+	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/websocket"
 )
 
-type message struct {
-	WSToken string `json:"token"`
-	Text    string `json:"text"`
-}
+var pl = fmt.Println
 
+func getTokenFromFile(key string, passwdFile string) string {
+	cmd := exec.Command("grep", "-r", key, passwdFile)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatal(fmt.Printf("[Monitor] getting token from %s faile with error: %s", passwdFile, err))
+	}
+	return strings.Split(string(output), ":")[1]
+}
 
 func main() {
-	logfile := os.Getenv("LOG_FILE")
-	wsServer := os.Getenv("WS_SERVER")
-	wsToken := os.Getenv("WS_TOKEN")
-	if logfile == "" {
-		log.Fatal("LOG_FILE environment variable not set")
+	logFile := os.Getenv("LOG_FILE")
+	if logFile == "" {
+		log.Fatal("[Monitor] LOG_FILE not Found in enviorment")
 	}
-	if wsServer == "" {
-		log.Fatal("WS_SERVER environment variable not set")
+	passwdFile := os.Getenv("SOCKET_PASSWD_FILE")
+	if passwdFile == "" {
+		log.Fatal("[Monitor] SOCKET_PASSWD_FILE not Found in enviorment")
 	}
-	if wsToken == "" {
-		log.Fatal("WS_TOKEN environment variable not set")
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "0.0.0.0"
 	}
-	cmd := exec.Command("tail", "-f", "-n2",logfile)
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Fatal("Failed to create stdout pipe:", err)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
-	err = cmd.Start()
-	if err != nil {
-		log.Fatal("Failed to start command:", err)
+	wsPath := os.Getenv("SOCKET_PATH")
+	if wsPath == "" {
+		wsPath = "/"
 	}
-	lastLogEntry := "start script"
-	conn, _, err := websocket.DefaultDialer.Dial(wsServer, nil)
-	if err != nil {
-		log.Fatal("Failed to connect to websocket:", err)
+
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			queryParams := r.URL.Query()
+			user, qToken := queryParams["user"][0], queryParams["token"][0]
+			token := getTokenFromFile(user, passwdFile)
+			if strings.TrimSpace(token) == strings.TrimSpace(qToken) {
+				log.Printf("[Monitor] Socket connection (%s) accepted", r.Host)
+				return true
+			}
+			log.Printf("[Monitor] Socket connection (%s) rejected!", r.Host)
+			return false
+		},
 	}
-	defer conn.Close()
-	scanner := bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if lastLogEntry == line {
-			continue
-		}
-		lastLogEntry = line
-		message := message {
-			WSToken: wsToken,
-			Text:  line,
-		}
-		jsonData, err := json.Marshal(message)
+
+	http.HandleFunc(wsPath, func(w http.ResponseWriter, r *http.Request) {
+		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Fatal("Failed to connect to websocket:", err)
+			log.Println("[Monitor] Failed to upgrade connection to WebSocket:", err)
+			return
 		}
-		err = conn.WriteMessage(websocket.TextMessage, jsonData)
+		watcher, err := fsnotify.NewWatcher()
 		if err != nil {
-			log.Println("Failed to send message via websocket:", err)
-			break
+			log.Println("[Monitor] Failed to create file watcher:", err)
+			conn.Close()
+			return
 		}
-	}
-	err = cmd.Wait()
+		defer watcher.Close()
+		absFilePath, err := filepath.Abs(logFile)
+		if err != nil {
+			log.Println("[Monitor] Failed to get absolute path for file:", err)
+			conn.Close()
+			return
+		}
+		file, err := os.Open(absFilePath)
+		if err != nil {
+			log.Println("[Monitor] Failed to open file:", err)
+			conn.Close()
+			return
+		}
+		defer file.Close()
+		fileInfo, err := file.Stat()
+		if err != nil {
+			log.Println("[Monitor] Failed to get file info:", err)
+			conn.Close()
+			return
+		}
+		initialReadPos := fileInfo.Size()
+		err = watcher.Add(absFilePath)
+		if err != nil {
+			log.Println("[Monitor] Failed to watch file:", err)
+			conn.Close()
+			return
+		}
+		go func() {
+			for {
+				select {
+				case event, ok := <-watcher.Events:
+					if !ok {
+						return
+					}
+
+					if event.Op&fsnotify.Write == fsnotify.Write {
+						file.Seek(initialReadPos, 0)
+						reader := bufio.NewReader(file)
+						for {
+							line, err := reader.ReadString('\n')
+							if err != nil {
+								break
+							}
+							line = strings.TrimSpace(line)
+							if line != "" {
+								err = conn.WriteMessage(websocket.TextMessage, []byte(line))
+								if err != nil {
+									log.Println("[Monitor] Failed to send message to client:", err)
+									continue
+								}
+							}
+						}
+						fileInfo, err := file.Stat()
+						if err != nil {
+							log.Println("[Monitor] Failed to get file info:", err)
+							continue
+						}
+						initialReadPos = fileInfo.Size()
+					}
+				case err, ok := <-watcher.Errors:
+					if !ok {
+						return
+					}
+					log.Println("[Monitor] Watchererror:", err)
+				}
+			}
+		}()
+		_, _, err = conn.ReadMessage()
+		if err != nil {
+			log.Println("[Monitor] Failed to read message from client:", err)
+		}
+	})
+	log.Printf("[Monitor] Server is running on http://%s:%s", host, port)
+	log.Printf("[Monitor] Socket passwd file(%s)", passwdFile)
+	log.Printf("[Monitor] Log file(%s)", logFile)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), nil)
 	if err != nil {
-		log.Println("Command execution ended with error:", err)
+		log.Fatal(err)
 	}
+
 }
+
+// SOCKET_PASSWD_FILE=socket_passwd.txt LOG_FILE=ocserv.log go run main.go
