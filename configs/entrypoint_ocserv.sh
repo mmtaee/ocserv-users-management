@@ -24,9 +24,14 @@ if [ -z "$HOST" ]; then
     fi
 fi
 
+if [ -z "$WS_TOKEN" ]; then
+    WS_TOKEN=123456789
+fi
+
 echo "DEBUG=${DEBUG}" >/app/.env
 echo "SECRET_KEY=$(openssl rand -base64 '32')" >>/app/.env
 echo "CORS_ALLOWED=http://${HOST},https://${HOST}" >>/app/.env
+echo "WS_TOKEN=${WS_TOKEN}" >>/app/.env
 
 if [ ! -f '/etc/ocserv/ocserv.conf' ] || [ $(grep -r "custom config" /etc/ocserv/ocserv.conf | wc -l) == "0" ]; then
     cat <<EOT >/etc/ocserv/ocserv.conf
@@ -79,6 +84,7 @@ fi
 
 if [ ! -f /etc/ocserv/certs/cert.pem ]; then
     mkdir -p /etc/ocserv/certs
+    cd /etc/ocserv/certs
     touch /etc/ocserv/ocpasswd
     servercert="cert.pem"
     serverkey="key.pem"
