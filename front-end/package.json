@@ -13,7 +13,8 @@
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.5.1",
     "vuetify": "^2.6.0",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "typed.js": "^2.0.16"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",

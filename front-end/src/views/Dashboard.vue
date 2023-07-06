@@ -86,16 +86,5 @@ export default Vue.extend({
     this.serverStats = data;
     this.serverStats.show_status = `<pre>${this.serverStats.show_status}</pre>`;
   },
-
-  methods: {
-    // StringToJson(data: string): Array<object> {
-    //   let result = [];
-    //   if (data.length < 2) {
-    //     data = "[" + data + "]";
-    //     result = JSON.parse(data);
-    //   }
-    //   return result;
-    // },
-  },
 });
 </script>

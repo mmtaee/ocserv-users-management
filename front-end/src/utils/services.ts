@@ -58,7 +58,7 @@ class AdminServiceApi extends Services {
     this.path = "config/";
     return this.request();
   }
-  public async login(data: AminLogin): Promise<{ token: string }> {
+  public async login(data: AminLogin): Promise<{ token: string, user: string }> {
     this.method = "post";
     this.path = "login/";
     return this.request(data);

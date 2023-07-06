@@ -1,5 +1,4 @@
 function StringToJson(data: string): Array<object> {
-
   let result = [];
   if (data.length > 2) {
     if (!data.startsWith("[")) {
@@ -10,6 +9,4 @@ function StringToJson(data: string): Array<object> {
   return result;
 }
 
-export {
-  StringToJson
-}
+export { StringToJson };

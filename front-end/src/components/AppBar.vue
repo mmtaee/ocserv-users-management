@@ -80,11 +80,12 @@ export default Vue.extend({
   methods: {
     async logout() {
       if (localStorage.getItem("token")) {
-        await adminServiceApi.config();
+        await adminServiceApi.logout();
         let status: number = adminServiceApi.status();
         if (status == 204) {
           this.$store.commit("setIsLogin", false);
           localStorage.removeItem("token");
+          localStorage.removeItem("user");
           this.$router.push({ name: "Login" });
         }
       }
