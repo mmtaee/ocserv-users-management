@@ -1,72 +1,89 @@
-import json
 import os
 
-from django.core.cache import cache
 from django.core.asgi import get_asgi_application
-from django.conf import settings
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ocserv.settings")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ocserv.settings')
 
-django_application = get_asgi_application()
-
-
-async def websocket_application(scope, receive, send):
-    connections = []
-    throttle_rate = 10
-
-    while True:
-        event = await receive()
-        throttle = True
-        if event["type"] == "websocket.connect":
-            await send({"type": "websocket.accept"})
-        if event["type"] == "websocket.disconnect":
-            if send in connections:
-                connections.remove(send)
-            break
-        if event["type"] == "websocket.receive":
-            client_ip = scope.get("client")[0]
-            cache_key = f"websocket_throttle:{client_ip}"
-            if cache_val := cache.get(cache_key) is None:
-                cache.set(cache_key, 0)
-                cache_val = 0
-            msg = event["text"]
-            if int(cache_val) >= throttle_rate:
-                return
-            try:
-                msg = json.loads(msg)
-            except Exception as e:
-                print("json convert error: ", e)
-                return
-
-            if "Authorization" in msg:
-                _token = msg["Authorization"].split(" ")[1]
-                if cache.get(_token) and send not in connections:
-                    throttle = False
-                    connections.append(send)
-            elif "WSToken" in msg:
-                _token = msg["WSToken"]
-                text = msg["Text"]
-                if msg["WSToken"] == settings.WS_TOKEN:
-                    throttle = False
-                    for con in connections:
-                        await con(
-                            {
-                                "type": "websocket.send",
-                                "text": text,
-                            }
-                        )
-            if throttle:
-                cache.incr(cache_key)
-                return
+application = get_asgi_application()
 
 
-async def application(scope, receive, send):
-    if scope["type"] == "http":
-        await django_application(scope, receive, send)
-    elif scope["type"] == "websocket":
-        await websocket_application(scope, receive, send)
-    else:
-        raise NotImplementedError(f"Unknown scope type {scope['type']}")
+# import subprocess
+# import json
+# import os
+
+# from django.core.asgi import get_asgi_application
+# from django.conf import settings
+
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ocserv.settings")
+
+# django_application = get_asgi_application()
+# receivers = set()
 
 
-# uvicorn ocserv.asgi:application --host 127.0.0.1 --port 8000
+# def socket_passwd(key):
+#     command = f"grep -r {key} {settings.SOCKET_PASSWD_FILE}"
+#     result = subprocess.run(command.split(" "), capture_output=True, text=True)
+#     if result.stderr:
+#         return False
+#     if result.stdout:
+#         return result.stdout
+
+
+# async def websocket_application(scope, receive, send):
+#     while True:
+#         event = await receive()
+
+#         if event["type"] == "websocket.connect":
+#             query_string = scope["query_string"].decode()
+#             if "ws" in query_string and query_string.split("=")[1] == settings.WS_TOKEN:
+#                 await send({"type": "websocket.accept"})
+#             if "token" in query_string:
+#                 items = dict((i.split("=")[0], i.split("=")[1]) for i in query_string.split("&"))
+#                 user_token = socket_passwd(items.get("user"))
+#                 if user_token and user_token.split(":")[1].strip() == items.get("token"):
+#                     receivers.add(send)
+#                     await send({"type": "websocket.accept"})
+#                     await send(
+#                         {
+#                             "type": "websocket.send",
+#                             "text": "successful added to socket list",
+#                         }
+#                     )
+
+#         if event["type"] == "websocket.disconnect":
+#             if send in receivers:
+#                 receivers.remove(send)
+
+#         if event["type"] == "websocket.receive":
+#             if send not in receivers and len(receivers):
+#                 msg = event["text"]
+#                 try:
+#                     msg = json.loads(msg)
+#                 except Exception as e:
+#                     print("json convert error: ", e)
+#                     return
+#                 text = msg["Text"]
+#                 print("****************")
+#                 print(text)
+#                 print(receivers)
+#                 print("****************")
+
+#                 for res in receivers:
+#                     await res(
+#                         {
+#                             "type": "websocket.send",
+#                             "text": text,
+#                         }
+#                     )
+
+
+# async def application(scope, receive, send):
+#     if scope["type"] == "http":
+#         await django_application(scope, receive, send)
+#     elif scope["type"] == "websocket":
+#         await websocket_application(scope, receive, send)
+#     else:
+#         raise NotImplementedError(f"Unknown scope type {scope['type']}")
+
+
+# # gunicorn ocserv.asgi:application -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000

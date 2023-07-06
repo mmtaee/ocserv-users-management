@@ -1,12 +1,20 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+
+
 from rest_framework.exceptions import ValidationError as RestValidationError
+
+from uuid import uuid4
 
 from ocserv.modules.handlers import OcservGroupHandler, OcservUserHandler
 
 
 class AdminConfig(User):
+    uu_id = models.UUIDField(
+         primary_key = False,
+         default = uuid4,
+         editable = False)
     captcha_site_key = models.TextField(null=True, blank=True)
     captcha_secret_key = models.TextField(null=True, blank=True)
     default_traffic = models.PositiveIntegerField(default=10)

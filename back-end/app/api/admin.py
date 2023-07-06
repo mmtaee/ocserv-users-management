@@ -1,5 +1,7 @@
+import subprocess
+
+from django.conf import settings
 from django.contrib.auth import authenticate
-from django.core.cache import cache
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -12,6 +14,32 @@ from app.serializers import AminConfigSerializer
 from ocserv.modules.decorators import recaptcha
 from ocserv.modules.handlers import OcservUserHandler, OcctlHandler
 from ocserv.throttles import custom_throttle
+
+
+def grep_key(key):
+    command = f"grep -r {key} {settings.SOCKET_PASSWD_FILE}"
+    result = subprocess.run(command.split(" "), capture_output=True, text=True)
+    if result.stderr:
+        return False
+    if result.stdout:
+        return result.stdout
+    return
+
+
+def socket_passwd(key, val=None, delete=False):
+    if not val and not delete:
+        return grep_key(key)
+    elif delete:
+        command = f"sed -i /{key}/d {settings.SOCKET_PASSWD_FILE}"
+        result = subprocess.run(command.split(" "), capture_output=True, text=True)
+        if result.stderr:
+            return False
+        if result.stdout:
+            return result.stdout
+    else:
+        if not grep_key(key):
+            with open(settings.SOCKET_PASSWD_FILE, "a") as f:
+                f.write(f"{key}:{val}\n")
 
 
 class AdminViewSet(viewsets.ViewSet):
@@ -37,9 +65,11 @@ class AdminViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         admin_config = serializer.save()
         token = Token.objects.create(user=admin_config)
-        return Response({"token": token.key, "captcha_site_key": admin_config.captcha_site_key}, status=201)
+        return Response(
+            {"token": token.key, "captcha_site_key": admin_config.captcha_site_key, "user": admin_config.uu_id}, status=201
+        )
 
-    @custom_throttle(rate="20/hour")
+    @custom_throttle(rate="4/hours")
     @recaptcha
     @action(detail=False, methods=["POST"])
     def login(self, request):
@@ -47,14 +77,15 @@ class AdminViewSet(viewsets.ViewSet):
         data.get("username")
         if user := authenticate(request, username=data.get("username"), password=data.get("password")):
             token, _ = Token.objects.get_or_create(user=user)
-            cache.set(token.key)
-            return Response({"token": token.key})
+            token = token.key
+            socket_passwd(key=user.adminconfig.uu_id, val=token)
+            return Response({"token": token, "user": user.adminconfig.uu_id})
         return Response({"error": ["Invalid username or password"]}, status=400)
 
     @action(detail=False, methods=["DELETE"], permission_classes=[IsAuthenticated])
     def logout(self, request):
         token = Token.objects.get(user=request.user)
-        cache.delete(token.key)
+        socket_passwd(key=token.user.adminconfig.uu_id, delete=True)
         token.delete()
         return Response(status=204)
 
