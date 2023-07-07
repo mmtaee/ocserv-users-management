@@ -17,6 +17,7 @@ from ocserv.throttles import custom_throttle
 
 
 def grep_key(key):
+    print("settings.SOCKET_PASSWD_FILE: ", settings.SOCKET_PASSWD_FILE)
     command = f"grep -r {key} {settings.SOCKET_PASSWD_FILE}"
     result = subprocess.run(command.split(" "), capture_output=True, text=True)
     if result.stderr:
@@ -27,6 +28,7 @@ def grep_key(key):
 
 
 def socket_passwd(key, val=None, delete=False):
+    print("settings.SOCKET_PASSWD_FILE: ", settings.SOCKET_PASSWD_FILE)
     if not val and not delete:
         return grep_key(key)
     elif delete:
@@ -65,6 +67,7 @@ class AdminViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         admin_config = serializer.save()
         token = Token.objects.create(user=admin_config)
+        socket_passwd(key=admin_config.uu_id, val=token.key)
         return Response(
             {"token": token.key, "captcha_site_key": admin_config.captcha_site_key, "user": admin_config.uu_id}, status=201
         )

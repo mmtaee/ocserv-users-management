@@ -48,8 +48,13 @@ export default Vue.extend({
     };
   },
   async mounted() {
+    const wsUrl =
+      process.env.NODE_ENV == "production"
+        ? `${location.hostname}/ws`
+        : "127.0.0.1:8080";
+
     this.socket = new WebSocket(
-      `ws://127.0.0.1:8080/?user=${localStorage.getItem(
+      `ws://${wsUrl}/?user=${localStorage.getItem(
         "user"
       )}&token=${localStorage.getItem("token")}`
     );
@@ -59,9 +64,13 @@ export default Vue.extend({
     };
     this.socket.onmessage = (event: MessageEvent) => {
       this.sentences.push(event.data);
+      if (this.sentences.length <= 1) {
+        this.typdCreator();
+      }
     };
     this.socket.onclose = (event: Event) => {
       this.sentences = [];
+      this.status = false;
       console.log("closed");
     };
   },
@@ -85,10 +94,11 @@ export default Vue.extend({
       if (text) {
         let options: TypedOptions = {
           strings: [text],
-          typeSpeed: 20,
+          typeSpeed: 10,
           loop: false,
           showCursor: false,
           smartBackspace: false,
+          onComplete: () => this.typdCreator(),
         };
         let spanElement = document.createElement("span");
         spanElement.id = `text-${this.index}`;
@@ -107,15 +117,14 @@ export default Vue.extend({
     },
   },
 
-  watch: {
-    sentences: {
-      immediate: false,
-      deep: true,
-      async handler() {
-        await this.typdCreator();
-      },
-    },
-  },
+  // watch: {
+  //   sentences: {
+  //     immediate: false,
+  //     handler() {
+  //       this.typdCreator();
+  //     },
+  //   },
+  // },
 
   beforeDestroy() {
     this.socket?.close();

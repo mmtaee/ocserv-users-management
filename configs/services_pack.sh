@@ -1,22 +1,20 @@
 #!/bin/bash
-
-LOG_FILE=/var/log/ocserv.log
+LOG_FILE=/shared_mointor/ocserv.log
 BACKEND=0.0.0.0:8000
-WS_TOKEN=1234
 
 pidfile=/run/ocserv.pid
 # ocserv service
 printf "\e[33m########### ocserv service starting ... ###########\e[0m"
 printf "\n"
+touch ${LOG_FILE}
 /usr/sbin/ocserv --debug=2 --foreground --config=/etc/ocserv/ocserv.conf --pid-file=${pidfile} 2>&1 | tee ${LOG_FILE} &
 # /usr/sbin/ocserv -c /etc/ocserv/ocserv.conf -f 2>&1 > /tmp/log.txt &
-
-# log monitor
-LOG_FILE=${LOG_FILE} WS_SERVER=ws://${BACKEND} WS_TOKEN=${WS_TOKEN} /log_service/log_monitor &
 
 # django service
 printf "\e[33m########### backend service starting ... ###########\e[0m"
 printf "\n"
+SOCKET_PASSWD=/shared_mointor/socket_passwd
+touch  ${SOCKET_PASSWD} && chmod 777 ${SOCKET_PASSWD}
 python3 /app/manage.py runserver ${BACKEND} &
 
 # user stats service

@@ -84,7 +84,8 @@ WSGI_APPLICATION = "ocserv.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 if not os.path.exists("./db"):
-    os.mkdir("./db")
+    Path("./db").mkdir(parents=True, exist_ok=True)
+    # os.mkdir("./db")
 
 DATABASES = {
     "default": {
@@ -135,12 +136,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
     LOG_PATH = Path.joinpath(BASE_DIR, "log.txt")
-    SOCKET_PASSWD_FILE = Path.joinpath(BASE_DIR, "socket_passwd.txt")
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = list(filter(None, os.environ.get("CORS_ALLOWED", config("CORS_ALLOWED")).split(",")))
     LOG_PATH = "/var/log/backend.log"
-    SOCKET_PASSWD_FILE = "/etc/ocserv/socket_passwd.txt"
+
+SOCKET_PASSWD_FILE = "/var/log/socket_passwd"
 
 OSCERV_CONFIG_KEYS = [
     "rx-data-per-sec",

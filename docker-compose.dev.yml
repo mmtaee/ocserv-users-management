@@ -1,10 +1,12 @@
-# use for develop frontend
 version: "3.9"
+
+volumes:
+  shared-mointor:
 
 services:
   ocserv_and_backend:
     restart: always
-    image: ocserv_and_backend:ocserv
+    image: ocserv_and_backend:ocserv_dev
     container_name: ocserv_and_backend_for_frontend
     privileged: true
     build:
@@ -14,34 +16,28 @@ services:
       - 20443:443/tcp
       - 20443:443/udp
       - 127.0.0.1:8000:8000
-    environment:
-      - CN=End-way-Cisco-VPN
-      - ORG=End-way
-      - EXPIRE=3650
-      - OC_NET=172.16.24.0/24
-      - DEBUG=True
-      - CORS_ALLOWED=http://127.0.0.1:9000
-      - SECRET_KEY=SECRET_KEY
-      - SOCKET_PASSWD_FILE=./back-end/socket_passwd.txt
+    env_file:
+      - dev.env
     volumes:
-      - "./back-end:/app"
-      - "./volumes/ocserv:/etc/ocserv"
-      - "./volumes/log:/var/log"
+      - ./back-end:/app
+      - ./volumes/ocserv:/etc/ocserv
+      - shared-mointor:/var/log
 
   monitor:
-    image: golang:latest
-    container_name: monitor
+    image: monitor:ocserv_dev
+    container_name: monitor_dev
     build:
       context: .
       dockerfile: Dockerfile.Monitor
     ports:
       - 127.0.0.1:8080:8080
     environment:
-      - SOCKET_PASSWD_FILE=/tmp/socket_passwd.txt
+      - SOCKET_PASSWD_FILE=/tmp/socket_passwd
       - LOG_FILE=/var/log/ocserv.log
     volumes:
-      - "./back-end/socket_passwd.txt:/tmp/socket_passwd.txt"
-      - "./volumes/log/ocserv.log:/var/log/ocserv.log"
+      - shared-mointor:/shared_mointor
+    depends_on:
+      - ocserv_and_backend
 #
 #
 #

@@ -20,20 +20,14 @@ func getTokenFromFile(key string, passwdFile string) string {
 	cmd := exec.Command("grep", "-r", key, passwdFile)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatal(fmt.Printf("[Monitor] getting token from %s faile with error: %s", passwdFile, err))
+		log.Printf("[Monitor] getting token from %s faile with error: %s", passwdFile, err)
+		return ""
 	}
 	return strings.Split(string(output), ":")[1]
 }
 
 func main() {
-	logFile := os.Getenv("LOG_FILE")
-	if logFile == "" {
-		log.Fatal("[Monitor] LOG_FILE not Found in enviorment")
-	}
-	passwdFile := os.Getenv("SOCKET_PASSWD_FILE")
-	if passwdFile == "" {
-		log.Fatal("[Monitor] SOCKET_PASSWD_FILE not Found in enviorment")
-	}
+	log.SetOutput(os.Stdout)
 	host := os.Getenv("HOST")
 	if host == "" {
 		host = "0.0.0.0"
@@ -46,7 +40,8 @@ func main() {
 	if wsPath == "" {
 		wsPath = "/"
 	}
-
+	logFile := "/shared_mointor/ocserv.log"
+	passwdFile := "/shared_mointor/socket_passwd"
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			queryParams := r.URL.Query()
@@ -150,9 +145,7 @@ func main() {
 	log.Printf("[Monitor] Log file(%s)", logFile)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("[Monitor] Openning socket error", err)
 	}
 
 }
-
-// SOCKET_PASSWD_FILE=socket_passwd.txt LOG_FILE=ocserv.log go run main.go

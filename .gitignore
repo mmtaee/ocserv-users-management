@@ -41,5 +41,5 @@ notes.txt
 note.txt
 log.txt
 db/
-socket_passwd.txt
-
+socket_passwd
+dev.env

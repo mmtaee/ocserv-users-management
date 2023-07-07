@@ -1,14 +1,7 @@
 FROM ubuntu:20.04
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends ocserv gnutls-bin build-essential python3 \
-    python3-pip python3-dev python3-venv gettext-base iptables cron openssl nano less golang
-
-# log service
-
-# RUn mkdir /monitor
-# COPY ./monitor /monitor
-# RUN cd /monitor && go build -o log_monitor main.go
-# RUN chmod +x /monitor/log_monitor
+    python3-pip python3-dev python3-venv gettext-base iptables cron openssl nano less
 
 # backend installation
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -21,7 +14,7 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY back-end/requirements.txt .
 RUN mkdir -p db
-RUN python3 -m pip install --upgrade pip
+# RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r requirements.txt
 
 # ocserv installation

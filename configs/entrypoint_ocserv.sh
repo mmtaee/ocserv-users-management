@@ -12,11 +12,9 @@ fi
 if [ -z "$OC_NET" ]; then
     OC_NET=172.16.24.0/24
 fi
-
 if [ -z "$DEBUG" ]; then
     DEBUG=False
 fi
-
 if [ -z "$HOST" ]; then
     HOST=$(dig +short myip.opendns.com @resolver1.opendns.com)
     if [ "$?" != "0" ]; then
@@ -24,14 +22,10 @@ if [ -z "$HOST" ]; then
     fi
 fi
 
-if [ -z "$WS_TOKEN" ]; then
-    WS_TOKEN=123456789
-fi
-
 echo "DEBUG=${DEBUG}" >/app/.env
 echo "SECRET_KEY=$(openssl rand -base64 '32')" >>/app/.env
 echo "CORS_ALLOWED=http://${HOST},https://${HOST}" >>/app/.env
-echo "WS_TOKEN=${WS_TOKEN}" >>/app/.env
+crontab -l | {cat echo "59 23 * * * /app/venv/bin/python /app/manage.py user_management"} | crontab -
 
 if [ ! -f '/etc/ocserv/ocserv.conf' ] || [ $(grep -r "custom config" /etc/ocserv/ocserv.conf | wc -l) == "0" ]; then
     cat <<EOT >/etc/ocserv/ocserv.conf
