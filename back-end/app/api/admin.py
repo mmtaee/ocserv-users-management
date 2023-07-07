@@ -17,7 +17,6 @@ from ocserv.throttles import custom_throttle
 
 
 def grep_key(key):
-    print("settings.SOCKET_PASSWD_FILE: ", settings.SOCKET_PASSWD_FILE)
     command = f"grep -r {key} {settings.SOCKET_PASSWD_FILE}"
     result = subprocess.run(command.split(" "), capture_output=True, text=True)
     if result.stderr:
@@ -28,7 +27,6 @@ def grep_key(key):
 
 
 def socket_passwd(key, val=None, delete=False):
-    print("settings.SOCKET_PASSWD_FILE: ", settings.SOCKET_PASSWD_FILE)
     if not val and not delete:
         return grep_key(key)
     elif delete:
