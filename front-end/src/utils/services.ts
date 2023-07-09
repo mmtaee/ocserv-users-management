@@ -10,6 +10,7 @@ import {
   OcservUser,
   OcservGroup,
   Occtl,
+  Stats,
 } from "./types";
 
 class Services {
@@ -58,7 +59,9 @@ class AdminServiceApi extends Services {
     this.path = "config/";
     return this.request();
   }
-  public async login(data: AminLogin): Promise<{ token: string, user: string }> {
+  public async login(
+    data: AminLogin
+  ): Promise<{ token: string; user: string }> {
     this.method = "post";
     this.path = "login/";
     return this.request(data);
@@ -172,8 +175,34 @@ class OcctlServiceApi extends Services {
   }
 }
 
+class StatsServiceApi extends Services {
+  constructor() {
+    super();
+    this.baseUrl = "/stats/";
+    this.method = "";
+    this.path = "";
+  }
+  public async get_stats(): Promise<Stats> {
+    this.method = "get";
+    this.path = "";
+    return this.request();
+  }
+  // public async reload(): Promise<null> {
+  //   this.method = "get";
+  //   this.path = "reload/";
+  //   return this.request();
+  // }
+}
+
 const adminServiceApi = new AdminServiceApi();
 const ocservUserApi = new OcservUserApi();
 const ocservGroupApi = new OcservGroupApi();
 const occtlServiceApi = new OcctlServiceApi();
-export { adminServiceApi, ocservUserApi, ocservGroupApi, occtlServiceApi };
+const statsServiceApi = new StatsServiceApi();
+export {
+  adminServiceApi,
+  ocservUserApi,
+  ocservGroupApi,
+  occtlServiceApi,
+  statsServiceApi,
+};
