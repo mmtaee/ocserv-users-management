@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ocserv.modules.handlers import OcservServiceHandler
@@ -11,6 +12,7 @@ logger = Logger()
 
 
 class SystemViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
     @action(detail=False, methods=["GET"], url_path="action_log/list")
     def action_log_list(self, request):
         logs = logger.read()

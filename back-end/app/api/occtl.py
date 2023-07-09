@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ocserv.modules.handlers import OcctlHandler
@@ -20,6 +21,8 @@ class OcctlViewSet(viewsets.ViewSet):
     show iroutes >> Prints the routes provided by users of the server
     show events	>> Provides information about connecting users
     """
+
+    permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=["GET"], url_path="command/(?P<action_command>[^/.]+)")
     def occtl_show_result(self, request, action_command=None):
