@@ -13,6 +13,7 @@ import {
   Stats,
 } from "./types";
 
+
 class Services {
   private status_code: number = 500;
   private responseData: any;
@@ -36,7 +37,16 @@ class Services {
     if (response) {
       this.status_code = response.status;
       this.responseData = response.data;
-      return this.data();
+      if (![401, 500, 403].includes(this.status_code)) {
+        return this.data();
+      } else if (this.status_code == 401) {
+        localStorage.removeItem("token");
+        location.href = "/login";
+        // return Promise.resolve()
+        return {}
+      } else {
+        return Promise.reject();
+      }
     }
     return Promise.reject("not server response");
   }

@@ -29,23 +29,33 @@ export default Vue.extend({
   methods: {
     async init() {
       let data = await adminServiceApi.config();
-      let status: number = adminServiceApi.status();
-      if (status == 401) {
-        this.$store.commit("setIsLogin", false);
-        localStorage.removeItem("token");
-        this.$router.push({ name: "Login" });
+      // let status: number = adminServiceApi.status();
+      if (!data.config) {
+        this.$router.push({ name: "Config" });
       } else {
-        if (!data.config) {
-          this.$router.push({ name: "Config" });
+        if (!localStorage.getItem("token")) {
+          this.$router.push({ name: "Login" });
         } else {
-          if (!localStorage.getItem("token")) {
-            this.$router.push({ name: "Login" });
-          } else {
-            this.$store.commit("setIsLogin", true);
-            this.$router.push({ name: "Dashboard" });
-          }
+          this.$store.commit("setIsLogin", true);
+          this.$router.push({ name: "Dashboard" });
         }
       }
+      // if (status == 401) {
+      //   this.$store.commit("setIsLogin", false);
+      //   localStorage.removeItem("token");
+      //   this.$router.push({ name: "Login" });
+      // } else {
+      //   if (!data.config) {
+      //     this.$router.push({ name: "Config" });
+      //   } else {
+      //     if (!localStorage.getItem("token")) {
+      //       this.$router.push({ name: "Login" });
+      //     } else {
+      //       this.$store.commit("setIsLogin", true);
+      //       this.$router.push({ name: "Dashboard" });
+      //     }
+      //   }
+      // }
     },
   },
 });

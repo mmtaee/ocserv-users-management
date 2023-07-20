@@ -53,13 +53,14 @@ def user_key_creator(users):
 
 
 def ip_bans_creator(bans):
-    if isinstance(bans, str):
+    if isinstance(bans, str) and len(bans) > 2:
         bans = json.loads(bans)
-    return [
-        {
-            "ip": i.get("IP"),
-            "since": i.get("Since"),
-            "score": i.get("Score"),
-        }
-        for i in bans
-    ]
+        return [
+            {
+                "ip": i.get("IP"),
+                "since": i.get("Since"),
+                "score": i.get("Score"),
+            }
+            for i in bans
+        ]
+    return []
