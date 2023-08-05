@@ -40,8 +40,14 @@ func main() {
 	if wsPath == "" {
 		wsPath = "/"
 	}
-	logFile := "/shared_mointor/ocserv.log"
-	passwdFile := "/shared_mointor/socket_passwd"
+	logFile :=  os.Getenv("LOG_FILE_PATH")
+	if logFile == "" {
+		logFile = "/shared_mointor/ocserv.log"
+	}
+	passwdFile :=  os.Getenv("PASSWD_FILE_PATH")
+	if passwdFile == "" {
+		logFile = "/shared_mointor/socket_passwd"
+	}
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			queryParams := r.URL.Query()

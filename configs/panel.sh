@@ -37,10 +37,10 @@ rm -rf /lib/systemd/system/backend.service
 rm -rf /lib/systemd/system/user_stats.service
 cp ./configs/backend.service /lib/systemd/system
 cp ./configs/user_stats.service /lib/systemd/system
-echo www-data ALL = NOPASSWD: /usr/bin/ocpasswd >>/etc/sudoers
-echo www-data ALL = NOPASSWD: /usr/bin/occtl >>/etc/sudoers
-echo www-data ALL = NOPASSWD: /usr/bin/systemctl restart ocserv.service >>/etc/sudoers
-echo www-data ALL = NOPASSWD: /usr/bin/systemctl status ocserv.service >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/ocpasswd >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/occtl >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/systemctl restart ocserv.service >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/systemctl status ocserv.service >>/etc/sudoers
 crontab -l | {
     cat
     echo "59 23 * * * ${SITE_DIR}/back-end/venv/bin/python ${SITE_DIR}/back-end/manage.py user_management"
@@ -76,8 +76,22 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Host $host;
     }
+    location /ws {
+        rewrite ^/ws(.*)$ $1 break;
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
 }
 EOT
+
+# monitor service
+# cp -r ${CURRENT_DIR}/monitor /opt/monitor
+# cp /opt/monitor/monitor.service /lib/systemd/system/monitor.service
+# systemctl restart monitor.service
+# systemctl enable monitor.service
+
 chown -R www-data /etc/nginx/conf.d/site.conf
 systemctl disable backend.service
 systemctl disable user_stats.service
