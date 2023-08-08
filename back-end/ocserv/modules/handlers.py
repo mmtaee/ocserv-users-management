@@ -46,17 +46,18 @@ class OcservGroupHandler:
         path = f"{self.GROUP_DIR}/{name}"
         try:
             if not os.path.exists(path):
-                os.mknod(path)
-            with open(path, "w") as f:
-                if configs:
-                    for key, val in configs.items():
-                        if key.startswith("dns"):
-                            key = key[:-1]
-                        config = f"{key}={val}\n"
-                        f.write(config)
-                else:
-                    f.write("# remove configs by admin \n")
-            f.close()
+                touch_command = f"touch {path}"
+                subprocess.run(touch_command, shell=True)
+            if configs:
+                config_str = ""
+                for key, val in configs.items():
+                    if key.startswith("dns"):
+                        key = key[:-1]
+                    config_str += f"{key}={val}\n"
+            else:
+                config_str = "# remove configs by admin \n"
+            echo_command = f"echo '{config_str}' | tee {path}"
+            subprocess.run(echo_command, shell=True)
         except Exception as e:
             logger.log(level="critical", message=f"add or update ocserv group error ({e})")
             return False
@@ -66,7 +67,8 @@ class OcservGroupHandler:
         path = f"{self.GROUP_DIR}/{name}"
         try:
             if os.path.exists(path):
-                os.remove(path)
+                rm_command = f"rm {path}"
+                subprocess.run(rm_command, shell=True)
             else:
                 logger.log(level="warning", message=f"delete group config error (FileNotFoundError)")
         except Exception as e:
@@ -78,50 +80,52 @@ class OcservGroupHandler:
         path = dir_path + "/group.conf"
         try:
             if not os.path.isdir(dir_path):
-                os.mkdir(dir_path)
+                dir_command = f"mkdir {dir_path}"
+                subprocess.run(dir_command, shell=True)
             if not os.path.exists(path):
-                os.mknod(path)
-            with open(path, "w") as f:
-                if configs:
-                    for key, val in configs.items():
-                        if key.startswith("dns"):
-                            key = key[:-1]
-                        config = f"{key}={val}\n"
-                        f.write(config)
-                else:
-                    f.write("# remove configs by admin \n")
-            f.close()
+                touch_command = f"touch {path}"
+                subprocess.run(touch_command, shell=True)
+            if configs:
+                config_str = ""
+                for key, val in configs.items():
+                    if key.startswith("dns"):
+                        key = key[:-1]
+                    config_str += f"{key}={val}\n"
+            else:
+                config_str = "# remove configs by admin \n"
+            echo_command = f"echo '{config_str}' | tee {path}"
+            subprocess.run(echo_command, shell=True)
         except Exception as e:
             logger.log(level="critical", message=f"update defaults ocserv group error ({e})")
         self.reload()
 
-    def sync_db(self):
-        defaults_path = f"{self.GROUP_DIR}/defaults/group.conf"
-        group_path = f"{self.GROUP_DIR}/groups"
-        data = {
-            "defaults": {},
-            "groups": [],
-        }
-        try:
-            groups = [
-                path
-                for path in os.listdir(group_path)
-                if not path.startswith(".") and not path.endswith(".conf") and os.path.isfile(path)
-            ]
-        except Exception as e:
-            logger.log(level="critical", message=f"sync_db ocserv group error ({e})")
-            return data
-        for group in groups:
-            path = f"{group_path}/group"
-            with open(path, "r") as f:
-                configs = dict(line.strip().replace(" ", "").split("=") for line in f.readlines() if not line.startswith("#"))
-                data["groups"].append({"name": group, "configs": configs})
-                f.close()
-        with open(defaults_path, "r") as default_f:
-            configs = dict(line.strip().replace(" ", "").split("=") for line in default_f.readlines() if not line.startswith("#"))
-            data["defaults"] = configs
-            default_f.close()
-        return data
+    # def sync_db(self):
+    #     defaults_path = f"{self.GROUP_DIR}/defaults/group.conf"
+    #     group_path = f"{self.GROUP_DIR}/groups"
+    #     data = {
+    #         "defaults": {},
+    #         "groups": [],
+    #     }
+    #     try:
+    #         groups = [
+    #             path
+    #             for path in os.listdir(group_path)
+    #             if not path.startswith(".") and not path.endswith(".conf") and os.path.isfile(path)
+    #         ]
+    #     except Exception as e:
+    #         logger.log(level="critical", message=f"sync_db ocserv group error ({e})")
+    #         return data
+    #     for group in groups:
+    #         path = f"{group_path}/group"
+    #         with open(path, "r") as f:
+    #             configs = dict(line.strip().replace(" ", "").split("=") for line in f.readlines() if not line.startswith("#"))
+    #             data["groups"].append({"name": group, "configs": configs})
+    #             f.close()
+    #     with open(defaults_path, "r") as default_f:
+    #         configs = dict(line.strip().replace(" ", "").split("=") for line in default_f.readlines() if not line.startswith("#"))
+    #         data["defaults"] = configs
+    #         default_f.close()
+    #     return data
 
 
 class OcservUserHandler:

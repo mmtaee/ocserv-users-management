@@ -92,7 +92,7 @@ EOT
 # systemctl restart monitor.service
 # systemctl enable monitor.service
 
-chown -R www-data /etc/nginx/conf.d/site.conf
+chown -R www-data. /etc/nginx/conf.d/site.conf
 systemctl disable backend.service
 systemctl disable user_stats.service
 systemctl daemon-reload

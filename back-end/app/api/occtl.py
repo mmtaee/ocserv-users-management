@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ocserv.modules.handlers import OcctlHandler
-from ocserv.throttles import CustomThrottle
+from ocserv.throttles import custom_throttle
 
 occtl_handler = OcctlHandler()
 
@@ -31,7 +31,8 @@ class OcctlViewSet(viewsets.ViewSet):
             return Response({"error": [f"Occtl command ({action_command}) not done"]}, status=400)
         return Response(result, status=200)
 
-    @action(detail=False, methods=["GET"], throttle_classes=[CustomThrottle])
+    @custom_throttle(rate="1/minute")
+    @action(detail=False, methods=["GET"])
     def reload(self, request):
         result = occtl_handler.reload()
         if not result:

@@ -65,7 +65,7 @@ class AdminViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         admin_config = serializer.save()
         token = Token.objects.create(user=admin_config)
-        socket_passwd(key=admin_config.uu_id, val=token.key)
+        # socket_passwd(key=admin_config.uu_id, val=token.key)
         return Response(
             {"token": token.key, "captcha_site_key": admin_config.captcha_site_key, "user": admin_config.uu_id}, status=201
         )
@@ -79,14 +79,14 @@ class AdminViewSet(viewsets.ViewSet):
         if user := authenticate(request, username=data.get("username"), password=data.get("password")):
             token, _ = Token.objects.get_or_create(user=user)
             token = token.key
-            socket_passwd(key=user.adminconfig.uu_id, val=token)
+            # socket_passwd(key=user.adminconfig.uu_id, val=token)
             return Response({"token": token, "user": user.adminconfig.uu_id})
         return Response({"error": ["Invalid username or password"]}, status=400)
 
     @action(detail=False, methods=["DELETE"], permission_classes=[IsAuthenticated])
     def logout(self, request):
         token = Token.objects.get(user=request.user)
-        socket_passwd(key=token.user.adminconfig.uu_id, delete=True)
+        # socket_passwd(key=token.user.adminconfig.uu_id, delete=True)
         token.delete()
         return Response(status=204)
 

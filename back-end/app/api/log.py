@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from ocserv.modules.handlers import OcservServiceHandler
 from ocserv.modules.logger import Logger
-from ocserv.throttles import CustomThrottle
+from ocserv.throttles import custom_throttle
 
 service_handler = OcservServiceHandler()
 logger = Logger()
@@ -34,7 +34,8 @@ class SystemViewSet(viewsets.ViewSet):
         logs = service_handler.journalctl_log(lines)
         return Response({"logs": logs})
 
-    @action(detail=False, methods=["GET"], url_path="ocserv/service/restart", throttle_classes=[CustomThrottle])
+    @custom_throttle(rate="1/minute")
+    @action(detail=False, methods=["GET"], url_path="ocserv/service/restart")
     def ocserv_service_restart(self, request):
         service_handler.restart()
         return Response(status=202)
