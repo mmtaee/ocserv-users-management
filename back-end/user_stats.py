@@ -7,10 +7,14 @@ from datetime import datetime
 
 
 def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
+    rx = 0
+    tx = 0
+    username = None
     logger = Logger()
     cmd = "journalctl -fu ocserv"
     if logfile := os.environ.get("LOG_FILE"):
         cmd = f"tail -f {logfile}"
+    print(cmd)
     process = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE)
     last_log_entry = "start script"
     while True:
@@ -27,6 +31,11 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
                     rx = Decimal(float(rx_match.group(1)) / (1024**3))
                 if tx_match := re.search(r"tx: (\d+)", line):
                     tx = Decimal(float(tx_match.group(1)) / (1024**3))
+                if not username:
+                    raise ValueError()
+                print("username: ", username)
+                print("rx: ", rx)
+                print("tx: ", tx)
             except Exception as e:
                 logger.log(level="critical", message=e)
                 logger.log(level="critical", message="unprocessable ocserv log to calculate user-rx and user-tx")

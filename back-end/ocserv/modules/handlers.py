@@ -11,7 +11,7 @@ logger = Logger()
 class OcservServiceHandler:
     @staticmethod
     def subprocess_handler(mode="status"):
-        p = subprocess.Popen(["systemctl", mode, "ocserv.service", "--output=json-pretty"], stdout=subprocess.PIPE)
+        p = subprocess.Popen(["sudo", "systemctl", mode, "ocserv.service", "--output=json-pretty"], stdout=subprocess.PIPE)
         (output, err) = p.communicate()
         output = output.decode("utf-8")
         if err:
@@ -35,7 +35,7 @@ class OcservGroupHandler:
     @staticmethod
     def reload():
         try:
-            command = f"/usr/bin/occtl reload"
+            command = f"sudo /usr/bin/occtl reload"
             os.system(command)
         except Exception as e:
             logger.log(level="critical", message=f"occtl reload service error ({e})")
@@ -46,7 +46,7 @@ class OcservGroupHandler:
         path = f"{self.GROUP_DIR}/{name}"
         try:
             if not os.path.exists(path):
-                touch_command = f"touch {path}"
+                touch_command = f"sudo touch {path}"
                 subprocess.run(touch_command, shell=True)
             if configs:
                 config_str = ""
@@ -56,7 +56,7 @@ class OcservGroupHandler:
                     config_str += f"{key}={val}\n"
             else:
                 config_str = "# remove configs by admin \n"
-            echo_command = f"echo '{config_str}' | tee {path}"
+            echo_command = f"echo '{config_str}' | sudo tee {path}"
             subprocess.run(echo_command, shell=True)
         except Exception as e:
             logger.log(level="critical", message=f"add or update ocserv group error ({e})")
@@ -67,7 +67,7 @@ class OcservGroupHandler:
         path = f"{self.GROUP_DIR}/{name}"
         try:
             if os.path.exists(path):
-                rm_command = f"rm {path}"
+                rm_command = f"sudo rm {path}"
                 subprocess.run(rm_command, shell=True)
             else:
                 logger.log(level="warning", message=f"delete group config error (FileNotFoundError)")
@@ -80,10 +80,10 @@ class OcservGroupHandler:
         path = dir_path + "/group.conf"
         try:
             if not os.path.isdir(dir_path):
-                dir_command = f"mkdir {dir_path}"
+                dir_command = f"sudo mkdir {dir_path}"
                 subprocess.run(dir_command, shell=True)
             if not os.path.exists(path):
-                touch_command = f"touch {path}"
+                touch_command = f"sudo touch {path}"
                 subprocess.run(touch_command, shell=True)
             if configs:
                 config_str = ""
@@ -93,7 +93,7 @@ class OcservGroupHandler:
                     config_str += f"{key}={val}\n"
             else:
                 config_str = "# remove configs by admin \n"
-            echo_command = f"echo '{config_str}' | tee {path}"
+            echo_command = f"echo '{config_str}' | sudo tee {path}"
             subprocess.run(echo_command, shell=True)
         except Exception as e:
             logger.log(level="critical", message=f"update defaults ocserv group error ({e})")
@@ -134,7 +134,7 @@ class OcservUserHandler:
 
     def change_group(self, password, group):
         try:
-            command = f"/usr/bin/ocpasswd"
+            command = f"sudo /usr/bin/ocpasswd"
             if group:
                 command += f" -g {group}"
             command += f" -c /etc/ocserv/ocpasswd {self.username}"
@@ -149,7 +149,7 @@ class OcservUserHandler:
         ocserv lock and unlock method
         """
         try:
-            command = f'/usr/bin/ocpasswd {"-l" if not active else "-u"} -c /etc/ocserv/ocpasswd {self.username}'
+            command = f'sudo /usr/bin/ocpasswd {"-l" if not active else "-u"} -c /etc/ocserv/ocpasswd {self.username}'
             os.system(command)
         except Exception as e:
             logger.log(level="critical", message=f"change user active error ({e})")
@@ -158,7 +158,7 @@ class OcservUserHandler:
 
     def add_or_update(self, password, group=None, active=True):
         try:
-            command = f'/usr/bin/echo -e "{password}\n{password}\n" | /usr/bin/ocpasswd'
+            command = f'/usr/bin/echo -e "{password}\n{password}\n" | sudo /usr/bin/ocpasswd'
             if group:
                 command += f" -g {group}"
             command += f" -c /etc/ocserv/ocpasswd {self.username}"
@@ -171,7 +171,7 @@ class OcservUserHandler:
 
     def delete(self):
         try:
-            command = f"/usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd -d {self.username}"
+            command = f"sudo /usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd -d {self.username}"
             os.system(command)
         except Exception as e:
             logger.log(level="critical", message=f"delete user error ({e})")
@@ -180,7 +180,7 @@ class OcservUserHandler:
 
     def disconnect(self):
         p = subprocess.Popen(
-            ["/usr/bin/occtl", "disconnect", "user", f"{self.username}"],
+            ["sudo", "/usr/bin/occtl", "disconnect", "user", f"{self.username}"],
             stdout=subprocess.PIPE,
         )
         output, err = p.communicate()
@@ -195,7 +195,7 @@ class OcservUserHandler:
         users = []
         try:
             p = subprocess.Popen(
-                ["/usr/bin/occtl", "-j", "show", "users", "--output=json-pretty"],
+                ["sudo", "/usr/bin/occtl", "-j", "show", "users", "--output=json-pretty"],
                 stdout=subprocess.PIPE,
             )
             _users, err = p.communicate()
@@ -229,7 +229,7 @@ class OcctlHandler:
 
     @staticmethod
     def subprocess_handler(command):
-        exc = ["/usr/bin/occtl"] + command
+        exc = ["sudo", "/usr/bin/occtl"] + command
         try:
             p = subprocess.Popen(exc, stdout=subprocess.PIPE)
             (output, err) = p.communicate()

@@ -60,7 +60,6 @@ class OcservUsersViewSet(viewsets.ViewSet):
             return Response({"error": ["Ocserv user does not exist"]}, status=404)
         data = request.data.copy()
         data.pop("username", None)
-        data.pop("group", None)
         old_password = user.password
         expire_date = data.get("expire_date")
         if data.get("password") == old_password:
@@ -70,9 +69,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
             update = True
         if update:
             user_handler.username = user.username
-            result = user_handler.add_or_update(
-                password=data.get("password"), group=user.group.name, active=data.get("active")
-            )
+            result = user_handler.add_or_update(password=data.get("password"), group=user.group.name, active=data.get("active"))
         if result:
             serializer = OcservUserSerializer(instance=user, data=data, partial=True)
             serializer.is_valid(raise_exception=True)
@@ -122,25 +119,25 @@ class OcservUsersViewSet(viewsets.ViewSet):
         user.save()
         return Response(status=202)
 
-    @action(detail=True, methods=["POST"], url_path="group")
-    def change_group(self, request, pk=None):
-        try:
-            if group := request.data.get("group", None) is None:
-                raise NotImplemented
-            user = OcservUser.objects.select_related("group").get(pk=pk)
-        except OcservUser.DoesNotExist:
-            return Response({"error": ["Ocserv user does not exist"]}, status=404)
-        except NotImplemented:
-            return Response({"error": ["group of user not found in body"]}, status=400)
-        last_group = user.group.id
-        if last_group != group:
-            try:
-                group = OcservGroup.objects.get(pk=group)
-            except OcservGroup.DoesNotExist:
-                return Response({"error": ["invalid group name"]}, status=400)
-            result = user_handler.change_group(password=user.password, group=group.name)
-            if not result:
-                return Response({"error": ["Ocserv User change group Failed"]}, status=400)
-        user.group = group
-        user.save()
-        return Response(status=202)
+    # @action(detail=True, methods=["POST"], url_path="group")
+    # def change_group(self, request, pk=None):
+    #     try:
+    #         if group := request.data.get("group", None) is None:
+    #             raise NotImplemented
+    #         user = OcservUser.objects.select_related("group").get(pk=pk)
+    #     except OcservUser.DoesNotExist:
+    #         return Response({"error": ["Ocserv user does not exist"]}, status=404)
+    #     except NotImplemented:
+    #         return Response({"error": ["group of user not found in body"]}, status=400)
+    #     last_group = user.group.id
+    #     if last_group != group:
+    #         try:
+    #             group = OcservGroup.objects.get(pk=group)
+    #         except OcservGroup.DoesNotExist:
+    #             return Response({"error": ["invalid group name"]}, status=400)
+    #         result = user_handler.change_group(password=user.password, group=group.name)
+    #         if not result:
+    #             return Response({"error": ["Ocserv User change group Failed"]}, status=400)
+    #     user.group = group
+    #     user.save()
+    #     return Response(status=202)
