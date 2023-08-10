@@ -4,6 +4,8 @@
     <v-main>
       <router-view v-if="allowRouting" />
     </v-main>
+    <SnackBar />
+    <LoadingOverlay v-if="$store.state.loadingOverlay" />
   </v-app>
 </template>
 
@@ -15,6 +17,8 @@ export default Vue.extend({
   name: "App",
   components: {
     AppBar: () => import("@/components/AppBar.vue"),
+    SnackBar: () => import("@/components/SnackBar.vue"),
+    LoadingOverlay: () => import("@/components/LoadingOverlay.vue")
   },
   data() {
     return {
@@ -22,6 +26,10 @@ export default Vue.extend({
     };
   },
   async mounted() {
+    this.$store.commit("setLoadingOverlay", {
+      active: true,
+      text: "Loading ..."
+    })
     await this.init();
     this.allowRouting = true;
   },
@@ -29,7 +37,6 @@ export default Vue.extend({
   methods: {
     async init() {
       let data = await adminServiceApi.config();
-      // let status: number = adminServiceApi.status();
       if (!data.config) {
         this.$router.push({ name: "Config" });
       } else {
@@ -40,22 +47,6 @@ export default Vue.extend({
           this.$router.push({ name: "Dashboard" });
         }
       }
-      // if (status == 401) {
-      //   this.$store.commit("setIsLogin", false);
-      //   localStorage.removeItem("token");
-      //   this.$router.push({ name: "Login" });
-      // } else {
-      //   if (!data.config) {
-      //     this.$router.push({ name: "Config" });
-      //   } else {
-      //     if (!localStorage.getItem("token")) {
-      //       this.$router.push({ name: "Login" });
-      //     } else {
-      //       this.$store.commit("setIsLogin", true);
-      //       this.$router.push({ name: "Dashboard" });
-      //     }
-      //   }
-      // }
     },
   },
 });

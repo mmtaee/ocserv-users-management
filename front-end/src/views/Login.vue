@@ -101,10 +101,13 @@ export default Vue.extend({
         token: string;
         user: string
       } = await adminServiceApi.login(this.input);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", data.user);
-      this.$store.commit("setIsLogin", true);
-      this.$router.push({ name: "Dashboard" });
+      let status: number = adminServiceApi.status();      
+      if (status == 200){
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", data.user);
+        this.$store.commit("setIsLogin", true);
+        this.$router.push({ name: "Dashboard" });
+      }
       this.loading = false;
     },
   },

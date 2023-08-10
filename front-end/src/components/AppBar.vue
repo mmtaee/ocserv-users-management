@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar color="grey" class="mx-4 rounded" elevate-on-scroll app dark>
+  <v-app-bar color="grey" class="mx-4 rounded" elevate-on-scroll app dark absolute>
     <v-img :src="logo" max-width="120" />
     <span>Ocserv Panel</span>
 

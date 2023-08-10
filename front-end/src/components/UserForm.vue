@@ -100,7 +100,11 @@
             />
           </v-col>
           <v-col md="auto">
-            <v-checkbox v-model="userInput.active" label="Active" />
+            <v-checkbox
+              v-model="userInput.active"
+              label="Active"
+              :disabled="activeDisabled"
+            />
           </v-col>
           <v-col md="12">
             <v-textarea
@@ -167,6 +171,7 @@ export default Vue.extend({
     groups: Array<OcservGroup | null>;
     dateModal: boolean;
     trafficTypes: Array<object>;
+    activeDisabled: Boolean;
   } {
     return {
       userInput: {
@@ -191,6 +196,7 @@ export default Vue.extend({
         { name: "Monthly", id: 2 },
         { name: "Totally", id: 3 },
       ],
+      activeDisabled: false,
     };
   },
 
@@ -203,6 +209,7 @@ export default Vue.extend({
     async save() {
       let data: OcservUser;
       let meitMethodName = "create";
+
       if (this.editMode) {
         let pk = this.userInput.id;
         meitMethodName = "update";
@@ -224,7 +231,20 @@ export default Vue.extend({
     initInput: {
       immediate: true,
       handler() {
-        if (Boolean(this.userInput)) this.userInput = { ...this.initInput };
+        if (Boolean(this.userInput))
+          this.userInput = Object.assign({}, this.initInput);
+      },
+    },
+    "userInput.expire_date": {
+      immediate: true,
+      handler() {
+        let today = new Date(Date.now()).toISOString().slice(0, 10);
+        if (today == this.userInput.expire_date) {
+          this.activeDisabled = true;
+          this.userInput.active = false;
+        } else {
+          this.activeDisabled = false;
+        }
       },
     },
   },

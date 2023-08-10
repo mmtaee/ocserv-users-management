@@ -16,7 +16,8 @@
           dense
           clearable
           :rules="item.rules || []"
-          @keyup="emitter()"
+          @change="emitter()"
+          @click:clear="(configs[item.model] = null), emitter()"
         />
         <v-select
           v-if="item.type == 'select'"
@@ -26,7 +27,8 @@
           item-value="value"
           :label="item.label"
           :outlined="outlined"
-          @keyup="emitter()"
+          @change="emitter()"
+          @click:clear="(configs[item.model] = null), emitter()"
           dense
           clearable
         />
@@ -104,7 +106,7 @@ export default Vue.extend({
           model: "no-udp",
           type: "select",
           items: [
-            { text: "True", value: 'true' },
+            { text: "True", value: "true" },
             { text: "False", value: "false" },
           ],
         },
@@ -126,7 +128,7 @@ export default Vue.extend({
           model: "tunnel-all-dns",
           type: "select",
           items: [
-            { text: "True", value: 'true' },
+            { text: "True", value: "true" },
             { text: "False", value: "false" },
           ],
         },
@@ -135,7 +137,7 @@ export default Vue.extend({
           model: "restrict-user-to-routes",
           type: "select",
           items: [
-            { text: "True", value: 'true' },
+            { text: "True", value: "true" },
             { text: "False", value: "false" },
           ],
         },
@@ -170,8 +172,15 @@ export default Vue.extend({
   },
   methods: {
     emitter() {
-      if (this.vmodelEmit) this.$emit("input", this.configs);
-      else this.$emit("configs", this.configs);
+      const newConfigs: { [key: string]: any } = {};
+      Object.entries(this.configs).forEach(([key, val]) => {
+        if (Boolean(val)) {
+          newConfigs[key] = val;
+        }
+      });
+      console.log(newConfigs);
+      if (this.vmodelEmit) this.$emit("input", newConfigs);
+      else this.$emit("configs", newConfigs);
     },
   },
 

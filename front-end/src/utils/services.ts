@@ -1,5 +1,5 @@
 import _axios from "@/plugins/axios";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import {
   AdminConfig,
   AminLogin,
@@ -12,15 +12,13 @@ import {
   Occtl,
   Stats,
 } from "./types";
-
+import store from "@/plugins/store";
 
 class Services {
   private status_code: number = 500;
-  private responseData: any;
   public method: string = "get";
   public baseUrl: string = "";
   public path: string = "";
-
   private axiosMethods: { [K: string]: Function } = {
     get: _axios.get,
     post: _axios.post,
@@ -28,31 +26,64 @@ class Services {
     put: _axios.put,
     delete: _axios.delete,
   };
-  public async request(data?: object): Promise<any> {
+
+  public async request(data?: any): Promise<any> {
+    store.commit("setLoadingOverlay", {
+      active: true,
+      text: "Requesting ...",
+    });
     let url: string = this.baseUrl + this.path;
-    let response: AxiosResponse = await this.axiosMethods[this.method](
-      (url = url),
-      (data = data)
-    );
-    if (response) {
-      this.status_code = response.status;
-      this.responseData = response.data;
-      if (![401, 500, 403].includes(this.status_code)) {
-        return this.data();
-      } else if (this.status_code == 401) {
-        localStorage.removeItem("token");
-        location.href = "/login";
-        // return Promise.resolve()
-        return {}
-      } else {
-        return Promise.reject();
-      }
-    }
-    return Promise.reject("not server response");
+    return await this.axiosMethods[this.method]((url = url), (data = data))
+      .then((response: AxiosResponse) => {
+        if (response) {
+          this.status_code = response.status;
+          if (this.status_code == 400) {
+            store.commit("setSnackBar", {
+              text: response.data.error.join("<br/>"),
+              color: "error",
+            });
+            return {};
+          } else if (this.status_code == 401) {
+            localStorage.removeItem("token");
+            location.href = "/login";
+          } else if (this.status_code == 403) {
+            store.commit("setSnackBar", {
+              text: "forbiden error",
+              color: "warning",
+            });
+            return {};
+          }
+          return response.data;
+        } else {
+          throw new Error("Server error");
+        }
+      })
+      .catch((error: AxiosError) => {
+        this.status_code = error.response?.status!;
+        if (error.response?.data) {
+          let e = error.response.data;
+          if (e.detail) {
+            store.commit("setSnackBar", {
+              text: e.detail,
+              color: "orange",
+            });
+          }
+        } else {
+          store.commit("setSnackBar", {
+            text: "response failed from server",
+            color: "error",
+          });
+        }
+        return Promise.reject(error);
+      })
+      .finally((_: null) => {
+        store.commit("setLoadingOverlay", {
+          active: false,
+          text: null,
+        });
+      });
   }
-  public data(): any {
-    return this.responseData;
-  }
+
   public status(): number {
     return this.status_code;
   }
@@ -113,10 +144,12 @@ class OcservUserApi extends Services {
   }
   public async users(): Promise<UserPagination> {
     this.method = "get";
+    this.path = "";
     return this.request();
   }
   public async create_user(data: OcservUser): Promise<OcservUser> {
     this.method = "post";
+    this.path = "";
     return this.request((data = data));
   }
   public async update_user(pk: number, data: OcservUser): Promise<OcservUser> {
@@ -148,6 +181,7 @@ class OcservGroupApi extends Services {
     return this.request();
   }
   public async create_group(data: OcservGroup): Promise<OcservGroup> {
+    this.path = "";
     this.method = "post";
     return this.request((data = data));
   }

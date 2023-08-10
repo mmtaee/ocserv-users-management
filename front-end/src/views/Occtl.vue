@@ -215,12 +215,10 @@ export default Vue.extend({
         await occtlServiceApi.reload();
         let status = occtlServiceApi.status();
         if (status == 202) {
-          console.log("reload occerv");
-          // TODO: snackbar 202
-        }
-        if (status == 429) {
-          // TODO : snackbar 429
-          console.log("status 429");
+          this.$store.commit("setSnackBar", {
+            text: "Reloading in progress ...",
+            color: "success",
+          });
         }
       } else {
         this.result = await occtlServiceApi.config(

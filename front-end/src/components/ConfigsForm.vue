@@ -224,8 +224,10 @@ export default Vue.extend({
         }
       }
       if (status == 202) {
-        console.log("CofigsForm update");
-        // TODO : add snackbar
+        this.$store.commit("setSnackBar", {
+          text: "Update successfully",
+          color: "Success",
+        });
       }
       this.loading = false;
     },
