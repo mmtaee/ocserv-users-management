@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SITE_DIR="/var/www/site"
+CURRENT_DIR=$(pwd)
+
 if [[ $(id -u) != "0" ]]; then
     echo -e "\e[0;31m"Error: You must be root to run this install script."\e[0m"
     exit 1
@@ -12,17 +15,19 @@ else
     echo -e "\e[0;31m"Panel dependencies installation was failed."\e[0m"
     exit 1
 fi
+
 # back-end
 echo -e "\e[0;32m"Back-end Installing ..."\e[0m"
 rm -rf /var/www/html
-SITE_DIR="/var/www/site"
-CURRENT_DIR=$(pwd)
 rm -rf ${SITE_DIR}
 mkdir -p ${SITE_DIR}
-mkdir -p ${SITE_DIR}/back-end
 touch /var/log/socket_passwd
 chown -R www-data. /var/log/socket_passwd
-cp -r ${CURRENT_DIR}/back-end/* ${SITE_DIR}/back-end
+cp -r ${CURRENT_DIR}/back-end ${SITE_DIR}/back-end
+rm -rf /lib/systemd/system/backend.service
+rm -rf /lib/systemd/system/user_stats.service
+cp ./configs/backend.service /lib/systemd/system
+cp ./configs/user_stats.service /lib/systemd/system
 cp ./configs/uwsgi.ini ${SITE_DIR}/back-end
 python3 -m venv ${SITE_DIR}/back-end/venv
 source ${SITE_DIR}/back-end/venv/bin/activate
@@ -33,20 +38,22 @@ SECRET_KEY=$(openssl rand -base64 '64')
 echo "DEBUG=False" >${SITE_DIR}/back-end/.env
 echo "SECRET_KEY=${SECRET_KEY}" >>${SITE_DIR}/back-end/.env
 echo "CORS_ALLOWED=http://${HOST},https://${HOST}" >>${SITE_DIR}/back-end/.env
-rm -rf /lib/systemd/system/backend.service
-rm -rf /lib/systemd/system/user_stats.service
-cp ./configs/backend.service /lib/systemd/system
-cp ./configs/user_stats.service /lib/systemd/system
+
+${SITE_DIR}/back-end/manage.py migrate
+deactivate
+
 echo www-data ALL=NOPASSWD: /usr/bin/ocpasswd >>/etc/sudoers
 echo www-data ALL=NOPASSWD: /usr/bin/occtl >>/etc/sudoers
 echo www-data ALL=NOPASSWD: /usr/bin/systemctl restart ocserv.service >>/etc/sudoers
 echo www-data ALL=NOPASSWD: /usr/bin/systemctl status ocserv.service >>/etc/sudoers
-crontab -l | {
-    cat
-    echo "59 23 * * * ${SITE_DIR}/back-end/venv/bin/python ${SITE_DIR}/back-end/manage.py user_management"
-} | crontab -
-${SITE_DIR}/back-end/manage.py migrate
-deactivate
+
+echo www-data ALL=NOPASSWD: /usr/bin/rm /etc/ocserv/* >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/mkdir /etc/ocserv/* >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/touch /etc/ocserv/* >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/cat /etc/ocserv/* >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/sed /etc/ocserv/* >>/etc/sudoers
+echo www-data ALL=NOPASSWD: /usr/bin/tee /etc/ocserv/* >>/etc/sudoers
+crontab -l | echo "59 23 * * * ${SITE_DIR}/back-end/venv/bin/python3 ${SITE_DIR}/back-end/manage.py user_management" | crontab -
 # front-end
 echo -e "\e[0;32m"Front-End Installing ..."\e[0m"
 curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
@@ -57,7 +64,7 @@ npm install
 NODE_ENV=production npm run build
 mkdir -p ${SITE_DIR}/front-end
 cp -r ${CURRENT_DIR}/front-end/dist/* ${SITE_DIR}/front-end
-chown -R www-data ${SITE_DIR}
+
 # nginx
 echo -e "\e[0;32m"Nginx Configurations ..."\e[0m"
 rm -rf /etc/nginx/sites-enabled/default
@@ -93,6 +100,8 @@ EOT
 # systemctl enable monitor.service
 
 chown -R www-data. /etc/nginx/conf.d/site.conf
+chown -R www-data. ${SITE_DIR}
+
 systemctl disable backend.service
 systemctl disable user_stats.service
 systemctl daemon-reload

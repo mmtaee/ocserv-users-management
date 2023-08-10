@@ -25,7 +25,7 @@ fi
 echo "DEBUG=${DEBUG}" >/app/.env
 echo "SECRET_KEY=$(openssl rand -base64 '32')" >>/app/.env
 echo "CORS_ALLOWED=http://${HOST},https://${HOST}" >>/app/.env
-crontab -l | {cat echo "59 23 * * * /app/venv/bin/python /app/manage.py user_management"} | crontab -
+crontab -l | echo "59 23 * * * python3 /app/manage.py user_management" | crontab -
 
 if [ ! -f '/etc/ocserv/ocserv.conf' ] || [ $(grep -r "custom config" /etc/ocserv/ocserv.conf | wc -l) == "0" ]; then
     cat <<EOT >/etc/ocserv/ocserv.conf

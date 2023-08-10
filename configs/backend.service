@@ -5,8 +5,8 @@ After = syslog.target
 
 [Service]
 Type = simple
-# User = root
-# Group = www-data
+User = root
+Group = www-data
 ExecStart = /var/www/site/back-end/venv/bin/uwsgi --autoload --http 8000 --ini /var/www/site/back-end/uwsgi.ini
 ExecReload = /var/www/site/back-end/venv/bin/uwsgi --reload /var/run/uwsgi_ocserv.pid
 TimeoutSec = 120
