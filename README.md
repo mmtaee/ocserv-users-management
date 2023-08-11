@@ -38,3 +38,22 @@
     >>> docker compose -f docker-compose.dev.yml up --build
 ```
 
+## migrate accounts from old panel to new panel:
+```
+in os
+1- rename db.sqlite3 to db-old.sqlite3
+    >>> mv db.sqlite3 db-old.sqlite3
+
+2- run script
+    >>> /var/www/site/back-end/venv/bin/python3 manage.py migrate_to_new --old-path /OLD_PATH/db-old.sqlite3
+
+
+in docker host:
+1- rename db.sqlite3 to db-old.sqlite3
+    >>> mv db.sqlite3 db-old.sqlite3
+
+2- copy db-old.sqlite3 to volumes/db
+
+3- run command in docker container
+    >>> python3 /app/manage.py migrate_to_new --old-path /app/db/db-old.sqlite3
+```
