@@ -47,12 +47,13 @@ echo www-data ALL=NOPASSWD: /usr/bin/occtl >>/etc/sudoers
 echo www-data ALL=NOPASSWD: /usr/bin/systemctl restart ocserv.service >>/etc/sudoers
 echo www-data ALL=NOPASSWD: /usr/bin/systemctl status ocserv.service >>/etc/sudoers
 
-echo www-data ALL=NOPASSWD: /usr/bin/rm /etc/ocserv/* >>/etc/sudoers
-echo www-data ALL=NOPASSWD: /usr/bin/mkdir /etc/ocserv/* >>/etc/sudoers
-echo www-data ALL=NOPASSWD: /usr/bin/touch /etc/ocserv/* >>/etc/sudoers
-echo www-data ALL=NOPASSWD: /usr/bin/cat /etc/ocserv/* >>/etc/sudoers
-echo www-data ALL=NOPASSWD: /usr/bin/sed /etc/ocserv/* >>/etc/sudoers
-echo www-data ALL=NOPASSWD: /usr/bin/tee /etc/ocserv/* >>/etc/sudoers
+echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/rm /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
+echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/mkdir /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
+echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/touch /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
+echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/cat /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
+echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/sed /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
+echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
+
 crontab -l | echo "59 23 * * * ${SITE_DIR}/back-end/venv/bin/python3 ${SITE_DIR}/back-end/manage.py user_management" | crontab -
 # front-end
 echo -e "\e[0;32m"Front-End Installing ..."\e[0m"
