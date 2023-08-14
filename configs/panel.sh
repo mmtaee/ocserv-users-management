@@ -42,17 +42,17 @@ mkdir -p ${SITE_DIR}/back-end/db
 ${SITE_DIR}/back-end/manage.py migrate
 deactivate
 
-echo www-data ALL=NOPASSWD: /usr/bin/ocpasswd >>/etc/sudoers
-echo www-data ALL=NOPASSWD: /usr/bin/occtl >>/etc/sudoers
-echo www-data ALL=NOPASSWD: /usr/bin/systemctl restart ocserv.service >>/etc/sudoers
-echo www-data ALL=NOPASSWD: /usr/bin/systemctl status ocserv.service >>/etc/sudoers
-
-echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/rm /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
-echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/mkdir /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
-echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/touch /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
-echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/cat /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
-echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/sed /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
-echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/ocserv/*' | sudo tee -a /etc/sudoers >/dev/null
+echo 'www-data ALL=(ALL) NOPASSWD: \
+    /usr/bin/rm /etc/ocserv/*, \
+    /usr/bin/mkdir /etc/ocserv/*, \
+    /usr/bin/touch /etc/ocserv/*, \
+    /usr/bin/cat /etc/ocserv/*, \
+    /usr/bin/sed /etc/ocserv/*, \
+    /usr/bin/tee /etc/ocserv/*, \
+    /usr/bin/ocpasswd, \
+    /usr/bin/occtl, \
+    /usr/bin/systemctl restart ocserv.service, \
+    /usr/bin/systemctl status ocserv.service' | sudo tee -a /etc/sudoers >/dev/null
 
 crontab -l | echo "59 23 * * * ${SITE_DIR}/back-end/venv/bin/python3 ${SITE_DIR}/back-end/manage.py user_management" | crontab -
 # front-end
