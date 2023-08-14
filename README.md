@@ -29,10 +29,10 @@
     >>> HOST=http://YOUR_DOMAIN_OR_IP ./configs/panel.sh
 
 3- Docker host
-    >>> DOCKER_SCAN_SUGGEST=false \
-        DOMAIN=YOUR_DOMAIN \
-        HOST=http://YOUR_DOMAIN_OR_IP \
-        docker compose up -d --build
+  3-1: edit prod.env file
+
+  3-2: run command
+    >>> DOCKER_SCAN_SUGGEST=false docker compose up -d --build
 
 4- frontend developing
     >>> docker compose -f docker-compose.dev.yml up --build
