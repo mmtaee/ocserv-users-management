@@ -38,7 +38,7 @@ SECRET_KEY=$(openssl rand -base64 '64')
 echo "DEBUG=False" >${SITE_DIR}/back-end/.env
 echo "SECRET_KEY=${SECRET_KEY}" >>${SITE_DIR}/back-end/.env
 echo "CORS_ALLOWED=http://${HOST},https://${HOST}" >>${SITE_DIR}/back-end/.env
-
+mkdir -p ${SITE_DIR}/back-end/db
 ${SITE_DIR}/back-end/manage.py migrate
 deactivate
 
