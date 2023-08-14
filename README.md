@@ -32,7 +32,8 @@
   3-1: edit prod.env file
 
   3-2: run command
-    >>> DOCKER_SCAN_SUGGEST=false docker compose up -d --build
+    >>> DOCKER_SCAN_SUGGEST=false docker-compose up -d --build --env-file "$(pwd)/prod.env"
+
 
 4- frontend developing
     >>> docker compose -f docker-compose.dev.yml up --build
