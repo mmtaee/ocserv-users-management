@@ -59,8 +59,6 @@ class OcservGroupsViewSet(viewsets.ViewSet):
             group = OcservGroup.objects.get(pk=pk)
         except OcservGroup.DoesNotExist:
             return Response({"error": ["Ocserv group does not exists"]}, status=404)
-        result = group_handler.destroy(name=group.name)
-        if not result:
-            return Response({"error": ["Ocserv group does not deleted"]}, status=400)
+        group_handler.destroy(name=group.name)
         group.delete()
         return Response(status=204)
