@@ -1,0 +1,23 @@
+# vue js section
+FROM node:latest AS vue
+ARG BACKEND_API
+RUN apt update
+RUN apt install -y --no-install-recommends git
+WORKDIR /app
+COPY ./front-end .
+RUN npm install
+RUN NODE_ENV=production npm run build
+
+# nginx section
+FROM nginx:alpine
+RUN apk update && apk add bash && apk add gettext
+COPY configs/nginx.conf.sh /nginx.conf.sh
+RUN chmod +x /nginx.conf.sh
+WORKDIR /var/www/site
+RUN mkdir -p /etc/nginx/certs
+RUN rm -rf /etc/nginx/sites-enabled/default
+RUN rm -rf /usr/share/nginx/html
+RUN rm -rf /etc/nginx/conf.d/default.conf
+COPY --from=vue /app/dist .
+ENTRYPOINT ["/nginx.conf.sh"]
+CMD ["nginx", "-g", "daemon off;"]

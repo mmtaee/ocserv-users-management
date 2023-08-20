@@ -1,0 +1,15 @@
+[Unit]
+Description=monitorservice
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=LOG_FILE_PATH=/var/log/backend.log
+Environment=PASSWD_FILE_PATH=/var/log/socket_passwd
+ExecStart=/opt/monitor/monitor
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,0 @@
-Django==3.2.14
-django-ratelimit==3.0.1
-uWSGI==2.0.19.1
-requests
-

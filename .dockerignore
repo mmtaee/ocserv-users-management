@@ -1,0 +1,4 @@
+volumes/
+node_modules
+venv/
+.env
