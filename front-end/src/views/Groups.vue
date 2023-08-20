@@ -64,30 +64,10 @@
                   color="error"
                   right
                   dark
-                  @click.stop="dialogDelete = true"
+                  @click="(dialogDelete = true), (deleteGroupObj = item)"
                 >
                   mdi-delete
                 </v-icon>
-                <v-dialog v-model="dialogDelete" max-width="450">
-                  <v-card>
-                    <v-card-title class="text-h5">
-                      Delete Group ({{ item.name }})
-                    </v-card-title>
-                    <v-card-text>
-                      Are you sure to want to delete Group
-                      <b>({{ item.name }})?</b>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="primary" text @click="dialogDelete = false">
-                        Cancel
-                      </v-btn>
-                      <v-btn color="error" text @click="deleteGroup(item)">
-                        Delete
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
               </template>
 
               <template v-slot:[`item.desc`]="{ item }">
@@ -123,6 +103,28 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-dialog v-model="dialogDelete" max-width="450" v-if="dialogDelete">
+      <v-card>
+        <v-card-title class="text-h5">
+          Delete Group ({{ deleteGroupObj.name }})
+        </v-card-title>
+        <v-card-text>
+          Are you sure to want to delete Group
+          <b>({{ deleteGroupObj.name }})?</b>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="dialogDelete = false">
+            Cancel
+          </v-btn>
+          <v-btn color="error" text @click="deleteGroup(deleteGroupObj)">
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="groupFormDialog" width="850">
       <GroupForm
         v-if="groupFormDialog"
@@ -160,6 +162,7 @@ export default Vue.extend({
     initInput: OcservGroup | null;
     editMode: boolean;
     dialogDelete: boolean;
+    deleteGroupObj: OcservGroup | null;
   } {
     return {
       groups: [],
@@ -203,6 +206,7 @@ export default Vue.extend({
       initInput: null,
       editMode: false,
       dialogDelete: false,
+      deleteGroupObj: null,
     };
   },
 
@@ -230,6 +234,7 @@ export default Vue.extend({
         let index = this.groups.findIndex((item) => item?.id == group.id);
         this.groups.splice(index, 1);
         this.dialogDelete = false;
+        this.deleteGroupObj = null;
       }
     },
   },

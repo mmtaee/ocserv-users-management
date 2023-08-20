@@ -1,13 +1,16 @@
-# ocserv-users-management 
+# ocserv-users-management
+
 ### Web panel to manage ocserv and openconnect users
+
 #### Requirements(Ubuntu 20.04 or Docker host)
 
 #### features:
+
 1- create an account with a limit of gigabytes or monthly usage
 
 2- users: add, edit, update, remove, block and disconnect
 
-3- group: add, edit, update and remove 
+3- group: add, edit, update and remove
 
 4- occtl command tools
 
@@ -15,17 +18,17 @@
 
 6- Calculation of users' rx and tx
 
-
 ### Installation instructions
+
 <center><img src="dialog.png"></center>
 
 ```
 1- use install.sh script
-    >>> chmod +x install.sh 
+    >>> chmod +x install.sh
     >>> ./install.sh
 
 2- Installing panel without script
-    >>> chmod +x ./configs/panel.sh 
+    >>> chmod +x ./configs/panel.sh
     >>> HOST=http://YOUR_DOMAIN_OR_IP ./configs/panel.sh
 
 3- Docker host
@@ -40,7 +43,12 @@
 ```
 
 ## migrate accounts from old panel to new panel:
+
 ```
+
+--free-traffic: migrate users with free usage traffic
+--old-path: Path to the old SQLite database
+
 in os
 1- rename db.sqlite3 to db-old.sqlite3
     >>> mv db.sqlite3 db-old.sqlite3

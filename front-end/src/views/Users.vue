@@ -73,61 +73,23 @@
                   </v-icon>
                 </v-btn>
 
-                <v-dialog
-                  v-model="dialogDisconnect"
-                  max-width="450"
+                <v-btn
+                  color="error"
+                  dark
+                  icon
+                  @click="(dialogDisconnect = true), (disconnectUserObj = item)"
                   v-if="item.online"
                 >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn color="error" dark v-bind="attrs" v-on="on" icon>
-                      <v-icon color="error"> mdi-lan-disconnect </v-icon>
-                    </v-btn>
-                  </template>
-                  <v-card>
-                    <v-card-title class="text-h5">
-                      Disconnect User ({{ item.username }})
-                    </v-card-title>
-                    <v-card-text>
-                      Are you sure to want to disconnect user
-                      <b>({{ item.username }})?</b>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="primary" text @click="dialogDelete = false">
-                        Cancel
-                      </v-btn>
-                      <v-btn color="error" text @click="disconnectUser(item)">
-                        Disconnect
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
+                  <v-icon color="error"> mdi-lan-disconnect </v-icon>
+                </v-btn>
 
-                <v-dialog v-model="dialogDelete" max-width="450">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn color="error" v-bind="attrs" v-on="on" icon>
-                      <v-icon color="error"> mdi-delete </v-icon>
-                    </v-btn>
-                  </template>
-                  <v-card>
-                    <v-card-title class="text-h5">
-                      Delete User ({{ item.username }})
-                    </v-card-title>
-                    <v-card-text>
-                      Are you sure to want to delete user
-                      <b>({{ item.username }})?</b>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="primary" text @click="dialogDelete = false">
-                        Cancel
-                      </v-btn>
-                      <v-btn color="error" text @click="deleteUser(item)">
-                        Delete
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
+                <v-btn
+                  color="error"
+                  icon
+                  @click="(dialogDelete = true), (deleteUserObj = item)"
+                >
+                  <v-icon color="error"> mdi-delete </v-icon>
+                </v-btn>
               </template>
               <template v-slot:[`item.desc`]="{ item }">
                 <v-tooltip bottom>
@@ -185,6 +147,53 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-dialog
+      v-model="dialogDisconnect"
+      max-width="450"
+      v-if="dialogDisconnect"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Disconnect User ({{ disconnectUserObj.username }})
+        </v-card-title>
+        <v-card-text>
+          Are you sure to want to disconnect user
+          <b>({{ disconnectUserObj.username }})?</b>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="dialogDelete = false">
+            Cancel
+          </v-btn>
+          <v-btn color="error" text @click="disconnectUser(disconnectUserObj)">
+            Disconnect
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogDelete" max-width="450" v-if="dialogDelete">
+      <v-card>
+        <v-card-title class="text-h5">
+          Delete User ({{ deleteUserObj.username }})
+        </v-card-title>
+        <v-card-text>
+          Are you sure to want to delete user
+          <b>({{ deleteUserObj.username }})?</b>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="dialogDelete = false">
+            Cancel
+          </v-btn>
+          <v-btn color="error" text @click="deleteUser(deleteUserObj)">
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="userFormDialog" width="850">
       <UserForm
         v-if="userFormDialog"
@@ -223,6 +232,8 @@ export default Vue.extend({
     editMode: boolean;
     dialogDelete: boolean;
     dialogDisconnect: boolean;
+    disconnectUserObj: OcservUser | null;
+    deleteUserObj: OcservUser | null;
   } {
     return {
       users: [],
@@ -301,6 +312,8 @@ export default Vue.extend({
       editMode: false,
       dialogDelete: false,
       dialogDisconnect: false,
+      disconnectUserObj: null,
+      deleteUserObj: null,
     };
   },
 
@@ -326,6 +339,7 @@ export default Vue.extend({
       await ocservUserApi.disconnect_user(user.id!);
       if (ocservUserApi.status() == 202) {
         user.online = false;
+        this.disconnectUserObj = null;
       }
     },
     async deleteUser(user: OcservUser) {
@@ -334,6 +348,7 @@ export default Vue.extend({
         let index = this.users.findIndex((item) => item?.id == user.id);
         this.users.splice(index, 1);
         this.dialogDelete = false;
+        this.deleteUserObj = null;
       }
     },
   },

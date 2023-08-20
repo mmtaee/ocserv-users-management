@@ -1,5 +1,5 @@
 <template>
-  <v-app style="background-color: #eee">
+  <v-app style="background-color: #eee" @keyup.enter.prevent>
     <AppBar />
     <v-main>
       <router-view v-if="allowRouting" />
