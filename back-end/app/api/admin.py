@@ -70,7 +70,7 @@ class AdminViewSet(viewsets.ViewSet):
             {"token": token.key, "captcha_site_key": admin_config.captcha_site_key, "user": admin_config.uu_id}, status=201
         )
 
-    @custom_throttle(rate="4/hours")
+    @custom_throttle(rate="10/hours")
     @recaptcha
     @action(detail=False, methods=["POST"])
     def login(self, request):

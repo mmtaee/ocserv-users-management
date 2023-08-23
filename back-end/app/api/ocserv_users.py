@@ -21,8 +21,10 @@ class OcservUsersViewSet(viewsets.ViewSet):
     def list(self, request):
         online_users = user_handler.online()
         online_users = [user.get("username") for user in online_users if user.get("username")]
-        users = OcservUser.objects.all().select_related("group").order_by("-id")
-        data = pagination(request, users, OcservUserSerializer, context={"online_users": online_users})
+        users = OcservUser.objects.all().select_related("group")
+        if username := request.GET.get("username"):
+            users = users.filter(username__icontains=username)
+        data = pagination(request, users.order_by("-id"), OcservUserSerializer, context={"online_users": online_users})
         return Response(data)
 
     def create(self, request):
@@ -69,7 +71,9 @@ class OcservUsersViewSet(viewsets.ViewSet):
             update = True
         if update:
             user_handler.username = user.username
-            result = user_handler.add_or_update(password=data.get("password"), group=user.group.name, active=data.get("active"))
+            result = user_handler.add_or_update(
+                password=data.get("password"), group=user.group.name, active=data.get("active")
+            )
         if result:
             serializer = OcservUserSerializer(instance=user, data=data, partial=True)
             serializer.is_valid(raise_exception=True)

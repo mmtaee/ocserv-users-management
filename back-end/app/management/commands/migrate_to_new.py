@@ -10,7 +10,26 @@ class Command(BaseCommand):
 
     def __init__(self):
         super().__init__()
+        self.traffic = None
         self.path = None
+        self.group = OcservGroup.objects.get(name="defaults")
+
+    def migrate_to_db(self, users_batch):
+        for user in users_batch:
+            try:
+                OcservUser.objects.create(
+                    group=self.group,
+                    username=user[0],
+                    password=user[1],
+                    active=user[2],
+                    expire_date=user[3],
+                    desc=user[4],
+                    traffic=self.traffic,
+                )
+                self.stdout.write(self.style.SUCCESS(f"User with username ({user[0]}) added."))
+            except IntegrityError:
+                self.stdout.write(self.style.ERROR(f"User with username ({user[0]}) already exists."))
+                continue
 
     def fetch_old_users(self):
         try:
@@ -21,13 +40,18 @@ class Command(BaseCommand):
         query = 'SELECT "app_ocservuser"."oc_username","app_ocservuser"."oc_password","app_ocservuser"."oc_active",'
         query += '"app_ocservuser"."expire_date","app_ocservuser"."desc" FROM "app_ocservuser"'
         try:
+            print(query)
             cursor.execute(query)
-            old_users = cursor.fetchall()
+            while True:
+                batch = cursor.fetchmany(100)
+                if not batch:
+                    break
+                print("batch: ", batch)
+                self.migrate_to_db(batch)
         except sqlite3.OperationalError as e:
             raise CommandError(f"Error executing SQL query: {str(e)}")
         finally:
             conn.close()
-        return old_users
 
     def add_arguments(self, parser):
         parser.add_argument("--old-path", type=str, required=True, help="Path to the old SQLite database")
@@ -37,24 +61,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.path = options["old_path"]
-        traffic = OcservUser.FREE if options["free_traffic"] else OcservUser.MONTHLY
-        old_users = self.fetch_old_users()
-        group = OcservGroup.objects.get(name="defaults")
-        for user in old_users:
-            try:
-                OcservUser.objects.create(
-                    group=group,
-                    username=user[0],
-                    password=user[1],
-                    active=user[2],
-                    expire_date=user[3],
-                    desc=user[4],
-                    traffic=traffic,
-                )
-                self.stdout.write(self.style.SUCCESS(f"User with username ({user[0]}) added."))
-            except IntegrityError:
-                self.stdout.write(self.style.ERROR(f"User with username ({user[0]}) already exists."))
-                continue
+        self.traffic = OcservUser.FREE if options["free_traffic"] else OcservUser.MONTHLY
+        self.fetch_old_users()
 
 
 #   /var/www/site/back-end/venv/bin/python3 manage.py migrate_to_new --old-path /OLD_PATH/db.sqlite3 --free-traffic
