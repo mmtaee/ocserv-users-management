@@ -138,7 +138,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { OcservUser, OcservGroup } from "@/utils/types";
+import { OcservUser, OcservGroup, URLParams } from "@/utils/types";
 import { required } from "@/utils/rules";
 import { ocservGroupApi, ocservUserApi } from "@/utils/services";
 
@@ -201,7 +201,10 @@ export default Vue.extend({
   },
 
   async mounted() {
-    let data = await ocservGroupApi.groups("defaults");
+    let params: URLParams = {
+      args : "defaults"
+    }
+    let data = await ocservGroupApi.groups(params);
     this.groups = data.result;
   },
 

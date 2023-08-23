@@ -1,12 +1,11 @@
 <template>
-  <v-container fluid fill-height>
+  <v-container>
     <v-row align="center" justify="center">
       <v-col class="d-flex justify-center" md="12" cols="12">
         <v-card
           class="text-center align-center justify-center"
           flat
           width="1400"
-          min-height="800"
         >
           <v-card-subtitle
             class="text-h5 grey darken-1 mb-8 white--text text-start"
@@ -15,7 +14,20 @@
           </v-card-subtitle>
 
           <v-card-text>
-            <v-row align="start" justify="start" class="my-3">
+            <v-row align="center" justify="start" class="my-3 ms-2">
+              <v-col md="3" align-self="start">
+                <v-text-field
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Search Ocserv User"
+                  single-line
+                  hide-details
+                  @keyup="searchInit"
+                  @click:clear="(search = null), (page = 1), init()"
+                  clearable
+                />
+              </v-col>
+              <v-spacer />
               <v-col md="auto">
                 <v-btn
                   color="primary"
@@ -26,33 +38,21 @@
                   Create New User
                 </v-btn>
               </v-col>
-              <v-col md="auto">
-                <v-btn icon @click="init">
-                  <v-icon>mdi-refresh</v-icon>
+              <v-col md="auto" class="me-5">
+                <v-btn @click="init" outlined>
+                  refresh
+                  <v-icon right>mdi-refresh</v-icon>
                 </v-btn>
               </v-col>
             </v-row>
-            <v-row
-              v-if="users.length > 5"
-              align="start"
-              justify="start"
-              class="my-3"
-            >
-              <v-col md="4">
-                <v-text-field
-                  v-model="search"
-                  append-icon="mdi-magnify"
-                  label="Search Ocserv User"
-                  single-line
-                  hide-details
-                />
-              </v-col>
-            </v-row>
+
             <v-data-table
               :headers="headers"
               :items="users"
-              :search="search"
-              :hide-default-footer="users.length < 5"
+              :items-per-page="100"
+              :hide-default-footer="true"
+              no-data-text="No users"
+              disable-pagination
             >
               <template v-slot:[`item.status`]="{ item }">
                 <span class="error--text" v-if="!item.online">Offline</span>
@@ -91,8 +91,9 @@
                   <v-icon color="error"> mdi-delete </v-icon>
                 </v-btn>
               </template>
+
               <template v-slot:[`item.desc`]="{ item }">
-                <v-tooltip bottom>
+                <v-tooltip bottom v-if="item.desc">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn color="error" v-bind="attrs" v-on="on" icon>
                       <v-icon color="primary" dark> mdi-email-outline </v-icon>
@@ -100,10 +101,13 @@
                   </template>
                   <span v-html="item.desc" />
                 </v-tooltip>
+                <span v-else> No description </span>
               </template>
+
               <template v-slot:[`item.group`]="{ item }">
                 {{ item.group_name }}
               </template>
+
               <template v-slot:[`item.avrages`]="{ item }">
                 <span class="primary--text">RX:</span>
                 {{ item.rx }}
@@ -112,6 +116,7 @@
                 {{ item.tx }}
                 <br />
               </template>
+
               <template v-slot:[`item.default_traffic`]="{ item }">
                 <span class="primary--text">Default Traffic:</span>
                 {{ item.default_traffic }}
@@ -120,6 +125,7 @@
                 {{ traffics[item.traffic] }}
                 <br />
               </template>
+
               <template v-slot:[`item.expire_date`]="{ item }">
                 <span class="primary--text">Create Date:</span>
                 {{ item.create }}
@@ -128,12 +134,14 @@
                 {{ item.expire_date }}
                 <br />
               </template>
+
               <template v-slot:[`item.username`]="{ item }">
                 <span class="primary--text">Username:</span> {{ item.username }}
                 <br />
                 <span class="primary--text">Password:</span> {{ item.password }}
                 <br />
               </template>
+
               <template v-slot:[`item.active`]="{ item }">
                 <v-icon v-if="item.active" color="success">
                   mdi-account-check-outline
@@ -143,6 +151,17 @@
                 </v-icon>
               </template>
             </v-data-table>
+
+            <v-col cols="auto" class="ma-0 pa-0 text-start" v-if="pages > 1">
+              <Pagination
+                v-if="Boolean(users.length)"
+                :pages="pages"
+                :page="page"
+                :count="total_count"
+                :perPage="item_per_page"
+                @changePage="change"
+              />
+            </v-col>
           </v-card-text>
         </v-card>
       </v-col>
@@ -163,7 +182,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="dialogDelete = false">
+          <v-btn color="primary" text @click="dialogDisconnect = false">
             Cancel
           </v-btn>
           <v-btn color="error" text @click="disconnectUser(disconnectUserObj)">
@@ -213,18 +232,21 @@
 <script lang="ts">
 import Vue from "vue";
 import { ocservUserApi } from "@/utils/services";
-import { OcservUser } from "@/utils/types";
+import { OcservUser, URLParams } from "@/utils/types";
 
 export default Vue.extend({
   name: "Users",
   components: {
     UserForm: () => import("@/components/UserForm.vue"),
+    Pagination: () => import("@/components/Pagination.vue"),
   },
   data(): {
     users: Array<OcservUser | null>;
     headers: Array<object>;
     page: number;
     pages: number;
+    item_per_page: number;
+    total_count: number;
     search: string;
     traffics: object;
     userFormDialog: boolean;
@@ -301,6 +323,8 @@ export default Vue.extend({
       ],
       page: 1,
       pages: 1,
+      item_per_page: 30,
+      total_count: 0,
       search: "",
       traffics: {
         1: "Free",
@@ -323,10 +347,18 @@ export default Vue.extend({
 
   methods: {
     async init() {
-      let data = await ocservUserApi.users();
+      let params: URLParams = {
+        page: this.page,
+        item_per_page: this.item_per_page,
+      };
+      if (this.search) {
+        params["username"] = this.search;
+      }
+      let data = await ocservUserApi.users(params);
       this.users = data.result;
-      this.page = data.page;
-      this.pages = data.pages;
+      this.page = data.page || 1;
+      this.pages = data.pages || 1;
+      this.total_count = data.total_count || 0;
     },
     createUser(user: OcservUser) {
       this.users.unshift(user);
@@ -340,6 +372,7 @@ export default Vue.extend({
       if (ocservUserApi.status() == 202) {
         user.online = false;
         this.disconnectUserObj = null;
+        this.dialogDisconnect = false;
       }
     },
     async deleteUser(user: OcservUser) {
@@ -349,6 +382,17 @@ export default Vue.extend({
         this.users.splice(index, 1);
         this.dialogDelete = false;
         this.deleteUserObj = null;
+      }
+    },
+    change(page: number, item_per_page: number) {
+      this.page = page;
+      this.item_per_page = item_per_page;
+      this.init();
+    },
+
+    searchInit() {
+      if (this.search.length > 2) {
+        this.init();
       }
     },
   },

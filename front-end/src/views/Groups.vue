@@ -1,12 +1,11 @@
 <template>
-  <v-container fluid fill-height>
+  <v-container>
     <v-row align="center" justify="center">
       <v-col class="d-flex justify-center" md="12" cols="12">
         <v-card
           class="text-center align-center justify-center"
           flat
           width="1400"
-          min-height="800"
         >
           <v-card-subtitle
             class="text-h5 grey darken-1 mb-8 white--text text-start"
@@ -14,39 +13,37 @@
             Ocserv Groups
           </v-card-subtitle>
           <v-card-text>
-            <v-row align="start" justify="start" class="my-3">
+            <v-row align="center" justify="start" class="my-3 ms-2">
+              <v-col md="3">
+                <v-text-field
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Search Ocserv Group"
+                  single-line
+                  hide-details
+                  @keyup="searchInit"
+                  @click:clear="(search = null), (page = 1), init()"
+                  clearable
+                />
+              </v-col>
+              <v-spacer />
               <v-col md="auto">
                 <v-btn color="primary" outlined @click="groupFormDialog = true">
                   <v-icon left>mdi-home-group-plus</v-icon>
                   Create New Group
                 </v-btn>
               </v-col>
-              <v-col md="auto">
-                <v-btn icon @click="init">
-                  <v-icon>mdi-refresh</v-icon>
+              <v-col md="auto" class="me-5">
+                <v-btn @click="init" outlined>
+                  refresh
+                  <v-icon right>mdi-refresh</v-icon>
                 </v-btn>
               </v-col>
             </v-row>
-            <v-row
-              v-if="groups.length > 5"
-              align="start"
-              justify="start"
-              class="my-3"
-            >
-              <v-col md="4">
-                <v-text-field
-                  v-model="search"
-                  append-icon="mdi-magnify"
-                  label="Search Ocserv User"
-                  single-line
-                  hide-details
-                />
-              </v-col>
-            </v-row>
+
             <v-data-table
               :headers="headers"
               :items="groups"
-              :search="search"
               :hide-default-footer="groups.length < 5"
             >
               <template v-slot:[`item.edit`]="{ item }">
@@ -86,6 +83,7 @@
                   <span v-html="item.desc" />
                 </v-tooltip>
               </template>
+
               <template v-slot:[`item.configs`]="{ item }">
                 <v-row align="start" justify="start">
                   <v-col
@@ -99,6 +97,16 @@
                 </v-row>
               </template>
             </v-data-table>
+            <v-col cols="auto" class="ma-0 pa-0 text-start" v-if="pages > 1">
+              <Pagination
+                v-if="Boolean(users.length)"
+                :pages="pages"
+                :page="page"
+                :count="total_count"
+                :perPage="item_per_page"
+                @changePage="change"
+              />
+            </v-col>
           </v-card-text>
         </v-card>
       </v-col>
@@ -144,18 +152,21 @@
 <script lang="ts">
 import Vue from "vue";
 import { ocservGroupApi } from "@/utils/services";
-import { OcservGroup } from "@/utils/types";
+import { OcservGroup, URLParams } from "@/utils/types";
 
 export default Vue.extend({
   name: "Groups",
   components: {
     GroupForm: () => import("@/components/GroupForm.vue"),
+    Pagination: () => import("@/components/Pagination.vue"),
   },
   data(): {
     groups: Array<OcservGroup | null>;
     headers: Array<object>;
     page: number;
     pages: number;
+    item_per_page: number;
+    total_count: number;
     search: string;
     traffics: object;
     groupFormDialog: boolean;
@@ -196,6 +207,8 @@ export default Vue.extend({
       ],
       page: 1,
       pages: 1,
+      item_per_page: 30,
+      total_count: 0,
       search: "",
       traffics: {
         1: "Free",
@@ -216,10 +229,18 @@ export default Vue.extend({
 
   methods: {
     async init() {
-      let data = await ocservGroupApi.groups();
+      let params: URLParams = {
+        page: this.page,
+        item_per_page: this.item_per_page,
+      };
+      if (this.search) {
+        params["name"] = this.search;
+      }
+      let data = await ocservGroupApi.groups(params);
       this.groups = data.result;
-      this.page = data.page;
-      this.pages = data.pages;
+      this.page = data.page || 1;
+      this.pages = data.pages || 1;
+      this.total_count = data.total_count || 0;
     },
     createGroup(group: OcservGroup) {
       this.groups.unshift(group);
@@ -235,6 +256,16 @@ export default Vue.extend({
         this.groups.splice(index, 1);
         this.dialogDelete = false;
         this.deleteGroupObj = null;
+      }
+    },
+    change(page: number, item_per_page: number) {
+      this.page = page;
+      this.item_per_page = item_per_page;
+      this.init();
+    },
+    searchInit() {
+      if (this.search.length > 2) {
+        this.init();
       }
     },
   },

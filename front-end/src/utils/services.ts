@@ -11,6 +11,7 @@ import {
   OcservGroup,
   Occtl,
   Stats,
+  URLParams,
 } from "./types";
 import store from "@/plugins/store";
 
@@ -19,6 +20,7 @@ class Services {
   public method: string = "get";
   public baseUrl: string = "";
   public path: string = "";
+  public params: URLParams | null = null;
   private axiosMethods: { [K: string]: Function } = {
     get: _axios.get,
     post: _axios.post,
@@ -32,7 +34,17 @@ class Services {
       active: true,
       text: "Requesting ...",
     });
-    let url: string = this.baseUrl + this.path;
+    var url: string = this.baseUrl + this.path;
+    if (this.params) {
+      url += "?";
+      Object.keys(this.params).forEach((key, index) => {
+        let val = this.params![key];
+        if (index != 0) {
+          url += "&";
+        }
+        url += `${key}=${val}`;
+      });
+    }
     return await this.axiosMethods[this.method]((url = url), (data = data))
       .then((response: AxiosResponse) => {
         if (response) {
@@ -142,9 +154,12 @@ class OcservUserApi extends Services {
     this.baseUrl = "/users/";
     this.path = "";
   }
-  public async users(): Promise<UserPagination> {
+  public async users(params?: URLParams | null): Promise<UserPagination> {
     this.method = "get";
     this.path = "";
+    if (params) {
+      this.params = params;
+    }
     return this.request();
   }
   public async create_user(data: OcservUser): Promise<OcservUser> {
@@ -175,9 +190,11 @@ class OcservGroupApi extends Services {
     this.baseUrl = "/groups/";
     this.path = "";
   }
-  public async groups(args?: string | null): Promise<GroupPagination> {
+  public async groups(params?: URLParams | null): Promise<GroupPagination> {
     this.method = "get";
-    this.path = args ? `?args=${args}` : "";
+    if (params) {
+      this.params = params;
+    }
     return this.request();
   }
   public async create_group(data: OcservGroup): Promise<OcservGroup> {

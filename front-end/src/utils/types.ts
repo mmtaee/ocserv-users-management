@@ -48,6 +48,7 @@ declare interface UserPagination {
   result: Array<OcservUser | null>;
   page: number;
   pages: number;
+  total_count?: number;
 }
 declare interface OcservGroup {
   id?: number | null;
@@ -59,6 +60,7 @@ declare interface GroupPagination {
   result: Array<OcservGroup | null>;
   page: number;
   pages: number;
+  total_count?: number;
 }
 declare interface Occtl {
   show_status: string;
@@ -79,6 +81,10 @@ declare interface Stats {
   months: Array<number>;
 }
 
+declare interface URLParams {
+  [key: string]: string | number;
+}
+
 export {
   AminLogin,
   AdminConfig,
@@ -91,4 +97,5 @@ export {
   GroupPagination,
   Occtl,
   Stats,
+  URLParams,
 };
