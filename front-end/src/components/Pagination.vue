@@ -1,11 +1,11 @@
 <template>
   <v-row align="center" justify="start" class="my-1 mx-1 pa-0">
-    <v-col v-if="!condition" class="ma-0 pa-0" cols="auto">
+    <v-col class="ma-0 pa-0" cols="auto">
       <span class="font-weight-medium me-2 text-subtitle-2 text--secondary">
         Item per page
       </span>
     </v-col>
-    <v-col v-if="!condition" class="ma-0 pa-0" cols="1">
+    <v-col class="ma-0 pa-0" cols="1">
       <v-select
         v-model="itemPerPage"
         :items="[10, 20, 30, 50, 100]"
@@ -81,12 +81,6 @@ export default Vue.extend({
     };
   },
 
-  computed: {
-    condition() {
-      return Boolean(this.pages == 1 && this.itemPerPage == 10);
-    },
-  },
-
   watch: {
     page: {
       immediate: true,
@@ -99,6 +93,15 @@ export default Vue.extend({
       handler() {
         this.itemPerPage = this.perPage;
       },
+    },
+  },
+
+  computed: {
+    condition() {
+      if (this.itemPerPage == 10 && this.pages == 1) {
+        return true;
+      }
+      return false;
     },
   },
 });
