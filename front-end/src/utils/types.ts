@@ -69,7 +69,7 @@ declare interface Occtl {
 }
 
 declare interface ResultData {
-  [key: number]: {
+  [key: string]: {
     total_rx: number;
     total_tx: number;
   };
@@ -78,7 +78,8 @@ declare interface ResultData {
 declare interface Stats {
   total: object;
   result: ResultData;
-  months: Array<number>;
+  months: Array<string>;
+  current_month: object;
 }
 
 declare interface URLParams {

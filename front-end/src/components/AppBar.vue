@@ -57,11 +57,11 @@ export default Vue.extend({
           icon: "mdi-bash",
           to: "/occtl",
         },
-        // {
-        //   title: "User Statistics",
-        //   icon: "mdi-chart-bar",
-        //   to: "/stats",
-        // },
+        {
+          title: "User Statistics",
+          icon: "mdi-chart-bar",
+          to: "/stats",
+        },
         // {
         //   title: "Logs",
         //   icon: "mdi-math-log",

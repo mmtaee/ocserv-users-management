@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from datetime import datetime
+import calendar
 
 from app.models import MonthlyTrafficStat
 
@@ -14,8 +15,9 @@ class StatViewSet(viewsets.ViewSet):
     def list(self, request):
         result = {}
         year = datetime.now().year
-        stats = MonthlyTrafficStat.objects.filter(year=year)
+        stats = MonthlyTrafficStat.objects.filter(year=year).order_by("month")
         months = list(stats.values_list("month", flat=True).distinct())
+        _months = [calendar.month_name[i] for i in months]
         for i in months:
             res = stats.filter(month=i).aggregate(
                 **{
@@ -23,7 +25,7 @@ class StatViewSet(viewsets.ViewSet):
                     "total_tx": Sum("tx"),
                 }
             )
-            result[i] = res
+            result[calendar.month_name[i]] = res
         total = stats.aggregate(
             **{
                 "total_rx": Sum("rx"),
@@ -31,4 +33,11 @@ class StatViewSet(viewsets.ViewSet):
             }
         )
         total.update({"year": year})
-        return Response({"total": total, "result": result, "months": months})
+        current_month = stats.filter(month=datetime.now().month).aggregate(
+            **{
+                "total_rx": Sum("rx"),
+                "total_tx": Sum("tx"),
+            }
+        )
+        current_month.update({"month": datetime.now().strftime("%B")})
+        return Response({"total": total, "result": result, "months": _months, "current_month": current_month})

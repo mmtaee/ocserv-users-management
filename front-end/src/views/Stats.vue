@@ -19,10 +19,26 @@
                   width="auto"
                   class="text-h7 mb-1 pa-5 px-15 text-start"
                   elevation="2"
+                  color="primary"
+                  dark
                 >
-                  Year: {{ total.year }} <br />
-                  Total RX: {{ total.total_rx }} GB <br />
-                  Total TX: {{ total.total_tx }} GB
+                  <v-card-text>
+                    <v-row align="start" justify="start">
+                      <v-col md="auto">
+                        <div class="text-center">{{ current_month.month }}</div>
+                        <div>RX: {{ current_month.total_rx }} GB</div>
+                        <div>TX: {{ current_month.total_tx }} GB</div>
+                      </v-col>
+
+                      <v-divider vertical class="mx-5" />
+
+                      <v-col md="auto">
+                        <div class="text-center">{{ total.year }}</div>
+                        <div>Total RX: {{ total.total_rx }} GB</div>
+                        <div>Total TX: {{ total.total_tx }} GB</div>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
                 </v-card>
               </v-col>
             </v-row>
@@ -114,6 +130,7 @@ export default Vue.extend({
         },
       ],
       total: {},
+      current_month: {},
     };
   },
   async mounted() {
@@ -122,10 +139,9 @@ export default Vue.extend({
       this.series[0].data.push(data.result[i].total_rx);
       this.series[1].data.push(data.result[i].total_tx);
     });
-    this.chartOptions.xaxis.categories = data.months.map(
-      (number) => `Month(${number})`
-    );
+    this.chartOptions.xaxis.categories = data.months;
     this.total = data.total;
+    this.current_month = data.current_month;
   },
 });
 </script>
