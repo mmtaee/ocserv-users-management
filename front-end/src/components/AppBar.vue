@@ -62,11 +62,11 @@ export default Vue.extend({
           icon: "mdi-chart-bar",
           to: "/stats",
         },
-        // {
-        //   title: "Logs",
-        //   icon: "mdi-math-log",
-        //   to: "/logs",
-        // },
+        {
+          title: "System",
+          icon: "mdi-linux",
+          to: "/system",
+        },
         {
           title: "Configuration",
           icon: "mdi-cog-outline",

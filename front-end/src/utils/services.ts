@@ -248,11 +248,47 @@ class StatsServiceApi extends Services {
     this.path = "";
     return this.request();
   }
-  // public async reload(): Promise<null> {
-  //   this.method = "get";
-  //   this.path = "reload/";
-  //   return this.request();
-  // }
+}
+
+class SystemServiceApi extends Services {
+  constructor() {
+    super();
+    this.baseUrl = "/system/";
+    this.method = "";
+    this.path = "";
+  }
+  public async get_action_logs(): Promise<{ logs: string[] }> {
+    this.method = "get";
+    this.path = "action/list/";
+    return this.request();
+  }
+  public async clear_action_logs(): Promise<null> {
+    this.method = "delete";
+    this.path = "action/clear/";
+    return this.request();
+  }
+  public async ocserv_status(): Promise<{
+    status: string[];
+    dockerized?: boolean;
+  }> {
+    this.method = "get";
+    this.path = "ocserv/status";
+    return this.request();
+  }
+  public async ocserv_restart(): Promise<{
+    status: string[];
+    dockerized?: boolean;
+  }> {
+    this.method = "get";
+    this.path = "ocserv/restart";
+    return this.request();
+  }
+  public async journal(lines?: number): Promise<{ logs: string[] }> {
+    if (!Boolean(lines)) lines = 20;
+    this.method = "get";
+    this.path = `ocserv/journal/?lines=${lines}`;
+    return this.request();
+  }
 }
 
 const adminServiceApi = new AdminServiceApi();
@@ -260,10 +296,12 @@ const ocservUserApi = new OcservUserApi();
 const ocservGroupApi = new OcservGroupApi();
 const occtlServiceApi = new OcctlServiceApi();
 const statsServiceApi = new StatsServiceApi();
+const systemServiceApi = new SystemServiceApi();
 export {
   adminServiceApi,
   ocservUserApi,
   ocservGroupApi,
   occtlServiceApi,
   statsServiceApi,
+  systemServiceApi,
 };

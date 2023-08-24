@@ -83,11 +83,11 @@ const routes: RouteConfig[] = [
     }
   },
   {
-    path: '/logs',
-    name: "Logs",
-    component: () => import("@/views/Logs.vue"),
+    path: '/system',
+    name: "System",
+    component: () => import("@/views/System.vue"),
     meta: {
-      title: "Logs",
+      title: "System",
       requireAuth: true
     }
   },
