@@ -21,7 +21,7 @@ class Logger:
 
     def clear(self):
         with open(self.LOG_PATH, "w") as f:
-            f.write("Log clear by admin")
+            f.write("## Logs cleared by admin")
             f.close()
 
     def read(self):

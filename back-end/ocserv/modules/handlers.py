@@ -2,6 +2,8 @@ import json
 import os
 import subprocess
 
+from django.conf import settings
+
 from ocserv.modules.logger import Logger
 from ocserv.modules.methods import user_key_creator, ip_bans_creator
 
@@ -10,8 +12,16 @@ logger = Logger()
 
 class OcservServiceHandler:
     @staticmethod
-    def subprocess_handler(mode="status"):
-        p = subprocess.Popen(["sudo", "systemctl", mode, "ocserv.service", "--output=json-pretty"], stdout=subprocess.PIPE)
+    def subprocess_handler(mode="status", **kwargs):
+        lines = kwargs.get("lines", 20)
+        if settings.DOCKERIZED:
+            command = ["tail", settings.OCSERV_LOG_FILE, f"-n {lines}"]
+        else:
+            if mode == "journal":
+                command = ["sudo", "journalctl", "ocserv.service", f"-n {lines}"]
+            else:
+                command = ["sudo", "systemctl", mode, "ocserv.service", "--output=json-pretty"]
+        p = subprocess.Popen(command, stdout=subprocess.PIPE)
         (output, err) = p.communicate()
         output = output.decode("utf-8")
         if err:
@@ -25,6 +35,11 @@ class OcservServiceHandler:
 
     def restart(self):
         self.subprocess_handler(mode="restart")
+        output = self.subprocess_handler()
+        return output
+
+    def journalctl(self, lines):
+        self.subprocess_handler(mode="journal", **{"lines": lines})
         output = self.subprocess_handler()
         return output
 
@@ -262,7 +277,9 @@ class OcctlHandler:
         else:
             result = {action.replace(" ", "_"): self.output(action)}
         if "show_users" in result or "show_user" in result:
-            result["show_users"] = user_key_creator(result["show_users"] if "show_users" in result else result["show_user"])
+            result["show_users"] = user_key_creator(
+                result["show_users"] if "show_users" in result else result["show_user"]
+            )
             result.pop("show_user", None)
         if "show_ip_bans" in result or "show_ip_ban_points" in result:
             result["show_ip_bans"] = ip_bans_creator(

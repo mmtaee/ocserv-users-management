@@ -12,9 +12,9 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
     username = None
     logger = Logger()
     cmd = "journalctl -fu ocserv"
-    if logfile := os.environ.get("LOG_FILE"):
+    if logfile := os.environ.get("OCSERV_LOG_FILE"):
         cmd = f"tail -f {logfile}"
-    print(cmd)
+    print("[check_stats_service] started")
     process = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE)
     last_log_entry = "start script"
     while True:
@@ -33,9 +33,9 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
                     tx = Decimal(float(tx_match.group(1)) / (1024**3))
                 if not username:
                     raise ValueError()
-                print("username: ", username)
-                print("rx: ", rx)
-                print("tx: ", tx)
+                # print("username: ", username)
+                # print("rx: ", rx)
+                # print("tx: ", tx)
             except Exception as e:
                 logger.log(level="critical", message=e)
                 logger.log(level="critical", message="unprocessable ocserv log to calculate user-rx and user-tx")
@@ -61,7 +61,9 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
                         ocserv_user.deactivate_date = datetime.now()
                         logger.log(level="info", message=f"{ocserv_user.username} is deactivated")
                     else:
-                        logger.log(level="critical", message=f"deactivate for user with that username ({username}) failed")
+                        logger.log(
+                            level="critical", message=f"deactivate for user with that username ({username}) failed"
+                        )
                 ocserv_user.save()
             except OcservUser.DoesNotExist():
                 logger.log(level="warning", message=f"user with that username ({username}) does not exists in db")

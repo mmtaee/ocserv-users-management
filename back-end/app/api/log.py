@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -13,29 +14,31 @@ logger = Logger()
 
 class SystemViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
-    @action(detail=False, methods=["GET"], url_path="action_log/list")
+
+    @action(detail=False, methods=["GET"], url_path="action/list")
     def action_log_list(self, request):
         logs = logger.read()
         return Response({"logs": logs})
 
-    @action(detail=False, methods=["DELETE"], url_path="action_log/clear")
+    @action(detail=False, methods=["DELETE"], url_path="action/clear")
     def clear_action_log(self, request):
         logger.clear()
         return Response(status=204)
 
-    @action(detail=False, methods=["GET"], url_path="ocserv/service/status")
-    def ocserv_service_status(self):
+    @action(detail=False, methods=["GET"], url_path="ocserv/status")
+    def ocserv_service_status(self, request):
         status = service_handler.status()
-        return Response({"status": status})
+        return Response({"status": status, "dockerized": settings.DOCKERIZED})
 
-    @action(detail=False, methods=["GET"], url_path="ocserv/service/logs")
-    def ocserv_service_log(self, request):
-        lines = request.GET.get("lines", 20)
-        logs = service_handler.journalctl_log(lines)
-        return Response({"logs": logs})
-
-    @custom_throttle(rate="1/minute")
-    @action(detail=False, methods=["GET"], url_path="ocserv/service/restart")
+    @custom_throttle(rate="1/hour", check_docker=True)
+    @action(detail=False, methods=["GET"], url_path="ocserv/restart")
     def ocserv_service_restart(self, request):
         service_handler.restart()
-        return Response(status=202)
+        status = service_handler.status()
+        return Response({"status": status, "dockerized": settings.DOCKERIZED}, status=202)
+
+    @action(detail=False, methods=["GET"], url_path="ocserv/journal")
+    def ocserv_service_journal(self, request):
+        lines = request.GET.get("lines", 20)
+        logs = service_handler.journalctl(lines)
+        return Response({"logs": logs})

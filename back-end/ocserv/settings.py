@@ -163,3 +163,6 @@ OSCERV_CONFIG_KEYS = [
     "session-timeout",
 ]
 
+DOCKERIZED = os.environ.get("DOCKERIZED", config("DOCKERIZED", "False")).title() == "True"
+
+OCSERV_LOG_FILE = os.environ.get("OCSERV_LOG_FILE", config("OCSERV_LOG_FILE", None))
