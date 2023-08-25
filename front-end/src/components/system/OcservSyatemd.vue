@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card height="600">
+    <v-card height="710">
       <v-card-subtitle>
         <v-row align="center" justify="center" class="mt-2">
           <v-col md="auto" class="mx-2 ma-0 pa-0">
@@ -14,6 +14,16 @@
             </v-btn>
           </v-col>
         </v-row>
+        <v-row align="center" justify="start" class="mt-10">
+          <v-col md="12" class="info--text py-0 my-1">
+            <v-icon color="info">mdi-lightbulb-on-outline</v-icon>
+            (Systemd mode) Restarting the ocserv service is allowed only 1 time per minute.
+          </v-col>
+          <v-col md="12" class="info--text py-0 my-1" v-if="dockerized">
+            <v-icon color="info">mdi-lightbulb-on-outline</v-icon>
+            (Dockerize mode) The restart operation only shows system log results.
+          </v-col>
+        </v-row>
       </v-card-subtitle>
       <v-divider class="mt-5 mb-2" />
       <v-card-text>
@@ -21,7 +31,7 @@
           <div v-if="dockerized" class="info--text text-h6 mb-2">
             Note: Result is From Docker service Container
           </div>
-          <div v-else>Result:</div>
+          <div v-else class="info--text text-h6 mb-2">Result:</div>
           <div v-for="(line, index) in status" :key="index">
             {{ line }}
           </div>
@@ -43,6 +53,10 @@ export default Vue.extend({
       status: [],
       dockerized: false,
     };
+  },
+
+  mounted(){
+    this.checkStatus()  
   },
 
   methods: {

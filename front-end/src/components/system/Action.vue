@@ -2,6 +2,12 @@
   <v-card>
     <v-card-subtitle>
       <v-row align="center" justify="end">
+        <v-col md="auto" class="pa-0 ma-0">
+          <v-btn @click="init" outlined>
+            refresh
+            <v-icon right>mdi-refresh</v-icon>
+          </v-btn>
+        </v-col>
         <v-col md="auto">
           <v-btn
             outlined
@@ -39,8 +45,7 @@ export default Vue.extend({
   },
 
   async mounted() {
-    let data = await systemServiceApi.get_action_logs();
-    this.logs = data.logs;
+    await this.init();
   },
 
   computed: {
@@ -51,6 +56,10 @@ export default Vue.extend({
   },
 
   methods: {
+    async init() {
+      let data = await systemServiceApi.get_action_logs();
+      this.logs = data.logs;
+    },
     async clearLogs() {
       await systemServiceApi.clear_action_logs();
       this.logs = [];

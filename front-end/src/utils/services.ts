@@ -21,6 +21,7 @@ class Services {
   public baseUrl: string = "";
   public path: string = "";
   public params: URLParams | null = null;
+  public overlay: boolean = true;
   private axiosMethods: { [K: string]: Function } = {
     get: _axios.get,
     post: _axios.post,
@@ -30,10 +31,12 @@ class Services {
   };
 
   public async request(data?: any): Promise<any> {
-    store.commit("setLoadingOverlay", {
-      active: true,
-      text: "Requesting ...",
-    });
+    if (this.overlay) {
+      store.commit("setLoadingOverlay", {
+        active: true,
+        text: "Requesting ...",
+      });
+    }
     var url: string = this.baseUrl + this.path;
     if (this.params) {
       url += "?";
@@ -89,10 +92,12 @@ class Services {
         return Promise.reject(error);
       })
       .finally((_: null) => {
-        store.commit("setLoadingOverlay", {
-          active: false,
-          text: null,
-        });
+        if (this.overlay) {
+          store.commit("setLoadingOverlay", {
+            active: false,
+            text: null,
+          });
+        }
       });
   }
 
@@ -283,7 +288,11 @@ class SystemServiceApi extends Services {
     this.path = "ocserv/restart";
     return this.request();
   }
-  public async journal(lines?: number): Promise<{ logs: string[] }> {
+  public async journal(
+    lines?: number,
+    overlay: boolean = true
+  ): Promise<{ logs: string[] }> {
+    this.overlay = overlay;
     if (!Boolean(lines)) lines = 20;
     this.method = "get";
     this.path = `ocserv/journal/?lines=${lines}`;
@@ -297,6 +306,7 @@ const ocservGroupApi = new OcservGroupApi();
 const occtlServiceApi = new OcctlServiceApi();
 const statsServiceApi = new StatsServiceApi();
 const systemServiceApi = new SystemServiceApi();
+
 export {
   adminServiceApi,
   ocservUserApi,

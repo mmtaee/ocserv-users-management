@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row align="center" justify="start" class="mb-5">
+    <v-row align="center" justify="start" class="mb-5 mx-1">
       <v-col md="2" align-self="start" class="ma-0 pa-0">
         <v-switch v-model="autoRefresh" inset class="ms-3" color="primary">
           <template v-slot:label>
@@ -11,69 +11,54 @@
         </v-switch>
       </v-col>
 
+      <v-col md="1" align-self="start" class="ma-0 pa-0">
+        <v-text-field
+          v-model.number="intervalTimeClone"
+          label="Refresh Time"
+          hint="Refresh Time"
+          persistent-hint
+          single-line
+          :rules="rules.required"
+          @change="intervalTime=intervalTimeClone"
+        />
+      </v-col>
+
       <v-spacer />
 
       <v-col md="4" align-self="start" class="ma-0 pa-0">
         <v-row align="center" justify="end">
-          <v-col md="8">
+          <v-col md="auto">
             <v-text-field
               v-model="lines"
               label="Journalctl lines"
-              hint="Journalctl -n ${lines} ocserv.service, blank=20"
+              :hint="`Journalctl -n ${lines} ocserv.service`"
               single-line
               persistent-hint
               :rules="rules.required"
             />
           </v-col>
 
-          <v-col md="auto">
+          <v-col md="auto" class="mt-3">
             <v-btn
               small
               outlined
               color="primary"
-              @click="getJournal()"
+              @click="getJournal(false, true)"
               :disabled="lines ? false : true"
             >
-              Get
+              Refresh
             </v-btn>
           </v-col>
         </v-row>
       </v-col>
     </v-row>
-
-    <div v-if="journalData.length">
-      <div v-for="(line, index) in journalData" :key="index">
-        {{ index + 1 }}- {{ line }}
-      </div>
+    <div class="black white--text py-5">
+      <v-virtual-scroll height="640" item-height="20" :items="journalData">
+        <template v-slot:default="{ index, item }">
+          <span class="pa-8">{{ index + 1 }}- {{ item }}</span>
+        </template>
+      </v-virtual-scroll>
     </div>
-
-    <v-dialog v-model="dialogJournal" width="450">
-      <v-card>
-        <v-card-title class="grey white--text">
-          Ocserv Service Journalctl
-          <v-spacer v-if="dialogJournal" />
-          <v-btn icon @click="dialogJournal = false">
-            <v-icon color="white">mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-        <v-card-text>
-          <v-row align="center" justify="center">
-            <v-col md="9">
-              <v-text-field
-                v-model.number="lines"
-                label="Number of lines"
-                single-line
-                hint="journalctl -n ${lines} ocserv.service. blank=20"
-                persistent-hint
-              />
-            </v-col>
-            <v-col md="auto">
-              <v-btn outlined color="primary" @click="getJournal">Get</v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -84,40 +69,57 @@ import Vue from "vue";
 export default Vue.extend({
   name: "Journal",
   data(): {
-    lines: number | null;
+    lines: number;
+    cloneLines: number;
     journalData: string[];
-    dialogJournal: boolean;
     autoRefresh: boolean;
     rules: object;
     intervalTime: number;
     intervalTimeDefault: number;
     intervalId: null | number;
+    intervalTimeClone: number;
   } {
     return {
-      lines: 20,
+      lines: 100,
+      cloneLines: 0,
       journalData: [],
-      dialogJournal: false,
       autoRefresh: true,
       rules: {
         required: [required],
       },
-      intervalTimeDefault: 15,
+      intervalTimeDefault: 60,
       intervalTime: 0,
       intervalId: null,
+      intervalTimeClone: 0,
     };
   },
 
   mounted() {
+    this.intervalTimeClone = this.intervalTime
+    this.cloneLines = this.lines
     this.getJournal();
   },
 
   methods: {
-    async getJournal() {
-      let data = await systemServiceApi.journal(this.lines || 20);
-      this.journalData = data.logs;
-      this.dialogJournal = false;
+    async getJournal(overlay: boolean = true, reset: boolean = false) {
+      let data = await systemServiceApi.journal(this.lines, overlay);
+      if (reset) {
+        this.cloneLines = this.lines;
+        this.journalData = data.logs;
+      }
+      this.makeSetLogs(data.logs);
     },
-    makeSetLogs() {},
+
+    makeSetLogs(logs: string[]) {
+      const newElements = logs.filter(
+        (item) => !this.journalData.includes(item)
+      );
+      this.journalData.push(...newElements);
+      if (this.journalData.length > this.cloneLines) {
+        let extraLines = this.journalData.length - this.cloneLines;
+        this.journalData.splice(0, extraLines);
+      }
+    },
   },
 
   watch: {
@@ -130,7 +132,7 @@ export default Vue.extend({
             if (this.intervalTime > 0) {
               this.intervalTime--;
             } else {
-              this.getJournal();
+              this.getJournal(false);
               this.intervalTime = this.intervalTimeDefault;
             }
           }, 1000);

@@ -30,7 +30,7 @@ class SystemViewSet(viewsets.ViewSet):
         status = service_handler.status()
         return Response({"status": status, "dockerized": settings.DOCKERIZED})
 
-    @custom_throttle(rate="1/hour", check_docker=True)
+    @custom_throttle(rate="1/minute", check_docker=True)
     @action(detail=False, methods=["GET"], url_path="ocserv/restart")
     def ocserv_service_restart(self, request):
         service_handler.restart()

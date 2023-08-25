@@ -6,7 +6,7 @@
           class="text-center align-center justify-center"
           flat
           width="1400"
-          min-height="800"
+          min-height="880"
         >
           <v-card-subtitle class="text-h5 grey darken-1 mb-8 white--text">
             <span class="mb-10">System Logs & Services</span>
@@ -38,7 +38,10 @@
               >
                 <v-card flat>
                   <v-card-text>
-                    <component :is="tab.component" v-if="tab.component" />
+                    <component
+                      :is="tab.component"
+                      v-if="subTabs == 'tab-' + index"
+                    />
                   </v-card-text>
                 </v-card>
               </v-tab-item>
