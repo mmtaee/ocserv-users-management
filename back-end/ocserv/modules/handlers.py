@@ -39,9 +39,7 @@ class OcservServiceHandler:
         return output
 
     def journalctl(self, lines):
-        self.subprocess_handler(mode="journal", **{"lines": lines})
-        output = self.subprocess_handler()
-        return output
+        return self.subprocess_handler(mode="journal", **{"lines": lines})
 
 
 class OcservGroupHandler:

@@ -1,7 +1,7 @@
 from rest_framework.routers import DefaultRouter
 
 from app.api.admin import AdminViewSet
-from app.api.log import SystemViewSet
+from app.api.system import SystemViewSet
 from app.api.occtl import OcctlViewSet
 from app.api.ocserv_groups import OcservGroupsViewSet
 from app.api.ocserv_users import OcservUsersViewSet
