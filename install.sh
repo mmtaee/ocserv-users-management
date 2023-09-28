@@ -5,7 +5,9 @@ if [[ $(id -u) != "0" ]]; then
     exit 1
 fi
 
-if [ ! -x /usr/bin/dialog ]; then
+which dialog &> /dev/null
+
+if [  $? -ne 0 ]; then
     apt-get install dialog -y
 fi
 
