@@ -11,9 +11,9 @@ if [[ "$DOMAIN" =~ $VALIDATE ]]; then
 upstream api_backend {
     server ocserv_and_backend:8000;
 }
-upstream monitoring {
-    server monitor:8080;
-}
+# upstream monitoring {
+#     server monitor:8080;
+# }
 server {
     listen 80;
     server_name ${DOMAIN} ;
@@ -38,13 +38,13 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Host $host;
     }
-    location /ws {
-        rewrite ^/ws(.*)$ $1 break;
-        proxy_pass http://monitoring;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
-    }
+    # location /ws {
+    #     rewrite ^/ws(.*)$ $1 break;
+    #     proxy_pass http://monitoring;
+    #     proxy_http_version 1.1;
+    #     proxy_set_header Upgrade $http_upgrade;
+    #     proxy_set_header Connection "Upgrade";
+    # }
 }
 EOT
     envsubst '$DOMAIN' </tmp/site.conf.template >/etc/nginx/conf.d/site.conf
@@ -53,9 +53,9 @@ else
 upstream api_backend {
     server ocserv_and_backend:8000;
 }
-upstream monitoring {
-    server monitor:8080;
-}
+# upstream monitoring {
+#     server monitor:8080;
+# }
 server {
     listen 80;
     location / {
@@ -70,13 +70,13 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Host $host;
     }
-    location /ws {
-        rewrite ^/ws(.*)$ $1 break;
-        proxy_pass http://monitoring;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
-    }
+    # location /ws {
+    #     rewrite ^/ws(.*)$ $1 break;
+    #     proxy_pass http://monitoring;
+    #     proxy_http_version 1.1;
+    #     proxy_set_header Upgrade $http_upgrade;
+    #     proxy_set_header Connection "Upgrade";
+    # }
 }
 EOT
 fi

@@ -3,6 +3,13 @@ OCSERV_LOG_FILE=/var/log/ocserv.log
 BACKEND=0.0.0.0:8000
 
 pidfile=/run/ocserv.pid
+
+if [ ! -f "${OCSERV_LOG_FILE}" ]; then
+    touch "${OCSERV_LOG_FILE}"
+    chmod +x "${OCSERV_LOG_FILE}"
+fi
+
+
 # ocserv service
 printf "\e[33m########### ocserv service starting ... ###########\e[0m"
 printf "\n"
