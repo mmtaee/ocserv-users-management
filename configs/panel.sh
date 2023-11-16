@@ -94,12 +94,6 @@ server {
 }
 EOT
 
-# monitor service
-# cp -r ${CURRENT_DIR}/monitor /opt/monitor
-# cp /opt/monitor/monitor.service /lib/systemd/system/monitor.service
-# systemctl restart monitor.service
-# systemctl enable monitor.service
-
 chown -R www-data. /etc/nginx/conf.d/site.conf
 chown -R www-data. ${SITE_DIR}
 

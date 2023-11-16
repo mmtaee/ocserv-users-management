@@ -1,8 +1,5 @@
 version: "3.9"
 
-volumes:
-  shared-mointor:
-
 services:
   ocserv_and_backend:
     restart: always
@@ -21,23 +18,6 @@ services:
     volumes:
       - ./back-end:/app
       - ./volumes/ocserv:/etc/ocserv
-      - shared-mointor:/var/log
-
-  # monitor:
-  #   image: monitor:ocserv_dev
-  #   container_name: monitor_dev
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.Monitor
-  #   ports:
-  #     - 127.0.0.1:8080:8080
-  #   environment:
-  #     - SOCKET_PASSWD_FILE=/tmp/socket_passwd
-  #     - LOG_FILE=/var/log/ocserv.log
-  #   volumes:
-  #     - shared-mointor:/shared_mointor
-  #   depends_on:
-  #     - ocserv_and_backend
 #
 #
 #
