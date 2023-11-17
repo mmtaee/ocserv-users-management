@@ -16,10 +16,10 @@ class OcservGroupsViewSet(viewsets.ViewSet):
     def list(self, request):
         groups = OcservGroup.objects.all()
         if request.GET.get("args") != "defaults":
-            groups = groups.exclude(name="defaults")
+            groups = groups.exclude(name="defaults").order_by("id")
         if name := request.GET.get("name"):
-            groups = groups.filter(name__icontains=name)
-        data = pagination(request, groups.order_by("-id"), OcservGroupSerializer)
+            groups = groups.filter(name__icontains=name).order_by("-id")
+        data = pagination(request, groups, OcservGroupSerializer)
         return Response(data)
 
     def create(self, request):
