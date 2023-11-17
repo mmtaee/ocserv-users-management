@@ -9,12 +9,11 @@ if [ ! -f "${OCSERV_LOG_FILE}" ]; then
     chmod +x "${OCSERV_LOG_FILE}"
 fi
 
-
 # ocserv service
 printf "\e[33m########### ocserv service starting ... ###########\e[0m"
 printf "\n"
-/usr/sbin/ocserv --debug=2 --foreground --config=/etc/ocserv/ocserv.conf --pid-file=${pidfile} 2>&1 | tee ${LOG_FILE} &
-# /usr/sbin/ocserv -c /etc/ocserv/ocserv.conf -f 2>&1 > /tmp/log.txt &
+cd ${LOG_FILE}
+/usr/sbin/ocserv --debug=2 --foreground --pid-file=${pidfile} --config=/etc/ocserv/ocserv.conf >${OCSERV_LOG_FILE} 2>&1 &
 
 # django service
 printf "\e[33m########### backend service starting ... ###########\e[0m"

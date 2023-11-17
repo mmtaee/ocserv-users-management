@@ -127,7 +127,7 @@ chmod 600 /dev/net/tun
 cat <<\EOT >/etc/logrotate.d/ocserv
 /var/log/ocserv.log {
     daily
-    size 500M
+    size 1000M
     rotate 2
     missingok
     notifempty
