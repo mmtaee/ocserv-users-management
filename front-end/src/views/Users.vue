@@ -127,11 +127,11 @@
               </template>
 
               <template v-slot:[`item.expire_date`]="{ item }">
-                <span class="primary--text">Create Date:</span>
+                <span class="primary--text">Create Date: </span>
                 {{ item.create }}
                 <br />
-                <span class="primary--text">Expire Date:</span>
-                {{ item.expire_date }}
+                <span class="primary--text">Expire Date: </span>
+                {{ item.expire_date || '- - - - - - - - - -' }}
                 <br />
               </template>
 
