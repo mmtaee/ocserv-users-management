@@ -116,11 +116,7 @@ _EOF_
 fi
 
 echo -e "\e[0;32m"Adding iptables rules."\e[0m"
-iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT
-iptables -I INPUT -p udp --dport ${PORT} -j ACCEPT
-iptables -I FORWARD -s ${OC_NET} -j ACCEPT
-iptables -I FORWARD -d ${OC_NET} -j ACCEPT
-iptables -t nat -A POSTROUTING -s ${OC_NET} -o ${ETH} -j MASQUERADE
+iptables -t nat -A POSTROUTING -j MASQUERADE
 
 sysctl -w net.ipv4.ip_forward=1 # ipv4 ip forward
 mkdir -p /dev/net               #TUN device
