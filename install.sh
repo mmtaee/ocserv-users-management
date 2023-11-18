@@ -111,6 +111,16 @@ GetPort() {
     color_echo "36;1" "Ocserv Port: ${PORT}"
 }
 
+GetDNS() {
+    printf "\n"
+    DNS="8.8.8.8"
+    read -p "Enter Your DNS or let it blank to use ${DNS}: " dns
+    if [[ -n "${dns}" ]]; then
+        DNS=${dns}
+    fi
+    color_echo "36;1" "DNS: ${DNS}"
+}
+
 GetOcservVars() {
     printf "\n"
     CN="End-way-Cisco-VPN"
@@ -180,6 +190,8 @@ GetDomain
 
 GetPort
 
+GetDNS
+
 GetOcservVars
 
 if [[ $mode != '1' ]]; then
@@ -194,7 +206,7 @@ export CN ORG EXPIRE OC_NET DOMAIN HOST PORT
 
 if [[ $mode == '1' ]]; then
     UpdateDockerProdEnv
-    DOCKER_VARS="CN=${CN} ORG=${ORG} EXPIRE=${EXPIRE} OC_NET=${OC_NET} DOMAIN=${DOMAIN} HOST=${HOST} PORT=${PORT}"
+    DOCKER_VARS="CN=${CN} ORG=${ORG} EXPIRE=${EXPIRE} OC_NET=${OC_NET} DOMAIN=${DOMAIN} HOST=${HOST} PORT=${PORT} DNS=${DNS}"
     BUILD="DOCKER_SCAN_SUGGEST=false ${DOCKER_VARS} docker compose up --build"
     eval ${BUILD}
 elif [[ $mode == '2' ]]; then
