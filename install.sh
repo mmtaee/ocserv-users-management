@@ -190,16 +190,16 @@ fi
 
 color_echo "35;1" "Installing ${selected_mode} .............."
 
-VARS="CN=${CN} ORG=${ORG} EXPIRE=${EXPIRE} OC_NET=${OC_NET} DOMAIN=${DOMAIN} HOST=${HOST} PORT=${PORT}"
+export CN ORG EXPIRE OC_NET DOMAIN HOST PORT
 
 if [[ $mode == '1' ]]; then
     UpdateDockerProdEnv
-
-    BUILD="DOCKER_SCAN_SUGGEST=false ${VARS} docker compose up --build"
+    DOCKER_VARS="CN=${CN} ORG=${ORG} EXPIRE=${EXPIRE} OC_NET=${OC_NET} DOMAIN=${DOMAIN} HOST=${HOST} PORT=${PORT}"
+    BUILD="DOCKER_SCAN_SUGGEST=false ${DOCKER_VARS} docker compose up --build"
     eval ${BUILD}
 elif [[ $mode == '2' ]]; then
-    ${VARS} ./configs/ocserv.sh
-    ${VARS} ./configs/panel.sh
+    ./configs/ocserv.sh
+    ./configs/panel.sh
 elif [[ $mode == '3' ]]; then
-    ${VARS} ./configs/panel.sh
+    ./configs/panel.sh
 fi
