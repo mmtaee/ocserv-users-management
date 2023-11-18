@@ -140,4 +140,3 @@ else
     echo -e "\e[0;31m"Ocserv Is Not Running."\e[0m"
     exit 1
 fi
-566

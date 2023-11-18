@@ -142,18 +142,18 @@ GetOcservVars() {
     color_echo "36;1" "Your ocserv ipv4-network: ${OC_NET}\n"
 }
 
-UpdateIpTables() {
-    color_echo "35;3" "Installing iptables-persistent ..."
-    apt install -y iptables-persistent
-    iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT
-    iptables -I INPUT -p udp --dport ${PORT} -j ACCEPT
-    iptables -I FORWARD -s ${OC_NET} -j ACCEPT
-    iptables -I FORWARD -d ${OC_NET} -j ACCEPT
-    iptables -t nat -A POSTROUTING -s ${OC_NET} -o ${ETH} -j MASQUERADE
-    #iptables -t nat -A POSTROUTING -j MASQUERADE
-    sh -c "iptables-save > /etc/iptables/rules.v4"
-    sh -c "ip6tables-save > /etc/iptables/rules.v6"
-}
+# UpdateIpTables() {
+#     color_echo "35;3" "Installing iptables-persistent ..."
+#     apt install -y iptables-persistent
+#     iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT
+#     iptables -I INPUT -p udp --dport ${PORT} -j ACCEPT
+#     iptables -I FORWARD -s ${OC_NET} -j ACCEPT
+#     iptables -I FORWARD -d ${OC_NET} -j ACCEPT
+#     iptables -t nat -A POSTROUTING -s ${OC_NET} -o ${ETH} -j MASQUERADE
+#     #iptables -t nat -A POSTROUTING -j MASQUERADE
+#     sh -c "iptables-save > /etc/iptables/rules.v4"
+#     sh -c "ip6tables-save > /etc/iptables/rules.v6"
+# }
 
 UpdateDockerProdEnv() {
     file_path="./prod.env"
@@ -186,7 +186,6 @@ if [[ $mode != '1' ]]; then
     chmod +x ./configs/ocserv.sh
     chmod +x ./configs/panel.sh
     GetInterface
-    UpdateIpTables
 fi
 
 color_echo "35;1" "Installing ${selected_mode} .............."
