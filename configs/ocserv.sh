@@ -132,7 +132,7 @@ echo net.ipv4.ip_forward = 1 >>"/etc/sysctl.conf"
 systemctl daemon-reload
 echo "Enable ocserv service to start during bootup."
 systemctl enable ocserv.service
-systemctl start ocserv.service
+systemctl restart ocserv.service
 OCSERV_STATE=$(systemctl is-active ocserv)
 if [ "$OCSERV_STATE" = "active" ]; then
     echo -e "\e[0;32m"Ocserv Is Started."\e[0m"
