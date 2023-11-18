@@ -258,7 +258,6 @@ export default Vue.extend({
           newConfigs[key] = val;
         }
       });
-      console.log(newConfigs);
       if (this.vmodelEmit) this.$emit("input", newConfigs);
       else this.$emit("configs", newConfigs);
     },
@@ -302,7 +301,7 @@ export default Vue.extend({
     initInput: {
       immediate: true,
       handler() {
-        if (this.initInput) this.configs = { ...this.initInput };
+        if (Boolean(this.initInput) && Object.keys(this.initInput).length) this.configs = { ...this.initInput };       
       },
     },
   },
