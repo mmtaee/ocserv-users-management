@@ -207,7 +207,7 @@ export CN ORG EXPIRE OC_NET DOMAIN HOST PORT
 if [[ $mode == '1' ]]; then
     UpdateDockerProdEnv
     DOCKER_VARS="CN=${CN} ORG=${ORG} EXPIRE=${EXPIRE} OC_NET=${OC_NET} DOMAIN=${DOMAIN} HOST=${HOST} PORT=${PORT} DNS=${DNS}"
-    BUILD="DOCKER_SCAN_SUGGEST=false ${DOCKER_VARS} docker compose up --build"
+    BUILD="DOCKER_SCAN_SUGGEST=false ${DOCKER_VARS} docker compose up -d --build"
     eval ${BUILD}
 elif [[ $mode == '2' ]]; then
     ./configs/ocserv.sh
