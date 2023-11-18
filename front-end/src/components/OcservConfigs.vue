@@ -33,6 +33,65 @@
           clearable
         />
       </v-col>
+      <v-col md="6" class="my-0 py-0">
+        <v-text-field
+          v-model="route"
+          label="routes"
+          :outlined="outlined"
+          dense
+          clearable
+          class="ma-0 pa-0 mb-1"
+          hide-details
+          append-icon="mdi-content-save-outline"
+          @click:append="updateRoutes(route), (route = null)"
+          @keyup.enter="updateRoutes(route), (route = null)"
+        />
+      </v-col>
+      <v-col md="6" class="my-0 py-0">
+        <v-text-field
+          v-model="noRoute"
+          label="no routes"
+          :outlined="outlined"
+          dense
+          clearable
+          class="ma-0 pa-0 mb-1"
+          hide-details
+          append-icon="mdi-content-save-outline"
+          @click:append="updateNo_routes(noRoute), (noRoute = null)"
+          @keyup.enter="updateNo_routes(noRoute), (noRoute = null)"
+        />
+      </v-col>
+
+      <v-col md="6" class="mb-5 text-start">
+        <v-card outlined class="ma-0 pa-0 overflow-auto" height="200">
+          <v-chip
+            v-for="(item, index) in configs['routes']"
+            :key="index"
+            class="ma-2"
+            close
+            color="primary"
+            outlined
+            @click:close="removeRoute(item)"
+          >
+            {{ item }}
+          </v-chip>
+        </v-card>
+      </v-col>
+      <v-col md="6" class="mb-5 text-start">
+        <v-card outlined class="ma-0 pa-0 overflow-auto" height="200">
+          <v-chip
+            v-for="(item, index) in configs['no_routes']"
+            :key="index"
+            class="ma-2"
+            close
+            color="primary"
+            outlined
+            @click:close="removeNoRoute(item)"
+          >
+            {{ item }}
+          </v-chip>
+        </v-card>
+      </v-col>
     </v-row>
   </v-form>
 </template>
@@ -40,6 +99,10 @@
 import Vue from "vue";
 import { OcservConfigItems } from "@/utils/types";
 import { number, ip } from "@/utils/rules";
+
+interface Configs {
+  [key: string]: any;
+}
 
 export default Vue.extend({
   name: "OcservConfigs",
@@ -71,9 +134,18 @@ export default Vue.extend({
   },
   data(): {
     OcservconfigItems: OcservConfigItems[];
-    configs: object;
+    configs: Configs;
+    route: string | null;
+    noRoute: string | null;
+    test: object;
   } {
     return {
+      configs: {
+        routes: [],
+        no_routes: [],
+      },
+      route: null,
+      noRoute: null,
       OcservconfigItems: [
         {
           label: "RX Data(bytes/sec)",
@@ -93,14 +165,18 @@ export default Vue.extend({
           type: "text",
           rules: [number],
         },
+        { label: "DNS-1", model: "dns1", type: "text", rules: [ip] },
+        { label: "DNS-2", model: "dns2", type: "text", rules: [ip] },
+        { label: "DNS-3", model: "dns3", type: "text", rules: [ip] },
+        { label: "DNS-4", model: "dns3", type: "text", rules: [ip] },
+        { label: "DNS-5", model: "dns3", type: "text", rules: [ip] },
+        { label: "DNS-6", model: "dns3", type: "text", rules: [ip] },
         {
           label: "IPV4 Network",
           model: "ipv4-network",
           type: "text",
           rules: [ip],
         },
-        { label: "DNS-1", model: "dns1", type: "text", rules: [ip] },
-        { label: "DNS-2", model: "dns2", type: "text", rules: [ip] },
         {
           label: "No UDP",
           model: "no-udp",
@@ -167,9 +243,13 @@ export default Vue.extend({
           rules: [number],
         },
       ],
-      configs: {},
+      test: {
+        xc: 1,
+        xy: 2,
+      },
     };
   },
+
   methods: {
     emitter() {
       const newConfigs: { [key: string]: any } = {};
@@ -182,13 +262,47 @@ export default Vue.extend({
       if (this.vmodelEmit) this.$emit("input", newConfigs);
       else this.$emit("configs", newConfigs);
     },
+
+    updateRoutes(route: string | null) {
+      if (
+        Boolean(route) &&
+        !this.configs.routes.find((elm: string) => elm == route)
+      ) {
+        this.configs.routes.push(route);
+        this.emitter();
+      }
+    },
+
+    removeRoute(route: string) {
+      let index = this.configs.routes.findIndex((elm: string) => elm == route);
+      this.configs.routes.splice(index, 1);
+      this.emitter();
+    },
+
+    updateNo_routes(noRoute: string | null) {
+      if (
+        Boolean(noRoute) &&
+        !this.configs.no_routes.find((elm: string) => elm == noRoute)
+      ) {
+        this.configs.no_routes.push(noRoute);
+        this.emitter();
+      }
+    },
+
+    removeNoRoute(noRoute: string) {
+      let index = this.configs.no_routes.findIndex(
+        (elm: string) => elm == noRoute
+      );
+      this.configs.no_routes.splice(index, 1);
+      this.emitter();
+    },
   },
 
   watch: {
     initInput: {
       immediate: true,
       handler() {
-        if (this.configs) this.configs = { ...this.initInput };
+        if (this.initInput) this.configs = { ...this.initInput };
       },
     },
   },

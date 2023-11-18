@@ -64,9 +64,15 @@ class OcservGroupHandler:
             if configs:
                 config_str = ""
                 for key, val in configs.items():
-                    if key.startswith("dns"):
-                        key = key[:-1]
-                    config_str += f"{key}={val}\n"
+                    if key in ["routes", "no_routes"]:
+                        if key == "no_routes":
+                            key = "no-route"
+                        for i in val:
+                            config_str += f"{key}={i}\n"
+                    else:
+                        if key.startswith("dns"):
+                            key = key[:-1]
+                        config_str += f"{key}={val}\n"
             else:
                 config_str = "# remove configs by admin \n"
             echo_command = f"echo '{config_str}' | sudo tee {path}"
@@ -101,9 +107,15 @@ class OcservGroupHandler:
             if configs:
                 config_str = ""
                 for key, val in configs.items():
-                    if key.startswith("dns"):
-                        key = key[:-1]
-                    config_str += f"{key}={val}\n"
+                    if key in ["routes", "no_routes"]:
+                        if key == "no_routes":
+                            key = "no-route"
+                        for i in val:
+                            config_str += f"{key}={i}\n"
+                    else:
+                        if key.startswith("dns"):
+                            key = key[:-1]
+                        config_str += f"{key}={val}\n"
             else:
                 config_str = "# remove configs by admin \n"
             echo_command = f"echo '{config_str}' | sudo tee {path}"

@@ -8,14 +8,14 @@ from datetime import datetime
 
 def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
     logger = Logger()
-    print(f"[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [ocserv stat service] ocserv stats service started")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [ocserv stat service] ocserv stats service started")
     rx = 0
     tx = 0
     username = None
     cmd = "journalctl -fu ocserv"
     if logfile := os.environ.get("OCSERV_LOG_FILE"):
         cmd = f"tail -f {logfile}"
-    print(f"[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [ocserv stat service] receive log from: {cmd}")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [ocserv stat service] receive log from: {cmd}")
     logger.log(level="info", message=f"")
     process = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE)
     last_log_entry = "start script"
@@ -36,7 +36,7 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
                     tx = Decimal(float(tx_match.group(1)) / (1024**3))
                 if not username:
                     raise ValueError()
-                print(f"[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [ocserv stat service] username {username} disconnected. rx: {rx}, tx: {tx}")
+                print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [ocserv stat service] username {username} disconnected. rx: {rx}, tx: {tx}")
             except Exception as e:
                 logger.log(level="critical", message=e)
                 logger.log(level="critical", message="unprocessable ocserv log to calculate user-rx and user-tx")
