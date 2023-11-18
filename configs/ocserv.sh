@@ -115,16 +115,16 @@ EOT
     mkdir /etc/ocserv/groups
 fi
 # iptables rules
-echo -e "\e[0;32m"Adding iptables rules."\e[0m"
-apt install -y iptables-persistent
-iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT
-iptables -I INPUT -p udp --dport ${PORT} -j ACCEPT
-iptables -I FORWARD -s ${OC_NET} -j ACCEPT
-iptables -I FORWARD -d ${OC_NET} -j ACCEPT
-iptables -t nat -A POSTROUTING -s ${OC_NET} -o ${ETH} -j MASQUERADE
-#iptables -t nat -A POSTROUTING -j MASQUERADE
-sh -c "iptables-save > /etc/iptables/rules.v4"
-sh -c "ip6tables-save > /etc/iptables/rules.v6"
+# echo -e "\e[0;32m"Adding iptables rules."\e[0m"
+# apt install -y iptables-persistent
+# iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT
+# iptables -I INPUT -p udp --dport ${PORT} -j ACCEPT
+# iptables -I FORWARD -s ${OC_NET} -j ACCEPT
+# iptables -I FORWARD -d ${OC_NET} -j ACCEPT
+# iptables -t nat -A POSTROUTING -s ${OC_NET} -o ${ETH} -j MASQUERADE
+# #iptables -t nat -A POSTROUTING -j MASQUERADE
+# sh -c "iptables-save > /etc/iptables/rules.v4"
+# sh -c "ip6tables-save > /etc/iptables/rules.v6"
 
 echo "Enable IP forward."
 sysctl -w net.ipv4.ip_forward=1
