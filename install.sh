@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ $(id -u) != "0" ]]; then
+    echo -e "\e[0;31m"Error: You must be root to run this install script."\e[0m"
+    exit 1
+fi
+
 color_echo() {
     local color=$1
     local text=$2
