@@ -39,7 +39,7 @@ declare interface OcservUser {
   create?: string | null;
   expire_date: string | null;
   desc: string | null;
-  traffic: number;
+  traffic: number| null;
   default_traffic: number;
   tx?: number | null;
   rx?: number | null;

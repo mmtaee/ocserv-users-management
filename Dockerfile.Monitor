@@ -1,9 +1,0 @@
-FROM golang:1.20
-RUN mkdir /shared_mointor
-WORKDIR /usr/src/app
-COPY ./monitor/go.mod ./monitor/go.sum .
-RUN go mod download && go mod verify
-COPY ./monitor/ .
-RUN go build -v -o /usr/local/bin/app
-EXPOSE 8080
-CMD ["app"]

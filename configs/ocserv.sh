@@ -98,8 +98,7 @@ pid-file=/var/run/ocserv.pid
 device=vpns
 predictable-ips=true
 tunnel-all-dns=true
-dns=8.8.8.8
-dns=8.8.4.4
+dns=${DNS}
 ping-leases=false
 mtu=1420
 cisco-client-compat=true
@@ -114,34 +113,25 @@ EOT
     >/etc/ocserv/defaults/group.conf
     mkdir /etc/ocserv/groups
 fi
-firewalldisactive=$(systemctl is-active firewalld.service)
-iptablesisactive=$(systemctl is-active iptables.service)
-# Add a firewall permission list
-if [[ ${firewalldisactive} = 'active' ]]; then
-    echo -e "\e[0;32m"Adding firewall ports."\e[0m"
-    firewall-cmd --permanent --add-port=${PORT}/tcp
-    firewall-cmd --permanent --add-port=${PORT}/udp
-    echo -e "\e[0;32m"Allow firewall to forward."\e[0m"
-    firewall-cmd --permanent --add-masquerade
-    echo -e "\e[0;32m"Reload firewall configure."\e[0m"
-    firewall-cmd --reload
-elif [[ ${iptablesisactive} = 'active' ]]; then
-    iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT
-    iptables -I INPUT -p udp --dport ${PORT} -j ACCEPT
-    iptables -I FORWARD -s ${vpnnetwork} -j ACCEPT
-    iptables -I FORWARD -d ${vpnnetwork} -j ACCEPT
-    iptables -t nat -A POSTROUTING -s ${vpnnetwork} -o ${eth} -j MASQUERADE
-    service iptables save
-else
-    printf "\e[33mWARNING!!! Either firewalld or iptables is NOT Running! \e[0m\n"
-fi
+# iptables rules
+# echo -e "\e[0;32m"Adding iptables rules."\e[0m"
+# apt install -y iptables-persistent
+# iptables -I INPUT -p tcp --dport ${PORT} -j ACCEPT
+# iptables -I INPUT -p udp --dport ${PORT} -j ACCEPT
+# iptables -I FORWARD -s ${OC_NET} -j ACCEPT
+# iptables -I FORWARD -d ${OC_NET} -j ACCEPT
+# iptables -t nat -A POSTROUTING -s ${OC_NET} -o ${ETH} -j MASQUERADE
+# #iptables -t nat -A POSTROUTING -j MASQUERADE
+# sh -c "iptables-save > /etc/iptables/rules.v4"
+# sh -c "ip6tables-save > /etc/iptables/rules.v6"
+
 echo "Enable IP forward."
 sysctl -w net.ipv4.ip_forward=1
 echo net.ipv4.ip_forward = 1 >>"/etc/sysctl.conf"
 systemctl daemon-reload
 echo "Enable ocserv service to start during bootup."
 systemctl enable ocserv.service
-systemctl start ocserv.service
+systemctl restart ocserv.service
 OCSERV_STATE=$(systemctl is-active ocserv)
 if [ "$OCSERV_STATE" = "active" ]; then
     echo -e "\e[0;32m"Ocserv Is Started."\e[0m"

@@ -119,6 +119,8 @@ class OcservUser(models.Model):
                 self.default_traffic = AdminConfig.objects.last().default_traffic
         if self.traffic != self.FREE and self.default_traffic < self.tx:
             self.active = False
+        if self.traffic == self.FREE:
+            self.default_traffic = 0
         user_handler.add_or_update(
             password=self.password, group=self.group.name if self.group.name != "defaults" else None, active=self.active
         )

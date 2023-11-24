@@ -6,7 +6,7 @@ RUN apt install -y --no-install-recommends git
 WORKDIR /app
 COPY ./front-end .
 RUN npm install
-RUN NODE_ENV=production npm run build
+RUN NODE_ENV=production VUE_APP_DOCKERIZED=true npm run build
 
 # nginx section
 FROM nginx:alpine

@@ -2,7 +2,9 @@ version: "3.9"
 
 volumes:
   shared-ssl:
-  # shared-mointor:
+
+networks:
+  shared-app:
 
 services:
   ocserv_and_backend:
@@ -17,13 +19,13 @@ services:
       - ./volumes/ocserv:/etc/ocserv
       - ./volumes/db:/app/db
       - shared-ssl:/etc/ocserv/certs
-      # - shared-mointor:/var/log
     ports:
       - ${PORT:-20443}:443/tcp
       - ${PORT:-20443}:443/udp
-      - 127.0.0.1:8000:8000
-    # env_file:
-    #   - prod.env
+    env_file:
+      - ./prod.env
+    networks:
+      - shared-app
 
   nginx:
     restart: always
@@ -37,20 +39,9 @@ services:
       - "443:443"
     depends_on:
       - ocserv_and_backend
-      - monitor
-    environment:
-      - DOMAIN=${DOMAIN}
     volumes:
       - shared-ssl:/etc/nginx/certs
-
-  # monitor:
-  #   restart: on-failure
-  #   image: monitor:ocserv
-  #   container_name: monitor
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.Monitor
-  #   volumes:
-  #     - shared-mointor:/shared_mointor
-  #   depends_on:
-  #     - ocserv_and_backend
+    env_file:
+      - ./prod.env
+    networks:
+      - shared-app

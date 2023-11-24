@@ -58,7 +58,7 @@ export default Vue.extend({
   methods: {
     async init() {
       let data = await systemServiceApi.get_action_logs();
-      this.logs = data.logs;
+      this.logs = data.logs || [];
     },
     async clearLogs() {
       await systemServiceApi.clear_action_logs();

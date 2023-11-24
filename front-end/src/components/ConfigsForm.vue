@@ -17,7 +17,7 @@
                 <v-col md="4" cols="12" class="ma-0 pa-1">
                   <v-text-field
                     v-model="input.username"
-                    label="Username"
+                    label="Admin Username"
                     outlined
                     :rules="[rules.required]"
                     dense
@@ -28,7 +28,7 @@
                     v-model="input.password"
                     :type="passwordShow ? 'text' : 'password'"
                     :rules="[rules.required]"
-                    label="Password"
+                    label="Admin Password"
                     outlined
                     dense
                     :append-icon="

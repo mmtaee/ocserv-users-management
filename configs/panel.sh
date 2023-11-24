@@ -55,11 +55,17 @@ echo 'www-data ALL=(ALL) NOPASSWD: \
     /usr/bin/systemctl status ocserv.service' | sudo tee -a /etc/sudoers >/dev/null
 
 crontab -l | echo "59 23 * * * ${SITE_DIR}/back-end/venv/bin/python3 ${SITE_DIR}/back-end/manage.py user_management" | crontab -
+
 # front-end
 echo -e "\e[0;32m"Front-End Installing ..."\e[0m"
-curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
-bash /tmp/nodesource_setup.sh
-apt install -y nodejs
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+NODE_MAJOR=18
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+sudo apt-get update
+sudo apt-get install nodejs -y
 cd ${CURRENT_DIR}/front-end/
 npm install
 NODE_ENV=production npm run build
@@ -69,6 +75,35 @@ cp -r ${CURRENT_DIR}/front-end/dist/* ${SITE_DIR}/front-end
 # nginx
 echo -e "\e[0;32m"Nginx Configurations ..."\e[0m"
 rm -rf /etc/nginx/sites-enabled/default
+
+if [[  -n "${DOMAIN}"  ]];then
+cat <<\EOT >/etc/nginx/conf.d/site.conf
+server {
+    listen 80;
+    server_name ${DOMAIN} ;
+    return 302 https://$server_name$request_uri;
+}
+server {
+    listen 443 ssl http2;
+    server_name ${DOMAIN} ;
+
+    ssl_certificate         /etc/nginx/certs/cert.pem;
+    ssl_certificate_key    /etc/nginx/certs/cert.key;
+    location / {
+        root /var/www/site/front-end;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+    location ~ ^/(api) {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $host;
+    }
+}
+EOT
+else
 cat <<\EOT >/etc/nginx/conf.d/site.conf
 server {
     listen 80;
@@ -84,21 +119,11 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Host $host;
     }
-    location /ws {
-        rewrite ^/ws(.*)$ $1 break;
-        proxy_pass http://127.0.0.1:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
-    }
 }
 EOT
+fi
 
-# monitor service
-# cp -r ${CURRENT_DIR}/monitor /opt/monitor
-# cp /opt/monitor/monitor.service /lib/systemd/system/monitor.service
-# systemctl restart monitor.service
-# systemctl enable monitor.service
+
 
 chown -R www-data. /etc/nginx/conf.d/site.conf
 chown -R www-data. ${SITE_DIR}

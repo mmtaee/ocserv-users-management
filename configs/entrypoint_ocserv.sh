@@ -59,8 +59,7 @@ pid-file=/var/run/ocserv.pid
 device=vpns
 predictable-ips=true
 tunnel-all-dns=true
-dns=8.8.8.8
-dns=8.8.4.4
+dns=${DNS}
 ping-leases=false
 mtu=1420
 ciscocisco-client-compat=true
@@ -114,6 +113,10 @@ _EOF_
     cp "${servercert}" /etc/ocserv/certs/cert.pem
     cp "${serverkey}" /etc/ocserv/certs/cert.key
 fi
+
+echo -e "\e[0;32m"Adding iptables rules."\e[0m"
+iptables -t nat -A POSTROUTING -j MASQUERADE
+
 sysctl -w net.ipv4.ip_forward=1 # ipv4 ip forward
 mkdir -p /dev/net               #TUN device
 mknod /dev/net/tun c 10 200
@@ -123,7 +126,7 @@ chmod 600 /dev/net/tun
 cat <<\EOT >/etc/logrotate.d/ocserv
 /var/log/ocserv.log {
     daily
-    size 500M
+    size 1000M
     rotate 2
     missingok
     notifempty

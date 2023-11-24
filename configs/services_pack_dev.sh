@@ -13,7 +13,7 @@ printf "\n"
 printf "\e[33m########### backend service starting ... ###########\e[0m"
 printf "\n"
 mkdir -p /app/db
-pip install pymemcache
+# pip install pymemcache
 python3 /app/manage.py migrate
 OCSERV_LOG_FILE=${OCSERV_LOG_FILE} DOCKERIZED=True python3 /app/manage.py runserver 0.0.0.0:8000 &
 # cd /app && uvicorn ocserv.asgi:application --host 0.0.0.0 --port 8000 --workers 1 --ws websockets --lifespan off&

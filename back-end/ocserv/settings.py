@@ -161,6 +161,8 @@ OSCERV_CONFIG_KEYS = [
     "idle-timeout",
     "mobile-idle-timeout",
     "session-timeout",
+    "no_routes",
+    "routes"
 ]
 
 DOCKERIZED = os.environ.get("DOCKERIZED", config("DOCKERIZED", "False")).title() == "True"

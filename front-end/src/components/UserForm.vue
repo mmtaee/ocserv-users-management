@@ -61,12 +61,14 @@
                   readonly
                   v-bind="attrs"
                   v-on="on"
-                  :rules="[rules.required]"
                   dense
                 />
               </template>
               <v-date-picker v-model="userInput.expire_date" scrollable>
                 <v-spacer></v-spacer>
+                <v-btn text color="primary" @click="$refs.dialog.save(null)">
+                  clear
+                </v-btn>
                 <v-btn
                   text
                   color="primary"
@@ -79,7 +81,7 @@
           </v-col>
           <v-col md="3">
             <v-select
-              v-model="userInput.traffic"
+              v-model.number="userInput.traffic"
               :items="trafficTypes"
               item-text="name"
               item-value="id"
@@ -183,7 +185,7 @@ export default Vue.extend({
         active: true,
         expire_date: new Date(Date.now()).toISOString().slice(0, 10),
         desc: "desc",
-        traffic: 1,
+        traffic: null,
         default_traffic: 20,
         online: false,
       },
@@ -202,17 +204,24 @@ export default Vue.extend({
 
   async mounted() {
     let params: URLParams = {
-      args : "defaults"
-    }
+      args: "defaults",
+    };
     let data = await ocservGroupApi.groups(params);
     this.groups = data.result;
+    if (!this.editMode) {
+      if (!Boolean(this.userInput.group)) {
+        this.userInput.group = 1;
+      }
+      if (!Boolean(this.userInput.traffic)) {
+        this.userInput.traffic = 1;
+      }
+    }
   },
 
   methods: {
     async save() {
       let data: OcservUser;
       let meitMethodName = "create";
-
       if (this.editMode) {
         let pk = this.userInput.id;
         meitMethodName = "update";
