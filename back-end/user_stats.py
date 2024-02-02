@@ -66,8 +66,11 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
                             level="critical", message=f"deactivate for user with that username ({username}) failed"
                         )
                 ocserv_user.save()
-            except OcservUser.DoesNotExist():
-                logger.log(level="warning", message=f"user with that username ({username}) does not exists in db")
+            except (OcservUser.DoesNotExist, Exception) as e:
+                logger.log(
+                    level="warning",
+                    message=f"user with that username ({username}) does not exists in db or we have error ({e})"
+                )
 
 
 if __name__ == "__main__":
