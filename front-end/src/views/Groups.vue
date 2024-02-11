@@ -35,8 +35,8 @@
               </v-col>
               <v-col md="auto" class="me-5">
                 <v-btn @click="init" outlined>
+                  <v-icon left>mdi-refresh</v-icon>
                   refresh
-                  <v-icon right>mdi-refresh</v-icon>
                 </v-btn>
               </v-col>
             </v-row>

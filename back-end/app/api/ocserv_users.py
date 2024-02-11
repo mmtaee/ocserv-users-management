@@ -20,11 +20,18 @@ class OcservUsersViewSet(viewsets.ViewSet):
 
     def list(self, request):
         online_users = user_handler.online()
-        online_users = [user.get("username") for user in online_users if user.get("username")]
+        online_users = [
+            user.get("username") for user in online_users if user.get("username")
+        ]
         users = OcservUser.objects.all().select_related("group")
         if username := request.GET.get("username"):
             users = users.filter(username__icontains=username)
-        data = pagination(request, users.order_by("-id"), OcservUserSerializer, context={"online_users": online_users})
+        data = pagination(
+            request,
+            users.order_by("-id"),
+            OcservUserSerializer,
+            context={"online_users": online_users},
+        )
         return Response(data)
 
     def create(self, request):
@@ -37,7 +44,9 @@ class OcservUsersViewSet(viewsets.ViewSet):
         if OcservUser.objects.filter(username=username).exists():
             return Response({"error": ["Ocserv User exists"]}, status=404)
         user_handler.username = username
-        result = user_handler.add_or_update(password=data.get("password"), group=group.name, active=data.get("active"))
+        result = user_handler.add_or_update(
+            password=data.get("password"), group=group.name, active=data.get("active")
+        )
         if result:
             serializer = OcservUserSerializer(data=data)
             serializer.is_valid(raise_exception=True)
@@ -66,13 +75,19 @@ class OcservUsersViewSet(viewsets.ViewSet):
         expire_date = data.get("expire_date")
         if data.get("password") == old_password:
             update = False
-        if expire_date and datetime.strptime(expire_date, "%Y-%m-%d").date() <= timezone.now().date():
+        if (
+            expire_date
+            and datetime.strptime(expire_date, "%Y-%m-%d").date()
+            <= timezone.now().date()
+        ):
             data["active"] = False
             update = True
         if update:
             user_handler.username = user.username
             result = user_handler.add_or_update(
-                password=data.get("password"), group=user.group.name, active=data.get("active")
+                password=data.get("password"),
+                group=user.group.name,
+                active=data.get("active"),
             )
         if result:
             serializer = OcservUserSerializer(instance=user, data=data, partial=True)
@@ -101,7 +116,11 @@ class OcservUsersViewSet(viewsets.ViewSet):
             return Response({"error": ["Ocserv user does not exist"]}, status=404)
         user_handler.username = user.username
         result = user_handler.disconnect()
-        return Response(status=202) if result else Response({"error": ["Ocserv User Disconnect Failed"]}, status=400)
+        return (
+            Response(status=202)
+            if result
+            else Response({"error": ["Ocserv User Disconnect Failed"]}, status=400)
+        )
 
     @action(detail=True, methods=["POST"], url_path="status")
     def user_status_handler(self, request, pk=None):
@@ -118,10 +137,28 @@ class OcservUsersViewSet(viewsets.ViewSet):
             user_handler.username = user.username
             result = user_handler.status_handler(active=status)
             if not result:
-                return Response({"error": ["Ocserv User change status Failed"]}, status=400)
+                return Response(
+                    {"error": ["Ocserv User change status Failed"]}, status=400
+                )
         user.active = status
         user.save()
         return Response(status=202)
+
+    @action(detail=False, methods=["POST"], url_path="sync")
+    def sync_ocpasswd(self, request):
+        users = user_handler.sync()
+        ocserv_users = OcservUser.objects.values_list("username", flat=True)
+        new_users = []
+        for user in users:
+            if user not in ocserv_users:
+                OcservUser.objects.get_or_create(
+                    username=user,
+                    password="ocserv password",
+                    active=True,
+                    traffic=OcservUser.FREE,
+                )
+                new_users.append(user)
+        return Response(new_users, status=202)
 
     # @action(detail=True, methods=["POST"], url_path="group")
     # def change_group(self, request, pk=None):

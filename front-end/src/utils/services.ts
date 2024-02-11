@@ -98,6 +98,7 @@ class Services {
             text: null,
           });
         }
+        this.params = null;
       });
   }
 
@@ -185,6 +186,11 @@ class OcservUserApi extends Services {
   public async disconnect_user(pk: number): Promise<OcservUser> {
     this.method = "post";
     this.path = `${pk}/disconnect/`;
+    return this.request();
+  }
+  public async sync_ocpasswd(): Promise<Array<string>> {
+    this.method = "post";
+    this.path = "sync/";
     return this.request();
   }
 }

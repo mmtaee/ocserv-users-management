@@ -14,6 +14,8 @@ def pagination(request, queryset, serializer, context=None):
     item_per_page = 100 if not str(item_per_page).isnumeric() else item_per_page
     if query_count < int(item_per_page):
         item_per_page = query_count
+    if not queryset.ordered:
+        queryset = queryset.order_by("id")
     paginator = Paginator(queryset, item_per_page)
     try:
         obj = paginator.page(page).object_list

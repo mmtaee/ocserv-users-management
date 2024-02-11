@@ -28,6 +28,7 @@
                 />
               </v-col>
               <v-spacer />
+
               <v-col md="auto">
                 <v-btn
                   color="primary"
@@ -38,10 +39,16 @@
                   Create New User
                 </v-btn>
               </v-col>
-              <v-col md="auto" class="me-5">
+              <v-col md="auto">
                 <v-btn @click="init" outlined>
+                  <v-icon left>mdi-refresh</v-icon>
                   refresh
-                  <v-icon right>mdi-refresh</v-icon>
+                </v-btn>
+              </v-col>
+              <v-col md="auto">
+                <v-btn color="warning" outlined @click="syncOcpasswd">
+                  <v-icon left>mdi-account-sync-outline</v-icon>
+                  Sync Ocpasswd
                 </v-btn>
               </v-col>
             </v-row>
@@ -131,7 +138,7 @@
                 {{ item.create }}
                 <br />
                 <span class="primary--text">Expire Date: </span>
-                {{ item.expire_date || '- - - - - - - - - -' }}
+                {{ item.expire_date || "- - - - - - - - - -" }}
                 <br />
               </template>
 
@@ -226,6 +233,41 @@
         :initInput="initInput || {}"
       />
     </v-dialog>
+
+    <v-dialog v-model="syncUsersDialog" width="300" persistent>
+      <v-card class="mx-auto" max-width="300" tile>
+        <v-subheader class="grey darken-1" dark>
+          List Of Users(Added to Databes)
+        </v-subheader>
+        <v-list-item-group color="success" v-if="syncUsers.length">
+          <v-list-item v-for="(item, i) in syncUsers" :key="i">
+            <v-list-item-content>
+              <v-list-item-title>
+                {{ item }}
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-icon>
+              <v-icon color="success">mdi-check-circle</v-icon>
+            </v-list-item-icon>
+          </v-list-item>
+        </v-list-item-group>
+
+        <div v-else class="mx-3 mt-2">
+          All users in the database are synchronized with the Ocpasswd file
+        </div>
+        
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="(syncUsers = []), (syncUsersDialog = false)"
+          >
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -256,6 +298,8 @@ export default Vue.extend({
     dialogDisconnect: boolean;
     disconnectUserObj: OcservUser | null;
     deleteUserObj: OcservUser | null;
+    syncUsers: Array<string>;
+    syncUsersDialog: boolean;
   } {
     return {
       users: [],
@@ -338,6 +382,8 @@ export default Vue.extend({
       dialogDisconnect: false,
       disconnectUserObj: null,
       deleteUserObj: null,
+      syncUsers: [],
+      syncUsersDialog: false,
     };
   },
 
@@ -393,6 +439,14 @@ export default Vue.extend({
     searchInit() {
       if (this.search.length > 2) {
         this.init();
+      }
+    },
+
+    async syncOcpasswd() {
+      let data = await ocservUserApi.sync_ocpasswd();
+      if (ocservUserApi.status() == 202) {
+        this.syncUsers = data;
+        this.syncUsersDialog = true;
       }
     },
   },

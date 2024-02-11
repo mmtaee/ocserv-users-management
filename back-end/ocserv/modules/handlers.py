@@ -20,12 +20,21 @@ class OcservServiceHandler:
             if mode == "journal":
                 command = ["sudo", "journalctl", "ocserv.service", f"-n {lines}"]
             else:
-                command = ["sudo", "systemctl", mode, "ocserv.service", "--output=json-pretty"]
+                command = [
+                    "sudo",
+                    "systemctl",
+                    mode,
+                    "ocserv.service",
+                    "--output=json-pretty",
+                ]
         p = subprocess.Popen(command, stdout=subprocess.PIPE)
         (output, err) = p.communicate()
         output = output.decode("utf-8")
         if err:
-            logger.log(level="critical", message=f"subprocess handler in OcservServiceHandler class({err})")
+            logger.log(
+                level="critical",
+                message=f"subprocess handler in OcservServiceHandler class({err})",
+            )
             return False
         return output.splitlines() if output else None
 
@@ -78,7 +87,9 @@ class OcservGroupHandler:
             echo_command = f"echo '{config_str}' | sudo tee {path}"
             subprocess.run(echo_command, shell=True)
         except Exception as e:
-            logger.log(level="critical", message=f"add or update ocserv group error ({e})")
+            logger.log(
+                level="critical", message=f"add or update ocserv group error ({e})"
+            )
             return False
         return self.reload()
 
@@ -89,7 +100,10 @@ class OcservGroupHandler:
                 rm_command = f"sudo rm {path}"
                 subprocess.run(rm_command, shell=True)
             else:
-                logger.log(level="warning", message=f"delete group config error (FileNotFoundError)")
+                logger.log(
+                    level="warning",
+                    message=f"delete group config error (FileNotFoundError)",
+                )
         except Exception as e:
             logger.log(level="critical", message=f"destroy ocserv group error ({e})")
         self.reload()
@@ -121,7 +135,9 @@ class OcservGroupHandler:
             echo_command = f"echo '{config_str}' | sudo tee {path}"
             subprocess.run(echo_command, shell=True)
         except Exception as e:
-            logger.log(level="critical", message=f"update defaults ocserv group error ({e})")
+            logger.log(
+                level="critical", message=f"update defaults ocserv group error ({e})"
+            )
         self.reload()
 
     # def sync_db(self):
@@ -183,7 +199,9 @@ class OcservUserHandler:
 
     def add_or_update(self, password, group=None, active=True):
         try:
-            command = f'/usr/bin/echo -e "{password}\n{password}\n" | sudo /usr/bin/ocpasswd'
+            command = (
+                f'/usr/bin/echo -e "{password}\n{password}\n" | sudo /usr/bin/ocpasswd'
+            )
             if group:
                 command += f" -g {group}"
             command += f" -c /etc/ocserv/ocpasswd {self.username}"
@@ -196,7 +214,9 @@ class OcservUserHandler:
 
     def delete(self):
         try:
-            command = f"sudo /usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd -d {self.username}"
+            command = (
+                f"sudo /usr/bin/ocpasswd  -c /etc/ocserv/ocpasswd -d {self.username}"
+            )
             os.system(command)
         except Exception as e:
             logger.log(level="critical", message=f"delete user error ({e})")
@@ -220,7 +240,14 @@ class OcservUserHandler:
         users = []
         try:
             p = subprocess.Popen(
-                ["sudo", "/usr/bin/occtl", "-j", "show", "users", "--output=json-pretty"],
+                [
+                    "sudo",
+                    "/usr/bin/occtl",
+                    "-j",
+                    "show",
+                    "users",
+                    "--output=json-pretty",
+                ],
                 stdout=subprocess.PIPE,
             )
             _users, err = p.communicate()
@@ -230,6 +257,15 @@ class OcservUserHandler:
         except FileNotFoundError as e:
             logger.log(level="critical", message=f"online users error ({e})")
         return users
+
+    @staticmethod
+    def sync():
+        user_list = []
+        with open("/etc/ocserv/ocpasswd", "r") as f:
+            users = f.readlines()
+        for user in users:
+            user_list.append(user.rstrip().split(":")[0])
+        return user_list
 
 
 class OcctlHandler:
@@ -260,11 +296,17 @@ class OcctlHandler:
             (output, err) = p.communicate()
             output = output.decode("utf-8")
             if err:
-                logger.log(level="critical", message=f"subprocess handler in OcctlHandler class({err})")
+                logger.log(
+                    level="critical",
+                    message=f"subprocess handler in OcctlHandler class({err})",
+                )
                 return False
             return output
         except Exception as e:
-            logger.log(level="critical", message=f"occtl command error ({e}), command: {' '.join(exc)}")
+            logger.log(
+                level="critical",
+                message=f"occtl command error ({e}), command: {' '.join(exc)}",
+            )
         raise ValueError("subprocess_handler not done, see log error")
 
     def output(self, action, extra_commands):
@@ -293,7 +335,9 @@ class OcctlHandler:
             result.pop("show_user", None)
         if "show_ip_bans" in result or "show_ip_ban_points" in result:
             result["show_ip_bans"] = ip_bans_creator(
-                result["show_ip_bans"] if "show_ip_bans" in result else result["show_ip_ban_points"]
+                result["show_ip_bans"]
+                if "show_ip_bans" in result
+                else result["show_ip_ban_points"]
             )
             result.pop("show_ip_ban_points", None)
         return result
