@@ -26,6 +26,11 @@
                   clearable
                 />
               </v-col>
+
+              <v-col md="3" align-self="start">
+                <v-checkbox v-model="ascending" label="Ascending Sort" />
+              </v-col>
+
               <v-spacer />
               <v-col md="auto">
                 <v-btn color="primary" outlined @click="groupFormDialog = true">
@@ -174,6 +179,7 @@ export default Vue.extend({
     editMode: boolean;
     dialogDelete: boolean;
     deleteGroupObj: OcservGroup | null;
+    ascending: boolean;
   } {
     return {
       groups: [],
@@ -220,6 +226,7 @@ export default Vue.extend({
       editMode: false,
       dialogDelete: false,
       deleteGroupObj: null,
+      ascending: true,
     };
   },
 
@@ -227,11 +234,21 @@ export default Vue.extend({
     await this.init();
   },
 
+  watch: {
+    ascending: {
+      immediate: false,
+      handler() {
+        this.init();
+      },
+    },
+  },
+
   methods: {
     async init() {
       let params: URLParams = {
         page: this.page,
         item_per_page: this.item_per_page,
+        ascending: this.ascending,
       };
       if (this.search) {
         params["name"] = this.search;

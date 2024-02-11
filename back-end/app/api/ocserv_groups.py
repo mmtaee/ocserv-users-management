@@ -18,15 +18,24 @@ class OcservGroupsViewSet(viewsets.ViewSet):
         if request.GET.get("args") != "defaults":
             groups = groups.exclude(name="defaults").order_by("id")
         if name := request.GET.get("name"):
-            groups = groups.filter(name__icontains=name).order_by("-id")
+            groups = groups.filter(name__icontains=name).order_by(
+                "id"
+                if (ascending := request.GET.get("ascending"))
+                and eval(ascending.title())
+                else "-id"
+            )
         data = pagination(request, groups, OcservGroupSerializer)
         return Response(data)
 
     def create(self, request):
         data = request.data
         if data.get("name") == "defaults":
-            return Response({"error": ["Name 'defaults' is not a valid name for group"]}, status=400)
-        result = group_handler.add_or_update(name=data.get("name"), configs=data.get("configs"))
+            return Response(
+                {"error": ["Name 'defaults' is not a valid name for group"]}, status=400
+            )
+        result = group_handler.add_or_update(
+            name=data.get("name"), configs=data.get("configs")
+        )
         if not result:
             return Response({"error": ["Ocserv group does not created"]}, status=400)
         serializer = OcservGroupSerializer(data=data)
@@ -48,7 +57,9 @@ class OcservGroupsViewSet(viewsets.ViewSet):
             group = OcservGroup.objects.get(pk=pk)
         except OcservGroup.DoesNotExist:
             return Response({"error": ["Ocserv group does not exists"]}, status=404)
-        result = group_handler.add_or_update(name=data.get("name"), configs=data.get("configs"))
+        result = group_handler.add_or_update(
+            name=data.get("name"), configs=data.get("configs")
+        )
         if not result:
             return Response({"error": ["Ocserv group does not updated"]}, status=400)
         serializer = OcservGroupSerializer(instance=group, data=data, partial=True)
