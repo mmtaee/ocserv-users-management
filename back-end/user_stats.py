@@ -25,7 +25,7 @@ def check_stats(OcservUser, MonthlyTrafficStat, OcservUserHandler, Logger):
             continue
         last_log_entry = line
 
-        search_strings = ["reason: user disconnected", "rx", "tx"]
+        search_strings = ["user disconnected", "rx", "tx"]
         if all(search_string in line for search_string in search_strings):
             try:
                 if main_match := re.search(r"main\[(.*?)\]", line):

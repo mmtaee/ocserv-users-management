@@ -23,7 +23,8 @@ OCSERV_LOG_FILE=${OCSERV_LOG_FILE} DOCKERIZED=True python3 /app/manage.py runser
 # user stats service
 printf "\e[33m########### user stats service starting ... ###########\e[0m"
 printf "\n"
-OCSERV_LOG_FILE=${OCSERV_LOG_FILE} python3 /app/user_stats.py &
+#OCSERV_LOG_FILE=${OCSERV_LOG_FILE} python3 /app/user_stats.py &
+OCSERV_LOG_FILE=${OCSERV_LOG_FILE} python3 /app/manage.py user_stats &
 
 wait -n
 exit $?
