@@ -28,10 +28,16 @@ class OcservUsersViewSet(viewsets.ViewSet):
             users = users.filter(username__icontains=username)
         data = pagination(
             request,
-            users.order_by("-id"),
+            users.order_by(
+                "id"
+                if (ascending := request.GET.get("ascending"))
+                and eval(ascending.title())
+                else "-id"
+            ),
             OcservUserSerializer,
             context={"online_users": online_users},
         )
+        print(request.GET.get("ascending"))
         return Response(data)
 
     def create(self, request):
@@ -146,19 +152,46 @@ class OcservUsersViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["POST"], url_path="sync")
     def sync_ocpasswd(self, request):
+        groups = OcservGroup.objects.all()
         users = user_handler.sync()
         ocserv_users = OcservUser.objects.values_list("username", flat=True)
         new_users = []
-        for user in users:
-            if user not in ocserv_users:
+        for item in users:
+            username = item[0]
+            group__name = item[1]
+            print(group__name)
+            if group__name == "*" or group__name not in groups.values_list(
+                "name", flat=True
+            ):
+                print("************")
+                group__name = "defaults"
+            if username not in ocserv_users:
                 OcservUser.objects.get_or_create(
-                    username=user,
+                    group=groups.get(name=group__name),
+                    username=username,
                     password="ocserv password",
                     active=True,
                     traffic=OcservUser.FREE,
                 )
-                new_users.append(user)
-        return Response(new_users, status=202)
+                new_users.append(username)
+        online_users = user_handler.online()
+        online_users = [
+            user.get("username") for user in online_users if user.get("username")
+        ]
+        users = OcservUser.objects.all().select_related("group")
+        data = pagination(
+            request,
+            users.order_by(
+                "id"
+                if (ascending := request.GET.get("ascending"))
+                and eval(ascending.title())
+                else "-id"
+            ),
+            OcservUserSerializer,
+            context={"online_users": online_users},
+        )
+        data.update({"new_users": new_users})
+        return Response(data, status=202)
 
     # @action(detail=True, methods=["POST"], url_path="group")
     # def change_group(self, request, pk=None):

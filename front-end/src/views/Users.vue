@@ -27,6 +27,9 @@
                   clearable
                 />
               </v-col>
+              <v-col md="3" align-self="start">
+                <v-checkbox v-model="ascending" label="Ascending Sort" />
+              </v-col>
               <v-spacer />
 
               <v-col md="auto">
@@ -255,7 +258,7 @@
         <div v-else class="mx-3 mt-2">
           All users in the database are synchronized with the Ocpasswd file
         </div>
-        
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -300,6 +303,7 @@ export default Vue.extend({
     deleteUserObj: OcservUser | null;
     syncUsers: Array<string>;
     syncUsersDialog: boolean;
+    ascending: boolean;
   } {
     return {
       users: [],
@@ -384,6 +388,7 @@ export default Vue.extend({
       deleteUserObj: null,
       syncUsers: [],
       syncUsersDialog: false,
+      ascending: true,
     };
   },
 
@@ -391,11 +396,21 @@ export default Vue.extend({
     await this.init();
   },
 
+  watch: {
+    ascending: {
+      immediate: false,
+      handler() {
+        this.init();
+      },
+    },
+  },
+
   methods: {
     async init() {
       let params: URLParams = {
         page: this.page,
         item_per_page: this.item_per_page,
+        ascending: this.ascending,
       };
       if (this.search) {
         params["username"] = this.search;
@@ -443,10 +458,19 @@ export default Vue.extend({
     },
 
     async syncOcpasswd() {
-      let data = await ocservUserApi.sync_ocpasswd();
+      let params: URLParams = {
+        page: this.page,
+        item_per_page: this.item_per_page,
+        ascending: this.ascending,
+      };
+      let data = await ocservUserApi.sync_ocpasswd(params);
       if (ocservUserApi.status() == 202) {
-        this.syncUsers = data;
+        this.syncUsers = data.new_users;
         this.syncUsersDialog = true;
+        this.users = data.result;
+        this.page = data.page || 1;
+        this.pages = data.pages || 1;
+        this.total_count = data.total_count || 0;
       }
     },
   },

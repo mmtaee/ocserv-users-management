@@ -264,7 +264,9 @@ class OcservUserHandler:
         with open("/etc/ocserv/ocpasswd", "r") as f:
             users = f.readlines()
         for user in users:
-            user_list.append(user.rstrip().split(":")[0])
+            user_split = user.rstrip().split(":")
+            username, group = user_split[0], user_split[1]
+            user_list.append((username, group))
         return user_list
 
 

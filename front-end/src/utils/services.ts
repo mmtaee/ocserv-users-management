@@ -12,6 +12,7 @@ import {
   Occtl,
   Stats,
   URLParams,
+  SyncResponse,
 } from "./types";
 import store from "@/plugins/store";
 
@@ -188,9 +189,12 @@ class OcservUserApi extends Services {
     this.path = `${pk}/disconnect/`;
     return this.request();
   }
-  public async sync_ocpasswd(): Promise<Array<string>> {
+  public async sync_ocpasswd(params?: URLParams | null): Promise<SyncResponse> {
     this.method = "post";
     this.path = "sync/";
+    if (params) {
+      this.params = params;
+    }
     return this.request();
   }
 }

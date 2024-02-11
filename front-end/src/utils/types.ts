@@ -39,7 +39,7 @@ declare interface OcservUser {
   create?: string | null;
   expire_date: string | null;
   desc: string | null;
-  traffic: number| null;
+  traffic: number | null;
   default_traffic: number;
   tx?: number | null;
   rx?: number | null;
@@ -83,7 +83,15 @@ declare interface Stats {
 }
 
 declare interface URLParams {
-  [key: string]: string | number;
+  [key: string]: string | number | boolean;
+}
+
+declare interface SyncResponse {
+  result: Array<OcservUser | null>;
+  page: number;
+  pages: number;
+  total_count?: number;
+  new_users: Array<string>;
 }
 
 export {
@@ -99,4 +107,5 @@ export {
   Occtl,
   Stats,
   URLParams,
+  SyncResponse,
 };
