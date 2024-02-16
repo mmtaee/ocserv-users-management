@@ -11,10 +11,7 @@ from ocserv.modules.handlers import OcservGroupHandler, OcservUserHandler
 
 
 class AdminConfig(User):
-    uu_id = models.UUIDField(
-         primary_key = False,
-         default = uuid4,
-         editable = False)
+    uu_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
     captcha_site_key = models.TextField(null=True, blank=True)
     captcha_secret_key = models.TextField(null=True, blank=True)
     default_traffic = models.PositiveIntegerField(default=10)
@@ -58,7 +55,10 @@ class OcservGroup(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.name == "defaults" and OcservGroup.objects.filter(name="defaults").exists():
+        if (
+            self.name == "defaults"
+            and OcservGroup.objects.filter(name="defaults").exists()
+        ):
             raise RestValidationError({"error": ["Invalid name (defaults) for group"]})
         if self.configs and type(self.configs) == dict:
             new_configs = {}
@@ -96,14 +96,18 @@ class OcservUser(models.Model):
     expire_date = models.DateField(null=True, blank=True)
     deactivate_date = models.DateField(null=True, blank=True)
     desc = models.TextField(null=True, blank=True)
-    traffic = models.PositiveSmallIntegerField(choices=TRAFFIC_MODE_CHOICES, default=MONTHLY)
+    traffic = models.PositiveSmallIntegerField(
+        choices=TRAFFIC_MODE_CHOICES, default=MONTHLY
+    )
     default_traffic = models.PositiveIntegerField(default=0)
     tx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
     rx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__group = self.group if hasattr(self, "group") and getattr(self, "group") else None
+        self.__group = (
+            self.group if hasattr(self, "group") and getattr(self, "group") else None
+        )
 
     class Meta:
         verbose_name = "Ocserv User"
@@ -113,16 +117,20 @@ class OcservUser(models.Model):
         return self.username
 
     def save(self, *args, **kwargs):
+        if (admin_config := AdminConfig.objects.last()) is None:
+            raise RestValidationError({"error": ["Default Admin Configs Not Found"]})
         user_handler = OcservUserHandler(username=self.username)
         if not self.pk:
             if not self.default_traffic and self.traffic != self.FREE:
-                self.default_traffic = AdminConfig.objects.last().default_traffic
+                self.default_traffic = admin_config.default_traffic
         if self.traffic != self.FREE and self.default_traffic < self.tx:
             self.active = False
         if self.traffic == self.FREE:
             self.default_traffic = 0
         user_handler.add_or_update(
-            password=self.password, group=self.group.name if self.group.name != "defaults" else None, active=self.active
+            password=self.password,
+            group=self.group.name if self.group.name != "defaults" else None,
+            active=self.active,
         )
         super().save(*args, **kwargs)
 

@@ -57,12 +57,12 @@
     2- --old-path: Path to the old SQLite database
 
     * in os
-        1- rename db.sqlite3 to db-old.sqlite3
-            >>> mv db.sqlite3 db-old.sqlite3
+        1- rename /tmp/db.sqlite3 to /tmp/db-old.sqlite3
+            >>> mv /tmp/db.sqlite3 /tmp/db-old.sqlite3
 
         2- run script
-            >>> /var/www/site/back-end/venv/bin/python3 manage.py migrate_to_new --old-path /OLD_PATH/db-old.sqlite3
-
+            >>> /var/www/site/back-end/venv/bin/python3 manage.py migrate_to_new --old-path /tmp/db-old.sqlite3
+            
 
     * in docker host:
         1- rename db.sqlite3 to db-old.sqlite3
