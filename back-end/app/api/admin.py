@@ -10,6 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from app.models import AdminConfig
+from app.schemas.admin import get_admin_schema
 from app.serializers import AminConfigSerializer
 from ocserv.modules.decorators import recaptcha
 from ocserv.modules.handlers import OcservUserHandler, OcctlHandler
@@ -45,6 +46,7 @@ def socket_passwd(key, val=None, delete=False):
 class AdminViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
+    @get_admin_schema("config")
     @custom_throttle(rate="10/minutes")
     @action(detail=False, methods=["GET"])
     def config(self, request):
@@ -55,6 +57,7 @@ class AdminViewSet(viewsets.ViewSet):
         }
         return Response(data)
 
+    @get_admin_schema("create_admin_configs")
     @custom_throttle(rate="3/minutes")
     @action(detail=False, methods=["POST"], url_path="create")
     def create_admin_configs(self, request):
@@ -67,22 +70,31 @@ class AdminViewSet(viewsets.ViewSet):
         token = Token.objects.create(user=admin_config)
         # socket_passwd(key=admin_config.uu_id, val=token.key)
         return Response(
-            {"token": token.key, "captcha_site_key": admin_config.captcha_site_key, "user": admin_config.uu_id}, status=201
+            {
+                "token": token.key,
+                "captcha_site_key": admin_config.captcha_site_key,
+                "user": admin_config.uu_id,
+            },
+            status=201,
         )
 
+    @get_admin_schema("login")
     @custom_throttle(rate="10/hours")
     @recaptcha
     @action(detail=False, methods=["POST"])
     def login(self, request):
         data = request.data
         data.get("username")
-        if user := authenticate(request, username=data.get("username"), password=data.get("password")):
+        if user := authenticate(
+            request, username=data.get("username"), password=data.get("password")
+        ):
             token, _ = Token.objects.get_or_create(user=user)
             token = token.key
             # socket_passwd(key=user.adminconfig.uu_id, val=token)
             return Response({"token": token, "user": user.adminconfig.uu_id})
         return Response({"error": ["Invalid username or password"]}, status=400)
 
+    @get_admin_schema("logout")
     @action(detail=False, methods=["DELETE"], permission_classes=[IsAuthenticated])
     def logout(self, request):
         token = Token.objects.get(user=request.user)
@@ -90,6 +102,8 @@ class AdminViewSet(viewsets.ViewSet):
         token.delete()
         return Response(status=204)
 
+    @get_admin_schema("configuration_get", method="GET")
+    @get_admin_schema("configuration_patch", method="PATCH")
     @action(detail=False, methods=["GET", "PATCH"], permission_classes=[IsAuthenticated])
     def configuration(self, request):
         data = request.data.copy()
@@ -105,8 +119,9 @@ class AdminViewSet(viewsets.ViewSet):
         serializer = AminConfigSerializer(data=data, instance=admin_config, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(status=202)
+        return Response(serializer.data, status=202)
 
+    @get_admin_schema("dashboard")
     @action(detail=False, methods=["GET"], permission_classes=[IsAuthenticated])
     def dashboard(self, request):
         online = OcservUserHandler()
