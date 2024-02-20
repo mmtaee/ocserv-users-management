@@ -1,7 +1,58 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
-from app.serializers import AminConfigSerializer
+
+ocserv_configs_sample = {
+    "rx-data-per-sec": "string",
+    "tx-data-per-sec": "string",
+    "max-same-clients": "string",
+    "ipv4-network": "string",
+    "dns1": "string",
+    "dns2": "string",
+    "no-udp": "string",
+    "keepalive": "string",
+    "dpd": "string",
+    "mobile-dpd": "string",
+    "tunnel-all-dns": "string",
+    "restrict-user-to-routes": "string",
+    "stats-report-time": "string",
+    "mtu": "string",
+    "idle-timeout": "string",
+    "mobile-idle-timeout": "string",
+    "session-timeout": "string",
+    "no_routes": "string",
+    "routes": "string",
+}
+
+ocserv_configs_openapi_properties = {
+    "rx-data-per-sec": openapi.Schema(type=openapi.TYPE_STRING),
+    "tx-data-per-sec": openapi.Schema(type=openapi.TYPE_STRING),
+    "max-same-clients": openapi.Schema(type=openapi.TYPE_STRING),
+    "ipv4-network": openapi.Schema(type=openapi.TYPE_STRING),
+    "dns1": openapi.Schema(type=openapi.TYPE_STRING),
+    "dns2": openapi.Schema(type=openapi.TYPE_STRING),
+    "no-udp": openapi.Schema(type=openapi.TYPE_STRING),
+    "keepalive": openapi.Schema(type=openapi.TYPE_STRING),
+    "dpd": openapi.Schema(type=openapi.TYPE_STRING),
+    "mobile-dpd": openapi.Schema(type=openapi.TYPE_STRING),
+    "tunnel-all-dns": openapi.Schema(type=openapi.TYPE_STRING),
+    "restrict-user-to-routes": openapi.Schema(type=openapi.TYPE_STRING),
+    "stats-report-time": openapi.Schema(type=openapi.TYPE_STRING),
+    "mtu": openapi.Schema(type=openapi.TYPE_STRING),
+    "idle-timeout": openapi.Schema(type=openapi.TYPE_STRING),
+    "mobile-idle-timeout": openapi.Schema(type=openapi.TYPE_STRING),
+    "session-timeout": openapi.Schema(type=openapi.TYPE_STRING),
+    "no_routes": openapi.Schema(type=openapi.TYPE_STRING),
+    "routes": openapi.Schema(type=openapi.TYPE_STRING),
+}
+
+
+ocserv_configs_openapi = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    description="Ocserv Defaults Group Configs",
+    properties=ocserv_configs_openapi_properties,
+)
+
 
 amin_config_serializer_schema = openapi.Response(
     description="Successful Response",
@@ -11,27 +62,7 @@ amin_config_serializer_schema = openapi.Response(
             "captcha_site_key": "string",
             "captcha_secret_key": "string",
             "default_traffic": 0,
-            "default_configs": {
-                "rx-data-per-sec": "",
-                "tx-data-per-sec": "",
-                "max-same-clients": "",
-                "ipv4-network": "",
-                "dns1": "",
-                "dns2": "",
-                "no-udp": "",
-                "keepalive": "",
-                "dpd": "",
-                "mobile-dpd": "",
-                "tunnel-all-dns": "",
-                "restrict-user-to-routes": "",
-                "stats-report-time": "",
-                "mtu": "",
-                "idle-timeout": "",
-                "mobile-idle-timeout": "",
-                "session-timeout": "",
-                "no_routes": "",
-                "routes": "",
-            },
+            "default_configs": ocserv_configs_sample,
         },
     },
 )
@@ -58,31 +89,7 @@ admin_config_request_body_properties = {
         type=openapi.TYPE_STRING,
         description="Ocserv User Default Traffic",
     ),
-    "default_configs": openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        description="Ocserv Defaults Group Configs",
-        properties={
-            "rx-data-per-sec": "",
-            "tx-data-per-sec": "",
-            "max-same-clients": "",
-            "ipv4-network": "",
-            "dns1": "",
-            "dns2": "",
-            "no-udp": "",
-            "keepalive": "",
-            "dpd": "",
-            "mobile-dpd": "",
-            "tunnel-all-dns": "",
-            "restrict-user-to-routes": "",
-            "stats-report-time": "",
-            "mtu": "",
-            "idle-timeout": "",
-            "mobile-idle-timeout": "",
-            "session-timeout": "",
-            "no_routes": "",
-            "routes": "",
-        },
-    ),
+    "default_configs": ocserv_configs_openapi,
 }
 
 
@@ -123,10 +130,19 @@ schemas = {
                 examples={
                     "application/json": {
                         "config": True,
-                        "captcha_site_key": "",
+                        "captcha_site_key": "string",
                     },
                 },
-            )
+            ),
+            429: openapi.Response(
+                description="Too Many Requests",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
         }
     },
     "create_admin_configs": {
@@ -134,7 +150,13 @@ schemas = {
         "responses": {
             201: openapi.Response(
                 description="Successful Response",
-                examples={"application/json": {"token": "", "captcha_site_key": "", "user": ""}},
+                examples={
+                    "application/json": {
+                        "token": "string",
+                        "captcha_site_key": "string",
+                        "user": "string",
+                    }
+                },
             ),
             400: openapi.Response(
                 description="Bad Request",
@@ -142,13 +164,22 @@ schemas = {
                     "application/json": {"error": ["Admin config exists!"]},
                 },
             ),
+            429: openapi.Response(
+                description="Too Many Requests",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
         },
     },
     "login": {
         "responses": {
             201: openapi.Response(
                 description="Successful Response",
-                examples={"application/json": {"token": "", "user": ""}},
+                examples={"application/json": {"token": "string", "user": "string"}},
             ),
             400: openapi.Response(
                 description="Bad Request",
@@ -156,9 +187,18 @@ schemas = {
                     "application/json": {"error": ["Invalid username or password"]},
                 },
             ),
+            429: openapi.Response(
+                description="Too Many Requests",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
         },
     },
-    "logout": {"responses": {204: ""}},
+    "logout": {"responses": {204: "string"}},
     "configuration_get": {
         "responses": {
             200: amin_config_serializer_schema,
@@ -189,12 +229,13 @@ schemas = {
 }
 
 
-def get_admin_schema(schema_name: str, method=None):
+def get_admin_schema(schema_name: str, method=None, security=True):
     swagger_data: dict = schemas.get(schema_name)
-    print(schema_name)
     name = schema_name.replace("_", " ").title()
     if swagger_data:
         swagger_data.update({"operation_id": f"Admin - {name}"})
     if method:
         swagger_data["method"] = method.lower()
+    if not security:
+        swagger_data["security"] = []
     return swagger_auto_schema(**swagger_data)

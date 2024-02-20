@@ -46,7 +46,7 @@ def socket_passwd(key, val=None, delete=False):
 class AdminViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
-    @get_admin_schema("config")
+    @get_admin_schema("config", security=False)
     @custom_throttle(rate="10/minutes")
     @action(detail=False, methods=["GET"])
     def config(self, request):
@@ -57,7 +57,7 @@ class AdminViewSet(viewsets.ViewSet):
         }
         return Response(data)
 
-    @get_admin_schema("create_admin_configs")
+    @get_admin_schema("create_admin_configs", security=False)
     @custom_throttle(rate="3/minutes")
     @action(detail=False, methods=["POST"], url_path="create")
     def create_admin_configs(self, request):
