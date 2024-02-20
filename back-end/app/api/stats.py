@@ -7,11 +7,13 @@ from datetime import datetime
 import calendar
 
 from app.models import MonthlyTrafficStat
+from app.schemas.stats import get_ocserv_stats_schema
 
 
 class StatViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
+    @get_ocserv_stats_schema("list")
     def list(self, request):
         result = {}
         year = datetime.now().year
@@ -40,4 +42,6 @@ class StatViewSet(viewsets.ViewSet):
             }
         )
         current_month.update({"month": datetime.now().strftime("%B")})
-        return Response({"total": total, "result": result, "months": _months, "current_month": current_month})
+        return Response(
+            {"total": total, "result": result, "months": _months, "current_month": current_month}
+        )

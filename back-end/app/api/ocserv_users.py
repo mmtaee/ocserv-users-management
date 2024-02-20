@@ -7,10 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from app.models import OcservUser, OcservGroup
+from app.schemas.ocserv_users import get_ocserv_user_schema
 from app.serializers import OcservUserSerializer
 from ocserv.modules.handlers import OcservUserHandler
 from ocserv.modules.methods import pagination
-
 
 user_handler = OcservUserHandler()
 
@@ -18,11 +18,10 @@ user_handler = OcservUserHandler()
 class OcservUsersViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
+    @get_ocserv_user_schema("list")
     def list(self, request):
         online_users = user_handler.online()
-        online_users = [
-            user.get("username") for user in online_users if user.get("username")
-        ]
+        online_users = [user.get("username") for user in online_users if user.get("username")]
         users = OcservUser.objects.all().select_related("group")
         if username := request.GET.get("username"):
             users = users.filter(username__icontains=username)
@@ -30,16 +29,15 @@ class OcservUsersViewSet(viewsets.ViewSet):
             request,
             users.order_by(
                 "id"
-                if (ascending := request.GET.get("ascending"))
-                and eval(ascending.title())
+                if (ascending := request.GET.get("ascending")) and eval(ascending.title())
                 else "-id"
             ),
             OcservUserSerializer,
             context={"online_users": online_users},
         )
-        print(request.GET.get("ascending"))
         return Response(data)
 
+    @get_ocserv_user_schema("create")
     def create(self, request):
         data = request.data
         username = data.get("username")
@@ -48,7 +46,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
         except OcservGroup.DoesNotExist:
             return Response({"error": ["Ocserv group does not exists"]}, status=404)
         if OcservUser.objects.filter(username=username).exists():
-            return Response({"error": ["Ocserv User exists"]}, status=404)
+            return Response({"error": ["Ocserv User exists"]}, status=400)
         user_handler.username = username
         result = user_handler.add_or_update(
             password=data.get("password"), group=group.name, active=data.get("active")
@@ -60,6 +58,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=201)
         return Response({"error": ["Ocserv User not created"]}, status=400)
 
+    @get_ocserv_user_schema("retrieve", pk=True)
     def retrieve(self, request, pk=None):
         try:
             user = OcservUser.objects.select_related("group").get(pk=pk)
@@ -68,6 +67,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
         serializer = OcservUserSerializer(user)
         return Response(serializer.data)
 
+    @get_ocserv_user_schema("partial_update", pk=True)
     def partial_update(self, request, pk=None):
         update = True
         result = True
@@ -83,8 +83,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
             update = False
         if (
             expire_date
-            and datetime.strptime(expire_date, "%Y-%m-%d").date()
-            <= timezone.now().date()
+            and datetime.strptime(expire_date, "%Y-%m-%d").date() <= timezone.now().date()
         ):
             data["active"] = False
             update = True
@@ -102,6 +101,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=202)
         return Response({"error": ["Ocserv user does not updated"]}, status=400)
 
+    @get_ocserv_user_schema("destroy", pk=True)
     def destroy(self, request, pk=None):
         try:
             user = OcservUser.objects.get(pk=pk)
@@ -114,6 +114,7 @@ class OcservUsersViewSet(viewsets.ViewSet):
             return Response(status=204)
         return Response({"error": ["Ocserv user does not deleted"]}, status=400)
 
+    @get_ocserv_user_schema("disconnect", pk=True)
     @action(detail=True, methods=["POST"])
     def disconnect(self, request, pk=None):
         try:
@@ -123,15 +124,16 @@ class OcservUsersViewSet(viewsets.ViewSet):
         user_handler.username = user.username
         result = user_handler.disconnect()
         return (
-            Response(status=202)
+            Response({"message": ["Ocserv user disconnected successfully"]}, status=202)
             if result
             else Response({"error": ["Ocserv User Disconnect Failed"]}, status=400)
         )
 
+    @get_ocserv_user_schema("user_status", pk=True)
     @action(detail=True, methods=["POST"], url_path="status")
     def user_status_handler(self, request, pk=None):
         try:
-            if status := request.data.get("status", None) is None:
+            if (status := request.data.get("status")) is None:
                 raise NotImplemented
             user = OcservUser.objects.select_related("group").get(pk=pk)
         except OcservUser.DoesNotExist:
@@ -143,13 +145,12 @@ class OcservUsersViewSet(viewsets.ViewSet):
             user_handler.username = user.username
             result = user_handler.status_handler(active=status)
             if not result:
-                return Response(
-                    {"error": ["Ocserv User change status Failed"]}, status=400
-                )
+                return Response({"error": ["Ocserv User change status Failed"]}, status=400)
         user.active = status
         user.save()
-        return Response(status=202)
+        return Response({"message": ["Ocserv user status changed"]}, status=202)
 
+    @get_ocserv_user_schema("sync_ocpasswd")
     @action(detail=False, methods=["POST"], url_path="sync")
     def sync_ocpasswd(self, request):
         groups = OcservGroup.objects.all()
@@ -158,16 +159,12 @@ class OcservUsersViewSet(viewsets.ViewSet):
         new_users = []
         for item in users:
             username = item[0]
-            group__name = item[1]
-            print(group__name)
-            if group__name == "*" or group__name not in groups.values_list(
-                "name", flat=True
-            ):
-                print("************")
-                group__name = "defaults"
+            group_name = item[1]
+            if group_name == "*" or group_name not in groups.values_list("name", flat=True):
+                group_name = "defaults"
             if username not in ocserv_users:
                 OcservUser.objects.get_or_create(
-                    group=groups.get(name=group__name),
+                    group=groups.get(name=group_name),
                     username=username,
                     password="ocserv password",
                     active=True,
@@ -175,16 +172,13 @@ class OcservUsersViewSet(viewsets.ViewSet):
                 )
                 new_users.append(username)
         online_users = user_handler.online()
-        online_users = [
-            user.get("username") for user in online_users if user.get("username")
-        ]
+        online_users = [user.get("username") for user in online_users if user.get("username")]
         users = OcservUser.objects.all().select_related("group")
         data = pagination(
             request,
             users.order_by(
                 "id"
-                if (ascending := request.GET.get("ascending"))
-                and eval(ascending.title())
+                if (ascending := request.GET.get("ascending")) and eval(ascending.title())
                 else "-id"
             ),
             OcservUserSerializer,

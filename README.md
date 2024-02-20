@@ -73,3 +73,34 @@
         3- run command in docker container
             >>> python3 /app/manage.py migrate_to_new --old-path /app/db/db-old.sqlite3
 ```
+
+## developer mode
+```
+    1- create dev.env file 
+        >>> touch dev.env
+    
+    2- copy to dev.env
+        ORG=End-way
+        EXPIRE=3650
+        CN=End-way-Cisco-VPN
+        OC_NET=172.16.24.0/24
+
+        # change it to your ip or domain
+        CORS_ALLOWED=http://127.0.0.1:9000
+
+        # change it to your ip or domain
+        HOST=127.0.0.1
+        DOMAIN=
+        PORT=20443
+
+    3- run backend service
+        >>> docker compose -f docker-compose.dev.yml up -d --build
+
+    4- run frontend service
+        >>> cd front-end
+        >>> npm install && npm run serve
+    
+    5- swagger documents api
+        Navigate to http://127.0.0.1:8000/doc/ in the address bar.
+
+```
