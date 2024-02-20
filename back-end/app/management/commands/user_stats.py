@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import subprocess
@@ -18,17 +19,18 @@ class Command(BaseCommand):
         rx = 0
         tx = 0
         username = None
-        logger = Logger()
-        print(
-            f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [ocserv stat service] ocserv stats service started"
-        )
+        logger = Logger(stdout=True)
         cmd = "journalctl -fu ocserv"
         if logfile := os.environ.get("OCSERV_LOG_FILE"):
             cmd = f"tail -f {logfile}"
-        print(
-            f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [ocserv stat service] receive log from: {cmd}"
+        logger.log(
+            level="info",
+            message="[user stats] ocserv stats service started",
         )
-        logger.log(level="info", message=f"")
+        logger.log(
+            level="info",
+            message=f"[user stats] receive log from: {cmd}",
+        )
         process = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE)
         last_log_entry = "start script"
         while True:
@@ -48,16 +50,19 @@ class Command(BaseCommand):
                         tx = Decimal(float(tx_match.group(1)) / (1024**3))
                     if not username:
                         raise ValueError()
-                    print(
-                        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [ocserv stat service] username {username} disconnected. rx: {rx}, tx: {tx}"
+                    logger.log(
+                        level="info",
+                        message=f"[ocserv stat service] username {username} disconnected. rx: {rx}, tx: {tx}",
                     )
                 except Exception as e:
-                    logger.log(level="critical", message=e)
+                    logger.log(level="critical", message=f"[user stats] {e}")
                     logger.log(
                         level="critical",
-                        message="unprocessable ocserv log to calculate user-rx and user-tx",
+                        message="[user stats] unprocessable ocserv log to calculate user-rx and user-tx",
                     )
-                    logger.log(level="info", message=line)
+                    logger.log(
+                        level="critical", message=f"[user stats] unprocessable ocserv log {line}"
+                    )
                     continue
                 try:
                     ocserv_user = OcservUser.objects.get(username=username)
@@ -85,16 +90,17 @@ class Command(BaseCommand):
                             ocserv_user.deactivate_date = datetime.now()
                             logger.log(
                                 level="info",
-                                message=f"{ocserv_user.username} is deactivated",
+                                message=f"[user stats] {ocserv_user.username} is deactivated",
                             )
                         else:
                             logger.log(
                                 level="critical",
-                                message=f"deactivate for user with that username ({username}) failed",
+                                message=f"[user stats] deactivate for user with that username ({username}) failed",
                             )
                     ocserv_user.save()
                 except (OcservUser.DoesNotExist, Exception) as e:
                     logger.log(
                         level="warning",
-                        message=f"user with that username ({username}) does not exists in db or we have error ({e})",
+                        message=f"[user stats] user with that username ({username}) \
+                        does not exists in db or we have error ({e})",
                     )
