@@ -14,8 +14,8 @@ color_echo() {
 GetModes() {
     printf "\n"
     modes=(
-        'ocserv + user panel --- (docker) [only in ubuntu 20.04]'
-        'ocserv + user panel --- (systemd)'
+        'ocserv + user panel --- (docker)'
+        'ocserv + user panel --- (systemd) [only in ubuntu 20.04]'
         'panel  ---------------- (systemd)'
     )
     color_echo "32;1" "Instalation modes:"
@@ -92,6 +92,7 @@ GetDomain() {
             DOMAIN=${domain}
         fi
     fi
+    CORS_ALLOWED=""
     if [[ -n "${DOMAIN}" ]]; then
         color_echo "36;1" "Your Domain: ${DOMAIN}"
         CORS_ALLOWED="http://${DOMAIN},https://${DOMAIN}"
@@ -101,9 +102,9 @@ GetDomain() {
         CORS_ALLOWED="http://${PUBLIC_IP},https://${PUBLIC_IP}"
         HOST=${PUBLIC_IP}
     else
-        CORS_ALLOWED="http://${HOST_IP},https://${HOST_IP}"
         HOST=${HOST_IP}
     fi
+    CORS_ALLOWED="${CORS_ALLOWED},http://${HOST_IP},https://${HOST_IP}"
 }
 
 GetPort() {
@@ -182,8 +183,13 @@ UpdateDockerProdEnv() {
         ["DOMAIN"]="${DOMAIN}"
         ["PORT"]="${PORT}"
     )
-    for variable in "${!variables[@]}"; do
-        sed -i "s#${variable}=.*#${variable}=${variables[$variable]}#" "$file_path"
+    if [ -e "$file_path" ]; then
+        truncate -s 0 ${file_path}
+    else
+        touch "$file_path"
+    fi
+    for key in "${!variables[@]}"; do
+        echo "$key=${variables[$key]}" >>"$file_path"
     done
 }
 

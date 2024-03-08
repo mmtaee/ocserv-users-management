@@ -43,3 +43,6 @@ log.txt
 db/
 socket_passwd
 dev.env
+prod.env
+prod.env.*
+*.env
