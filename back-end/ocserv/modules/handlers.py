@@ -76,6 +76,8 @@ class OcservGroupHandler:
                     if key in ["routes", "no_routes"]:
                         if key == "no_routes":
                             key = "no-route"
+                        if key == "routes":
+                            key = "route"
                         for i in val:
                             config_str += f"{key}={i}\n"
                     else:
@@ -124,6 +126,8 @@ class OcservGroupHandler:
                     if key in ["routes", "no_routes"]:
                         if key == "no_routes":
                             key = "no-route"
+                        if key == "routes":
+                            key = "route"
                         for i in val:
                             config_str += f"{key}={i}\n"
                     else:
