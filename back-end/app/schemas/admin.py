@@ -1,6 +1,7 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from app.serializers import UserSerializer
 
 ocserv_configs_sample = {
     "rx-data-per-sec": "string",
@@ -58,7 +59,7 @@ amin_config_serializer_schema = openapi.Response(
     description="Successful Response",
     examples={
         "application/json": {
-            "username": "string",
+            # "user": {"username": "string", "is_admin": False},
             "captcha_site_key": "string",
             "captcha_secret_key": "string",
             "default_traffic": 0,
@@ -154,7 +155,7 @@ schemas = {
                     "application/json": {
                         "token": "string",
                         "captcha_site_key": "string",
-                        "user": "string",
+                        "user": {"username": "string", "is_admin": False},
                     }
                 },
             ),
@@ -179,7 +180,12 @@ schemas = {
         "responses": {
             201: openapi.Response(
                 description="Successful Response",
-                examples={"application/json": {"token": "string", "user": "string"}},
+                examples={
+                    "application/json": {
+                        "token": "string",
+                        "user": {"username": "string", "is_admin": False},
+                    }
+                },
             ),
             400: openapi.Response(
                 description="Bad Request",
@@ -208,12 +214,12 @@ schemas = {
         "request_body": admin_config_request_body_update,
         "responses": {
             202: amin_config_serializer_schema,
-            400: openapi.Response(
-                description="Bad Request",
-                examples={
-                    "application/json": {"error": ["Invalid old password"]},
-                },
-            ),
+            # 400: openapi.Response(
+            #     description="Bad Request",
+            #     examples={
+            #         "application/json": {"error": ["Invalid old password"]},
+            #     },
+            # ),
         },
     },
     "dashboard": {
@@ -221,10 +227,110 @@ schemas = {
             200: openapi.Response(
                 description="Successful Response",
                 examples={
-                    "application/json": {"online_users": [], "show_users": [], "show_ip_bans": []}
+                    "application/json": {
+                        "online_users": [],
+                        "show_users": [],
+                        "show_ip_bans": [],
+                    }
                 },
             ),
         }
+    },
+    "change_password": {
+        "request_body": openapi.Schema(
+            required=["old_password", "password"],
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "old_password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Current password",
+                ),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Staff Password",
+                ),
+            },
+        ),
+        "responses": {
+            202: openapi.Response(
+                description="Successful Response",
+            ),
+        },
+    },
+    "staffs_list": {
+        "responses": {
+            200: openapi.Response(
+                description="Successful Response",
+                examples={
+                    "application/json": [
+                        {"id": 0, "username": "string", "is_admin": False}
+                    ]
+                },
+            ),
+            403: openapi.Response(
+                description="Bad Request",
+                examples={
+                    "application/json": {
+                        "error": ["you have not access to this route"]
+                    },
+                },
+            ),
+        },
+    },
+    "staffs_create": {
+        "request_body": openapi.Schema(
+            required=["username", "password"],
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "username": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Staff Username",
+                ),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Staff Password",
+                ),
+            },
+        ),
+        "responses": {
+            201: openapi.Response(
+                description="Successful Response",
+                examples={
+                    "application/json": {
+                        "id": 0,
+                        "username": "string",
+                        "is_admin": False,
+                    }
+                },
+            ),
+            403: openapi.Response(
+                description="Bad Request",
+                examples={
+                    "application/json": {
+                        "error": ["you have not access to this route"]
+                    },
+                },
+            ),
+        },
+    },
+    "delete_staff": {
+        "responses": {
+            204: openapi.Response(description="Successful Response"),
+            403: openapi.Response(
+                description="Bad Request",
+                examples={
+                    "application/json": {
+                        "error": ["you have not access to this route"]
+                    },
+                },
+            ),
+            404: openapi.Response(
+                description="Bad Request",
+                examples={
+                    "application/json": {"error": ["Staff not found"]},
+                },
+            ),
+        },
     },
 }
 

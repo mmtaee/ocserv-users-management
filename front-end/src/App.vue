@@ -44,6 +44,7 @@ export default Vue.extend({
           this.$router.push({ name: "Login" });
         } else {
           this.$store.commit("setIsLogin", true);
+          this.$store.commit("setUser", data.user);
           // this.$router.push({ name: "Dashboard" });
         }
       }

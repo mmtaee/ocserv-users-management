@@ -21,8 +21,8 @@ echo -e "\e[0;32m"Back-end Installing ..."\e[0m"
 rm -rf /var/www/html
 rm -rf ${SITE_DIR}
 mkdir -p ${SITE_DIR}
-touch /var/log/socket_passwd
-chown -R www-data. /var/log/socket_passwd
+#touch /var/log/socket_passwd
+#chown -R www-data. /var/log/socket_passwd
 cp -r ${CURRENT_DIR}/back-end ${SITE_DIR}/back-end
 rm -rf /lib/systemd/system/backend.service
 rm -rf /lib/systemd/system/user_stats.service

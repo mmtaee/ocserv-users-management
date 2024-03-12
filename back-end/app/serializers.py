@@ -1,31 +1,31 @@
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import AdminConfig, OcservGroup, OcservUser, MonthlyTrafficStat
+from .models import AdminPanelConfiguration, OcservGroup, OcservUser, MonthlyTrafficStat
+
+
+class UserSerializer(serializers.ModelSerializer):
+    is_admin = serializers.SerializerMethodField(default=False)
+
+    class Meta:
+        model = User
+        fields = ("id", "username", "is_admin")
+
+    @staticmethod
+    def get_is_admin(instance):
+        return instance.is_superuser
 
 
 class AminConfigSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AdminConfig
+        model = AdminPanelConfiguration
         fields = (
-            "username",
-            "password",
             "captcha_site_key",
             "captcha_secret_key",
             "default_traffic",
             "default_configs",
         )
         read_only_fields = ("id",)
-        write_only_fields = ("password",)
-
-    def create(self, validated_data):
-        validated_data["password"] = make_password(validated_data["password"])
-        return AdminConfig.objects.create(**validated_data)
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep.pop("password")
-        return rep
 
 
 class OcservGroupSerializer(serializers.ModelSerializer):
@@ -49,7 +49,9 @@ class OcservUserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         online_users = self.context.get("online_users", [])
-        rep["password"] = "Hashed by ocserv" if not instance.password else instance.password
+        rep["password"] = (
+            "Hashed by ocserv" if not instance.password else instance.password
+        )
         rep["online"] = False if instance.username not in online_users else True
         rep["group"] = instance.group.id
         rep["group_name"] = instance.group.name

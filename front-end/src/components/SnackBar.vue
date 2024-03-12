@@ -1,6 +1,6 @@
 <template>
   <v-snackbar
-    class="mt-15 ms-2"
+    class="mt-15 ms-2 text-capitalize"
     v-if="snackbar"
     v-model="snackbar"
     timeout="3000"

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from functools import wraps
 import requests
 
-from app.models import AdminConfig
+from app.models import AdminPanelConfiguration
 
 
 def check_recaptcha(view_func):
@@ -14,7 +14,7 @@ def check_recaptcha(view_func):
         cache.clear()
         config = cache.get("admin_config")
         if not config:
-            config = AdminConfig.objects.first()
+            config = AdminPanelConfiguration.objects.last()
             if not config:
                 return Response(status=400)
             cache.set("admin_config", config)

@@ -14,7 +14,7 @@
           <v-card-text>
             <v-form ref="configForm" v-model="formValid">
               <v-row align="center" justify="start">
-                <v-col md="4" cols="12" class="ma-0 pa-1">
+                <v-col md="4" cols="12" class="ma-0 pa-1" v-if="!editMode">
                   <v-text-field
                     v-model="input.username"
                     label="Admin Username"
@@ -38,7 +38,7 @@
                     autocomplete="new-password"
                   />
                 </v-col>
-                <v-col md="3" cols="12" class="ma-0 pa-1">
+                <v-col :md="!editMode ? 3 : 12" cols="12" class="ma-0 pa-1">
                   <v-text-field
                     v-model="input.default_traffic"
                     label="Default Traffic(GB)"
@@ -51,7 +51,7 @@
                   <v-textarea
                     v-model="input.captcha_site_key"
                     outlined
-                    label="google captcha site key"
+                    label="Google Captcha v2 site key"
                     dense
                     no-resize
                   />
@@ -60,7 +60,7 @@
                   <v-textarea
                     v-model="input.captcha_secret_key"
                     outlined
-                    label="google captcha secret key"
+                    label="Google Captcha v2 secret key"
                     dense
                     no-resize
                   />

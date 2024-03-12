@@ -10,23 +10,25 @@ from uuid import uuid4
 from ocserv.modules.handlers import OcservGroupHandler, OcservUserHandler
 
 
-class AdminConfig(User):
-    uu_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
+class AdminPanelConfiguration(models.Model):
     captcha_site_key = models.TextField(null=True, blank=True)
     captcha_secret_key = models.TextField(null=True, blank=True)
     default_traffic = models.PositiveIntegerField(default=10)
     default_configs = models.JSONField(default=dict, null=True, blank=True)
 
     class Meta:
-        verbose_name = "Admin Config"
-        verbose_name_plural = "Admin Config"
+        verbose_name = "Admin Panel Configuration"
+        verbose_name_plural = "Admin Panel Configurations"
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            if AdminConfig.objects.all().exists():
-                raise RestValidationError({"error": ["Admin Config exists"]})
+            if AdminPanelConfiguration.objects.exists():
+                raise RestValidationError(
+                    {"error": ["Amin Configuration already exists"]}
+                )
             if not OcservGroup.objects.filter(name="defaults").exists():
                 OcservGroup.objects.create(name="defaults", desc="defaults group")
+
         if self.default_configs and type(self.default_configs) == dict:
             new_configs = {}
             for key, val in self.default_configs.items():
@@ -38,8 +40,38 @@ class AdminConfig(User):
         OcservGroupHandler().update_defaults(self.default_configs)
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.username
+
+# TODO: remove model
+# class AdminConfig(User):
+#     uu_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
+#     captcha_site_key = models.TextField(null=True, blank=True)
+#     captcha_secret_key = models.TextField(null=True, blank=True)
+#     default_traffic = models.PositiveIntegerField(default=10)
+#     default_configs = models.JSONField(default=dict, null=True, blank=True)
+#
+#     class Meta:
+#         verbose_name = "Admin Config"
+#         verbose_name_plural = "Admin Config"
+#
+#     def save(self, *args, **kwargs):
+#         if not self.pk:
+#             if AdminConfig.objects.all().exists():
+#                 raise RestValidationError({"error": ["Admin Config exists"]})
+#             if not OcservGroup.objects.filter(name="defaults").exists():
+#                 OcservGroup.objects.create(name="defaults", desc="defaults group")
+#         if self.default_configs and type(self.default_configs) == dict:
+#             new_configs = {}
+#             for key, val in self.default_configs.items():
+#                 if key in settings.OSCERV_CONFIG_KEYS and val:
+#                     new_configs[key] = val
+#             self.default_configs = new_configs
+#         else:
+#             self.default_configs = {}
+#         OcservGroupHandler().update_defaults(self.default_configs)
+#         super().save(*args, **kwargs)
+#
+#     def __str__(self):
+#         return self.username
 
 
 class OcservGroup(models.Model):

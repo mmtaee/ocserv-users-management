@@ -122,7 +122,7 @@ else:
     )
     LOG_PATH = "/var/log/backend.log"
 
-SOCKET_PASSWD_FILE = "/var/log/socket_passwd"
+# SOCKET_PASSWD_FILE = "/var/log/socket_passwd"
 
 OSCERV_CONFIG_KEYS = [
     "rx-data-per-sec",
@@ -149,3 +149,4 @@ OSCERV_CONFIG_KEYS = [
 DOCKERIZED = os.environ.get("DOCKERIZED", config("DOCKERIZED", "False")).title() == "True"
 
 OCSERV_LOG_FILE = os.environ.get("OCSERV_LOG_FILE", config("OCSERV_LOG_FILE", None))
+

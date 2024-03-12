@@ -1,3 +1,10 @@
+declare interface User {
+  id?: number
+  username : string | null
+  is_admin: boolean
+}
+
+
 declare interface AminLogin {
   username: string | null;
   password: string | null;
@@ -22,6 +29,7 @@ declare interface Config {
   captcha_site_key: string | null;
   config: boolean;
   token?: string;
+  user: User | null;
 }
 declare interface Dashboard {
   online_users: Array<object>;
@@ -95,6 +103,7 @@ declare interface SyncResponse {
 }
 
 export {
+  User,
   AminLogin,
   AdminConfig,
   OcservConfigItems,

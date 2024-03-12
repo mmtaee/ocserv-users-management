@@ -1,3 +1,4 @@
+import { User } from "@/utils/types";
 import Vue from "vue";
 import Vuex, { StoreOptions } from "vuex";
 
@@ -9,6 +10,7 @@ interface Snackbar {
 }
 
 interface State {
+  user: User;
   siteKey: string | null;
   isLogin: boolean;
   progressValue: number;
@@ -20,6 +22,10 @@ interface State {
 
 const store: StoreOptions<State> = {
   state: {
+    user: {
+      username: null,
+      is_admin: false,
+    },
     siteKey: null,
     isLogin: false,
     progressValue: 0,
@@ -31,8 +37,15 @@ const store: StoreOptions<State> = {
     loadingOverlay: false,
     loadingOverlayText: null,
   },
-  getters: {},
+  getters: {
+    getUserstate(state): User{
+      return state.user
+    }
+  },
   mutations: {
+    setUser(state: State, values: User) {
+      state.user = Object.assign({}, values);
+    },
     setSiteKey(state: State, key: string): void {
       state.siteKey = key;
     },

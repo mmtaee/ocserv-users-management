@@ -1,6 +1,7 @@
 import _axios from "@/plugins/axios";
 import { AxiosError, AxiosResponse } from "axios";
 import {
+  User,
   AdminConfig,
   AminLogin,
   Config,
@@ -31,6 +32,12 @@ class Services {
     delete: _axios.delete,
   };
 
+  private validatePath(): void {
+    if (!this.path.endsWith("/")) {
+      this.path = this.path + "/";
+    }
+  }
+
   public async request(data?: any): Promise<any> {
     if (this.overlay) {
       store.commit("setLoadingOverlay", {
@@ -38,6 +45,7 @@ class Services {
         text: "Requesting ...",
       });
     }
+    this.validatePath();
     var url: string = this.baseUrl + this.path;
     if (this.params) {
       url += "?";
@@ -83,6 +91,11 @@ class Services {
               text: e.detail,
               color: "orange",
             });
+          } else if (e.error) {
+            store.commit("setSnackBar", {
+              text: e.error instanceof Array ? e.error.join(",") : e.error,
+              color: "orange",
+            });
           }
         } else {
           store.commit("setSnackBar", {
@@ -100,6 +113,7 @@ class Services {
           });
         }
         this.params = null;
+        this.path = "";
       });
   }
 
@@ -119,9 +133,7 @@ class AdminServiceApi extends Services {
     this.path = "config/";
     return this.request();
   }
-  public async login(
-    data: AminLogin
-  ): Promise<{ token: string; user: string }> {
+  public async login(data: AminLogin): Promise<{ token: string; user: User }> {
     this.method = "post";
     this.path = "login/";
     return this.request(data);
@@ -147,10 +159,31 @@ class AdminServiceApi extends Services {
     this.path = "configuration/";
     return await this.request();
   }
-
   public async dashboard(): Promise<Dashboard> {
     this.method = "get";
     this.path = "dashboard/";
+    return this.request();
+  }
+  public async change_password(data: object): Promise<void> {
+    this.method = "post";
+    this.path = "change_password/";
+    return this.request(data);
+  }
+  public async get_staff(): Promise<User> {
+    this.method = "get";
+    this.path = "staffs/";
+    return this.request();
+  }
+
+  public async create_staff(data: object): Promise<User> {
+    this.method = "post";
+    this.path = "staffs/";
+    return this.request(data);
+  }
+
+  public async delete_staff(id: number) {
+    this.method = "delete";
+    this.path = `staffs/${id}/`;
     return this.request();
   }
 }

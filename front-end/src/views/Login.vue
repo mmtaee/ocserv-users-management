@@ -69,7 +69,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { required } from "@/utils/rules";
-import { AminLogin } from "@/utils/types";
+import { AminLogin, User } from "@/utils/types";
 import { adminServiceApi } from "@/utils/services";
 
 export default Vue.extend({
@@ -99,12 +99,12 @@ export default Vue.extend({
       this.loading = true;
       let data: {
         token: string;
-        user: string
+        user: User
       } = await adminServiceApi.login(this.input);
       let status: number = adminServiceApi.status();      
       if (status == 200){
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", data.user);
+        this.$store.commit("setUser", data.user)
         this.$store.commit("setIsLogin", true);
         this.$router.push({ name: "Dashboard" });
       }
