@@ -64,6 +64,19 @@ EOF
 >>> docker compose -f docker-compose.dev.yml up --build
 ```
 
+## create extra admin user in terminal
+*docker mode 
+-- in container
+```bash
+python3 /app/manage.py createadmin -u USERNAME -p PASSWORD 
+```
+
+*systemd
+```bash
+/var/www/site/back-end/venv/bin/python3 manage.py createadmin -u USERNAME -p PASSWORD 
+```
+
+
 ## Admin panel configuration:
 
 1- Launch your web browser.
