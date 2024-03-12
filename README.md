@@ -73,7 +73,7 @@ python3 /app/manage.py createadmin -u USERNAME -p PASSWORD
 
 *systemd
 ```bash
-/var/www/site/back-end/venv/bin/python3 manage.py createadmin -u USERNAME -p PASSWORD 
+/var/www/site/back-end/venv/bin/python3 /var/www/site/back-end/manage.py createadmin -u USERNAME -p PASSWORD 
 ```
 
 
