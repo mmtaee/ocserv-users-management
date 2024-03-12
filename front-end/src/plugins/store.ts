@@ -38,9 +38,12 @@ const store: StoreOptions<State> = {
     loadingOverlayText: null,
   },
   getters: {
-    getUserstate(state): User{
-      return state.user
-    }
+    getUserstate(state): User {
+      return state.user;
+    },
+    getGoogleSiteKey(state): string | null {
+      return state.siteKey;
+    },
   },
   mutations: {
     setUser(state: State, values: User) {

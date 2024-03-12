@@ -1,13 +1,13 @@
 declare interface User {
-  id?: number
-  username : string | null
-  is_admin: boolean
+  id?: number;
+  username: string | null;
+  is_admin: boolean;
 }
-
 
 declare interface AminLogin {
   username: string | null;
   password: string | null;
+  token: string | null;
 }
 declare interface AdminConfig {
   username: string | null;

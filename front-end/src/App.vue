@@ -37,6 +37,7 @@ export default Vue.extend({
   methods: {
     async init() {
       let data = await adminServiceApi.config();
+      this.$store.commit("setSiteKey", data.captcha_site_key)
       if (!data.config) {
         this.$router.push({ name: "Config" });
       } else {

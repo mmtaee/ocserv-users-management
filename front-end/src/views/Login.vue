@@ -43,6 +43,25 @@
                         autocomplete="new-password"
                       />
                     </v-col>
+
+                    <!-- captcha field -->
+                    <v-col
+                      cols="12"
+                      md="12"
+                      class="pa-0 ma-0 mb-2"
+                      style="height: 85px; border: 2px solid rgba(0, 0, 0, 0)"
+                      v-if="$store.getters.getGoogleSiteKey"
+                    >
+                      <center>
+                        <Captcha
+                          ref="recaptcha"
+                          @token="(token) => (input.token = token)"
+                          @validForm="
+                            (valid) => (!valid ? (input.token = null) : false)
+                          "
+                        />
+                      </center>
+                    </v-col>
                   </v-row>
                 </v-form>
               </v-card-text>
@@ -52,7 +71,7 @@
                   outlined
                   @click="login"
                   block
-                  :disabled="!formValid"
+                  :disabled="validateFormComput"
                   :loading="loading"
                 >
                   Apply
@@ -75,6 +94,10 @@ import { adminServiceApi } from "@/utils/services";
 export default Vue.extend({
   name: "Login",
 
+  components: {
+    Captcha: () => import("@/components/Captcha.vue"),
+  },
+
   data(): {
     input: AminLogin;
     rules: object;
@@ -86,6 +109,7 @@ export default Vue.extend({
       input: {
         username: null,
         password: null,
+        token: null,
       },
       rules: { required: required },
       passwordShow: false,
@@ -94,17 +118,30 @@ export default Vue.extend({
     };
   },
 
+  computed: {
+    validateFormComput() {
+      if (!this.formValid) return true;
+      if (
+        Boolean(this.$store.getters.getGoogleSiteKey) &&
+        !Boolean(this.input.token)
+      ) {
+        return true;
+      }
+      return false;
+    },
+  },
+
   methods: {
     async login() {
       this.loading = true;
       let data: {
         token: string;
-        user: User
+        user: User;
       } = await adminServiceApi.login(this.input);
-      let status: number = adminServiceApi.status();      
-      if (status == 200){
+      let status: number = adminServiceApi.status();
+      if (status == 200) {
         localStorage.setItem("token", data.token);
-        this.$store.commit("setUser", data.user)
+        this.$store.commit("setUser", data.user);
         this.$store.commit("setIsLogin", true);
         this.$router.push({ name: "Dashboard" });
       }
