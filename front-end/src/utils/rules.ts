@@ -18,4 +18,10 @@ function ip(v: any): any {
   return v && !v.match(ipformat) ? "IP Format Required" : true;
 }
 
-export { required, number, ip };
+function ipOrRange(v: any): any {
+  var ipformat =
+    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:3[0-2]|[1-2]?[0-9]))?$|^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.)?(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){2}$/;
+  return v && !v.match(ipformat) ? "IP Format Required" : true;
+}
+
+export { required, number, ip , ipOrRange};

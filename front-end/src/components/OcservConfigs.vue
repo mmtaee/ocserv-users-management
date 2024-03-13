@@ -98,7 +98,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { OcservConfigItems } from "@/utils/types";
-import { number, ip } from "@/utils/rules";
+import { number, ip, ipOrRange } from "@/utils/rules";
 
 interface Configs {
   [key: string]: any;
@@ -175,7 +175,7 @@ export default Vue.extend({
           label: "IPV4 Network",
           model: "ipv4-network",
           type: "text",
-          rules: [ip],
+          rules: [ipOrRange],
         },
         {
           label: "No UDP",
