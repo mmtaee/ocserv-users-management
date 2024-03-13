@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends ocserv gnutls-bin build-essential 
-RUN apt-get install -y --no-install-recommends gettext-base openssl nano less sudo
+RUN apt-get install -y --no-install-recommends gettext-base openssl nano less sudo iptables cron 
 RUN apt-get install -y --no-install-recommends python3 python3-dev 
 RUN apt-get update
 RUN apt install -y python3-pip
