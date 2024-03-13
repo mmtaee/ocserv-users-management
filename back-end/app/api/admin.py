@@ -1,3 +1,6 @@
+import logging
+from sqlite3 import IntegrityError
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
@@ -41,11 +44,14 @@ class AdminViewSet(viewsets.ViewSet):
         if AdminPanelConfiguration.objects.exists():
             return Response({"error": ["Admin config exists!"]}, status=400)
         data = request.data
-        user = User.objects.create_superuser(
-            username=data.pop("username"),
-            password=data.pop("password"),
-            is_superuser=True,
-        )
+        try:
+            user = User.objects.create_superuser(
+                username=data.pop("username"),
+                password=data.pop("password"),
+                is_superuser=True,
+            )
+        except IntegrityError as e:
+            logging.warning(f"user already exists: {e}")
         serializer = AminConfigSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         admin_config = serializer.save()
