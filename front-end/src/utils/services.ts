@@ -33,7 +33,7 @@ class Services {
   };
 
   private validatePath(): void {
-    if (!this.path.endsWith("/")) {
+    if (Boolean(this.path) && !this.path.endsWith("/")) {
       this.path = this.path + "/";
     }
   }

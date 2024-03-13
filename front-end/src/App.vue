@@ -18,7 +18,7 @@ export default Vue.extend({
   components: {
     AppBar: () => import("@/components/AppBar.vue"),
     SnackBar: () => import("@/components/SnackBar.vue"),
-    LoadingOverlay: () => import("@/components/LoadingOverlay.vue")
+    LoadingOverlay: () => import("@/components/LoadingOverlay.vue"),
   },
   data() {
     return {
@@ -28,8 +28,8 @@ export default Vue.extend({
   async mounted() {
     this.$store.commit("setLoadingOverlay", {
       active: true,
-      text: "Loading ..."
-    })
+      text: "Loading ...",
+    });
     await this.init();
     this.allowRouting = true;
   },
@@ -37,10 +37,11 @@ export default Vue.extend({
   methods: {
     async init() {
       let data = await adminServiceApi.config();
-      this.$store.commit("setSiteKey", data.captcha_site_key)
       if (!data.config) {
+        localStorage.removeItem("token");
         this.$router.push({ name: "Config" });
       } else {
+        this.$store.commit("setSiteKey", data.captcha_site_key);
         if (!localStorage.getItem("token")) {
           this.$router.push({ name: "Login" });
         } else {
