@@ -40,7 +40,7 @@
                 <v-list-item-subtitle class="muted--text">
                   {{
                     $store.getters.getUserstate.is_admin
-                      ? "Amin User"
+                      ? "Admin User"
                       : "Staff User"
                   }}
                 </v-list-item-subtitle>
