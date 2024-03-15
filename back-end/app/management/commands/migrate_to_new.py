@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.utils import IntegrityError
 import sqlite3
 
-from app.models import OcservUser, OcservGroup, AdminConfig
+from app.models import OcservUser, OcservGroup, AdminPanelConfiguration
 
 
 class Command(BaseCommand):
@@ -40,7 +40,7 @@ class Command(BaseCommand):
             raise CommandError(
                 "Default admin configs not found. Try to create it from panel first!"
             )
-        if not AdminConfig.objects.exists():
+        if not AdminPanelConfiguration.objects.exists():
             raise CommandError(
                 "Default admin configs not found. Try to create it from panel first!"
             )
