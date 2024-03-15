@@ -2,10 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
-
 from rest_framework.exceptions import ValidationError as RestValidationError
-
-from uuid import uuid4
 
 from ocserv.modules.handlers import OcservGroupHandler, OcservUserHandler
 
@@ -132,6 +129,11 @@ class OcservUser(models.Model):
             active=self.active,
         )
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        user_handler = OcservUserHandler(username=self.username)
+        user_handler.delete()
+        super().delete(*args, **kwargs)
 
 
 class MonthlyTrafficStat(models.Model):

@@ -134,7 +134,8 @@ python3 /app/manage.py createadmin -u USERNAME -p PASSWORD
         
 2- copy to dev.env
 ```bash
->>> cat << EOF >> prod.env
+>>> cat << EOF >> dev.env
+DEBUG=True
 ORG=End-way
 EXPIRE=3650
 CN=End-way-Cisco-VPN
