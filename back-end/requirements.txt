@@ -1,6 +1,6 @@
 asgiref==3.7.2
 Django==4.2
-drf_yasg ==1.20.0
+drf_yasg==1.21.5
 django-cors-headers==4.0.0
 djangorestframework==3.14.0
 python-decouple==3.8
