@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
+    "drf_yasg",
     "app.apps.AppConfig",
 ]
 
@@ -71,18 +72,10 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 LANGUAGE_CODE = "en-us"
@@ -98,23 +91,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 if DEBUG:
-    if os.system("pip freeze | grep drf-yasg") != 0:
-        os.system("python3 -m pip install drf-yasg")
     CORS_ALLOW_ALL_ORIGINS = True
     LOG_PATH = Path.joinpath(BASE_DIR, "log.txt")
-    INSTALLED_APPS += ["drf_yasg"]
-    SWAGGER_SETTINGS = {
-        "USE_SESSION_AUTH": False,
-        "SECURITY_DEFINITIONS": {
-            "Token": {
-                "type": "apiKey",
-                "name": "Authorization",
-                "in": "header",
-                "description": "Authorization: Token TOKEN",
-            }
-        },
-        "SHOW_REQUEST_HEADERS": True,
-    }
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = list(
@@ -123,6 +101,20 @@ else:
     LOG_PATH = "/var/log/backend.log"
 
 # SOCKET_PASSWD_FILE = "/var/log/socket_passwd"
+
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "SECURITY_DEFINITIONS": {
+        "Token": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization: Token TOKEN",
+        }
+    },
+    "SHOW_REQUEST_HEADERS": True,
+}
+
 
 OSCERV_CONFIG_KEYS = [
     "rx-data-per-sec",
@@ -149,4 +141,3 @@ OSCERV_CONFIG_KEYS = [
 DOCKERIZED = os.environ.get("DOCKERIZED", config("DOCKERIZED", "False")).title() == "True"
 
 OCSERV_LOG_FILE = os.environ.get("OCSERV_LOG_FILE", config("OCSERV_LOG_FILE", None))
-
