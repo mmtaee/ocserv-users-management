@@ -1,9 +1,7 @@
 import os
 import random
 from datetime import datetime
-from unittest import TestCase
 from unittest.mock import patch
-from django.core.management import call_command
 from rest_framework.exceptions import ValidationError
 from app.models import (
     AdminPanelConfiguration,
@@ -13,31 +11,13 @@ from app.models import (
 )
 from decimal import Decimal
 
-from ocserv.settings import BASE_DIR
-
-default_configs = {
-    "routes": ["192.168.1.6", "192.168.2.6"],
-    "dns1": ["8.8.8.8"],
-    "ipv4-network": "172.16.12.1/22",
-    "rx-data-per-sec": 500000,
-}
-
-update_default_configs = default_configs
-update_default_configs.update({"mtu": 1500})
+from app.tests import update_default_configs, SetUpTestAbstract, default_configs
 
 
-class ModelsTestCase(TestCase):
+class ModelsTestCase(SetUpTestAbstract):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.counter = int(os.environ.get("COUNTER", default=100))
-
-    @classmethod
-    def setUpClass(cls):
-        test_db_path = BASE_DIR / "db/db_test.sqlite3"
-        if os.path.exists(test_db_path):
-            os.remove(test_db_path)
-        call_command("migrate")
-        super().setUpClass()
+        self.counter = int(os.environ.get("COUNTER", default=10))
 
     def create_bulk_ocserv_groups(self):
         bulk_obj = []
@@ -72,23 +52,6 @@ class ModelsTestCase(TestCase):
             )
         users = OcservUser.objects.bulk_create(bulk_users)
         return users
-
-    @patch("ocserv.modules.handlers.OcservGroupHandler.update_defaults")
-    def setUp(self, mock_data) -> None:
-        if not OcservGroup.objects.filter(name="defaults").exists():
-            self.group = OcservGroup.objects.create(
-                name="defaults", desc="defaults group"
-            )
-        else:
-            self.group = OcservGroup.objects.get(name="defaults")
-        if (admin := AdminPanelConfiguration.objects.last()) is None:
-            admin = AdminPanelConfiguration.objects.create(
-                captcha_site_key=os.environ.get("CAPTCHA_SITE_KEY"),
-                captcha_secret_key=os.environ.get("CAPTCHA_SECRET_KEY"),
-                default_traffic=10,
-                default_configs=default_configs,
-            )
-        self.admin = admin
 
     @patch("ocserv.modules.handlers.OcservGroupHandler.update_defaults")
     def test_admin_panel_configuration_create_extra(self, *args):
@@ -188,5 +151,3 @@ class ModelsTestCase(TestCase):
         MonthlyTrafficStat.objects.bulk_create(bulk_stats)
         self.assertEqual(MonthlyTrafficStat.objects.count(), len(queryset))
 
-
-# DEBUG=False COUNTER=1000 ./manage.py test --settings=ocserv.settings_test

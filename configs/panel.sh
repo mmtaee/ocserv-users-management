@@ -33,7 +33,7 @@ python3 -m venv ${SITE_DIR}/back-end/venv
 source ${SITE_DIR}/back-end/venv/bin/activate
 pip install -U wheel setuptools
 pip install -r ${SITE_DIR}/back-end/requirements.txt
-pip install uwsgi
+pip install uwsgi==2.0.24
 SECRET_KEY=$(openssl rand -base64 '64')
 echo "DEBUG=False" >${SITE_DIR}/back-end/.env
 echo "SECRET_KEY=${SECRET_KEY}" >>${SITE_DIR}/back-end/.env

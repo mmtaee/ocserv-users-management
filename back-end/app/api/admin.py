@@ -44,14 +44,11 @@ class AdminViewSet(viewsets.ViewSet):
         if AdminPanelConfiguration.objects.exists():
             return Response({"error": ["Admin config exists!"]}, status=400)
         data = request.data
-        try:
-            user = User.objects.create_superuser(
-                username=data.pop("username"),
-                password=data.pop("password"),
-                is_superuser=True,
-            )
-        except IntegrityError as e:
-            logging.warning(f"user already exists: {e}")
+        user, _ = User.objects.get_or_create(
+            username=data.pop("username"),
+            password=data.pop("password"),
+            is_superuser=True,
+        )
         serializer = AminConfigSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         admin_config = serializer.save()
@@ -99,9 +96,7 @@ class AdminViewSet(viewsets.ViewSet):
 
     @get_admin_schema("configuration_get", method="GET")
     @get_admin_schema("configuration_patch", method="PATCH")
-    @action(
-        detail=False, methods=["GET", "PATCH"], permission_classes=[IsAuthenticated]
-    )
+    @action(detail=False, methods=["GET", "PATCH"], permission_classes=[IsAuthenticated])
     def configuration(self, request):
         data = request.data.copy()
         admin_config = AdminPanelConfiguration.objects.last()
@@ -138,9 +133,7 @@ class AdminViewSet(viewsets.ViewSet):
         if (old_password := data.get("old_password")) is None or (
             password := data.get("password")
         ) is None:
-            return Response(
-                {"error": ["old_password or password is required!"]}, status=400
-            )
+            return Response({"error": ["old_password or password is required!"]}, status=400)
         if not check_password(old_password, request.user.password):
             return Response({"error": ["invalid old password"]}, status=400)
         try:
@@ -155,9 +148,7 @@ class AdminViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["GET", "POST"], permission_classes=[IsAuthenticated])
     def staffs(self, request):
         if not request.user.is_superuser:
-            return Response(
-                {"error": ["you have not access to this route"]}, status=403
-            )
+            return Response({"error": ["you have not access to this route"]}, status=403)
         if request.method == "GET":
             users = User.objects.all().exclude(id=request.user.id)
             serializer = UserSerializer(users, many=True)
@@ -189,8 +180,6 @@ class AdminViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             return Response({"error": ["Staff not found!"]}, status=404)
         if staff.is_superuser:
-            return Response(
-                {"error": ["you have not access to delete admin role"]}, status=403
-            )
+            return Response({"error": ["you have not access to delete admin role"]}, status=403)
         staff.delete()
         return Response(status=204)
