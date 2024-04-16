@@ -1,9 +1,7 @@
-import logging
-from sqlite3 import IntegrityError
-
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -155,14 +153,14 @@ class AdminViewSet(viewsets.ViewSet):
             status = 200
         else:
             data = request.data
-            user = User.objects.create_user(
+            user, create = User.objects.get_or_create(
                 username=data["username"],
                 password=data["password"],
                 is_staff=False,
                 is_superuser=False,
             )
             serializer = UserSerializer(user)
-            status = 202
+            status = 202 if create else 200
         return Response(serializer.data, status=status)
 
     @get_admin_schema("delete_staff")
@@ -174,7 +172,7 @@ class AdminViewSet(viewsets.ViewSet):
     )
     def delete_staff(self, request, pk=None):
         if not request.user.is_superuser:
-            return Response(status=403)
+            return Response({"error": ["you have not access to this route"]}, status=403)
         try:
             staff = User.objects.get(id=pk)
         except User.DoesNotExist:

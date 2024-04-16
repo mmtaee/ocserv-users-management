@@ -262,17 +262,13 @@ schemas = {
             200: openapi.Response(
                 description="Successful Response",
                 examples={
-                    "application/json": [
-                        {"id": 0, "username": "string", "is_admin": False}
-                    ]
+                    "application/json": [{"id": 0, "username": "string", "is_admin": False}]
                 },
             ),
             403: openapi.Response(
                 description="Bad Request",
                 examples={
-                    "application/json": {
-                        "error": ["you have not access to this route"]
-                    },
+                    "application/json": {"error": ["you have not access to this route"]},
                 },
             ),
         },
@@ -293,6 +289,16 @@ schemas = {
             },
         ),
         "responses": {
+            200: openapi.Response(
+                description="Successful Response",
+                examples={
+                    "application/json": {
+                        "id": 0,
+                        "username": "string",
+                        "is_admin": False,
+                    }
+                },
+            ),
             201: openapi.Response(
                 description="Successful Response",
                 examples={
@@ -306,9 +312,7 @@ schemas = {
             403: openapi.Response(
                 description="Bad Request",
                 examples={
-                    "application/json": {
-                        "error": ["you have not access to this route"]
-                    },
+                    "application/json": {"error": ["you have not access to this route"]},
                 },
             ),
         },
@@ -319,9 +323,7 @@ schemas = {
             403: openapi.Response(
                 description="Bad Request",
                 examples={
-                    "application/json": {
-                        "error": ["you have not access to this route"]
-                    },
+                    "application/json": {"error": ["you have not access to this route"]},
                 },
             ),
             404: openapi.Response(

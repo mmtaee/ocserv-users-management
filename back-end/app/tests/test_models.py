@@ -11,10 +11,10 @@ from app.models import (
 )
 from decimal import Decimal
 
-from app.tests import update_default_configs, SetUpTestAbstract, default_configs
+from app.tests import update_default_configs, OcservTestAbstract, default_configs
 
 
-class ModelsTestCase(SetUpTestAbstract):
+class ModelsTestCase(OcservTestAbstract):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.counter = int(os.environ.get("COUNTER", default=10))
@@ -150,4 +150,3 @@ class ModelsTestCase(SetUpTestAbstract):
             )
         MonthlyTrafficStat.objects.bulk_create(bulk_stats)
         self.assertEqual(MonthlyTrafficStat.objects.count(), len(queryset))
-
