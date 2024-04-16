@@ -51,6 +51,7 @@ class OcservGroup(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        self.name = self.name.replace(" ", "_")
         if (
             self.name == "defaults"
             and OcservGroup.objects.filter(name="defaults").exists()
