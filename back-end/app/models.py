@@ -20,9 +20,7 @@ class AdminPanelConfiguration(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             if AdminPanelConfiguration.objects.exists():
-                raise RestValidationError(
-                    {"error": ["Amin Configuration already exists"]}
-                )
+                raise RestValidationError({"error": ["Amin Configuration already exists"]})
             if not OcservGroup.objects.filter(name="defaults").exists():
                 OcservGroup.objects.create(name="defaults", desc="defaults group")
 
@@ -42,21 +40,24 @@ class OcservGroup(models.Model):
     name = models.CharField(max_length=128, unique=True)
     desc = models.TextField(null=True, blank=True)
     configs = models.JSONField(default=dict, null=True, blank=True)
+    _last_group_name = None
 
     class Meta:
         verbose_name = "Ocserv Group"
         verbose_name_plural = "Ocserv Groups"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._last_group_name = self.name
+
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.name = self.name.replace(" ", "_")
-        if (
-            self.name == "defaults"
-            and OcservGroup.objects.filter(name="defaults").exists()
-        ):
+        if self.name == "defaults" and OcservGroup.objects.filter(name="defaults").exists():
             raise RestValidationError({"error": ["Invalid name (defaults) for group"]})
+
+        self.name = self.name.replace(" ", "_")
         if self.configs and type(self.configs) == dict:
             new_configs = {}
             for key, val in self.configs.items():
@@ -66,13 +67,15 @@ class OcservGroup(models.Model):
         else:
             self.configs = {}
         if self.name != "defaults":
+            if self.pk and self._last_group_name != self.name:
+                OcservGroupHandler().delete(self._last_group_name)
             OcservGroupHandler().add_or_update(self.name, self.configs)
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.name == "defaults":
             return False
-        OcservGroupHandler().destroy(self.name)
+        OcservGroupHandler().delete(self.name)
         super().delete(*args, **kwargs)
 
 
@@ -93,18 +96,14 @@ class OcservUser(models.Model):
     expire_date = models.DateField(null=True, blank=True)
     deactivate_date = models.DateField(null=True, blank=True)
     desc = models.TextField(null=True, blank=True)
-    traffic = models.PositiveSmallIntegerField(
-        choices=TRAFFIC_MODE_CHOICES, default=MONTHLY
-    )
+    traffic = models.PositiveSmallIntegerField(choices=TRAFFIC_MODE_CHOICES, default=MONTHLY)
     default_traffic = models.PositiveIntegerField(default=0)
     tx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
     rx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__group = (
-            self.group if hasattr(self, "group") and getattr(self, "group") else None
-        )
+        self.__group = self.group if hasattr(self, "group") and getattr(self, "group") else None
 
     class Meta:
         verbose_name = "Ocserv User"

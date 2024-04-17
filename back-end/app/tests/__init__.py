@@ -9,11 +9,6 @@ from rest_framework.test import APIRequestFactory
 from app.api.admin import AdminViewSet
 from app.models import OcservGroup, AdminPanelConfiguration, OcservUser
 
-test_db_path = settings.BASE_DIR / "db/db_test.sqlite3"
-if os.path.exists(test_db_path):
-    os.remove(test_db_path)
-
-call_command("migrate")
 
 default_configs = {
     "routes": ["192.168.1.6", "192.168.2.6"],
@@ -33,6 +28,12 @@ admin_password = "main_test_admin_passwd"
 @patch("ocserv.modules.handlers.OcservUserHandler.add_or_update")
 def init_db(*args, **kwargs):
     global admin_configs
+
+    test_db_path = settings.BASE_DIR / "db/db_test.sqlite3"
+    if os.path.exists(test_db_path):
+        os.remove(test_db_path)
+
+    call_command("migrate")
 
     if (admin_configs := AdminPanelConfiguration.objects.last()) is None:
         admin_configs = AdminPanelConfiguration.objects.create(

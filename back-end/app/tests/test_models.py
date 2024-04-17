@@ -104,6 +104,7 @@ class ModelsTestCase(TestCase):
         self.assertEqual(OcservGroup.objects.count(), (self.counter * 2) + 1)
 
     @patch("ocserv.modules.handlers.OcservGroupHandler.add_or_update")
+    @patch("ocserv.modules.handlers.OcservGroupHandler.delete")
     def test_model_ocserv_group_edit(self, *args, **kwargs):
         obj = OcservGroup.objects.create(
             name="test",
@@ -121,7 +122,7 @@ class ModelsTestCase(TestCase):
         obj.desc = "test group edit"
         obj.save()
 
-    @patch("ocserv.modules.handlers.OcservGroupHandler.destroy")
+    @patch("ocserv.modules.handlers.OcservGroupHandler.delete")
     def test_model_ocserv_group_remove(self, *args):
         OcservGroup.objects.filter(name__startswith="test").delete()
         self.assertEqual(OcservGroup.objects.count(), 1)

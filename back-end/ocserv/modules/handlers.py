@@ -95,7 +95,7 @@ class OcservGroupHandler:
             return False
         return self.reload()
 
-    def destroy(self, name):
+    def delete(self, name):
         path = f"{self.GROUP_DIR}/{name}"
         try:
             if os.path.exists(path):

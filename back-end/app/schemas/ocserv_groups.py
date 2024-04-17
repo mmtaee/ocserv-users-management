@@ -90,7 +90,7 @@ schemas = {
                     "application/json": {
                         "error": [
                             "Name 'defaults' is not a valid name for group",
-                            "Ocserv group does not created",
+                            "serializer errors",
                         ]
                     },
                 },
@@ -141,7 +141,7 @@ schemas = {
             400: openapi.Response(
                 description="Bad Request",
                 examples={
-                    "application/json": {"error": ["Ocserv group does not updated"]},
+                    "application/json": {"error": ["serializer errors"]},
                 },
             ),
         },
