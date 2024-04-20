@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-
 from rest_framework.exceptions import ValidationError as RestValidationError
 
 from ocserv.modules.handlers import OcservGroupHandler, OcservUserHandler
@@ -20,7 +19,9 @@ class AdminPanelConfiguration(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             if AdminPanelConfiguration.objects.exists():
-                raise RestValidationError({"error": ["Amin Configuration already exists"]})
+                raise RestValidationError(
+                    {"error": ["Amin Configuration already exists"]}
+                )
             if not OcservGroup.objects.filter(name="defaults").exists():
                 OcservGroup.objects.create(name="defaults", desc="defaults group")
 
@@ -54,7 +55,10 @@ class OcservGroup(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.name == "defaults" and OcservGroup.objects.filter(name="defaults").exists():
+        if (
+            self.name == "defaults"
+            and OcservGroup.objects.filter(name="defaults").exists()
+        ):
             raise RestValidationError({"error": ["Invalid name (defaults) for group"]})
 
         self.name = self.name.replace(" ", "_")
@@ -96,14 +100,18 @@ class OcservUser(models.Model):
     expire_date = models.DateField(null=True, blank=True)
     deactivate_date = models.DateField(null=True, blank=True)
     desc = models.TextField(null=True, blank=True)
-    traffic = models.PositiveSmallIntegerField(choices=TRAFFIC_MODE_CHOICES, default=MONTHLY)
+    traffic = models.PositiveSmallIntegerField(
+        choices=TRAFFIC_MODE_CHOICES, default=MONTHLY
+    )
     default_traffic = models.PositiveIntegerField(default=0)
     tx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
     rx = models.DecimalField(max_digits=14, decimal_places=8, default=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__group = self.group if hasattr(self, "group") and getattr(self, "group") else None
+        self.__group = (
+            self.group if hasattr(self, "group") and getattr(self, "group") else None
+        )
 
     class Meta:
         verbose_name = "Ocserv User"

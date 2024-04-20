@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from django.utils import timezone
@@ -21,7 +22,9 @@ class OcservUsersViewSet(viewsets.ViewSet):
     @get_ocserv_user_schema("list")
     def list(self, request):
         online_users = user_handler.online()
-        online_users = [user.get("username") for user in online_users if user.get("username")]
+        online_users = [
+            user.get("username") for user in online_users if user.get("username")
+        ]
         users = OcservUser.objects.all().select_related("group")
         if username := request.GET.get("username"):
             users = users.filter(username__icontains=username)
@@ -29,7 +32,8 @@ class OcservUsersViewSet(viewsets.ViewSet):
             request,
             users.order_by(
                 "id"
-                if (ascending := request.GET.get("ascending")) and eval(ascending.title())
+                if (ascending := request.GET.get("ascending"))
+                and eval(ascending.title())
                 else "-id"
             ),
             OcservUserSerializer,
@@ -48,15 +52,15 @@ class OcservUsersViewSet(viewsets.ViewSet):
         if OcservUser.objects.filter(username=username).exists():
             return Response({"error": ["Ocserv User exists"]}, status=400)
         user_handler.username = username
-        result = user_handler.add_or_update(
-            password=data.get("password"), group=group.name, active=data.get("active")
-        )
-        if result:
-            serializer = OcservUserSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response({"error": ["Ocserv User not created"]}, status=400)
+        # result = user_handler.add_or_update(
+        #     password=data.get("password"), group=group.name, active=data.get("active")
+        # )
+        # if result:
+        serializer = OcservUserSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
+        # return Response({"error": ["Ocserv User not created"]}, status=400)
 
     @get_ocserv_user_schema("retrieve", pk=True)
     def retrieve(self, request, pk=None):
@@ -69,37 +73,30 @@ class OcservUsersViewSet(viewsets.ViewSet):
 
     @get_ocserv_user_schema("partial_update", pk=True)
     def partial_update(self, request, pk=None):
-        update = True
-        result = True
+        # update = True
+        # result = True
         try:
             user = OcservUser.objects.select_related("group").get(pk=pk)
         except OcservUser.DoesNotExist:
             return Response({"error": ["Ocserv user does not exist"]}, status=404)
         data = request.data.copy()
         data.pop("username", None)
-        old_password = user.password
-        expire_date = data.get("expire_date")
-        if data.get("password") == old_password:
-            update = False
-        if (
-            expire_date
-            and datetime.strptime(expire_date, "%Y-%m-%d").date() <= timezone.now().date()
-        ):
-            data["active"] = False
-            update = True
-        if update:
-            user_handler.username = user.username
-            result = user_handler.add_or_update(
-                password=data.get("password"),
-                group=user.group.name,
-                active=data.get("active"),
-            )
-        if result:
-            serializer = OcservUserSerializer(instance=user, data=data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=202)
-        return Response({"error": ["Ocserv user does not updated"]}, status=400)
+        if expire_date := data.pop("expire_date", None):
+            try:
+                pattern = r"(\d{4}-\d{2}-\d{2})"
+                matches = re.findall(pattern, expire_date)
+                if matches:
+                    expire_date = matches[0]
+                    expire_date = datetime.strptime(expire_date, "%Y-%m-%d").date()
+                    data["expire_date"] = expire_date
+                    if expire_date and expire_date <= timezone.now().date():
+                        data["active"] = False
+            except Exception:
+                pass
+        serializer = OcservUserSerializer(instance=user, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=202)
 
     @get_ocserv_user_schema("destroy", pk=True)
     def destroy(self, request, pk=None):
@@ -107,12 +104,8 @@ class OcservUsersViewSet(viewsets.ViewSet):
             user = OcservUser.objects.get(pk=pk)
         except OcservUser.DoesNotExist:
             return Response({"error": ["Ocserv user does not exist"]}, status=404)
-        user_handler.username = user.username
-        result = user_handler.delete()
-        if result:
-            user.delete()
-            return Response(status=204)
-        return Response({"error": ["Ocserv user does not deleted"]}, status=400)
+        user.delete()
+        return Response(status=204)
 
     @get_ocserv_user_schema("disconnect", pk=True)
     @action(detail=True, methods=["POST"])
@@ -132,20 +125,20 @@ class OcservUsersViewSet(viewsets.ViewSet):
     @get_ocserv_user_schema("user_status", pk=True)
     @action(detail=True, methods=["POST"], url_path="status")
     def user_status_handler(self, request, pk=None):
+        if (status := request.data.get("status")) is None:
+            return Response({"error": ["status of user not found in data"]}, status=400)
         try:
-            if (status := request.data.get("status")) is None:
-                raise NotImplemented
             user = OcservUser.objects.select_related("group").get(pk=pk)
         except OcservUser.DoesNotExist:
-            return Response({"error": ["Ocserv user does not exist"]}, status=404)
-        except NotImplemented:
-            return Response({"error": ["Status of user not found in body"]}, status=400)
-        last_status = user.active
-        if last_status != status:
-            user_handler.username = user.username
-            result = user_handler.status_handler(active=status)
-            if not result:
-                return Response({"error": ["Ocserv User change status Failed"]}, status=400)
+            return Response({"error": ["ocserv user does not exist"]}, status=404)
+        # last_status = user.active
+        # if last_status != status:
+        #     user_handler.username = user.username
+        #     result = user_handler.status_handler(active=status)
+        #     if not result:
+        #         return Response(
+        #             {"error": ["Ocserv User change status Failed"]}, status=400
+        #         )
         user.active = status
         user.save()
         return Response({"message": ["Ocserv user status changed"]}, status=202)
@@ -160,7 +153,9 @@ class OcservUsersViewSet(viewsets.ViewSet):
         for item in users:
             username = item[0]
             group_name = item[1]
-            if group_name == "*" or group_name not in groups.values_list("name", flat=True):
+            if group_name == "*" or group_name not in groups.values_list(
+                "name", flat=True
+            ):
                 group_name = "defaults"
             if username not in ocserv_users:
                 OcservUser.objects.get_or_create(
@@ -172,13 +167,16 @@ class OcservUsersViewSet(viewsets.ViewSet):
                 )
                 new_users.append(username)
         online_users = user_handler.online()
-        online_users = [user.get("username") for user in online_users if user.get("username")]
+        online_users = [
+            user.get("username") for user in online_users if user.get("username")
+        ]
         users = OcservUser.objects.all().select_related("group")
         data = pagination(
             request,
             users.order_by(
                 "id"
-                if (ascending := request.GET.get("ascending")) and eval(ascending.title())
+                if (ascending := request.GET.get("ascending"))
+                and eval(ascending.title())
                 else "-id"
             ),
             OcservUserSerializer,

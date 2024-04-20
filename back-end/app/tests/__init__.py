@@ -3,12 +3,12 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.management import call_command
 from rest_framework.test import APIRequestFactory
 
 from app.api.admin import AdminViewSet
 from app.models import OcservGroup, AdminPanelConfiguration, OcservUser
-
 
 default_configs = {
     "routes": ["192.168.1.6", "192.168.2.6"],
@@ -23,6 +23,9 @@ admin_configs = None
 admin_username = "main_test_admin"
 admin_password = "main_test_admin_passwd"
 
+staff_username = "test_staff"
+staff_password = "test_staff_password"
+
 
 @patch("ocserv.modules.handlers.OcservGroupHandler.update_defaults")
 @patch("ocserv.modules.handlers.OcservUserHandler.add_or_update")
@@ -35,6 +38,10 @@ def init_db(*args, **kwargs):
 
     call_command("migrate")
 
+    OcservGroup.objects.create(
+        name="defaults", desc="defaults dec", configs=default_configs
+    )
+
     if (admin_configs := AdminPanelConfiguration.objects.last()) is None:
         admin_configs = AdminPanelConfiguration.objects.create(
             captcha_site_key=os.environ.get("CAPTCHA_SITE_KEY"),
@@ -42,6 +49,16 @@ def init_db(*args, **kwargs):
             default_traffic=10,
             default_configs=default_configs,
         )
+    User.objects.create_user(
+        username=admin_username, password=admin_password, is_superuser=True
+    )
+
+    User.objects.create_user(
+        username=staff_username,
+        password=staff_password,
+        is_superuser=False,
+        is_staff=False,
+    )
     OcservUser.objects.create(
         group=OcservGroup.objects.get(name="defaults"),
         username="init_user",
@@ -61,7 +78,16 @@ class OcservTestAbstract(TestCase):
         self.factory = APIRequestFactory()
         self.token = None
 
-    def login(self, username=admin_username, password=admin_password, status=200) -> str | None:
+    def tearDown(self):
+        User.objects.exclude(is_superuser=True).exclude(
+            username=staff_username
+        ).delete()
+        OcservGroup.objects.exclude(name="defaults").delete()
+        OcservUser.objects.exclude(username="init_user").delete()
+
+    def login(
+        self, username=admin_username, password=admin_password, status=200
+    ) -> str | None:
         request = self.factory.post(
             "/admin/login/",
             data={

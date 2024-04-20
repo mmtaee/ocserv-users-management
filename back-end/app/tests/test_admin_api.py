@@ -5,11 +5,9 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
 from app.api.admin import AdminViewSet
-from app.models import OcservUser
 from app.tests import (
     OcservTestAbstract,
     default_configs,
-    admin_username,
     admin_password,
     update_default_configs,
 )
@@ -20,13 +18,21 @@ class AdminApiTest(OcservTestAbstract):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.token = None
+        self.staff = None
 
     def setUp(self) -> None:
-        admin, _ = User.objects.get_or_create(
-            username=admin_username,
-            defaults={"password": make_password(admin_password), "is_superuser": True},
+        self.staff, _ = User.objects.get_or_create(
+            username="test_staff_user",
+            defaults={
+                "password": make_password(admin_password),
+                "is_superuser": False,
+                "is_staff": True,
+            },
         )
-        self.token, _ = Token.objects.get_or_create(user=admin)
+        token_obj, _ = Token.objects.get_or_create(
+            user=User.objects.get(username="main_test_admin")
+        )
+        self.token = token_obj.key
 
     def test_create_admin_config(self):
         data = {
@@ -60,13 +66,17 @@ class AdminApiTest(OcservTestAbstract):
         self.check_status_and_errors(response, 200)
         self.assertIn("default_configs", response.data)
         self.assertIn("captcha_secret_key", response.data)
-        self.assertEqual(response.data["default_configs"]["ipv4-network"], "172.16.12.1/22")
+        self.assertEqual(
+            response.data["default_configs"]["ipv4-network"], "172.16.12.1/22"
+        )
         self.assertEqual(response.data["default_traffic"], 10)
 
     @patch("ocserv.modules.handlers.OcservGroupHandler.update_defaults")
     def test_configuration_update(self, *args, **kwargs):
         request = self.factory.patch(
-            "/admin/configuration/", headers=self.get_header, data=update_default_configs
+            "/admin/configuration/",
+            headers=self.get_header,
+            data=update_default_configs,
         )
         response = AdminViewSet.as_view({"patch": "configuration"})(request)
         self.check_status_and_errors(response, 202)
@@ -95,25 +105,31 @@ class AdminApiTest(OcservTestAbstract):
         request = self.factory.get("/admin/dashboard/", headers=self.get_header)
         response = AdminViewSet.as_view({"get": "dashboard"})(request)
         self.check_status_and_errors(response, 200)
-        self.assertIn("Note", response.data["show_status"], "Note is not present in show_status")
+        self.assertIn(
+            "Note", response.data["show_status"], "Note is not present in show_status"
+        )
         self.assertEqual(response.data["show_ip_bans"], [])
         self.assertEqual(response.data["show_iroutes"], {})
 
     def test_change_password(self):
         staff_username = "test_staff"
         staff_password = "test_staff_password"
-        user = User.objects.create_user(
+        user, _ = User.objects.get_or_create(
             username=staff_username,
-            password=staff_password,
-            is_staff=False,
-            is_superuser=False,
+            defaults={
+                "password": staff_password,
+                "is_staff": False,
+                "is_superuser": False,
+            },
         )
         self.token = self.login(staff_username, staff_password)
         data = {
             "old_password": staff_password,
             "password": "new_test_staff_password",
         }
-        request = self.factory.post("/admin/change_password/", headers=self.get_header, data=data)
+        request = self.factory.post(
+            "/admin/change_password/", headers=self.get_header, data=data
+        )
         response = AdminViewSet.as_view({"post": "change_password"})(request)
         self.check_status_and_errors(response, 202)
         self.token = None
@@ -127,21 +143,29 @@ class AdminApiTest(OcservTestAbstract):
 
     def test_staff_create(self):
         data = {"username": "setup_test_staff1", "password": "setup_test_staff_passwd"}
-        request = self.factory.post("/admin/staffs/", headers=self.get_header, data=data)
+        request = self.factory.post(
+            "/admin/staffs/", headers=self.get_header, data=data
+        )
         response = AdminViewSet.as_view({"post": "staffs"})(request)
         self.check_status_and_errors(response, 202)
         self.assertEqual(response.data.get("username"), "setup_test_staff1")
 
         # recreate same user
-        request = self.factory.post("/admin/staffs/", headers=self.get_header, data=data)
+        request = self.factory.post(
+            "/admin/staffs/", headers=self.get_header, data=data
+        )
         response = AdminViewSet.as_view({"post": "staffs"})(request)
         self.check_status_and_errors(response, 200)
         self.assertEqual(response.data.get("username"), "setup_test_staff1")
 
     def test_staff_delete(self):
         headers = self.get_header
-        request = self.factory.delete("/admin/staffs/3/", headers=headers)
-        response = AdminViewSet.as_view({"delete": "delete_staff"})(request, pk=3)
+        request = self.factory.delete(
+            f"/admin/staffs/{self.staff.id}/", headers=headers
+        )
+        response = AdminViewSet.as_view({"delete": "delete_staff"})(
+            request, pk=self.staff.id
+        )
         self.check_status_and_errors(response, 204)
 
         request = self.factory.delete("/admin/staffs/30/", headers=headers)
