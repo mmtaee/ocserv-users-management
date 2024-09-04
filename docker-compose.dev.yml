@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   ocserv_and_backend:
     restart: always
@@ -21,4 +19,4 @@ services:
 #
 #
 #
-# DOCKER_SCAN_SUGGEST=false docker compose -f docker-compose.dev.yml up -d --build
+# docker compose -f docker-compose.dev.yml up -d --build
