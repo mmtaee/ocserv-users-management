@@ -31,7 +31,7 @@ COPY configs/services_pack.sh /services.sh
 
 COPY configs/entrypoint_ocserv.sh /entrypoint.sh
 
-RUN chmod +x /services.sh /entrypoint.sh && echo net.ipv4.ip_forward=1 | tee -a /etc/sysctl.conf && sysctl 
+RUN chmod +x /services.sh /entrypoint.sh && echo net.ipv4.ip_forward=1 | tee -a /etc/sysctl.conf && sysctl -p 
 
 EXPOSE 443/tcp 443/udp
 VOLUME ["/etc/ocserv", "/app/db"]
