@@ -55,7 +55,7 @@ DOMAIN=
 PORT=20443
 EOF
 
->>> DOCKER_SCAN_SUGGEST=false docker-compose up -d --build
+>>> docker compose up -d --build
 
 ```
 
