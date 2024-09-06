@@ -27,8 +27,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         username = options["username"]
-        user = User.objects.filter(username=username)
-        if not user.exists():
+        try:
+            user = User.objects.get(username=username)
+            user[0].password = make_password(options["password"])
+            user[0].save()
+            self.stdout.write(self.style.write(f"User with username ({username}) already exists."))
+            self.stdout.write(self.style.write(f"Password updated successfully."))
+        except User.DoesNotExist:
             user = User.objects.create_user(
                 username=username,
                 password=options["password"],
@@ -36,8 +41,4 @@ class Command(BaseCommand):
                 is_superuser=False,
             )
             self.stdout.write(f"User with username ({user.username}) created.")
-        else:
-            user[0].password = make_password(options["password"])
-            user[0].save()
-            self.stdout.write(self.style.write(f"User with username ({username}) already exists."))
-            self.stdout.write(self.style.write(f"Password updated successfully."))
+
