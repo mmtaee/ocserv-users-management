@@ -29,8 +29,8 @@ class Command(BaseCommand):
         username = options["username"]
         try:
             user = User.objects.get(username=username)
-            user[0].password = make_password(options["password"])
-            user[0].save()
+            user.password = make_password(options["password"])
+            user.save()
             self.stdout.write(self.style.write(f"User with username ({username}) already exists."))
             self.stdout.write(self.style.write(f"Password updated successfully."))
         except User.DoesNotExist:
