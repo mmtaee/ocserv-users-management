@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
-from django.db import IntegrityError
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -44,9 +43,10 @@ class AdminViewSet(viewsets.ViewSet):
         data = request.data
         user, _ = User.objects.get_or_create(
             username=data.pop("username"),
-            password=data.pop("password"),
             is_superuser=True,
         )
+        user.password = make_password(data.pop("password"))
+        user.save()
         serializer = AminConfigSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         admin_config = serializer.save()
