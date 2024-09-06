@@ -31,8 +31,8 @@ class Command(BaseCommand):
             user = User.objects.get(username=username)
             user.password = make_password(options["password"])
             user.save()
-            self.stdout.write(self.style.write(f"User with username ({username}) already exists."))
-            self.stdout.write(self.style.write(f"Password updated successfully."))
+            self.stdout.write(f"User with username ({username}) already exists.")
+            self.stdout.write(f"Password updated successfully.")
         except User.DoesNotExist:
             user = User.objects.create_user(
                 username=username,
