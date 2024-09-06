@@ -2,7 +2,11 @@ from django.contrib.auth.models import User
 from django.core.management import BaseCommand
 from django.contrib.auth.hashers import make_password
 
+
 class Command(BaseCommand):
+    """
+    ./manage.py createadmin -u USERNAME -p PASSWORD
+    """
     help = "Create Staff User for panel"
 
     def add_arguments(self, parser):
@@ -33,8 +37,7 @@ class Command(BaseCommand):
             )
             self.stdout.write(f"User with username ({user.username}) created.")
         else:
-            user.password = make_password(options["password"])
-            user.save()
+            user[0].password = make_password(options["password"])
+            user[0].save()
             self.stdout.write(self.style.write(f"User with username ({username}) already exists."))
             self.stdout.write(self.style.write(f"Password updated successfully."))
-
