@@ -3,10 +3,9 @@ FROM node:latest AS vue
 ARG BACKEND_API
 WORKDIR /app
 COPY ./front-end .
-RUN apt update && apt install -y --no-install-recommends git && \
-    npm install && \
-    NODE_ENV=production VUE_APP_DOCKERIZED=true npm run build && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt update && apt install -y --no-install-recommends git && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN npm install 
+RUN NODE_ENV=production VUE_APP_DOCKERIZED=true npm run build
 
 # Nginx stage
 FROM nginx:alpine
