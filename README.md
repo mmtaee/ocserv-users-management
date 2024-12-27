@@ -1,168 +1,192 @@
-# Ocserv installation with ocserv users/groups management
-Easy-to-install OpenConnect VPN server (ocserv) setup with a powerful web panel for managing users and user groups. This solution simplifies the deployment and management of OpenConnect VPN services, offering a user-friendly interface for VPN server configuration, user authentication, and access control. Ideal for anyone looking to deploy a secure, scalable VPN solution with minimal configuration."
 
-### Web panel to manage ocserv and openconnect users
+# OpenConnect VPN Server (ocserv) with Web Panel
 
-#### Requirements(Ubuntu 20.04 or Docker host)
+This guide provides a simple and efficient way to set up and manage an OpenConnect VPN server (ocserv) with a powerful web panel for managing users and user groups. This solution offers an easy-to-deploy, scalable, and secure VPN setup with minimal configuration.
 
-## Features:
+---
 
-1- create an account with a limit of gigabytes or monthly usage
+## Key Features
 
-2- users: add, edit, update, remove, block and disconnect
+1. **User Management**:
+   - Create, update, edit, remove, block, and disconnect users.
+   - Set traffic usage limits (e.g., GB or monthly usage).
+  
+2. **Group Management**:
+   - Create, update, and remove user groups.
+  
+3. **Command Line Tools**:
+   - `occtl` command-line utility for various server operations.
+  
+4. **Statistics**:
+   - View statistics on user traffic (RX and TX).
+  
+5. **Usage Calculation**:
+   - Track data usage per user.
 
-3- group: add, edit, update and remove
+---
 
-4- occtl command tools
+## Installation Methods
 
-5- statistics
+You can install the solution using one of the following methods:
 
-6- Calculation of users' rx and tx
+### 1. **Using the `install.sh` Script**
 
-
-## Installation :
-Choose Your Installation Method:
-
-1- Use install.sh script
 ```bash
->>> chmod +x install.sh
-
->>> ./install.sh
+chmod +x install.sh
+./install.sh
 ```
 
-2- Installing panel without script
-```bash
->>> chmod +x ./configs/panel.sh
+### 2. **Installing the Panel Without Script**
 
->>> HOST=http://YOUR_DOMAIN_OR_IP ./configs/panel.sh
+```bash
+chmod +x ./configs/panel.sh
+HOST=http://YOUR_DOMAIN_OR_IP ./configs/panel.sh
 ```
 
-3- Docker host
-```bash
->>> touch prod.env
+### 3. **Docker Host Setup**
 
->>>  cat << EOF >> prod.env
+1. Create the `prod.env` file:
+
+```bash
+touch prod.env
+```
+
+2. Add the following configuration to the `prod.env` file:
+
+```bash
+cat << EOF >> prod.env
 ORG=End-way
 EXPIRE=3650
 CN=End-way-Cisco-VPN
 OC_NET=172.16.24.0/24
 
-# change it to your ip or domain
+# Replace with your domain or IP
 CORS_ALLOWED=http://HOST_IP_OR_DOMAIN,https://HOST_IP_OR_DOMAIN
-
-# change it to your ip or domain
 HOST=HOST_IP_OR_DOMAIN
 DOMAIN=
 PORT=20443
 EOF
-
->>> docker compose up -d --build
-
 ```
 
-4- frontend developing
+3. Run the Docker Compose command:
+
 ```bash
->>> docker compose -f docker-compose.dev.yml up --build
+docker compose up -d --build
 ```
 
-## create extra admin user in terminal
-*docker mode 
--- in container
+### 4. **Frontend Development Mode**
+
 ```bash
-python3 /app/manage.py createadmin -u USERNAME -p PASSWORD 
+docker compose -f docker-compose.dev.yml up --build
 ```
 
-*systemd
+---
+
+## Creating an Admin User
+
+- **Docker Mode (In Container)**:
+
 ```bash
-/var/www/site/back-end/venv/bin/python3 /var/www/site/back-end/manage.py createadmin -u USERNAME -p PASSWORD 
+python3 /app/manage.py createadmin -u USERNAME -p PASSWORD
 ```
 
+- **System Mode**:
 
-## Admin panel configuration:
-
-1- Launch your web browser.
-
-2- Navigate to http://YOUR-DOMAIN-OR-IP in the address bar.
-
-3- Configure the administrative settings as needed and proceed with the setup.
-
-
-## Migrate accounts from old panel to new panel:
-
-## commands
-
-1-  --free-traffic: migrate users with free usage traffic
-
-2- --old-path: Path to the old SQLite database
-
-
-### in os
-
-1- rename /tmp/db.sqlite3 to /tmp/
 ```bash
->>> mv /tmp/db.sqlite3 /tmp/db-old.sqlite3
+/var/www/site/back-end/venv/bin/python3 /var/www/site/back-end/manage.py createadmin -u USERNAME -p PASSWORD
 ```
 
-2- run script to migrate users
+---
+
+## Admin Panel Configuration
+
+1. **Launch Web Browser**.
+2. **Navigate to** `http://YOUR-DOMAIN-OR-IP` in the browser.
+3. **Complete the administrative setup**.
+
+---
+
+## Migrating Accounts from the Old Panel to New Panel
+
+### Migration Commands
+
+1. **For users with free traffic**:
+   
+   ```bash
+   --free-traffic
+   ```
+
+2. **Path to the old SQLite database**:
+   - **For OS**:
+
+   ```bash
+   mv /tmp/db.sqlite3 /tmp/db-old.sqlite3
+   /var/www/site/back-end/venv/bin/python3 manage.py migrate_to_new --old-path /tmp/db-old.sqlite3
+   ```
+
+   - **For Docker Host**:
+   
+   ```bash
+   mv db.sqlite3 db-old.sqlite3
+   cp db-old.sqlite3 volumes/db
+   python3 /app/manage.py migrate_to_new --old-path /app/db/db-old.sqlite3
+   ```
+
+---
+
+## Developer Mode
+
+1. **Create a `dev.env` file**:
+
 ```bash
->>> /var/www/site/back-end/venv/bin/python3 manage.py migrate_to_new --old-path /tmp/db-old.sqlite3
-```      
-
-
-### in docker host:
-
-1- rename db.sqlite3 to db-old.sqlite3
-```bash
->>> mv db.sqlite3 db-old.sqlite3
+touch dev.env
 ```
 
-2- copy db-old.sqlite3 to volumes/db
-```bash 
->>> cp db-old.sqlite3 volumes/db
-```
+2. **Add the following configuration to `dev.env`**:
 
-3- run command in docker container
 ```bash
->>> python3 /app/manage.py migrate_to_new --old-path /app/db/db-old.sqlite3
-```
-
-## developer mode
-
-1- create dev.env file 
-```bash
->>> touch dev.env
-```
-        
-2- copy to dev.env
-```bash
->>> cat << EOF >> dev.env
+cat << EOF >> dev.env
 DEBUG=True
 ORG=End-way
 EXPIRE=3650
 CN=End-way-Cisco-VPN
 OC_NET=172.16.24.0/24
 
-# change it to your ip or domain
+# Change to your domain or IP
 CORS_ALLOWED=http://127.0.0.1:9000
 
-# change it to your ip or domain
+# Change to your domain or IP
 HOST=127.0.0.1
 DOMAIN=
 PORT=20443
 EOF
 ```
-3- run backend service
+
+3. **Run the Backend Service**:
+
 ```bash
->>> docker compose -f docker-compose.dev.yml up -d --build
-```
-       
-4- run frontend service
-```bash
->>> cd front-end
->>> npm install && npm run serve
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
-5- swagger documents api
+4. **Run the Frontend Service**:
 
-Navigate to http://127.0.0.1:8000/doc/ in the address bar.
+```bash
+cd front-end
+npm install && npm run serve
+```
 
+5. **Swagger API Documentation**:
+
+Navigate to `http://127.0.0.1:8000/doc/` to access the Swagger documentation.
+
+---
+
+## Additional Notes
+
+- The OpenConnect VPN server (ocserv) is configured with best practices for security.
+- The web panel is designed to be easy to use for both admins and end users.
+- If you encounter any issues, please refer to the documentation or contact support.
+
+---
+
+By following the above steps, you can easily set up and manage your OpenConnect VPN server and provide users with secure, scalable VPN access.
