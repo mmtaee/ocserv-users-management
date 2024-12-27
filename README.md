@@ -1,4 +1,5 @@
-# ocserv-users-management
+# Ocserv installation with ocserv users/groups management
+Easy-to-install OpenConnect VPN server (ocserv) setup with a powerful web panel for managing users and user groups. This solution simplifies the deployment and management of OpenConnect VPN services, offering a user-friendly interface for VPN server configuration, user authentication, and access control. Ideal for anyone looking to deploy a secure, scalable VPN solution with minimal configuration."
 
 ### Web panel to manage ocserv and openconnect users
 
