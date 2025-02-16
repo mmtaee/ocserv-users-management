@@ -213,7 +213,7 @@ fi
 
 color_echo "35;1" "Installing ${selected_mode} .............."
 
-export CN ORG EXPIRE OC_NET DOMAIN HOST PORT
+export CN ORG EXPIRE OC_NET DOMAIN HOST PORT DNS
 
 if [[ $mode == '1' ]]; then
     UpdateDockerProdEnv
@@ -223,6 +223,7 @@ if [[ $mode == '1' ]]; then
 elif [[ $mode == '2' ]]; then
     ./configs/ocserv.sh
     ./configs/panel.sh
+    UpdateIpTables
 elif [[ $mode == '3' ]]; then
     ./configs/panel.sh
 fi

@@ -113,6 +113,8 @@ EOT
     >/etc/ocserv/defaults/group.conf
     mkdir /etc/ocserv/groups
 fi
+
+# run in script -- UpdateIpTables
 # iptables rules
 # echo -e "\e[0;32m"Adding iptables rules."\e[0m"
 # apt install -y iptables-persistent
