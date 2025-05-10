@@ -5,8 +5,7 @@ This guide provides a simple and efficient way to set up and manage an OpenConne
 
 ---
 <br />
-<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/mmtaee/ocserv-users-management">
-<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/mmtaee/ocserv-users-management"> 
+<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/mmtaee/ocserv-users-management" style="margin-right:10px"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/mmtaee/ocserv-users-management"> 
 
  
 
