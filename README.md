@@ -4,6 +4,11 @@
 This guide provides a simple and efficient way to set up and manage an OpenConnect VPN server (ocserv) with a powerful web panel for managing users and user groups. This solution offers an easy-to-deploy, scalable, and secure VPN setup with minimal configuration.
 
 ---
+<br />
+<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/mmtaee/ocserv-users-management">
+<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/mmtaee/ocserv-users-management"> 
+
+ 
 
 ## Key Features
 
