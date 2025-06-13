@@ -1,48 +1,32 @@
-db.sqlite3
+# Logs
+logs
 *.log
-*.pot
-*.pyc
-__pycache__/
-local_settings.py
-.env
-.venv/
-venv/
-media/
-TODO.txt
-.vscode
-old/
-.DS_Store
-node_modules
-package-lock.json
-dist/
-
-# local env files
-.env.local
-.env.*.local
-
-# Log files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
 
 # Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
-.vscode
+.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
+*.db
+*.sqlite
 
-volumes/
-notes.txt
-note.txt
-log.txt
-db/
-socket_passwd
-dev.env
-prod.env
-prod.env.*
-*.env
+.env
+volumes
+.volumes
+
