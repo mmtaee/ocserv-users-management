@@ -1,0 +1,129 @@
+basePath: /api
+definitions:
+  middlewares.Unauthorized:
+    properties:
+      error:
+        type: string
+    type: object
+  request.ErrorResponse:
+    properties:
+      error:
+        items:
+          type: string
+        type: array
+      message:
+        items:
+          type: string
+        type: array
+    required:
+    - error
+    - message
+    type: object
+  system.GetSystemInitResponse:
+    properties:
+      google_captcha_site_key:
+        type: string
+    type: object
+  system.GetSystemResponse:
+    properties:
+      google_captcha_secret_key:
+        type: string
+      google_captcha_site_key:
+        type: string
+    type: object
+  system.PatchSystemUpdateData:
+    properties:
+      google_captcha_secret_key:
+        type: string
+      google_captcha_site_key:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a sample Ocserv User management Api server.
+  title: Ocserv User management Example Api
+  version: "1.0"
+paths:
+  /system:
+    get:
+      consumes:
+      - application/json
+      description: Get panel System Config
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/system.GetSystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Get panel System Config
+      tags:
+      - Panel
+    patch:
+      consumes:
+      - application/json
+      description: Update panel System Config
+      parameters:
+      - description: update config data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/system.PatchSystemUpdateData'
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/system.GetSystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Update panel System Config
+      tags:
+      - Panel
+  /system/Init:
+    get:
+      consumes:
+      - application/json
+      description: Get panel System init Config
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/system.GetSystemInitResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get panel System init Config
+      tags:
+      - Panel
+swagger: "2.0"

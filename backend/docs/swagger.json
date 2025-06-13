@@ -1,0 +1,197 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample Ocserv User management Api server.",
+        "title": "Ocserv User management Example Api",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/api",
+    "paths": {
+        "/system": {
+            "get": {
+                "description": "Get panel System Config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Panel"
+                ],
+                "summary": "Get panel System Config",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/system.GetSystemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update panel System Config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Panel"
+                ],
+                "summary": "Update panel System Config",
+                "parameters": [
+                    {
+                        "description": "update config data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.PatchSystemUpdateData"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/system.GetSystemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/system/Init": {
+            "get": {
+                "description": "Get panel System init Config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Panel"
+                ],
+                "summary": "Get panel System init Config",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/system.GetSystemInitResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "middlewares.Unauthorized": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ErrorResponse": {
+            "type": "object",
+            "required": [
+                "error",
+                "message"
+            ],
+            "properties": {
+                "error": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "system.GetSystemInitResponse": {
+            "type": "object",
+            "properties": {
+                "google_captcha_site_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.GetSystemResponse": {
+            "type": "object",
+            "properties": {
+                "google_captcha_secret_key": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.PatchSystemUpdateData": {
+            "type": "object",
+            "properties": {
+                "google_captcha_secret_key": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

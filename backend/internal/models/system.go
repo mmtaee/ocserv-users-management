@@ -1,0 +1,64 @@
+package models
+
+import (
+	"errors"
+	"github.com/oklog/ulid/v2"
+	"gorm.io/gorm"
+	"ocserv-bakend/pkg/database"
+	"time"
+)
+
+type System struct {
+	ID                     uint   `gorm:"primaryKey"`
+	GoogleCaptchaSecretKey string `json:"google_captcha_secret" gorm:"type:text"`
+	GoogleCaptchaSiteKey   string `json:"google_captcha_site_key" gorm:"type:text"`
+}
+
+type User struct {
+	ID        uint       `json:"id" gorm:"primaryKey;autoIncrement" validate:"required"`
+	UID       string     `json:"uid" gorm:"type:varchar(26);not null;unique" validate:"required"`
+	Username  string     `json:"username" gorm:"type:varchar(16);not null;unique"  validate:"required"`
+	Password  string     `json:"-" gorm:"type:varchar(64); not null"`
+	IsAdmin   bool       `json:"is_admin" gorm:"type:bool;default(false)"  validate:"required"`
+	Salt      string     `json:"-" gorm:"type:varchar(8);not null"`
+	LastLogin *time.Time `json:"last_login"  validate:"required"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Token     []UserToken `json:"-"`
+}
+
+type UserToken struct {
+	ID        uint      `json:"-" gorm:"primaryKey;autoIncrement"`
+	UserID    uint      `json:"-" gorm:"index"`
+	UID       string    `json:"uid" gorm:"type:varchar(26);not null;unique"`
+	Token     string    `json:"token" gorm:"type:varchar(128)"`
+	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+	ExpireAt  time.Time `json:"expire_at"`
+	User      User      `json:"user"`
+}
+
+func (s *System) BeforeCreate(tx *gorm.DB) error {
+	ch := make(chan error, 1)
+	go func() {
+		var system System
+		db := database.Get()
+		err := db.Table("panels").First(&system).Error
+		if err != nil && system.ID == 0 {
+			ch <- nil
+		}
+		ch <- errors.New("system configs already exist")
+	}()
+	return <-ch
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	u.UID = ulid.Make().String()
+	return
+}
+
+func (t *UserToken) BeforeCreate(tx *gorm.DB) (err error) {
+	if t.UID == "" {
+		t.UID = ulid.Make().String()
+	}
+	return
+}
