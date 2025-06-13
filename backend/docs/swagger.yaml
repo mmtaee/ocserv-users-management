@@ -1,9 +1,37 @@
 basePath: /api
 definitions:
+  middlewares.PermissionDenied:
+    properties:
+      error:
+        type: string
+    type: object
   middlewares.Unauthorized:
     properties:
       error:
         type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      is_admin:
+        type: boolean
+      last_login:
+        type: string
+      uid:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    required:
+    - id
+    - is_admin
+    - last_login
+    - uid
+    - username
     type: object
   request.ErrorResponse:
     properties:
@@ -19,6 +47,18 @@ definitions:
     - error
     - message
     type: object
+  system.CreateUserData:
+    properties:
+      is_admin:
+        type: boolean
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
   system.GetSystemInitResponse:
     properties:
       google_captcha_site_key:
@@ -31,12 +71,45 @@ definitions:
       google_captcha_site_key:
         type: string
     type: object
+  system.LoginData:
+    properties:
+      password:
+        example: doe123456
+        maxLength: 16
+        minLength: 2
+        type: string
+      remember_me:
+        type: boolean
+      token:
+        type: string
+      username:
+        example: john_doe
+        maxLength: 16
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
+    type: object
   system.PatchSystemUpdateData:
     properties:
       google_captcha_secret_key:
         type: string
       google_captcha_site_key:
         type: string
+    required:
+    - google_captcha_secret_key
+    - google_captcha_site_key
+    type: object
+  system.UserLoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - token
+    - user
     type: object
 info:
   contact: {}
@@ -78,7 +151,7 @@ paths:
       - application/json
       description: Update panel System Config
       parameters:
-      - description: update config data
+      - description: update system config data
         in: body
         name: request
         required: true
@@ -124,6 +197,45 @@ paths:
           schema:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Get panel System init Config
+      tags:
+      - Panel
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Create user Admin or simple
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create user data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/system.CreateUserData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Create user
       tags:
       - Panel
 swagger: "2.0"

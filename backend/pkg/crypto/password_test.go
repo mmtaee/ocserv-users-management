@@ -1,12 +1,10 @@
 package crypto_test
 
 import (
-	"testing"
-
-	"ocserv/pkg/config"
-	"ocserv/pkg/crypto"
-
 	"github.com/stretchr/testify/assert"
+	"ocserv-bakend/pkg/config"
+	"ocserv-bakend/pkg/crypto"
+	"testing"
 )
 
 func setup() *crypto.CustomPassword {
