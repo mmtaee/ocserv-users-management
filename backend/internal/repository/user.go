@@ -19,6 +19,8 @@ type UserRepositoryInterface interface {
 	CreateToken(ctx context.Context, id uint, uid string, rememberMe bool, isAdmin bool) (string, error)
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
 	Users(ctx context.Context, pagination *request.Pagination) (*[]models.User, int64, error)
+	ChangePassword(ctx context.Context, uid, password, salt string) error
+	DeleteUser(ctx context.Context, uid string) error
 }
 
 func NewUserRepository() *UserRepository {
@@ -91,4 +93,31 @@ func (r *UserRepository) Users(ctx context.Context, pagination *request.Paginati
 		return nil, 0, err
 	}
 	return &staffs, totalRecords, nil
+}
+
+func (r *UserRepository) ChangePassword(ctx context.Context, uid, password, salt string) error {
+	err := r.db.WithContext(ctx).Where("uid = ?", uid).Updates(
+		map[string]interface{}{
+			"password": password,
+			"salt":     salt,
+		},
+	).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *UserRepository) DeleteUser(ctx context.Context, uid string) error {
+	var user models.User
+	err := r.db.WithContext(ctx).Where("uid = ? AND is_admin = ?", uid, false).First(&user).Error
+	if err != nil {
+		return err
+	}
+
+	err = r.db.WithContext(ctx).Delete(&user).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

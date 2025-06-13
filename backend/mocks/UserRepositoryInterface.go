@@ -16,6 +16,24 @@ type UserRepositoryInterface struct {
 	mock.Mock
 }
 
+// ChangePassword provides a mock function with given fields: ctx, uid, password, salt
+func (_m *UserRepositoryInterface) ChangePassword(ctx context.Context, uid string, password string, salt string) error {
+	ret := _m.Called(ctx, uid, password, salt)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChangePassword")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
+		r0 = rf(ctx, uid, password, salt)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateToken provides a mock function with given fields: ctx, id, uid, rememberMe, isAdmin
 func (_m *UserRepositoryInterface) CreateToken(ctx context.Context, id uint, uid string, rememberMe bool, isAdmin bool) (string, error) {
 	ret := _m.Called(ctx, id, uid, rememberMe, isAdmin)
@@ -72,6 +90,24 @@ func (_m *UserRepositoryInterface) CreateUser(ctx context.Context, user *models.
 	}
 
 	return r0, r1
+}
+
+// DeleteUser provides a mock function with given fields: ctx, uid
+func (_m *UserRepositoryInterface) DeleteUser(ctx context.Context, uid string) error {
+	ret := _m.Called(ctx, uid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, uid)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // GetByUsername provides a mock function with given fields: ctx, username

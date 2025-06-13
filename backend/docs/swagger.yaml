@@ -60,6 +60,13 @@ definitions:
     - page_size
     - total_records
     type: object
+  system.ChangeUserPassword:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
   system.CreateUserData:
     properties:
       admin:
@@ -223,7 +230,7 @@ paths:
       summary: Get panel System init Config
       tags:
       - System
-  /users:
+  /system/users:
     get:
       consumes:
       - application/json
@@ -278,7 +285,87 @@ paths:
       summary: List of Admin or simple users
       tags:
       - System(Users)
-  /users/login:
+  /system/users/{uid}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete simple user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Delete simple user
+      tags:
+      - System(Users)
+  /system/users/{uid}/password:
+    post:
+      consumes:
+      - application/json
+      description: Change user password
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: user new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/system.ChangeUserPassword'
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/system.UsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Change user password
+      tags:
+      - System(Users)
+  /system/users/login:
     post:
       consumes:
       - application/json

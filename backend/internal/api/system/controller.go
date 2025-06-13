@@ -229,3 +229,58 @@ func (ctrl *Controller) Users(c echo.Context) error {
 		Result: users,
 	})
 }
+
+// ChangePassword 		 Change user password
+//
+// @Summary      Change user password
+// @Description  Change user password
+// @Tags         System(Users)
+// @Accept       json
+// @Produce      json
+// @Param 		 id path int true "User ID"
+// @Param        request    body  ChangeUserPassword  true "user new password"
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Failure      403 {object} middlewares.PermissionDenied
+// @Success      200  {object}  UsersResponse
+// @Router       /system/users/{uid}/password [post]
+func (ctrl *Controller) ChangePassword(c echo.Context) error {
+	userID := c.Param("uid")
+
+	var data ChangeUserPassword
+
+	if err := ctrl.request.DoValidate(c, &data); err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	passwd := ctrl.cryptoRepo.CreatePassword(data.Password)
+
+	err := ctrl.userRepo.ChangePassword(c.Request().Context(), userID, passwd.Hash, passwd.Salt)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+// DeleteUser 	 Delete simple user
+//
+// @Summary      Delete simple user
+// @Description  Delete simple user
+// @Tags         System(Users)
+// @Accept       json
+// @Produce      json
+// @Param 		 id path int true "User ID"
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Failure      403 {object} middlewares.PermissionDenied
+// @Success      204  {object}  nil
+// @Router       /system/users/{uid} [delete]
+func (ctrl *Controller) DeleteUser(c echo.Context) error {
+	userID := c.Param("uid")
+	err := ctrl.userRepo.DeleteUser(c.Request().Context(), userID)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusNoContent, nil)
+}
