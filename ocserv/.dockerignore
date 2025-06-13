@@ -1,0 +1,6 @@
+.env
+.venv
+../.idea
+*.db
+node_modules/
+dist/

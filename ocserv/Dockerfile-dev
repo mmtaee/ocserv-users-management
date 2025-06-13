@@ -1,0 +1,51 @@
+FROM golang:1.24.2 AS builder
+LABEL authors="masoud"
+
+ENV GIN_MODE=release
+ENV CGO_ENABLED=1
+ENV GOOS=linux
+
+WORKDIR /app
+
+RUN apt-get update
+RUN apt-get install -y curl unzip
+
+RUN curl -L https://github.com/gabriel-vasile/mimetype/archive/refs/tags/v1.4.3.zip -o mimetype-v1.4.3.zip && \
+    unzip mimetype-v1.4.3.zip -d /app && \
+    rm mimetype-v1.4.3.zip
+
+COPY ../backend .
+
+RUN echo "\nreplace github.com/gabriel-vasile/mimetype v1.4.3 =>  /app/mimetype-1.4.3" >> go.mod
+
+RUN go mod download
+
+RUN go build -o ocserv_api main.go
+
+FROM ubuntu:24.04
+#FROM debian:12-slim
+
+ENV SECRET_KEY_FILE_NAME=/tmp/init_secret
+ENV LOG_FILE_PATH=/var/log/ocserv/ocserv.log
+
+RUN apt update
+
+RUN apt install -y --no-install-recommends ocserv ca-certificates procps gnutls-bin build-essential iptables openssl less jq
+
+RUN mkdir /app /db
+
+COPY script/entrypoint.sh /entrypoint.sh
+
+COPY script/server.sh /server.sh
+
+COPY --from=builder /app/ocserv_api /ocserv_api
+
+RUN chmod +x /entrypoint.sh /server.sh /ocserv_api
+
+EXPOSE 443/tcp 443/udp
+
+VOLUME ["/etc/ocserv", "/app", "/var/log/ocserv"]
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["/server.sh"]
