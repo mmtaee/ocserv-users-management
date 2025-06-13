@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"gorm.io/gorm"
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/pkg/crypto"
 	"ocserv-bakend/pkg/database"
+	"ocserv-bakend/pkg/request"
 	"time"
 )
 
@@ -16,6 +18,7 @@ type UserRepositoryInterface interface {
 	GetByUsername(ctx context.Context, username string) (*models.User, error)
 	CreateToken(ctx context.Context, id uint, uid string, rememberMe bool, isAdmin bool) (string, error)
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
+	Users(ctx context.Context, pagination *request.Pagination) (*[]models.User, int64, error)
 }
 
 func NewUserRepository() *UserRepository {
@@ -63,4 +66,29 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) (*mo
 		return nil, err
 	}
 	return user, nil
+}
+
+func (r *UserRepository) Users(ctx context.Context, pagination *request.Pagination) (*[]models.User, int64, error) {
+	var totalRecords int64
+
+	whereFilters := "is_admin = false"
+
+	if err := r.db.WithContext(ctx).Model(&models.User{}).Where(whereFilters).Count(&totalRecords).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if pagination.Order == "" {
+		pagination.Order = "id"
+		pagination.Sort = "ASC"
+	}
+
+	var staffs []models.User
+	offset := (pagination.Page - 1) * pagination.PageSize
+	order := fmt.Sprintf("%s %s", pagination.Order, pagination.Sort)
+
+	err := r.db.WithContext(ctx).Model(&staffs).Where(whereFilters).Order(order).Limit(pagination.PageSize).Offset(offset).Scan(&staffs).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	return &staffs, totalRecords, nil
 }

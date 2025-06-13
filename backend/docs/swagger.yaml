@@ -47,9 +47,22 @@ definitions:
     - error
     - message
     type: object
+  request.Meta:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_records:
+        type: integer
+    required:
+    - page
+    - page_size
+    - total_records
+    type: object
   system.CreateUserData:
     properties:
-      is_admin:
+      admin:
         type: boolean
       password:
         type: string
@@ -111,6 +124,17 @@ definitions:
     - token
     - user
     type: object
+  system.UsersResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    required:
+    - meta
+    type: object
 info:
   contact: {}
   description: This is a sample Ocserv User management Api server.
@@ -145,7 +169,7 @@ paths:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Get panel System Config
       tags:
-      - Panel
+      - System
     patch:
       consumes:
       - application/json
@@ -179,7 +203,7 @@ paths:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Update panel System Config
       tags:
-      - Panel
+      - System
   /system/Init:
     get:
       consumes:
@@ -198,7 +222,62 @@ paths:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Get panel System init Config
       tags:
-      - Panel
+      - System
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: List of Admin or simple users
+      parameters:
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Field to order by
+        in: query
+        name: order
+        type: string
+      - description: Sort order, either ASC or DESC
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: sort
+        type: string
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/system.UsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: List of Admin or simple users
+      tags:
+      - System(Users)
   /users/login:
     post:
       consumes:
@@ -237,5 +316,5 @@ paths:
             $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Create user
       tags:
-      - Panel
+      - System(Users)
 swagger: "2.0"

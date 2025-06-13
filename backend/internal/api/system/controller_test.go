@@ -11,6 +11,7 @@ import (
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/mocks"
 	"ocserv-bakend/pkg/crypto"
+	"ocserv-bakend/pkg/request"
 	"strings"
 	"testing"
 )
@@ -160,14 +161,11 @@ func TestSystemLogin(t *testing.T) {
 
 // -------------------- TEST: user --------------------
 func TestCreateUserSuccess(t *testing.T) {
-	// Arrange
-	ctrl, mockRequest, _, mockCaptcha, mockUserRepo, mockCryptoRepo := newControllerWithMocks()
+	ctrl, mockRequest, _, _, mockUserRepo, mockCryptoRepo := newControllerWithMocks()
 
-	// Simulated request body
 	userInput := `{"username":"testuser", "password":"testpass", "admin":false}`
 	c, rec := setupEcho(http.MethodPost, "/system/users", userInput)
 
-	// Expected parsed input from DoValidate
 	mockRequest.On("DoValidate", mock.Anything, mock.Anything).
 		Return(nil).Run(func(args mock.Arguments) {
 		data := args.Get(1).(*CreateUserData)
@@ -176,13 +174,11 @@ func TestCreateUserSuccess(t *testing.T) {
 		data.Admin = false
 	})
 
-	// Simulate password hashing
 	mockCryptoRepo.On("CreatePassword", "testpass").Return(crypto.CustomPassword{
 		Hash: "hashedPass",
 		Salt: "saltValue",
 	})
 
-	// Expected user to be returned from repository
 	mockUser := &models.User{
 		ID:       1,
 		UID:      "uid-123",
@@ -191,17 +187,13 @@ func TestCreateUserSuccess(t *testing.T) {
 		IsAdmin:  false,
 	}
 
-	// Simulate user creation
 	mockUserRepo.On("CreateUser", mock.Anything, mock.Anything).Return(mockUser, nil)
 
-	// Act
 	err := ctrl.CreateUser(c)
 
-	// Assert
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusCreated, rec.Code)
 
-	// Partial JSON assertion — assert only essential fields
 	var resp map[string]interface{}
 	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	assert.NoError(t, err)
@@ -211,14 +203,37 @@ func TestCreateUserSuccess(t *testing.T) {
 	assert.Equal(t, "testuser", resp["username"])
 	assert.Equal(t, false, resp["is_admin"])
 
-	// Optional: Check for presence of optional fields without asserting values
 	assert.Contains(t, resp, "CreatedAt")
 	assert.Contains(t, resp, "UpdatedAt")
 	assert.Contains(t, resp, "last_login")
 
-	// Verify mocks
 	mockRequest.AssertExpectations(t)
 	mockCryptoRepo.AssertExpectations(t)
 	mockUserRepo.AssertExpectations(t)
-	mockCaptcha.AssertExpectations(t)
+}
+
+func TestUsers(t *testing.T) {
+	ctrl, mockRequest, _, _, mockUserRepo, _ := newControllerWithMocks()
+	c, rec := setupEcho(http.MethodGet, "/system/users", "")
+
+	pagination := &request.Pagination{Page: 1, PageSize: 10}
+	mockRequest.On("Pagination", mock.AnythingOfType("*echo.context")).Return(pagination)
+
+	mockUserRepo.
+		On("Users", mock.Anything, pagination).
+		Return(&[]models.User{}, int64(0), nil)
+
+	err := ctrl.Users(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	var resp UsersResponse
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), resp.Meta.TotalRecords)
+	assert.Empty(t, resp.Result)
+	
+	mockRequest.AssertExpectations(t)
+	mockUserRepo.AssertExpectations(t)
 }

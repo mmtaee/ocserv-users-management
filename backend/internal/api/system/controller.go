@@ -33,7 +33,7 @@ func New() *Controller {
 // SystemInit
 // @Summary      Get panel System init Config
 // @Description  Get panel System init Config
-// @Tags         Panel
+// @Tags         System
 // @Accept       json
 // @Produce      json
 // @Failure      400 {object} request.ErrorResponse
@@ -55,7 +55,7 @@ func (ctrl *Controller) SystemInit(c echo.Context) error {
 // System
 // @Summary      Get panel System Config
 // @Description  Get panel System Config
-// @Tags         Panel
+// @Tags         System
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Bearer TOKEN"
@@ -80,7 +80,7 @@ func (ctrl *Controller) System(c echo.Context) error {
 // SystemUpdate
 // @Summary      Update panel System Config
 // @Description  Update panel System Config
-// @Tags         Panel
+// @Tags         System
 // @Accept       json
 // @Produce      json
 // @Param        request    body  PatchSystemUpdateData   true "update system config data"
@@ -119,13 +119,13 @@ func (ctrl *Controller) SystemUpdate(c echo.Context) error {
 //
 // @Summary      Admin users login
 // @Description  Admin users login with Google captcha(captcha site key required in get config api)
-// @Tags         Panel
+// @Tags         System(Users)
 // @Accept       json
 // @Produce      json
 // @Param        request    body  LoginData   true "login data"
 // @Failure      400 {object} request.ErrorResponse
 // @Success      201  {object}  UserLoginResponse
-// @Router       /users/login [post]
+// @Router       /system/users/login [post]
 func (ctrl *Controller) Login(c echo.Context) error {
 	var data LoginData
 	if err := ctrl.request.DoValidate(c, &data); err != nil {
@@ -165,7 +165,7 @@ func (ctrl *Controller) Login(c echo.Context) error {
 //
 // @Summary      Create user
 // @Description  Create user Admin or simple
-// @Tags         Panel
+// @Tags         System(Users)
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Bearer TOKEN"
@@ -174,7 +174,7 @@ func (ctrl *Controller) Login(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Success      201  {object}  models.User
-// @Router       /users/login [post]
+// @Router       /system/users/login [post]
 func (ctrl *Controller) CreateUser(c echo.Context) error {
 	var data CreateUserData
 	if err := ctrl.request.DoValidate(c, &data); err != nil {
@@ -193,4 +193,39 @@ func (ctrl *Controller) CreateUser(c echo.Context) error {
 		return ctrl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusCreated, newUser)
+}
+
+// Users 		 List of Users
+//
+// @Summary      List of Admin or simple users
+// @Description  List of Admin or simple users
+// @Tags         System(Users)
+// @Accept       json
+// @Produce      json
+// @Param 		 page query int false "Page number, starting from 1" minimum(1)
+// @Param 		 page_size query int false "Number of items per page" minimum(1) maximum(100)
+// @Param 		 order query string false "Field to order by"
+// @Param 		 sort query string false "Sort order, either ASC or DESC" Enums(ASC, DESC)
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Failure      403 {object} middlewares.PermissionDenied
+// @Success      200  {object}  UsersResponse
+// @Router       /system/users [get]
+func (ctrl *Controller) Users(c echo.Context) error {
+	pagination := ctrl.request.Pagination(c)
+
+	users, total, err := ctrl.userRepo.Users(c.Request().Context(), pagination)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+
+	return c.JSON(http.StatusOK, UsersResponse{
+		Meta: request.Meta{
+			Page:         pagination.Page,
+			PageSize:     pagination.PageSize,
+			TotalRecords: total,
+		},
+		Result: users,
+	})
 }

@@ -1,6 +1,9 @@
 package system
 
-import "ocserv-bakend/internal/models"
+import (
+	"ocserv-bakend/internal/models"
+	"ocserv-bakend/pkg/request"
+)
 
 type GetSystemInitResponse struct {
 	GoogleCaptchaSiteKey string `json:"google_captcha_site_key" validate:"omitempty"`
@@ -32,4 +35,9 @@ type CreateUserData struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 	Admin    bool   `json:"admin"`
+}
+
+type UsersResponse struct {
+	Meta   request.Meta   `json:"meta" validate:"required"`
+	Result *[]models.User `json:"result" validate:"omitempty"`
 }
