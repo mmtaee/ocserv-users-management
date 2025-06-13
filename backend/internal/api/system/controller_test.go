@@ -124,7 +124,7 @@ func TestSystemLogin(t *testing.T) {
 	ctrl, mockRequest, mockSystemRepo, mockCaptcha, mockUserRepo, _ := newControllerWithMocks()
 
 	loginInput := `{"username":"testuser", "password":"testpass", "token":"dummy-token"}`
-	c, w := setupEcho(http.MethodPost, "/users/login", loginInput)
+	c, w := setupEcho(http.MethodPost, "/system/users/login", loginInput)
 
 	loginData := &LoginData{
 		Username: "testuser",
@@ -165,7 +165,7 @@ func TestCreateUserSuccess(t *testing.T) {
 
 	// Simulated request body
 	userInput := `{"username":"testuser", "password":"testpass", "admin":false}`
-	c, rec := setupEcho(http.MethodPost, "/users", userInput)
+	c, rec := setupEcho(http.MethodPost, "/system/users", userInput)
 
 	// Expected parsed input from DoValidate
 	mockRequest.On("DoValidate", mock.Anything, mock.Anything).
