@@ -139,3 +139,95 @@ func TestCreateOcservGroupFailed(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	mockRequest.AssertExpectations(t)
 }
+
+func TestUpdateOcservGroupSuccess(t *testing.T) {
+	ctrl, mockRequest, ocservGroupRepo := newControllerWithMocks()
+
+	mockInput := UpdateOcservGroupData{
+		Config: &models.OcservGroupConfig{
+			MTU:            intPtr(1300),
+			MaxSameClients: intPtr(3),
+		},
+	}
+
+	body, _ := json.Marshal(mockInput)
+
+	c, rec := setupEcho(http.MethodPatch, "/ocserv/groups/uid-1234", string(body))
+
+	c.SetPath("/ocserv/groups/:uid")
+	c.SetParamNames("uid")
+	c.SetParamValues("uid-123")
+
+	mockRequest.On("DoValidate", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		data := args.Get(1).(*UpdateOcservGroupData)
+		*data = mockInput
+	})
+
+	ocservGroup := models.OcservGroup{
+		ID:   1,
+		UID:  "uid-1234",
+		Name: "test-group",
+		Config: &models.OcservGroupConfig{
+			MTU:            intPtr(1300),
+			MaxSameClients: intPtr(3),
+		},
+	}
+
+	ocservGroupRepo.On("GetByUID", mock.Anything, "uid-123").Return(&ocservGroup, nil)
+
+	updatedGroup := ocservGroup
+	updatedGroup.Config.MTU = intPtr(1400)
+	updatedGroup.Config.MaxSameClients = intPtr(3)
+	ocservGroupRepo.On("Update", mock.Anything, mock.AnythingOfType("*models.OcservGroup")).Return(&updatedGroup, nil)
+
+	err := ctrl.UpdateOcservGroup(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	var resp models.OcservGroup
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
+	assert.NoError(t, err)
+	assert.Equal(t, 1400, *resp.Config.MTU)
+	assert.Equal(t, 3, *resp.Config.MaxSameClients)
+
+	mockRequest.AssertExpectations(t)
+	ocservGroupRepo.AssertExpectations(t)
+}
+
+func TestUpdateOcservGroupFailed(t *testing.T) {
+	ctrl, mockRequest, _ := newControllerWithMocks()
+
+	c, rec := setupEcho(http.MethodPatch, "/ocserv/groups/uid-1234", "")
+
+	c.SetPath("/ocserv/groups/:uid")
+	c.SetParamNames("uid")
+	c.SetParamValues("uid-123")
+
+	expectedErr := errors.New("validation error")
+	mockRequest.On("DoValidate", mock.Anything, mock.Anything).Return(expectedErr)
+
+	mockRequest.On("BadRequest", mock.Anything, expectedErr).
+		Return(c.JSON(http.StatusBadRequest, expectedErr))
+
+	err := ctrl.UpdateOcservGroup(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	mockRequest.AssertExpectations(t)
+}
+
+func TestDeleteOcservGroupSuccess(t *testing.T) {
+	ctrl, _, ocservGroupRepo := newControllerWithMocks()
+
+	c, rec := setupEcho(http.MethodDelete, "/ocserv/groups/uid-1234", "")
+
+	c.SetPath("/ocserv/groups/:uid")
+	c.SetParamNames("uid")
+	c.SetParamValues("uid-123")
+
+	ocservGroupRepo.On("Delete", mock.Anything, "uid-123").Return(nil)
+
+	err := ctrl.DeleteOcservGroup(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusNoContent, rec.Code)
+	ocservGroupRepo.AssertExpectations(t)
+}

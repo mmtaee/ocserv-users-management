@@ -141,6 +141,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/ocserv/groups/{uid}": {
+            "patch": {
+                "description": "Ocserv Group update",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Groups)"
+                ],
+                "summary": "Ocserv Group update",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "ocserv group create data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_group.UpdateOcservGroupData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/users": {
             "get": {
                 "description": "List of Ocserv Users",
@@ -1283,6 +1336,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.OcservGroup"
                     }
+                }
+            }
+        },
+        "ocserv_group.UpdateOcservGroupData": {
+            "type": "object",
+            "required": [
+                "config"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
                 }
             }
         },

@@ -180,9 +180,10 @@ func TestOcservUserUpdateSuccess(t *testing.T) {
 
 	mockOcservUserRepo.On("GetByUID", mock.Anything, "uid-123").Return(&ocservUser, nil)
 
-	ocservUser.Password = "updated-password"
-
-	mockOcservUserRepo.On("Update", mock.Anything, &ocservUser).Return(&ocservUser, nil)
+	updatedUser := ocservUser
+	updatedUser.Password = "updated-password"
+	mockOcservUserRepo.On("Update", mock.Anything, &ocservUser).Return(&updatedUser, nil)
+	mockOcservUserRepo.On("Update", mock.Anything, mock.AnythingOfType("*models.OcservUser")).Return(&updatedUser, nil)
 
 	err := ctrl.UpdateOcservUser(c)
 	assert.NoError(t, err)

@@ -294,6 +294,13 @@ definitions:
     required:
     - meta
     type: object
+  ocserv_group.UpdateOcservGroupData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+    required:
+    - config
+    type: object
   ocserv_user.CreateOcservUserData:
     properties:
       description:
@@ -572,6 +579,41 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Ocserv Group creation
+      tags:
+      - Ocserv(Groups)
+  /ocserv/groups/{uid}:
+    patch:
+      consumes:
+      - application/json
+      description: Ocserv Group update
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ocserv group create data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_group.UpdateOcservGroupData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Group update
       tags:
       - Ocserv(Groups)
   /ocserv/users:

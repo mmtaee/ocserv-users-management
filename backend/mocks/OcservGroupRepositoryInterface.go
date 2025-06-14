@@ -46,6 +46,54 @@ func (_m *OcservGroupRepositoryInterface) Create(ctx context.Context, ocservGrou
 	return r0, r1
 }
 
+// Delete provides a mock function with given fields: ctx, uid
+func (_m *OcservGroupRepositoryInterface) Delete(ctx context.Context, uid string) error {
+	ret := _m.Called(ctx, uid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, uid)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetByUID provides a mock function with given fields: ctx, uid
+func (_m *OcservGroupRepositoryInterface) GetByUID(ctx context.Context, uid string) (*models.OcservGroup, error) {
+	ret := _m.Called(ctx, uid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByUID")
+	}
+
+	var r0 *models.OcservGroup
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*models.OcservGroup, error)); ok {
+		return rf(ctx, uid)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.OcservGroup); ok {
+		r0 = rf(ctx, uid)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.OcservGroup)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, uid)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Groups provides a mock function with given fields: ctx, pagination
 func (_m *OcservGroupRepositoryInterface) Groups(ctx context.Context, pagination *request.Pagination) (*[]models.OcservGroup, int64, error) {
 	ret := _m.Called(ctx, pagination)
@@ -81,6 +129,36 @@ func (_m *OcservGroupRepositoryInterface) Groups(ctx context.Context, pagination
 	}
 
 	return r0, r1, r2
+}
+
+// Update provides a mock function with given fields: ctx, ocservGroup
+func (_m *OcservGroupRepositoryInterface) Update(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error) {
+	ret := _m.Called(ctx, ocservGroup)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 *models.OcservGroup
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.OcservGroup) (*models.OcservGroup, error)); ok {
+		return rf(ctx, ocservGroup)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.OcservGroup) *models.OcservGroup); ok {
+		r0 = rf(ctx, ocservGroup)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.OcservGroup)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *models.OcservGroup) error); ok {
+		r1 = rf(ctx, ocservGroup)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewOcservGroupRepositoryInterface creates a new instance of OcservGroupRepositoryInterface. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
