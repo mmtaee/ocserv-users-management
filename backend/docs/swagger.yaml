@@ -529,19 +529,13 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: If true, return only group names
-        in: query
-        name: only_name
-        type: boolean
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              type: string
-            type: array
+            $ref: '#/definitions/ocserv_group.OcservGroupsResponse'
         "400":
           description: Bad Request
           schema:
@@ -620,6 +614,37 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Ocserv Group update
+      tags:
+      - Ocserv(Groups)
+  /ocserv/groups/lookup:
+    get:
+      consumes:
+      - application/json
+      description: List of Ocserv group names
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: List of Ocserv group names
       tags:
       - Ocserv(Groups)
   /ocserv/users:

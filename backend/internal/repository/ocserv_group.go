@@ -17,6 +17,7 @@ type OcservGroupRepository struct {
 
 type OcservGroupRepositoryInterface interface {
 	Groups(ctx context.Context, pagination *request.Pagination) (*[]models.OcservGroup, int64, error)
+	GroupsLookup(ctx context.Context) ([]string, error)
 	GetByUID(ctx context.Context, uid string) (*models.OcservGroup, error)
 	Create(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
 	Update(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
@@ -46,6 +47,21 @@ func (o *OcservGroupRepository) Groups(ctx context.Context, pagination *request.
 		return nil, 0, err
 	}
 	return &ocservGroups, totalRecords, nil
+}
+
+func (o *OcservGroupRepository) GroupsLookup(ctx context.Context) ([]string, error) {
+	var ocservGroups []models.OcservGroup
+
+	err := o.db.WithContext(ctx).Model(&models.OcservGroup{}).Select("username").Find(&ocservGroups).Error
+	if err != nil {
+		return nil, err
+	}
+
+	groups := make([]string, 0, len(ocservGroups))
+	for _, ocservGroup := range ocservGroups {
+		groups = append(groups, ocservGroup.Name)
+	}
+	return groups, nil
 }
 
 func (o *OcservGroupRepository) GetByUID(ctx context.Context, uid string) (*models.OcservGroup, error) {

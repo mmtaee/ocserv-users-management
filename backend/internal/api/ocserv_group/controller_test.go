@@ -40,10 +40,6 @@ func setupEcho(method, path string, body string) (echo.Context, *httptest.Respon
 	return c, rec
 }
 
-func strPtr(s string) *string {
-	return &s
-}
-
 func intPtr(i int) *int {
 	return &i
 }
@@ -72,6 +68,22 @@ func TestOcservGroupList(t *testing.T) {
 	assert.Empty(t, resp.Result)
 
 	mockRequest.AssertExpectations(t)
+	ocservGroupRepo.AssertExpectations(t)
+}
+
+func TestOcservGroupLookup(t *testing.T) {
+	ctrl, _, ocservGroupRepo := newControllerWithMocks()
+	c, rec := setupEcho(http.MethodGet, "/ocserv/groups/lookup", "")
+
+	ocservGroupRepo.On("GroupsLookup", mock.Anything).Return([]string{}, nil)
+	err := ctrl.OcservGroupsLookup(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	var resp []string
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"defaults"}, resp)
+
 	ocservGroupRepo.AssertExpectations(t)
 }
 

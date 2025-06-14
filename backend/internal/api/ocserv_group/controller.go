@@ -21,6 +21,27 @@ func New() *Controller {
 	}
 }
 
+// OcservGroupsLookup 	 List of Ocserv group names
+//
+// @Summary      List of Ocserv group names
+// @Description  List of Ocserv group names
+// @Tags         Ocserv(Groups)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {array}  string
+// @Router       /ocserv/groups/lookup [get]
+func (ctrl *Controller) OcservGroupsLookup(c echo.Context) error {
+	groups, err := ctrl.ocservGroupRepo.GroupsLookup(c.Request().Context())
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	groups = append([]string{"defaults"}, groups...)
+	return c.JSON(http.StatusOK, groups)
+}
+
 // OcservGroups 	 List of Ocserv groups
 //
 // @Summary      List of Ocserv groups
