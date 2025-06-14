@@ -529,13 +529,19 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: If true, return only group names
+        in: query
+        name: only_name
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ocserv_group.OcservGroupsResponse'
+            items:
+              type: string
+            type: array
         "400":
           description: Bad Request
           schema:
