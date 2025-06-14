@@ -55,7 +55,7 @@ func (o *OcservUserRepository) Create(ctx context.Context, user *models.OcservUs
 		if err := tx.Create(user).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.CreateApi(user.Group, user.Username, user.Password); err != nil {
+		if err := o.ocApi.CreateUserApi(user.Group, user.Username, user.Password); err != nil {
 			return err
 		}
 		return nil
@@ -80,7 +80,7 @@ func (o *OcservUserRepository) Update(ctx context.Context, ocservUser *models.Oc
 		if err := tx.Save(&ocservUser).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.CreateApi(ocservUser.Group, ocservUser.Username, ocservUser.Password); err != nil {
+		if err := o.ocApi.CreateUserApi(ocservUser.Group, ocservUser.Username, ocservUser.Password); err != nil {
 			return err
 		}
 		return nil
@@ -101,7 +101,7 @@ func (o *OcservUserRepository) Lock(ctx context.Context, uid string) error {
 			return err
 		}
 
-		if err := o.ocApi.LockApi(ocservUser.Username); err != nil {
+		if err := o.ocApi.LockUserApi(ocservUser.Username); err != nil {
 			return err
 		}
 		return nil
@@ -119,7 +119,7 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
 			return err
 		}
 
-		if err := o.ocApi.UnLockApi(ocservUser.Username); err != nil {
+		if err := o.ocApi.UnLockUserApi(ocservUser.Username); err != nil {
 			return err
 		}
 		return nil
@@ -136,7 +136,7 @@ func (o *OcservUserRepository) Delete(ctx context.Context, uid string) error {
 		if err := tx.Delete(&ocservUser).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.DeleteApi(ocservUser.Username); err != nil {
+		if err := o.ocApi.DeleteUserApi(ocservUser.Username); err != nil {
 			return err
 		}
 		return nil

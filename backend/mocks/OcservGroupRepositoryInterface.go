@@ -16,6 +16,36 @@ type OcservGroupRepositoryInterface struct {
 	mock.Mock
 }
 
+// Create provides a mock function with given fields: ctx, ocservGroup
+func (_m *OcservGroupRepositoryInterface) Create(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error) {
+	ret := _m.Called(ctx, ocservGroup)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 *models.OcservGroup
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.OcservGroup) (*models.OcservGroup, error)); ok {
+		return rf(ctx, ocservGroup)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.OcservGroup) *models.OcservGroup); ok {
+		r0 = rf(ctx, ocservGroup)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.OcservGroup)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *models.OcservGroup) error); ok {
+		r1 = rf(ctx, ocservGroup)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Groups provides a mock function with given fields: ctx, pagination
 func (_m *OcservGroupRepositoryInterface) Groups(ctx context.Context, pagination *request.Pagination) (*[]models.OcservGroup, int64, error) {
 	ret := _m.Called(ctx, pagination)

@@ -273,6 +273,16 @@ definitions:
     - uid
     - username
     type: object
+  ocserv_group.CreateOcservGroupData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      name:
+        type: string
+    required:
+    - config
+    - name
+    type: object
   ocserv_group.OcservGroupsResponse:
     properties:
       meta:
@@ -528,6 +538,40 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: List of Ocserv groups
+      tags:
+      - Ocserv(Groups)
+    post:
+      consumes:
+      - application/json
+      description: Ocserv Group creation
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ocserv group create data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_group.CreateOcservGroupData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Group creation
       tags:
       - Ocserv(Groups)
   /ocserv/users:

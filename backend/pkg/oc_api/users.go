@@ -12,17 +12,17 @@ type OcUserApiRepository struct {
 }
 
 type OcUserApiRepositoryInterface interface {
-	CreateApi(group, username, password string) error
-	LockApi(username string) error
-	UnLockApi(username string) error
-	DeleteApi(username string) error
+	CreateUserApi(group, username, password string) error
+	LockUserApi(username string) error
+	UnLockUserApi(username string) error
+	DeleteUserApi(username string) error
 }
 
 func NewOcUserApiRepository(url string) *OcUserApiRepository {
 	return &OcUserApiRepository{url: url}
 }
 
-func (o *OcUserApiRepository) CreateApi(group, username, password string) error {
+func (o *OcUserApiRepository) CreateUserApi(group, username, password string) error {
 	url := o.url + "/api/users"
 	type Body struct {
 		Username string `json:"username"`
@@ -42,37 +42,37 @@ func (o *OcUserApiRepository) CreateApi(group, username, password string) error 
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		return errors.New(resp.Status)
 	}
 	return nil
 }
 
-func (o *OcUserApiRepository) LockApi(username string) error {
+func (o *OcUserApiRepository) LockUserApi(username string) error {
 	url := fmt.Sprintf("%s/api/users/%s/lock", o.url, username)
 	resp, err := DoRequest(url, http.MethodPost, nil)
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		return errors.New(resp.Status)
 	}
 	return nil
 }
 
-func (o *OcUserApiRepository) UnLockApi(username string) error {
+func (o *OcUserApiRepository) UnLockUserApi(username string) error {
 	url := fmt.Sprintf("%s/api/users/%s/unlock", o.url, username)
 	resp, err := DoRequest(url, http.MethodPost, nil)
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		return errors.New(resp.Status)
 	}
 	return nil
 }
 
-func (o *OcUserApiRepository) DeleteApi(username string) error {
+func (o *OcUserApiRepository) DeleteUserApi(username string) error {
 	url := fmt.Sprintf("%s/api/users/%s", o.url, username)
 	resp, err := DoRequest(url, http.MethodDelete, nil)
 	if err != nil {

@@ -6,5 +6,6 @@ func Routes(e *echo.Group) {
 	ctrl := New()
 	g := e.Group("/ocserv/groups")
 	g.GET("", ctrl.OcservGroups)
-
+	g.POST("", ctrl.CreateOcservGroup)
+	g.PATCH("/:uid", ctrl.UpdateOcservGroup)
 }

@@ -9,12 +9,12 @@ type OcUserApiRepositoryInterface struct {
 	mock.Mock
 }
 
-// CreateApi provides a mock function with given fields: group, username, password
-func (_m *OcUserApiRepositoryInterface) CreateApi(group string, username string, password string) error {
+// CreateUserApi provides a mock function with given fields: group, username, password
+func (_m *OcUserApiRepositoryInterface) CreateUserApi(group string, username string, password string) error {
 	ret := _m.Called(group, username, password)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CreateApi")
+		panic("no return value specified for CreateUserApi")
 	}
 
 	var r0 error
@@ -27,12 +27,12 @@ func (_m *OcUserApiRepositoryInterface) CreateApi(group string, username string,
 	return r0
 }
 
-// DeleteApi provides a mock function with given fields: username
-func (_m *OcUserApiRepositoryInterface) DeleteApi(username string) error {
+// DeleteUserApi provides a mock function with given fields: username
+func (_m *OcUserApiRepositoryInterface) DeleteUserApi(username string) error {
 	ret := _m.Called(username)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteApi")
+		panic("no return value specified for DeleteUserApi")
 	}
 
 	var r0 error
@@ -45,12 +45,12 @@ func (_m *OcUserApiRepositoryInterface) DeleteApi(username string) error {
 	return r0
 }
 
-// LockApi provides a mock function with given fields: username
-func (_m *OcUserApiRepositoryInterface) LockApi(username string) error {
+// LockUserApi provides a mock function with given fields: username
+func (_m *OcUserApiRepositoryInterface) LockUserApi(username string) error {
 	ret := _m.Called(username)
 
 	if len(ret) == 0 {
-		panic("no return value specified for LockApi")
+		panic("no return value specified for LockUserApi")
 	}
 
 	var r0 error
@@ -63,12 +63,12 @@ func (_m *OcUserApiRepositoryInterface) LockApi(username string) error {
 	return r0
 }
 
-// UnLockApi provides a mock function with given fields: username
-func (_m *OcUserApiRepositoryInterface) UnLockApi(username string) error {
+// UnLockUserApi provides a mock function with given fields: username
+func (_m *OcUserApiRepositoryInterface) UnLockUserApi(username string) error {
 	ret := _m.Called(username)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UnLockApi")
+		panic("no return value specified for UnLockUserApi")
 	}
 
 	var r0 error
