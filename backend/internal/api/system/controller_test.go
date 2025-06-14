@@ -238,7 +238,7 @@ func TestUsers(t *testing.T) {
 	mockUserRepo.AssertExpectations(t)
 }
 
-func TestChangeUserPassword(t *testing.T) {
+func TestChangeUserPasswordByAdmin(t *testing.T) {
 	ctrl, mockRequest, _, _, mockUserRepo, mockCryptoRepo := newControllerWithMocks()
 	passwordInput := `{"password": "testpass"}`
 
@@ -260,7 +260,7 @@ func TestChangeUserPassword(t *testing.T) {
 
 	mockUserRepo.On("ChangePassword", mock.Anything, "uid-123", "hashedPass", "saltValue").Return(nil)
 
-	err := ctrl.ChangePassword(c)
+	err := ctrl.ChangeUserPasswordByAdmin(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -283,4 +283,35 @@ func TestDeleteUser(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusNoContent, rec.Code)
 	mockUserRepo.AssertExpectations(t)
+}
+
+func TestChangePasswordBySelf(t *testing.T) {
+	ctrl, mockRequest, _, _, mockUserRepo, mockCryptoRepo := newControllerWithMocks()
+	passwordInput := `{"password": "testpass"}`
+
+	c, rec := setupEcho(http.MethodPost, "/system/users/password", passwordInput)
+	c.SetPath("/system/users/password")
+	c.Set("isAdmin", true)
+	c.Set("userUID", "uid-123")
+
+	mockRequest.On("DoValidate", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		data := args.Get(1).(*ChangeUserPassword)
+		data.Password = "testpass"
+	})
+
+	mockCryptoRepo.On("CreatePassword", "testpass").Return(crypto.CustomPassword{
+		Hash: "hashedPass",
+		Salt: "saltValue",
+	})
+
+	mockUserRepo.On("ChangePassword", mock.Anything, "uid-123", "hashedPass", "saltValue").Return(nil)
+
+	err := ctrl.ChangePasswordBySelf(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	mockRequest.AssertExpectations(t)
+	mockUserRepo.AssertExpectations(t)
+	mockCryptoRepo.AssertExpectations(t)
 }

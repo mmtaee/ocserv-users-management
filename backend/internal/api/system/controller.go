@@ -230,10 +230,10 @@ func (ctrl *Controller) Users(c echo.Context) error {
 	})
 }
 
-// ChangePassword 		 Change user password
+// ChangeUserPasswordByAdmin 		 Change user password by admin
 //
-// @Summary      Change user password
-// @Description  Change user password
+// @Summary      Change user password by admin
+// @Description  Change user password by admin
 // @Tags         System(Users)
 // @Accept       json
 // @Produce      json
@@ -245,11 +245,10 @@ func (ctrl *Controller) Users(c echo.Context) error {
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Success      200  {object}  UsersResponse
 // @Router       /system/users/{uid}/password [post]
-func (ctrl *Controller) ChangePassword(c echo.Context) error {
+func (ctrl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 	userID := c.Param("uid")
 
 	var data ChangeUserPassword
-
 	if err := ctrl.request.DoValidate(c, &data); err != nil {
 		return ctrl.request.BadRequest(c, err)
 	}
@@ -283,4 +282,32 @@ func (ctrl *Controller) DeleteUser(c echo.Context) error {
 		return ctrl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusNoContent, nil)
+}
+
+// ChangePasswordBySelf 		 Change user password by self
+//
+// @Summary      Change user password by self
+// @Description  Change user password by self
+// @Tags         System(Users)
+// @Accept       json
+// @Produce      json
+// @Param        request body  ChangeUserPassword  true "user new password"
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200  {object}  UsersResponse
+// @Router       /system/users/password [post]
+func (ctrl *Controller) ChangePasswordBySelf(c echo.Context) error {
+	userID := c.Get("userUID").(string)
+
+	var data ChangeUserPassword
+	if err := ctrl.request.DoValidate(c, &data); err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	passwd := ctrl.cryptoRepo.CreatePassword(data.Password)
+	err := ctrl.userRepo.ChangePassword(c.Request().Context(), userID, passwd.Hash, passwd.Salt)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, nil)
 }

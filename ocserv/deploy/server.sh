@@ -3,7 +3,7 @@
 set -euo pipefail
 
 OCD_LOGFILE="/var/logs/ocserv.log"
-mkdir -p /logs
+mkdir -p /var/logs
 touch "$OCD_LOGFILE"
 chmod 644 "$OCD_LOGFILE"
 

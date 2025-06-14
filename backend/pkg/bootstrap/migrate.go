@@ -1,4 +1,4 @@
-package commands
+package bootstrap
 
 import (
 	"fmt"
@@ -9,6 +9,8 @@ import (
 
 var tables = []interface{}{
 	&models.System{},
+	&models.User{},
+	&models.UserToken{},
 }
 
 func Migrate() {

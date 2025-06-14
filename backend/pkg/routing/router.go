@@ -79,10 +79,7 @@ func Serve(debug bool) {
 	}
 }
 
-func Shutdown() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
+func Shutdown(ctx context.Context) {
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}

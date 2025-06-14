@@ -16,6 +16,7 @@ func Routes(e *echo.Group) {
 	g.PATCH("", ctrl.SystemUpdate)
 
 	g.POST("/system/users", ctrl.CreateUser, middlewares.AdminPermission())
-	g.POST("/system/users/:uid/password", ctrl.ChangePassword, middlewares.AdminPermission())
+	g.POST("/system/users/:uid/password", ctrl.ChangeUserPasswordByAdmin, middlewares.AdminPermission())
 	g.DELETE("/system/users/:uid", ctrl.DeleteUser, middlewares.AdminPermission())
+	g.POST("/system/users/password", ctrl.ChangePasswordBySelf)
 }
