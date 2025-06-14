@@ -15,6 +15,81 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/ocserv/groups": {
+            "get": {
+                "description": "List of Ocserv groups",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Groups)"
+                ],
+                "summary": "List of Ocserv groups",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number, starting from 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to order by",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ASC",
+                            "DESC"
+                        ],
+                        "type": "string",
+                        "description": "Sort order, either ASC or DESC",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_group.OcservGroupsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/users": {
             "get": {
                 "description": "List of Ocserv Users",
@@ -72,11 +147,261 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.OcservUser"
-                            }
+                            "$ref": "#/definitions/ocserv_user.OcservUsersResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Ocserv User creation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Ocserv User creation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "ocserv user create data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.CreateOcservUserData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/{uid}": {
+            "delete": {
+                "description": "Ocserv User delete",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Ocserv User delete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ocserv User UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Ocserv User update",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Ocserv User update",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ocserv User UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ocserv user update data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.UpdateOcservUserData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/{uid}/lock": {
+            "post": {
+                "description": "Ocserv User locking",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Ocserv User locking",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ocserv User UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/{uid}/unlock": {
+            "post": {
+                "description": "Ocserv User unlocking",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Ocserv User unlocking",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ocserv User UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -548,6 +873,150 @@ const docTemplate = `{
                 }
             }
         },
+        "models.OcservGroup": {
+            "type": "object",
+            "required": [
+                "name",
+                "uid"
+            ],
+            "properties": {
+                "config": {
+                    "description": "or ` + "`" + `type:text` + "`" + ` for wider compatibility",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OcservGroupConfig"
+                        }
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OcservGroupConfig": {
+            "type": "object",
+            "properties": {
+                "cgroup": {
+                    "description": "Linux control group to assign the VPN worker process to. Format: 'controller,subsystem:name'. Example: 'cpuset,cpu:test'",
+                    "type": "string"
+                },
+                "deny-roaming": {
+                    "description": "Disconnect client if its IP changes (e.g., due to network switch). Example: true",
+                    "type": "boolean"
+                },
+                "dns": {
+                    "description": "Comma-separated list of DNS servers to assign to the client. Example: '8.8.8.8,1.1.1.1'",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dpd": {
+                    "description": "Dead Peer Detection timeout in seconds. Example: 90",
+                    "type": "integer"
+                },
+                "explicit-ipv4": {
+                    "description": "Static IPv4 address to assign to client. Example: '192.168.100.10'",
+                    "type": "string"
+                },
+                "idle-timeout": {
+                    "description": "Time in seconds before disconnecting idle clients. Example: 600",
+                    "type": "integer"
+                },
+                "ipv4-network": {
+                    "description": "The pool of addresses that leases will be given from. Example: '192.168.1.0/24'",
+                    "type": "string"
+                },
+                "iroute": {
+                    "description": "Internal route available only via VPN. Format: 'IP/prefix'. Example: '10.0.0.0/8'",
+                    "type": "string"
+                },
+                "keepalive": {
+                    "description": "Interval in seconds to send keep-alive pings. Example: 60",
+                    "type": "integer"
+                },
+                "max-same-clients": {
+                    "description": "Maximum simultaneous logins per user. Example: 2",
+                    "type": "integer"
+                },
+                "mobile-dpd": {
+                    "description": "DPD timeout specifically for mobile clients. Example: 300",
+                    "type": "integer"
+                },
+                "mobile-idle-timeout": {
+                    "description": "Idle timeout for mobile clients. Example: 900",
+                    "type": "integer"
+                },
+                "mtu": {
+                    "description": "Tunnel interface MTU to avoid fragmentation. Example: 1400",
+                    "type": "integer"
+                },
+                "nbns": {
+                    "description": "NetBIOS Name Servers (WINS) for Windows clients. Example: '192.168.1.1'",
+                    "type": "string"
+                },
+                "net-priority": {
+                    "description": "Priority for routes; lower is higher priority. Example: 1",
+                    "type": "integer"
+                },
+                "no-route": {
+                    "description": "List of networks to exclude from VPN routing. Each entry should be in 'IP/prefix' format. Example: ['192.168.0.0/16', '10.0.0.0/8']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "no-udp": {
+                    "description": "Disables UDP, enforcing TCP-only VPN connection. Example: true",
+                    "type": "boolean"
+                },
+                "restrict-user-to-ports": {
+                    "description": "Comma-separated list of allowed (or blocked, if negated) protocols and ports. Supports 'tcp(port)', 'udp(port)', 'icmp()', 'icmpv6()', and negation with '!()'. Example: 'tcp(443), tcp(80), udp(53)', or '!(tcp(22), udp(1194))'",
+                    "type": "string"
+                },
+                "restrict-user-to-routes": {
+                    "description": "Allow client access only to defined routes. Example: true",
+                    "type": "boolean"
+                },
+                "route": {
+                    "description": "Routes pushed to the client for routing traffic. Example: ['0.0.0.0/0', '10.10.0.0/16']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rx-data-per-sec": {
+                    "description": "Maximum receive bandwidth in bytes per second. Example: '100000' for 100 KB/s",
+                    "type": "integer"
+                },
+                "session-timeout": {
+                    "description": "Max session time in seconds before forced disconnect. Example: 3600",
+                    "type": "integer"
+                },
+                "split-dns": {
+                    "description": "List of domains over which the provided DNS servers should be used. Example: ['example.com', 'internal.company.com']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "stats-report-time": {
+                    "description": "Interval in seconds for stats reporting. Example: 300",
+                    "type": "integer"
+                },
+                "tunnel-all-dns": {
+                    "description": "Force all DNS traffic through the VPN tunnel. Example: true",
+                    "type": "boolean"
+                },
+                "tx-data-per-sec": {
+                    "description": "Maximum transmit bandwidth in bytes per second. Example: '200000' for 200 KB/s",
+                    "type": "integer"
+                }
+            }
+        },
         "models.OcservUser": {
             "type": "object",
             "required": [
@@ -731,6 +1200,129 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "ocserv_group.OcservGroupsResponse": {
+            "type": "object",
+            "required": [
+                "meta"
+            ],
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/request.Meta"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OcservGroup"
+                    }
+                }
+            }
+        },
+        "ocserv_user.CreateOcservUserData": {
+            "type": "object",
+            "required": [
+                "group",
+                "password",
+                "traffic_type",
+                "username"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "example": "User for testing VPN access"
+                },
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "traffic_size": {
+                    "description": "10 GiB",
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 10737418240
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "TotallyTransmit",
+                        "TotallyReceive"
+                    ],
+                    "example": "MonthlyTransmit"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                }
+            }
+        },
+        "ocserv_user.OcservUsersResponse": {
+            "type": "object",
+            "required": [
+                "meta"
+            ],
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/request.Meta"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OcservUser"
+                    }
+                }
+            }
+        },
+        "ocserv_user.UpdateOcservUserData": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "example": "User for testing VPN access"
+                },
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "group": {
+                    "type": "string",
+                    "example": "default"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "strongpassword123"
+                },
+                "traffic_size": {
+                    "description": "10 GiB",
+                    "type": "integer",
+                    "example": 10737418240
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "TotallyTransmit",
+                        "TotallyReceive"
+                    ],
+                    "example": "MonthlyTransmit"
                 }
             }
         },

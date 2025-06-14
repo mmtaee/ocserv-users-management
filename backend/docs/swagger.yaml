@@ -10,6 +10,124 @@ definitions:
       error:
         type: string
     type: object
+  models.OcservGroup:
+    properties:
+      config:
+        allOf:
+        - $ref: '#/definitions/models.OcservGroupConfig'
+        description: or `type:text` for wider compatibility
+      name:
+        type: string
+      uid:
+        type: string
+    required:
+    - name
+    - uid
+    type: object
+  models.OcservGroupConfig:
+    properties:
+      cgroup:
+        description: 'Linux control group to assign the VPN worker process to. Format:
+          ''controller,subsystem:name''. Example: ''cpuset,cpu:test'''
+        type: string
+      deny-roaming:
+        description: 'Disconnect client if its IP changes (e.g., due to network switch).
+          Example: true'
+        type: boolean
+      dns:
+        description: 'Comma-separated list of DNS servers to assign to the client.
+          Example: ''8.8.8.8,1.1.1.1'''
+        items:
+          type: string
+        type: array
+      dpd:
+        description: 'Dead Peer Detection timeout in seconds. Example: 90'
+        type: integer
+      explicit-ipv4:
+        description: 'Static IPv4 address to assign to client. Example: ''192.168.100.10'''
+        type: string
+      idle-timeout:
+        description: 'Time in seconds before disconnecting idle clients. Example:
+          600'
+        type: integer
+      ipv4-network:
+        description: 'The pool of addresses that leases will be given from. Example:
+          ''192.168.1.0/24'''
+        type: string
+      iroute:
+        description: 'Internal route available only via VPN. Format: ''IP/prefix''.
+          Example: ''10.0.0.0/8'''
+        type: string
+      keepalive:
+        description: 'Interval in seconds to send keep-alive pings. Example: 60'
+        type: integer
+      max-same-clients:
+        description: 'Maximum simultaneous logins per user. Example: 2'
+        type: integer
+      mobile-dpd:
+        description: 'DPD timeout specifically for mobile clients. Example: 300'
+        type: integer
+      mobile-idle-timeout:
+        description: 'Idle timeout for mobile clients. Example: 900'
+        type: integer
+      mtu:
+        description: 'Tunnel interface MTU to avoid fragmentation. Example: 1400'
+        type: integer
+      nbns:
+        description: 'NetBIOS Name Servers (WINS) for Windows clients. Example: ''192.168.1.1'''
+        type: string
+      net-priority:
+        description: 'Priority for routes; lower is higher priority. Example: 1'
+        type: integer
+      no-route:
+        description: 'List of networks to exclude from VPN routing. Each entry should
+          be in ''IP/prefix'' format. Example: [''192.168.0.0/16'', ''10.0.0.0/8'']'
+        items:
+          type: string
+        type: array
+      no-udp:
+        description: 'Disables UDP, enforcing TCP-only VPN connection. Example: true'
+        type: boolean
+      restrict-user-to-ports:
+        description: 'Comma-separated list of allowed (or blocked, if negated) protocols
+          and ports. Supports ''tcp(port)'', ''udp(port)'', ''icmp()'', ''icmpv6()'',
+          and negation with ''!()''. Example: ''tcp(443), tcp(80), udp(53)'', or ''!(tcp(22),
+          udp(1194))'''
+        type: string
+      restrict-user-to-routes:
+        description: 'Allow client access only to defined routes. Example: true'
+        type: boolean
+      route:
+        description: 'Routes pushed to the client for routing traffic. Example: [''0.0.0.0/0'',
+          ''10.10.0.0/16'']'
+        items:
+          type: string
+        type: array
+      rx-data-per-sec:
+        description: 'Maximum receive bandwidth in bytes per second. Example: ''100000''
+          for 100 KB/s'
+        type: integer
+      session-timeout:
+        description: 'Max session time in seconds before forced disconnect. Example:
+          3600'
+        type: integer
+      split-dns:
+        description: 'List of domains over which the provided DNS servers should be
+          used. Example: [''example.com'', ''internal.company.com'']'
+        items:
+          type: string
+        type: array
+      stats-report-time:
+        description: 'Interval in seconds for stats reporting. Example: 300'
+        type: integer
+      tunnel-all-dns:
+        description: 'Force all DNS traffic through the VPN tunnel. Example: true'
+        type: boolean
+      tx-data-per-sec:
+        description: 'Maximum transmit bandwidth in bytes per second. Example: ''200000''
+          for 200 KB/s'
+        type: integer
+    type: object
   models.OcservUser:
     properties:
       config:
@@ -155,6 +273,97 @@ definitions:
     - uid
     - username
     type: object
+  ocserv_group.OcservGroupsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservGroup'
+        type: array
+    required:
+    - meta
+    type: object
+  ocserv_user.CreateOcservUserData:
+    properties:
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      group:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        minimum: 0
+        type: integer
+      traffic_type:
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - TotallyTransmit
+        - TotallyReceive
+        example: MonthlyTransmit
+        type: string
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - group
+    - password
+    - traffic_type
+    - username
+    type: object
+  ocserv_user.OcservUsersResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
+    required:
+    - meta
+    type: object
+  ocserv_user.UpdateOcservUserData:
+    properties:
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      group:
+        example: default
+        type: string
+      password:
+        example: strongpassword123
+        minLength: 6
+        type: string
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        type: integer
+      traffic_type:
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - TotallyTransmit
+        - TotallyReceive
+        example: MonthlyTransmit
+        type: string
+    type: object
   request.ErrorResponse:
     properties:
       error:
@@ -270,6 +479,57 @@ info:
   title: Ocserv User management Example Api
   version: "1.0"
 paths:
+  /ocserv/groups:
+    get:
+      consumes:
+      - application/json
+      description: List of Ocserv groups
+      parameters:
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Field to order by
+        in: query
+        name: order
+        type: string
+      - description: Sort order, either ASC or DESC
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: sort
+        type: string
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_group.OcservGroupsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: List of Ocserv groups
+      tags:
+      - Ocserv(Groups)
   /ocserv/users:
     get:
       consumes:
@@ -309,9 +569,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.OcservUser'
-            type: array
+            $ref: '#/definitions/ocserv_user.OcservUsersResponse'
         "400":
           description: Bad Request
           schema:
@@ -321,6 +579,175 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: List of Ocserv Users
+      tags:
+      - Ocserv(Users)
+    post:
+      consumes:
+      - application/json
+      description: Ocserv User creation
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ocserv user create data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.CreateOcservUserData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv User creation
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{uid}:
+    delete:
+      consumes:
+      - application/json
+      description: Ocserv User delete
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv User delete
+      tags:
+      - Ocserv(Users)
+    patch:
+      consumes:
+      - application/json
+      description: Ocserv User update
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      - description: ocserv user update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.UpdateOcservUserData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv User update
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{uid}/lock:
+    post:
+      consumes:
+      - application/json
+      description: Ocserv User locking
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv User locking
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{uid}/unlock:
+    post:
+      consumes:
+      - application/json
+      description: Ocserv User unlocking
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv User unlocking
       tags:
       - Ocserv(Users)
   /system:
