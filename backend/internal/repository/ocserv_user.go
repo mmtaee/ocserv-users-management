@@ -36,7 +36,7 @@ func NewtOcservUserRepository() *OcservUserRepository {
 func (o *OcservUserRepository) Users(ctx context.Context, pagination *request.Pagination) (*[]models.OcservUser, int64, error) {
 	var totalRecords int64
 
-	err := o.db.WithContext(ctx).Model(&models.User{}).Count(&totalRecords).Error
+	err := o.db.WithContext(ctx).Model(&models.OcservUser{}).Count(&totalRecords).Error
 	if err != nil {
 		return nil, 0, err
 	}
