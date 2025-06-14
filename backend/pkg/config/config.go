@@ -9,13 +9,14 @@ import (
 )
 
 type Config struct {
-	Debug        bool
-	Host         string
-	Port         string
-	SecretKey    string
-	JWTSecret    string
-	AllowOrigins []string
-	Databases    string
+	Debug         bool
+	Host          string
+	Port          string
+	SecretKey     string
+	JWTSecret     string
+	AllowOrigins  []string
+	Databases     string
+	APIURLService string
 }
 
 var cfg *Config
@@ -59,14 +60,20 @@ func Init(debug bool) {
 		jwtSecret = secretKey
 	}
 
+	apiURLService := os.Getenv("API_URL_SERVICE")
+	if apiURLService == "" {
+		apiURLService = "http://ocserv:8080"
+	}
+
 	cfg = &Config{
-		Debug:        debug,
-		Host:         host,
-		Port:         port,
-		SecretKey:    secretKey,
-		JWTSecret:    jwtSecret,
-		AllowOrigins: strings.Split(allowOrigins, ","),
-		Databases:    databases,
+		Debug:         debug,
+		Host:          host,
+		Port:          port,
+		SecretKey:     secretKey,
+		JWTSecret:     jwtSecret,
+		AllowOrigins:  strings.Split(allowOrigins, ","),
+		Databases:     databases,
+		APIURLService: apiURLService,
 	}
 
 	log.Println("config initialized")

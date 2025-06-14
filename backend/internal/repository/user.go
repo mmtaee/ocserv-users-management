@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"gorm.io/gorm"
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/pkg/crypto"
@@ -78,17 +77,10 @@ func (r *UserRepository) Users(ctx context.Context, pagination *request.Paginati
 	if err := r.db.WithContext(ctx).Model(&models.User{}).Where(whereFilters).Count(&totalRecords).Error; err != nil {
 		return nil, 0, err
 	}
-
-	if pagination.Order == "" {
-		pagination.Order = "id"
-		pagination.Sort = "ASC"
-	}
-
+	
 	var staffs []models.User
-	offset := (pagination.Page - 1) * pagination.PageSize
-	order := fmt.Sprintf("%s %s", pagination.Order, pagination.Sort)
-
-	err := r.db.WithContext(ctx).Model(&staffs).Where(whereFilters).Order(order).Limit(pagination.PageSize).Offset(offset).Scan(&staffs).Error
+	txPaginator := paginator(ctx, r.db, pagination)
+	err := txPaginator.Model(&staffs).Where(whereFilters).Find(&staffs).Error
 	if err != nil {
 		return nil, 0, err
 	}

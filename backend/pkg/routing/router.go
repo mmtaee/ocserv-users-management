@@ -7,18 +7,34 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	LabstackLog "github.com/labstack/gommon/log"
+	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"log"
 	"net/http"
 	"ocserv-bakend/internal/providers/routing"
 	"ocserv-bakend/pkg/config"
 	"ocserv-bakend/pkg/routing/middlewares"
+	"os"
+	"slices"
 	"sort"
 	"strings"
 	"time"
 )
 
-var e *echo.Echo
+var (
+	e            *echo.Echo
+	allowMethods = []string{
+		http.MethodGet,
+		http.MethodPost,
+		http.MethodDelete,
+		http.MethodPatch,
+		http.MethodPut,
+		http.MethodHead,
+		http.MethodOptions,
+	}
+)
 
 func Serve(debug bool) {
 	cfg := config.Get()
@@ -33,15 +49,7 @@ func Serve(debug bool) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: cfg.AllowOrigins,
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
-		AllowMethods: []string{
-			http.MethodGet,
-			http.MethodPost,
-			http.MethodDelete,
-			http.MethodPatch,
-			http.MethodPut,
-			http.MethodHead,
-			http.MethodOptions,
-		},
+		AllowMethods: allowMethods,
 	}))
 
 	routing.Register(e)
@@ -80,6 +88,9 @@ func Serve(debug bool) {
 }
 
 func Shutdown(ctx context.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}
@@ -91,34 +102,36 @@ func verboseLog(service string) {
 	sort.SliceStable(paths, func(i, j int) bool {
 		return paths[i].Path < paths[j].Path
 	})
-	maxNameLen := len("ROUTE NAME")
-	maxPathLen := len("PATH")
-	maxMethodLen := len("METHOD")
-	for _, path := range paths {
-		if len(path.Name) > maxNameLen {
-			maxNameLen = len(path.Name)
-		}
-		if len(path.Path) > maxPathLen {
-			maxPathLen = len(path.Path)
-		}
-		if len(path.Method) > maxMethodLen {
-			maxMethodLen = len(path.Method)
+
+	table := tablewriter.NewTable(
+		os.Stdout,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(
+				tw.Rendition{
+					Settings: tw.Settings{Separators: tw.Separators{BetweenRows: tw.On}},
+				},
+			),
+		),
+	)
+	table.Header([]string{"Method", "Url", "Handler"})
+
+	for _, route := range e.Routes() {
+		if slices.Contains(allowMethods, route.Method) {
+			err := table.Append(
+				[]string{
+					route.Method,
+					fmt.Sprintf("http://%s%s/", service, route.Path),
+					strings.Split(strings.TrimSuffix(route.Name, "-fm"), ".")[2],
+				},
+			)
+			if err != nil {
+				return
+			}
 		}
 	}
 
-	headerFormat := fmt.Sprintf("\n%%-%ds %%-%ds %%-%ds\n", maxNameLen+5, maxMethodLen, maxPathLen)
-	log.Printf(headerFormat, "ROUTE NAME", "METHOD", "PATH")
-	log.Println(strings.Repeat("-", maxNameLen+maxPathLen+maxMethodLen+3))
-
-	rowFormat := fmt.Sprintf("%%-%ds %%-%ds %%-%ds\n", maxNameLen+5, maxMethodLen, maxPathLen)
-	for _, path := range paths {
-		if !strings.HasSuffix(path.Name, ".init.func1") {
-			log.Printf(
-				rowFormat,
-				strings.TrimSuffix(path.Name, "-fm"),
-				path.Method,
-				fmt.Sprintf("http://%s%s/", service, path.Path),
-			)
-		}
+	err := table.Render()
+	if err != nil {
+		return
 	}
 }

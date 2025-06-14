@@ -15,6 +15,84 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/ocserv/users": {
+            "get": {
+                "description": "List of Ocserv Users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "List of Ocserv Users",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number, starting from 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to order by",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ASC",
+                            "DESC"
+                        ],
+                        "type": "string",
+                        "description": "Sort order, either ASC or DESC",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.OcservUser"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/system": {
             "get": {
                 "description": "Get panel System Config",
@@ -279,6 +357,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/users/password": {
+            "post": {
+                "description": "Change user password by self",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System(Users)"
+                ],
+                "summary": "Change user password by self",
+                "parameters": [
+                    {
+                        "description": "user new password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.ChangeUserPassword"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/system.UsersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/system/users/{uid}": {
             "delete": {
                 "description": "Delete simple user",
@@ -335,7 +466,7 @@ const docTemplate = `{
         },
         "/system/users/{uid}/password": {
             "post": {
-                "description": "Change user password",
+                "description": "Change user password by admin",
                 "consumes": [
                     "application/json"
                 ],
@@ -345,7 +476,7 @@ const docTemplate = `{
                 "tags": [
                     "System(Users)"
                 ],
-                "summary": "Change user password",
+                "summary": "Change user password by admin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -414,6 +545,159 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "models.OcservUser": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "group",
+                "is_locked",
+                "is_online",
+                "password",
+                "rx",
+                "traffic_size",
+                "traffic_type",
+                "tx",
+                "uid",
+                "username"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deactivated_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "expire_at": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "is_locked": {
+                    "type": "boolean"
+                },
+                "is_online": {
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "rx": {
+                    "description": "Receive in bytes",
+                    "type": "integer"
+                },
+                "traffic_size": {
+                    "description": "in GiB  \u003e\u003e x * 1024 ** 3",
+                    "type": "integer"
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "TotallyTransmit",
+                        "TotallyReceive"
+                    ]
+                },
+                "tx": {
+                    "description": "Transmit in bytes",
+                    "type": "integer"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OcservUserConfig": {
+            "type": "object",
+            "properties": {
+                "banner": {
+                    "description": "Text message shown to users when they connect to the VPN. Example: 'Welcome to the company VPN!'",
+                    "type": "string"
+                },
+                "dns": {
+                    "description": "Comma-separated list of DNS servers to assign to the user. Example: '8.8.8.8,1.1.1.1'",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "explicit_ipv4": {
+                    "description": "Static IPv4 address to assign to the user. Example: '192.168.100.10'",
+                    "type": "string"
+                },
+                "idle_timeout": {
+                    "description": "Time in seconds before disconnecting idle users. Example: 600",
+                    "type": "integer"
+                },
+                "ipv4_network": {
+                    "description": "The pool of addresses from which to assign to the user. Example: '192.168.1.0/24'",
+                    "type": "string"
+                },
+                "iroute": {
+                    "description": "Internal route available only via VPN. Example: '10.0.0.0/8'",
+                    "type": "string"
+                },
+                "mobile_idle_timeout": {
+                    "description": "Idle timeout in seconds for mobile users. Example: 900",
+                    "type": "integer"
+                },
+                "nbns": {
+                    "description": "NetBIOS Name Servers (WINS) for Windows clients. Example: '192.168.1.1'",
+                    "type": "string"
+                },
+                "no_route": {
+                    "description": "List of networks to exclude from VPN routing. Example: ['192.168.0.0/16', '10.0.0.0/8']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rekey_time": {
+                    "description": "Rekey time in seconds; triggers key renegotiation. Example: 86400 for 24 hours",
+                    "type": "integer"
+                },
+                "restrict_to_ports": {
+                    "description": "Comma-separated list of allowed or blocked ports/protocols. Supports 'tcp(port)', 'udp(port)', 'icmp()', 'icmpv6()', and negation with '!()'. Example: 'tcp(443), udp(53)' or '!(tcp(22), udp(1194))'",
+                    "type": "string"
+                },
+                "restrict_to_routes": {
+                    "description": "Allow user access only to defined routes. Example: true",
+                    "type": "boolean"
+                },
+                "route": {
+                    "description": "Routes pushed to the user for routing traffic. Example: ['0.0.0.0/0', '10.10.0.0/16']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "session_timeout": {
+                    "description": "Maximum session time in seconds before forced disconnect. Example: 3600",
+                    "type": "integer"
+                },
+                "split_dns": {
+                    "description": "List of domains over which the provided DNS servers should be used. Example: ['example.com', 'internal.company.com']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
