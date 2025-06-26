@@ -6,7 +6,6 @@ import {useLocale} from "vuetify/framework";
 import {requiredRule} from "@/utils/rules.ts";
 import router from "@/plugins/router.ts";
 import {useUserStore} from "@/stores/user.ts";
-import {formatDateTime} from "@/utils/convertors.ts";
 
 const Captcha = defineAsyncComponent(() => import('@/components/Captcha.vue'));
 
@@ -40,7 +39,6 @@ const login = async () => {
       uid: res.data.user.uid,
       username: res.data.user.username,
       isAdmin: res.data.user.is_admin,
-      lastLogin: formatDateTime(res.data.user.last_login, ""),
     })
     localStorage.setItem("token", res.data.token)
     router.push("/")

@@ -4,8 +4,9 @@ import {useDisplay} from 'vuetify';
 export const isSmallDevice = ref<boolean>(false);
 
 export function useIsSmallDevice(): boolean {
-    const {xs, sm, mobile} = useDisplay();
-    const isSmall = computed(() => mobile.value || xs.value || sm.value).value;
-    isSmallDevice.value = isSmall;
-    return isSmall;
+    const display = useDisplay()
+    const isSmallDisplay = computed(() => display.mdAndDown.value)
+
+    isSmallDevice.value = isSmallDisplay.value;
+    return isSmallDisplay.value;
 }

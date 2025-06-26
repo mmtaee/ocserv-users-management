@@ -17,5 +17,8 @@
   "LOGOUT_MESSAGE_SUB_2": "You can return to the panel whenever you want. \uD83D\uDE42",
   "LOGOUT_TITLE": "Logout",
   "CLOSE": "Close",
-  "CANCEL": "Cancel"
+  "CANCEL": "Cancel",
+  "STAFF": "Staff",
+  "ADMIN": "Admin",
+  "CHANGE_PASSWORD": "Change Password"
 }

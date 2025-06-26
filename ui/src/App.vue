@@ -4,9 +4,10 @@ import {useIsSmallDevice} from '@/composables/useDevice';
 import {defineAsyncComponent} from "vue";
 
 const Snackbar = defineAsyncComponent(() => import("@/components/reusable/ReusableSnackbar.vue"))
-const AppBar = defineAsyncComponent(() => import("@/components/AppBar.vue"))
+const AppBar = defineAsyncComponent(() => import("@/components/Skeleton.vue"))
 
 useIsSmallDevice()
+
 const theme = useTheme()
 
 </script>
@@ -34,7 +35,6 @@ const theme = useTheme()
         </v-container>
       </v-card>
     </v-main>
-
 
     <Snackbar/>
 

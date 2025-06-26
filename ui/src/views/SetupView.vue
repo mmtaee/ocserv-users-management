@@ -6,7 +6,6 @@ import {SystemApi, type SystemSetupSystem} from "@/api";
 import {requiredRule} from "@/utils/rules.ts";
 import {useConfigStore} from "@/stores/config.ts";
 import {useUserStore} from "@/stores/user.ts";
-import {formatDateTime} from "@/utils/convertors.ts";
 import router from "@/plugins/router.ts";
 
 const {t} = useLocale()
@@ -39,7 +38,6 @@ const setup = () => {
       uid: res.data.user.uid,
       username: res.data.user.username,
       isAdmin: res.data.user.is_admin,
-      lastLogin: formatDateTime(res.data.user.last_login, ""),
     })
     localStorage.setItem("token", res.data.token)
     router.push({name: 'HomePage'})

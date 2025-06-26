@@ -35,6 +35,15 @@ const routes: Array<RouteRecordRaw> = [
             title: "Login",
         }
     },
+    {
+        path: '/account',
+        name: 'AccountPage',
+        component: () => import('../views/AccountView.vue'),
+        meta: {
+            title: "Account",
+            desktopOnly: true
+        }
+    },
     // {
     //     path: '/config',
     //     name: 'ConfigPage',
@@ -77,7 +86,8 @@ router.beforeEach((to, _from, next) => {
         document.title = to.name as string
     }
 
-    if (to.meta.desktopOnly && isSmallDevice) {
+
+    if (to.meta.desktopOnly && isSmallDevice.value) {
         next("/mobile-not-allowed");
         return;
     }
