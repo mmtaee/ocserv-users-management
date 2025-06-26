@@ -82,12 +82,11 @@ func TestSystemSetupSuccess(t *testing.T) {
 	})
 
 	user := &models.User{
-		ID:        1,
-		UID:       "uid-1234",
-		Username:  "admin",
-		Password:  "hashedPass",
-		IsAdmin:   true,
-		LastLogin: nil,
+		ID:       1,
+		UID:      "uid-1234",
+		Username: "admin",
+		Password: "hashedPass",
+		IsAdmin:  true,
 	}
 
 	system := &models.System{
@@ -183,7 +182,7 @@ func TestSystemUpdateSuccess(t *testing.T) {
 
 // -------------------- TEST: Login --------------------
 func TestSystemLogin(t *testing.T) {
-	ctrl, mockRequest, mockSystemRepo, mockCaptcha, mockUserRepo, _ := newControllerWithMocks()
+	ctrl, mockRequest, mockSystemRepo, mockCaptcha, mockUserRepo, mockCryptoRepo := newControllerWithMocks()
 
 	loginInput := `{"username":"testuser", "password":"testpass", "token":"dummy-token"}`
 	c, w := setupEcho(http.MethodPost, "/system/users/login", loginInput)
@@ -206,8 +205,11 @@ func TestSystemLogin(t *testing.T) {
 	mockCaptcha.On("Verify", "dummy-token").Return(mockCaptcha)
 	mockCaptcha.On("IsValid").Return(true)
 
-	mockUser := &models.User{ID: 1, UID: "uid-123", Username: "testuser", IsAdmin: false}
+	mockUser := &models.User{ID: 1, UID: "uid-123", Username: "testuser", IsAdmin: false, Password: "testpass", Salt: "testsalt"}
 	mockUserRepo.On("GetByUsername", mock.Anything, "testuser").Return(mockUser, nil)
+
+	mockCryptoRepo.On("CheckPassword", "testpass", mockUser.Password, mockUser.Salt).Return(true)
+
 	mockUserRepo.On("CreateToken", mock.Anything, uint(1), "uid-123", true, false).Return("mock-token", nil)
 
 	err := ctrl.Login(c)
@@ -265,7 +267,6 @@ func TestCreateUserSuccess(t *testing.T) {
 
 	assert.Contains(t, resp, "CreatedAt")
 	assert.Contains(t, resp, "UpdatedAt")
-	assert.Contains(t, resp, "last_login")
 
 	mockRequest.AssertExpectations(t)
 	mockCryptoRepo.AssertExpectations(t)
@@ -383,10 +384,9 @@ func TestUserProfile(t *testing.T) {
 	c.Set("userUID", uid)
 
 	mockUserRepo.On("GetByUID", mock.Anything, uid).Return(&models.User{
-		UID:       uid,
-		Username:  "testuser",
-		IsAdmin:   true,
-		LastLogin: nil,
+		UID:      uid,
+		Username: "testuser",
+		IsAdmin:  true,
 	}, nil)
 
 	err := ctrl.Profile(c)

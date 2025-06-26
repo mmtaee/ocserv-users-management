@@ -24,23 +24,18 @@ func AdminUsers() {
 	var users []models.User
 	if err := db.WithContext(ctx).
 		Where("is_admin = ?", true).
-		Select("uid", "username", "last_login", "updated_at").
+		Select("uid", "username", "updated_at").
 		Find(&users).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.Header([]string{"UID", "Username", "Last Login", "Updated At"})
+	table.Header([]string{"UID", "Username", "Updated At"})
 
 	for _, user := range users {
-		lastLogin := ""
-		if user.LastLogin != nil {
-			lastLogin = user.LastLogin.Format("2006-01-02 15:04:05")
-		}
 		err := table.Append([]string{
 			user.UID,
 			user.Username,
-			lastLogin,
 			user.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
 		if err != nil {

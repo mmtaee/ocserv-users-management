@@ -7,13 +7,13 @@ import (
 )
 
 type User struct {
-	ID        uint       `json:"_" gorm:"primaryKey;autoIncrement" validate:"required"`
-	UID       string     `json:"uid" gorm:"type:varchar(26);not null;unique" validate:"required"`
-	Username  string     `json:"username" gorm:"type:varchar(16);not null;unique"  validate:"required"`
-	Password  string     `json:"-" gorm:"type:varchar(64); not null"`
-	IsAdmin   bool       `json:"is_admin" gorm:"type:bool;default(false)"  validate:"required"`
-	Salt      string     `json:"-" gorm:"type:varchar(8);not null"`
-	LastLogin *time.Time `json:"last_login"  validate:"required"`
+	ID       uint   `json:"_" gorm:"primaryKey;autoIncrement" validate:"required"`
+	UID      string `json:"uid" gorm:"type:varchar(26);not null;unique" validate:"required"`
+	Username string `json:"username" gorm:"type:varchar(16);not null;unique"  validate:"required"`
+	Password string `json:"-" gorm:"type:varchar(64); not null"`
+	IsAdmin  bool   `json:"is_admin" gorm:"type:bool;default(false)"  validate:"required"`
+	Salt     string `json:"-" gorm:"type:varchar(8);not null"`
+	//LastLogin *time.Time `json:"last_login"  validate:"required"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Token     []UserToken `json:"-"`
