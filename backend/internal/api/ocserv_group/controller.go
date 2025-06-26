@@ -115,6 +115,7 @@ func (ctrl *Controller) CreateOcservGroup(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Bearer TOKEN"
+// @Param 		 uid path int true "Ocserv Group ID"
 // @Param        request    body  UpdateOcservGroupData  true "ocserv group create data"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
@@ -143,6 +144,19 @@ func (ctrl *Controller) UpdateOcservGroup(c echo.Context) error {
 	return c.JSON(http.StatusOK, updatedOcservGroup)
 }
 
+// DeleteOcservGroup 	     Ocserv Group delete
+//
+// @Summary      Ocserv Group delete
+// @Description  Ocserv Group delete
+// @Tags         Ocserv(Groups)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param 		 uid path int true "Ocserv Group ID"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      204  {object} nil
+// @Router       /ocserv/groups/{uid} [delete]
 func (ctrl *Controller) DeleteOcservGroup(c echo.Context) error {
 	groupUID := c.Param("uid")
 	if groupUID == "" {

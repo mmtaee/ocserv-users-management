@@ -250,12 +250,21 @@ definitions:
           type: string
         type: array
     type: object
+  models.System:
+    properties:
+      _:
+        type: integer
+      google_captcha_secret:
+        type: string
+      google_captcha_site_key:
+        type: string
+    type: object
   models.User:
     properties:
+      _:
+        type: integer
       createdAt:
         type: string
-      id:
-        type: integer
       is_admin:
         type: boolean
       last_login:
@@ -267,7 +276,7 @@ definitions:
       username:
         type: string
     required:
-    - id
+    - _
     - is_admin
     - last_login
     - uid
@@ -469,6 +478,37 @@ definitions:
     - google_captcha_secret_key
     - google_captcha_site_key
     type: object
+  system.SetupSystem:
+    properties:
+      google_captcha_secret_key:
+        type: string
+      google_captcha_site_key:
+        type: string
+      password:
+        maxLength: 16
+        minLength: 4
+        type: string
+      username:
+        maxLength: 16
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  system.SetupSystemResponse:
+    properties:
+      system:
+        $ref: '#/definitions/models.System'
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - system
+    - token
+    - user
+    type: object
   system.UserLoginResponse:
     properties:
       token:
@@ -582,6 +622,37 @@ paths:
       tags:
       - Ocserv(Groups)
   /ocserv/groups/{uid}:
+    delete:
+      consumes:
+      - application/json
+      description: Ocserv Group delete
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv Group ID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Group delete
+      tags:
+      - Ocserv(Groups)
     patch:
       consumes:
       - application/json
@@ -592,6 +663,11 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: Ocserv Group ID
+        in: path
+        name: uid
+        required: true
+        type: integer
       - description: ocserv group create data
         in: body
         name: request
@@ -930,7 +1006,7 @@ paths:
       summary: Update panel System Config
       tags:
       - System
-  /system/Init:
+  /system/init:
     get:
       consumes:
       - application/json
@@ -947,6 +1023,32 @@ paths:
           schema:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Get panel System init Config
+      tags:
+      - System
+  /system/setup:
+    post:
+      consumes:
+      - application/json
+      description: Setup user and system config
+      parameters:
+      - description: system setup data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/system.SetupSystem'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/system.SetupSystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Setup user and system config
       tags:
       - System
   /system/users:
@@ -1012,7 +1114,7 @@ paths:
       parameters:
       - description: User ID
         in: path
-        name: id
+        name: uid
         required: true
         type: integer
       - description: Bearer TOKEN
@@ -1048,7 +1150,7 @@ paths:
       parameters:
       - description: User ID
         in: path
-        name: id
+        name: uid
         required: true
         type: integer
       - description: user new password
@@ -1156,6 +1258,35 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Change user password by self
+      tags:
+      - System(Users)
+  /system/users/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get User Profile
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Get User Profile
       tags:
       - System(Users)
 swagger: "2.0"

@@ -12,6 +12,7 @@ type SystemRepository struct {
 }
 
 type SystemRepositoryInterface interface {
+	SystemSetup(ctx context.Context, user *models.User, system *models.System) (*models.User, *models.System, error)
 	System(ctx context.Context) (*models.System, error)
 	SystemUpdate(ctx context.Context, system *models.System) (*models.System, error)
 }
@@ -20,6 +21,21 @@ func NewSystemRepository() *SystemRepository {
 	return &SystemRepository{
 		db: database.Get(),
 	}
+}
+
+func (s *SystemRepository) SystemSetup(ctx context.Context, user *models.User, system *models.System) (*models.User, *models.System, error) {
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		err := tx.Create(&system).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Create(&user).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return user, system, err
 }
 
 func (s *SystemRepository) System(ctx context.Context) (*models.System, error) {

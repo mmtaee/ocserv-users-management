@@ -110,6 +110,36 @@ func (_m *UserRepositoryInterface) DeleteUser(ctx context.Context, uid string) e
 	return r0
 }
 
+// GetByUID provides a mock function with given fields: ctx, uid
+func (_m *UserRepositoryInterface) GetByUID(ctx context.Context, uid string) (*models.User, error) {
+	ret := _m.Called(ctx, uid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByUID")
+	}
+
+	var r0 *models.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*models.User, error)); ok {
+		return rf(ctx, uid)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.User); ok {
+		r0 = rf(ctx, uid)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, uid)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetByUsername provides a mock function with given fields: ctx, username
 func (_m *UserRepositoryInterface) GetByUsername(ctx context.Context, username string) (*models.User, error) {
 	ret := _m.Called(ctx, username)

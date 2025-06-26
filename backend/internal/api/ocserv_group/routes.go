@@ -9,4 +9,5 @@ func Routes(e *echo.Group) {
 	g.GET("/lookup", ctrl.OcservGroupsLookup)
 	g.POST("", ctrl.CreateOcservGroup)
 	g.PATCH("/:uid", ctrl.UpdateOcservGroup)
+	g.DELETE("/:uid", ctrl.DeleteOcservGroup)
 }

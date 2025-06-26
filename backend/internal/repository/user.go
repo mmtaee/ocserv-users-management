@@ -15,6 +15,7 @@ type UserRepository struct {
 }
 type UserRepositoryInterface interface {
 	GetByUsername(ctx context.Context, username string) (*models.User, error)
+	GetByUID(ctx context.Context, uid string) (*models.User, error)
 	CreateToken(ctx context.Context, id uint, uid string, rememberMe bool, isAdmin bool) (string, error)
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
 	Users(ctx context.Context, pagination *request.Pagination) (*[]models.User, int64, error)
@@ -77,7 +78,7 @@ func (r *UserRepository) Users(ctx context.Context, pagination *request.Paginati
 	if err := r.db.WithContext(ctx).Model(&models.User{}).Where(whereFilters).Count(&totalRecords).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	var staffs []models.User
 	txPaginator := paginator(ctx, r.db, pagination)
 	err := txPaginator.Model(&staffs).Where(whereFilters).Find(&staffs).Error
@@ -112,4 +113,13 @@ func (r *UserRepository) DeleteUser(ctx context.Context, uid string) error {
 		return err
 	}
 	return nil
+}
+
+func (r *UserRepository) GetByUID(ctx context.Context, uid string) (*models.User, error) {
+	var user models.User
+	err := r.db.WithContext(ctx).Where("uid = ?", uid).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

@@ -44,6 +44,45 @@ func (_m *SystemRepositoryInterface) System(ctx context.Context) (*models.System
 	return r0, r1
 }
 
+// SystemSetup provides a mock function with given fields: ctx, user, system
+func (_m *SystemRepositoryInterface) SystemSetup(ctx context.Context, user *models.User, system *models.System) (*models.User, *models.System, error) {
+	ret := _m.Called(ctx, user, system)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SystemSetup")
+	}
+
+	var r0 *models.User
+	var r1 *models.System
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.User, *models.System) (*models.User, *models.System, error)); ok {
+		return rf(ctx, user, system)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.User, *models.System) *models.User); ok {
+		r0 = rf(ctx, user, system)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *models.User, *models.System) *models.System); ok {
+		r1 = rf(ctx, user, system)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*models.System)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, *models.User, *models.System) error); ok {
+		r2 = rf(ctx, user, system)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // SystemUpdate provides a mock function with given fields: ctx, system
 func (_m *SystemRepositoryInterface) SystemUpdate(ctx context.Context, system *models.System) (*models.System, error) {
 	ret := _m.Called(ctx, system)

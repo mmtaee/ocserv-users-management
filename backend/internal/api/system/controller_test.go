@@ -2,6 +2,7 @@ package system
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -52,6 +53,66 @@ func setupEcho(method, path string, body string) (echo.Context, *httptest.Respon
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	return c, rec
+}
+
+// -------------------- TEST: SystemSetup --------------------
+func TestSystemSetupSuccess(t *testing.T) {
+	ctrl, mockRequest, mockSystemRepo, _, mockUserRepo, mockCryptoRepo := newControllerWithMocks()
+
+	body := `{
+		"username": "admin",
+		"password": "test_password",
+		"google_captcha_site_key": "",
+		"google_captcha_secret_key": ""
+	}`
+
+	c, rec := setupEcho(http.MethodPost, "/system/setup", body)
+
+	mockSystemRepo.On("System", mock.Anything).Return(nil, errors.New("not configured"))
+	mockRequest.On("DoValidate", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		data := args.Get(1).(*SetupSystem)
+		data.Username = "admin"
+		data.Password = "test_password"
+		data.GoogleCaptchaSiteKey = ""
+		data.GoogleCaptchaSecretKey = ""
+	})
+	mockCryptoRepo.On("CreatePassword", "test_password").Return(crypto.CustomPassword{
+		Hash: "hashedPass",
+		Salt: "saltValue",
+	})
+
+	user := &models.User{
+		ID:        1,
+		UID:       "uid-1234",
+		Username:  "admin",
+		Password:  "hashedPass",
+		IsAdmin:   true,
+		LastLogin: nil,
+	}
+
+	system := &models.System{
+		GoogleCaptchaSiteKey:   "",
+		GoogleCaptchaSecretKey: "",
+	}
+
+	mockSystemRepo.On("SystemSetup", mock.Anything, mock.Anything, mock.Anything).Return(user, system, nil)
+	mockUserRepo.On("CreateToken", mock.Anything, user.ID, user.UID, true, user.IsAdmin).Return("mock-token", nil)
+
+	err := ctrl.SetupSystem(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusCreated, rec.Code)
+	mockSystemRepo.AssertExpectations(t)
+	mockCryptoRepo.AssertExpectations(t)
+	mockUserRepo.AssertExpectations(t)
+
+	var response SetupSystemResponse
+	err = json.Unmarshal(rec.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "admin", response.User.Username)
+	assert.Equal(t, true, response.User.IsAdmin)
+	assert.Equal(t, "", response.System.GoogleCaptchaSiteKey)
+	assert.Equal(t, "", response.System.GoogleCaptchaSecretKey)
+	assert.Equal(t, "mock-token", response.Token)
 }
 
 // -------------------- TEST: SystemInit --------------------
@@ -198,7 +259,6 @@ func TestCreateUserSuccess(t *testing.T) {
 	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	assert.NoError(t, err)
 
-	assert.Equal(t, float64(1), resp["id"])
 	assert.Equal(t, "uid-123", resp["uid"])
 	assert.Equal(t, "testuser", resp["username"])
 	assert.Equal(t, false, resp["is_admin"])
@@ -314,4 +374,31 @@ func TestChangePasswordBySelf(t *testing.T) {
 	mockRequest.AssertExpectations(t)
 	mockUserRepo.AssertExpectations(t)
 	mockCryptoRepo.AssertExpectations(t)
+}
+
+func TestUserProfile(t *testing.T) {
+	uid := "uid-1234"
+	ctrl, _, _, _, mockUserRepo, _ := newControllerWithMocks()
+	c, rec := setupEcho(http.MethodGet, "/system/users/profile", "")
+	c.Set("userUID", uid)
+
+	mockUserRepo.On("GetByUID", mock.Anything, uid).Return(&models.User{
+		UID:       uid,
+		Username:  "testuser",
+		IsAdmin:   true,
+		LastLogin: nil,
+	}, nil)
+
+	err := ctrl.Profile(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	mockUserRepo.AssertExpectations(t)
+
+	var response models.User
+	err = json.Unmarshal(rec.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, uid, response.UID)
+	assert.Equal(t, true, response.IsAdmin)
+	assert.Equal(t, "testuser", response.Username)
+	mockUserRepo.AssertExpectations(t)
 }

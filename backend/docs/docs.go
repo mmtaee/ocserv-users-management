@@ -189,6 +189,52 @@ const docTemplate = `{
             }
         },
         "/ocserv/groups/{uid}": {
+            "delete": {
+                "description": "Ocserv Group delete",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Groups)"
+                ],
+                "summary": "Ocserv Group delete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ocserv Group ID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "Ocserv Group update",
                 "consumes": [
@@ -207,6 +253,13 @@ const docTemplate = `{
                         "description": "Bearer TOKEN",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ocserv Group ID",
+                        "name": "uid",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -664,7 +717,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/Init": {
+        "/system/init": {
             "get": {
                 "description": "Get panel System init Config",
                 "consumes": [
@@ -682,6 +735,46 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/system.GetSystemInitResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/system/setup": {
+            "post": {
+                "description": "Setup user and system config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Setup user and system config",
+                "parameters": [
+                    {
+                        "description": "system setup data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.SetupSystem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/system.SetupSystemResponse"
                         }
                     },
                     "400": {
@@ -886,6 +979,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/users/profile": {
+            "get": {
+                "description": "Get User Profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System(Users)"
+                ],
+                "summary": "Get User Profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/system/users/{uid}": {
             "delete": {
                 "description": "Delete simple user",
@@ -903,7 +1040,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "uid",
                         "in": "path",
                         "required": true
                     },
@@ -957,7 +1094,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "uid",
                         "in": "path",
                         "required": true
                     },
@@ -1321,21 +1458,35 @@ const docTemplate = `{
                 }
             }
         },
+        "models.System": {
+            "type": "object",
+            "properties": {
+                "_": {
+                    "type": "integer"
+                },
+                "google_captcha_secret": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "required": [
-                "id",
+                "_",
                 "is_admin",
                 "last_login",
                 "uid",
                 "username"
             ],
             "properties": {
+                "_": {
+                    "type": "integer"
+                },
                 "createdAt": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "is_admin": {
                     "type": "boolean"
@@ -1630,6 +1781,50 @@ const docTemplate = `{
                 },
                 "google_captcha_site_key": {
                     "type": "string"
+                }
+            }
+        },
+        "system.SetupSystem": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "google_captcha_secret_key": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 4
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 2
+                }
+            }
+        },
+        "system.SetupSystemResponse": {
+            "type": "object",
+            "required": [
+                "system",
+                "token",
+                "user"
+            ],
+            "properties": {
+                "system": {
+                    "$ref": "#/definitions/models.System"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
                 }
             }
         },

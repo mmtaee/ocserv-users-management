@@ -10,6 +10,7 @@ import (
 	"ocserv-bakend/pkg/crypto"
 	"ocserv-bakend/pkg/request"
 	"ocserv-bakend/pkg/utils/captcha"
+	"strings"
 )
 
 type Controller struct {
@@ -30,6 +31,59 @@ func New() *Controller {
 	}
 }
 
+// SetupSystem
+// @Summary      Setup user and system config
+// @Description  Setup user and system config
+// @Tags         System
+// @Accept       json
+// @Produce      json
+// @Param        request  body  SetupSystem   true "system setup data"
+// @Failure      400 {object} request.ErrorResponse
+// @Success      201  {object}  SetupSystemResponse
+// @Router       /system/setup [post]
+func (ctrl *Controller) SetupSystem(c echo.Context) error {
+	if _, err := ctrl.systemRepo.System(c.Request().Context()); err == nil {
+		return ctrl.request.BadRequest(c, errors.New("the system is already configured"))
+	}
+
+	var data SetupSystem
+	if err := ctrl.request.DoValidate(c, &data); err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+
+	passwd := ctrl.cryptoRepo.CreatePassword(data.Password)
+
+	user := &models.User{
+		Username: strings.ToLower(data.Username),
+		Password: passwd.Hash,
+		Salt:     passwd.Salt,
+		IsAdmin:  true,
+	}
+
+	system := &models.System{
+		GoogleCaptchaSiteKey:   data.GoogleCaptchaSiteKey,
+		GoogleCaptchaSecretKey: data.GoogleCaptchaSecretKey,
+	}
+	newUser, newSystem, err := ctrl.systemRepo.SystemSetup(c.Request().Context(), user, system)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+
+	token, err := ctrl.userRepo.CreateToken(c.Request().Context(), newUser.ID, newUser.UID, true, newUser.IsAdmin)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+
+	return c.JSON(
+		http.StatusCreated,
+		SetupSystemResponse{
+			User:   *newUser,
+			System: *newSystem,
+			Token:  token,
+		},
+	)
+}
+
 // SystemInit
 // @Summary      Get panel System init Config
 // @Description  Get panel System init Config
@@ -38,7 +92,7 @@ func New() *Controller {
 // @Produce      json
 // @Failure      400 {object} request.ErrorResponse
 // @Success      200  {object}  GetSystemInitResponse
-// @Router       /system/Init [get]
+// @Router       /system/init [get]
 func (ctrl *Controller) SystemInit(c echo.Context) error {
 	config, err := ctrl.systemRepo.System(c.Request().Context())
 	if err != nil {
@@ -183,7 +237,7 @@ func (ctrl *Controller) CreateUser(c echo.Context) error {
 	passwd := ctrl.cryptoRepo.CreatePassword(data.Password)
 
 	user := &models.User{
-		Username: data.Username,
+		Username: strings.ToLower(data.Username),
 		Password: passwd.Hash,
 		Salt:     passwd.Salt,
 		IsAdmin:  data.Admin,
@@ -237,7 +291,7 @@ func (ctrl *Controller) Users(c echo.Context) error {
 // @Tags         System(Users)
 // @Accept       json
 // @Produce      json
-// @Param 		 id path int true "User ID"
+// @Param 		 uid path int true "User ID"
 // @Param        request    body  ChangeUserPassword  true "user new password"
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
@@ -268,7 +322,7 @@ func (ctrl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 // @Tags         System(Users)
 // @Accept       json
 // @Produce      json
-// @Param 		 id path int true "User ID"
+// @Param 		 uid path int true "User ID"
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
@@ -310,4 +364,25 @@ func (ctrl *Controller) ChangePasswordBySelf(c echo.Context) error {
 		return ctrl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
+}
+
+// Profile 		 Get User Profile
+//
+// @Summary      Get User Profile
+// @Description  Get User Profile
+// @Tags         System(Users)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200  {object}  models.User
+// @Router       /system/users/profile [get]
+func (ctrl *Controller) Profile(c echo.Context) error {
+	userUID := c.Get("userUID").(string)
+	user, err := ctrl.userRepo.GetByUID(c.Request().Context(), userUID)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, user)
 }
