@@ -35,6 +35,18 @@ export const useUserStore = defineStore('user', {
             this.username = user.username;
             this.isAdmin = user.isAdmin;
             this.lastLogin = user.lastLogin;
-        }
+        },
+        clearUser() {
+            this.uid = "";
+            this.username = "";
+            this.isAdmin = false;
+            this.lastLogin = "";
+        },
+
+    },
+    getters: {
+        user(state): UserState | null {
+            return state;
+        },
     }
 })

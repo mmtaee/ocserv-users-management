@@ -34,6 +34,10 @@ import type { SystemChangeUserPassword } from '../models';
 // @ts-ignore
 import type { SystemCreateUserData } from '../models';
 // @ts-ignore
+import type { SystemLoginData } from '../models';
+// @ts-ignore
+import type { SystemUserLoginResponse } from '../models';
+// @ts-ignore
 import type { SystemUsersResponse } from '../models';
 /**
  * SystemUsersApi - axios parameter creator
@@ -98,19 +102,55 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
-         * Create user Admin or simple
-         * @summary Create user
-         * @param {string} authorization Bearer TOKEN
-         * @param {SystemCreateUserData} request create user data
+         * Admin users login with Google captcha(captcha site key required in get config api)
+         * @summary Admin users login
+         * @param {SystemLoginData} request login data
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersLoginPost: async (authorization: string, request: SystemCreateUserData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersLoginPost', 'authorization', authorization)
+        systemUsersLoginPost: async (request: SystemLoginData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('systemUsersLoginPost', 'request', request)
             const localVarPath = `/system/users/login`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(request, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Change user password by self
+         * @summary Change user password by self
+         * @param {string} authorization Bearer TOKEN
+         * @param {SystemChangeUserPassword} request user new password
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        systemUsersPasswordPost: async (authorization: string, request: SystemChangeUserPassword, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('systemUsersPasswordPost', 'authorization', authorization)
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('systemUsersPasswordPost', 'request', request)
+            const localVarPath = `/system/users/password`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -140,19 +180,19 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
-         * Change user password by self
-         * @summary Change user password by self
+         * Create user Admin or simple
+         * @summary Create user
          * @param {string} authorization Bearer TOKEN
-         * @param {SystemChangeUserPassword} request user new password
+         * @param {SystemCreateUserData} request create user data
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersPasswordPost: async (authorization: string, request: SystemChangeUserPassword, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        systemUsersPost: async (authorization: string, request: SystemCreateUserData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersPasswordPost', 'authorization', authorization)
+            assertParamExists('systemUsersPost', 'authorization', authorization)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('systemUsersPasswordPost', 'request', request)
-            const localVarPath = `/system/users/password`;
+            assertParamExists('systemUsersPost', 'request', request)
+            const localVarPath = `/system/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -331,15 +371,14 @@ export const SystemUsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Create user Admin or simple
-         * @summary Create user
-         * @param {string} authorization Bearer TOKEN
-         * @param {SystemCreateUserData} request create user data
+         * Admin users login with Google captcha(captcha site key required in get config api)
+         * @summary Admin users login
+         * @param {SystemLoginData} request login data
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersLoginPost(authorization: string, request: SystemCreateUserData, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsUser>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersLoginPost(authorization, request, options);
+        async systemUsersLoginPost(request: SystemLoginData, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUserLoginResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersLoginPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SystemUsersApi.systemUsersLoginPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -356,6 +395,20 @@ export const SystemUsersApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersPasswordPost(authorization, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SystemUsersApi.systemUsersPasswordPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Create user Admin or simple
+         * @summary Create user
+         * @param {string} authorization Bearer TOKEN
+         * @param {SystemCreateUserData} request create user data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async systemUsersPost(authorization: string, request: SystemCreateUserData, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsUser>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersPost(authorization, request, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemUsersApi.systemUsersPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -421,14 +474,14 @@ export const SystemUsersApiFactory = function (configuration?: Configuration, ba
             return localVarFp.systemUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
         },
         /**
-         * Create user Admin or simple
-         * @summary Create user
+         * Admin users login with Google captcha(captcha site key required in get config api)
+         * @summary Admin users login
          * @param {SystemUsersApiSystemUsersLoginPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersLoginPost(requestParameters: SystemUsersApiSystemUsersLoginPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsUser> {
-            return localVarFp.systemUsersLoginPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(axios, basePath));
+        systemUsersLoginPost(requestParameters: SystemUsersApiSystemUsersLoginPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<SystemUserLoginResponse> {
+            return localVarFp.systemUsersLoginPost(requestParameters.request, options).then((request) => request(axios, basePath));
         },
         /**
          * Change user password by self
@@ -439,6 +492,16 @@ export const SystemUsersApiFactory = function (configuration?: Configuration, ba
          */
         systemUsersPasswordPost(requestParameters: SystemUsersApiSystemUsersPasswordPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<SystemUsersResponse> {
             return localVarFp.systemUsersPasswordPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Create user Admin or simple
+         * @summary Create user
+         * @param {SystemUsersApiSystemUsersPostRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        systemUsersPost(requestParameters: SystemUsersApiSystemUsersPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsUser> {
+            return localVarFp.systemUsersPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(axios, basePath));
         },
         /**
          * Get User Profile
@@ -522,18 +585,11 @@ export interface SystemUsersApiSystemUsersGetRequest {
  */
 export interface SystemUsersApiSystemUsersLoginPostRequest {
     /**
-     * Bearer TOKEN
-     * @type {string}
+     * login data
+     * @type {SystemLoginData}
      * @memberof SystemUsersApiSystemUsersLoginPost
      */
-    readonly authorization: string
-
-    /**
-     * create user data
-     * @type {SystemCreateUserData}
-     * @memberof SystemUsersApiSystemUsersLoginPost
-     */
-    readonly request: SystemCreateUserData
+    readonly request: SystemLoginData
 }
 
 /**
@@ -555,6 +611,27 @@ export interface SystemUsersApiSystemUsersPasswordPostRequest {
      * @memberof SystemUsersApiSystemUsersPasswordPost
      */
     readonly request: SystemChangeUserPassword
+}
+
+/**
+ * Request parameters for systemUsersPost operation in SystemUsersApi.
+ * @export
+ * @interface SystemUsersApiSystemUsersPostRequest
+ */
+export interface SystemUsersApiSystemUsersPostRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof SystemUsersApiSystemUsersPost
+     */
+    readonly authorization: string
+
+    /**
+     * create user data
+     * @type {SystemCreateUserData}
+     * @memberof SystemUsersApiSystemUsersPost
+     */
+    readonly request: SystemCreateUserData
 }
 
 /**
@@ -640,15 +717,15 @@ export class SystemUsersApi extends BaseAPI {
     }
 
     /**
-     * Create user Admin or simple
-     * @summary Create user
+     * Admin users login with Google captcha(captcha site key required in get config api)
+     * @summary Admin users login
      * @param {SystemUsersApiSystemUsersLoginPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SystemUsersApi
      */
     public systemUsersLoginPost(requestParameters: SystemUsersApiSystemUsersLoginPostRequest, options?: RawAxiosRequestConfig) {
-        return SystemUsersApiFp(this.configuration).systemUsersLoginPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+        return SystemUsersApiFp(this.configuration).systemUsersLoginPost(requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -661,6 +738,18 @@ export class SystemUsersApi extends BaseAPI {
      */
     public systemUsersPasswordPost(requestParameters: SystemUsersApiSystemUsersPasswordPostRequest, options?: RawAxiosRequestConfig) {
         return SystemUsersApiFp(this.configuration).systemUsersPasswordPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Create user Admin or simple
+     * @summary Create user
+     * @param {SystemUsersApiSystemUsersPostRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemUsersApi
+     */
+    public systemUsersPost(requestParameters: SystemUsersApiSystemUsersPostRequest, options?: RawAxiosRequestConfig) {
+        return SystemUsersApiFp(this.configuration).systemUsersPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

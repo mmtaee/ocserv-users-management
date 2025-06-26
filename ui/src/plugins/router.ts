@@ -2,9 +2,14 @@ import type {RouteRecordRaw} from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import HomeView from "@/views/HomeView.vue";
 import {useConfigStore} from "@/stores/config.ts";
-// import {useConfigStore} from "../stores/config.ts";
+import {isSmallDevice} from '@/composables/useDevice';
 
 const routes: Array<RouteRecordRaw> = [
+    {
+        path: '/mobile-not-allowed',
+        name: 'MobileNotAllowed',
+        component: () => import('@/views/MobileNotAllowedPage.vue'),
+    },
     {
         path: '/',
         name: 'HomePage',
@@ -19,6 +24,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../views/SetupView.vue'),
         meta: {
             title: "Setup",
+            desktopOnly: true
         }
     },
     {
@@ -71,6 +77,11 @@ router.beforeEach((to, _from, next) => {
         document.title = to.name as string
     }
 
+    if (to.meta.desktopOnly && isSmallDevice) {
+        next("/mobile-not-allowed");
+        return;
+    }
+
     if (to.path === '/setup') {
         if (token !== null) {
             next("/")
@@ -90,38 +101,13 @@ router.beforeEach((to, _from, next) => {
             next("/")
             return;
         }
+    }
+
+    if (token === null && to.path !== '/login') {
         next("/login")
         return;
     }
-
     next()
-
-//
-
-//
-//     //
-//     // if (!configStore.setup && to.path !== "/setup") {
-//     //     localStorage.removeItem("token")
-//     //     next("/setup")
-//     //     return;
-//     // }
-//     //
-//     // if (configStore.setup && to.path === "/setup") {
-//     //     next("/")
-//     //     return
-//     // }
-//     //
-//     // if (!configStore.setup && to.path !== '/setup') {
-//     //     next('/setup')
-//     //     return
-//     // }
-//     //
-//     // if (!['/login', '/setup'].includes(to.path) && localStorage.getItem('token') === null) {
-//     //     next('/login')
-//     //     return
-//     // }
-//
-//     next()
 })
 
 

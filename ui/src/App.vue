@@ -1,14 +1,25 @@
 <script lang="ts" setup>
 import {useTheme} from 'vuetify'
+import {useIsSmallDevice} from '@/composables/useDevice';
+import {defineAsyncComponent} from "vue";
 
+const Snackbar = defineAsyncComponent(() => import("@/components/reusable/ReusableSnackbar.vue"))
+const AppBar = defineAsyncComponent(() => import("@/components/AppBar.vue"))
+
+useIsSmallDevice()
 const theme = useTheme()
+
 </script>
 
 <template>
   <v-app :theme="theme.global.name.value">
+
+    <AppBar/>
+
     <v-main scrollable>
       <v-card
           border="none"
+          color="background"
           elevation="40"
           height="100%"
           max-width="100%"
@@ -23,11 +34,12 @@ const theme = useTheme()
         </v-container>
       </v-card>
     </v-main>
+
+
+    <Snackbar/>
+
   </v-app>
 </template>
 
 
-<style scoped>
-
-</style>
 

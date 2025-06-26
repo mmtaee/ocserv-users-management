@@ -47,8 +47,6 @@ const setup = () => {
     loading.value = false
   })
 }
-
-
 </script>
 
 <template>

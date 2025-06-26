@@ -16,10 +16,10 @@
 import type {Configuration} from './configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
-import type {AxiosPromise, AxiosInstance, RawAxiosRequestConfig} from 'axios';
-import globalAxios from 'axios';
+import {type AxiosPromise, type AxiosInstance, type RawAxiosRequestConfig, BasePath} from "@/plugins/axios";
+import globalAxios from "@/plugins/axios"
 
-export const BASE_PATH = `${import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8080"}${"/api".replace(/\/+$/, "")}`;
+export const BASE_PATH = BasePath
 
 /**
  *

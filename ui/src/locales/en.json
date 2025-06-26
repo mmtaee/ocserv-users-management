@@ -7,5 +7,15 @@
   "GOOGLE_CAPTCHA_SECRET_KEY": "Google Captcha Secret Key",
   "SAVE": "Save",
   "FINISH": "Finish",
-  "FIELD_REQUIRED": "This field is required"
+  "FIELD_REQUIRED": "This field is required",
+  "T03": "For the best experience, please use a larger screen device to view this page.",
+  "GO_BACK_HOME": "Back to Home",
+  "LOGIN": "Login",
+  "LOGOUT": "Logout",
+  "LOGOUT_MESSAGE": "Are you sure you want to log out?",
+  "LOGOUT_MESSAGE_SUB": "You will be signed out of your account and redirected to the login page.",
+  "LOGOUT_MESSAGE_SUB_2": "You can return to the panel whenever you want. \uD83D\uDE42",
+  "LOGOUT_TITLE": "Logout",
+  "CLOSE": "Close",
+  "CANCEL": "Cancel"
 }

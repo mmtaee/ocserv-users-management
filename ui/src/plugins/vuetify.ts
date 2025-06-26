@@ -1,4 +1,3 @@
-// import 'vuetify/styles'
 import "vuetify/lib/styles/main.css"
 import "@mdi/font/css/materialdesignicons.css"
 
