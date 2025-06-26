@@ -1,0 +1,11 @@
+{
+  "T01": "Welcome to the",
+  "T02": "Let's begin by completing a configuration steps to get your panel up and running.",
+  "USERNAME": "Username",
+  "PASSWORD": "Password",
+  "GOOGLE_CAPTCHA_SITE_KEY": "Google Captcha Site Key",
+  "GOOGLE_CAPTCHA_SECRET_KEY": "Google Captcha Secret Key",
+  "SAVE": "Save",
+  "FINISH": "Finish",
+  "FIELD_REQUIRED": "This field is required"
+}
