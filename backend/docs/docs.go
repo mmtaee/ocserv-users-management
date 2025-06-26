@@ -865,9 +865,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/system/users/login": {
+            },
             "post": {
                 "description": "Create user Admin or simple",
                 "consumes": [
@@ -921,6 +919,46 @@ const docTemplate = `{
                         "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            }
+        },
+        "/system/users/login": {
+            "post": {
+                "description": "Admin users login with Google captcha(captcha site key required in get config api)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System(Users)"
+                ],
+                "summary": "Admin users login",
+                "parameters": [
+                    {
+                        "description": "login data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.LoginData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/system.UserLoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
                         }
                     }
                 }

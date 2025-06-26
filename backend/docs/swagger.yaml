@@ -1106,6 +1106,44 @@ paths:
       summary: List of Admin or simple users
       tags:
       - System(Users)
+    post:
+      consumes:
+      - application/json
+      description: Create user Admin or simple
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create user data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/system.CreateUserData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Create user
+      tags:
+      - System(Users)
   /system/users/{uid}:
     delete:
       consumes:
@@ -1190,39 +1228,27 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create user Admin or simple
+      description: Admin users login with Google captcha(captcha site key required
+        in get config api)
       parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: create user data
+      - description: login data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.CreateUserData'
+          $ref: '#/definitions/system.LoginData'
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/system.UserLoginResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/middlewares.PermissionDenied'
-      summary: Create user
+      summary: Admin users login
       tags:
       - System(Users)
   /system/users/password:

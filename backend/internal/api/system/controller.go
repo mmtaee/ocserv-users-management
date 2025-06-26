@@ -176,9 +176,9 @@ func (ctrl *Controller) SystemUpdate(c echo.Context) error {
 // @Tags         System(Users)
 // @Accept       json
 // @Produce      json
-// @Param        request    body  LoginData   true "login data"
+// @Param        request body LoginData  true "login data"
 // @Failure      400 {object} request.ErrorResponse
-// @Success      201  {object}  UserLoginResponse
+// @Success      200 {object} UserLoginResponse
 // @Router       /system/users/login [post]
 func (ctrl *Controller) Login(c echo.Context) error {
 	var data LoginData
@@ -201,6 +201,10 @@ func (ctrl *Controller) Login(c echo.Context) error {
 
 	user, err := ctrl.userRepo.GetByUsername(c.Request().Context(), data.Username)
 	if err != nil {
+		return ctrl.request.BadRequest(c, errors.New("invalid username or password"))
+	}
+
+	if ok := ctrl.cryptoRepo.CheckPassword(data.Password, user.Password, user.Salt); !ok {
 		return ctrl.request.BadRequest(c, errors.New("invalid username or password"))
 	}
 
@@ -228,7 +232,7 @@ func (ctrl *Controller) Login(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Success      201  {object}  models.User
-// @Router       /system/users/login [post]
+// @Router       /system/users [post]
 func (ctrl *Controller) CreateUser(c echo.Context) error {
 	var data CreateUserData
 	if err := ctrl.request.DoValidate(c, &data); err != nil {
