@@ -8,6 +8,7 @@ import (
 	"ocserv-bakend/pkg/database"
 	ocApi "ocserv-bakend/pkg/oc_api"
 	"ocserv-bakend/pkg/request"
+	"time"
 )
 
 type OcservUserRepository struct {
@@ -23,6 +24,7 @@ type OcservUserRepositoryInterface interface {
 	Lock(ctx context.Context, uid string) error
 	UnLock(ctx context.Context, uid string) error
 	Delete(ctx context.Context, uid string) error
+	TenDaysStats(ctx context.Context) (*[]models.DailyTraffic, error)
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
@@ -55,7 +57,7 @@ func (o *OcservUserRepository) Create(ctx context.Context, user *models.OcservUs
 		if err := tx.Create(user).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.CreateUserApi(user.Group, user.Username, user.Password); err != nil {
+		if err := o.ocApi.CreateUserApi(ctx, user.Group, user.Username, user.Password); err != nil {
 			return err
 		}
 		return nil
@@ -80,7 +82,7 @@ func (o *OcservUserRepository) Update(ctx context.Context, ocservUser *models.Oc
 		if err := tx.Save(&ocservUser).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.CreateUserApi(ocservUser.Group, ocservUser.Username, ocservUser.Password); err != nil {
+		if err := o.ocApi.CreateUserApi(ctx, ocservUser.Group, ocservUser.Username, ocservUser.Password); err != nil {
 			return err
 		}
 		return nil
@@ -101,7 +103,7 @@ func (o *OcservUserRepository) Lock(ctx context.Context, uid string) error {
 			return err
 		}
 
-		if err := o.ocApi.LockUserApi(ocservUser.Username); err != nil {
+		if err := o.ocApi.LockUserApi(ctx, ocservUser.Username); err != nil {
 			return err
 		}
 		return nil
@@ -119,7 +121,7 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
 			return err
 		}
 
-		if err := o.ocApi.UnLockUserApi(ocservUser.Username); err != nil {
+		if err := o.ocApi.UnLockUserApi(ctx, ocservUser.Username); err != nil {
 			return err
 		}
 		return nil
@@ -136,10 +138,30 @@ func (o *OcservUserRepository) Delete(ctx context.Context, uid string) error {
 		if err := tx.Delete(&ocservUser).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.DeleteUserApi(ocservUser.Username); err != nil {
+		if err := o.ocApi.DeleteUserApi(ctx, ocservUser.Username); err != nil {
 			return err
 		}
 		return nil
 	})
 	return err
+}
+
+func (o *OcservUserRepository) TenDaysStats(ctx context.Context) (*[]models.DailyTraffic, error) {
+	var results []models.DailyTraffic
+
+	err := o.db.WithContext(ctx).
+		Model(&models.OcservUserTrafficStatistics{}).
+		Select(`
+		DATE(created_at) AS date,
+		SUM(rx) / 1073741824.0 AS rx,
+		SUM(tx) / 1073741824.0 AS tx`).
+		Where("created_at >= ?", time.Now().AddDate(0, 0, -10)).
+		Group("DATE(created_at)").
+		Order("DATE(created_at)").
+		Scan(&results).Error
+	
+	if err != nil {
+		return nil, err
+	}
+	return &results, nil
 }

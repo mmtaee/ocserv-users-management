@@ -1,5 +1,30 @@
 basePath: /api
 definitions:
+  home.HomeResponse:
+    properties:
+      online_user:
+        items:
+          type: string
+        type: array
+      stats:
+        items:
+          $ref: '#/definitions/models.DailyTraffic'
+        type: array
+      status:
+        $ref: '#/definitions/home.StatsSections'
+    required:
+    - status
+    type: object
+  home.StatsSections:
+    properties:
+      current_stats:
+        type: string
+      general_info:
+        type: string
+    required:
+    - current_stats
+    - general_info
+    type: object
   middlewares.PermissionDenied:
     properties:
       error:
@@ -9,6 +34,16 @@ definitions:
     properties:
       error:
         type: string
+    type: object
+  models.DailyTraffic:
+    properties:
+      date:
+        description: 'Format: YYYY-MM-DD'
+        type: string
+      rx:
+        type: integer
+      tx:
+        type: integer
     type: object
   models.OcservGroup:
     properties:
@@ -534,6 +569,35 @@ info:
   title: Ocserv User management Example Api
   version: "1.0"
 paths:
+  /home:
+    get:
+      consumes:
+      - application/json
+      description: Content of home
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/home.HomeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Content of home
+      tags:
+      - Home
   /ocserv/groups:
     get:
       consumes:

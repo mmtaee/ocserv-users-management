@@ -1,6 +1,7 @@
 package oc_api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,15 +14,15 @@ type OcGroupApiRepository struct {
 }
 
 type OcGroupApiRepositoryInterface interface {
-	CreateGroupApi(name string, config *models.OcservGroupConfig) error
-	DeleteGroupApi(name string) error
+	CreateGroupApi(ctx context.Context, name string, config *models.OcservGroupConfig) error
+	DeleteGroupApi(ctx context.Context, name string) error
 }
 
 func NewOcGroupApiRepository(url string) *OcGroupApiRepository {
 	return &OcGroupApiRepository{url: url}
 }
 
-func (o *OcGroupApiRepository) CreateGroupApi(name string, config *models.OcservGroupConfig) error {
+func (o *OcGroupApiRepository) CreateGroupApi(ctx context.Context, name string, config *models.OcservGroupConfig) error {
 	url := o.url + "/api/groups"
 
 	type Body struct {
@@ -39,7 +40,7 @@ func (o *OcGroupApiRepository) CreateGroupApi(name string, config *models.Ocserv
 		return err
 	}
 
-	resp, err := DoRequest(url, http.MethodPost, jsonData)
+	resp, err := DoRequest(ctx, url, http.MethodPost, jsonData)
 	if err != nil {
 		return err
 	}
@@ -49,9 +50,9 @@ func (o *OcGroupApiRepository) CreateGroupApi(name string, config *models.Ocserv
 	return nil
 }
 
-func (o *OcGroupApiRepository) DeleteGroupApi(name string) error {
+func (o *OcGroupApiRepository) DeleteGroupApi(ctx context.Context, name string) error {
 	url := fmt.Sprintf("%s/api/groups/%s", o.url, name)
-	resp, err := DoRequest(url, http.MethodDelete, nil)
+	resp, err := DoRequest(ctx, url, http.MethodDelete, nil)
 	if err != nil {
 		return err
 	}

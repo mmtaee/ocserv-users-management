@@ -148,18 +148,12 @@ func (ctrl *Controller) UnbanIP(c echo.Context) error {
 //
 // Executes: occtl -j show status
 func (ctrl *Controller) ShowStatus(c echo.Context) error {
-	cmd := exec.Command(occtlExec, "-j", "show", "status")
+	cmd := exec.Command(occtlExec, "show", "status")
 	out, err := cmd.Output()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get status: "+err.Error())
 	}
-
-	var status map[string]interface{}
-	if err = json.Unmarshal(out, &status); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse status JSON: "+err.Error())
-	}
-
-	return c.JSON(http.StatusOK, status)
+	return c.JSON(http.StatusOK, string(out))
 }
 
 // ShowIRoutes returns the current iRoutes information.

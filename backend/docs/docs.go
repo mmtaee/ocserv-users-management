@@ -15,6 +15,50 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/home": {
+            "get": {
+                "description": "Content of home",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Home"
+                ],
+                "summary": "Content of home",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/home.HomeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/groups": {
             "get": {
                 "description": "List of Ocserv groups",
@@ -1183,6 +1227,44 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "home.HomeResponse": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "online_user": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DailyTraffic"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/home.StatsSections"
+                }
+            }
+        },
+        "home.StatsSections": {
+            "type": "object",
+            "required": [
+                "current_stats",
+                "general_info"
+            ],
+            "properties": {
+                "current_stats": {
+                    "type": "string"
+                },
+                "general_info": {
+                    "type": "string"
+                }
+            }
+        },
         "middlewares.PermissionDenied": {
             "type": "object",
             "properties": {
@@ -1196,6 +1278,21 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "models.DailyTraffic": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "description": "Format: YYYY-MM-DD",
+                    "type": "string"
+                },
+                "rx": {
+                    "type": "integer"
+                },
+                "tx": {
+                    "type": "integer"
                 }
             }
         },

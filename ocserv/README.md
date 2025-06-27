@@ -9,7 +9,7 @@ sudo docker run -it --rm \
     -v $(pwd)/volumes/logs:/logs \
     -p 443:443/tcp \
     -p 443:443/udp \
-    -p 8080:8080 \
+    -p 8888:8080 \
     --name ocserv \
     ocserv
 

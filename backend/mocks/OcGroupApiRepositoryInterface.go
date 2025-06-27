@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	context "context"
 	models "ocserv-bakend/internal/models"
 
 	mock "github.com/stretchr/testify/mock"
@@ -13,17 +14,17 @@ type OcGroupApiRepositoryInterface struct {
 	mock.Mock
 }
 
-// CreateGroupApi provides a mock function with given fields: name, config
-func (_m *OcGroupApiRepositoryInterface) CreateGroupApi(name string, config *models.OcservGroupConfig) error {
-	ret := _m.Called(name, config)
+// CreateGroupApi provides a mock function with given fields: ctx, name, config
+func (_m *OcGroupApiRepositoryInterface) CreateGroupApi(ctx context.Context, name string, config *models.OcservGroupConfig) error {
+	ret := _m.Called(ctx, name, config)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateGroupApi")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, *models.OcservGroupConfig) error); ok {
-		r0 = rf(name, config)
+	if rf, ok := ret.Get(0).(func(context.Context, string, *models.OcservGroupConfig) error); ok {
+		r0 = rf(ctx, name, config)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -31,17 +32,17 @@ func (_m *OcGroupApiRepositoryInterface) CreateGroupApi(name string, config *mod
 	return r0
 }
 
-// DeleteGroupApi provides a mock function with given fields: name
-func (_m *OcGroupApiRepositoryInterface) DeleteGroupApi(name string) error {
-	ret := _m.Called(name)
+// DeleteGroupApi provides a mock function with given fields: ctx, name
+func (_m *OcGroupApiRepositoryInterface) DeleteGroupApi(ctx context.Context, name string) error {
+	ret := _m.Called(ctx, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteGroupApi")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(name)
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, name)
 	} else {
 		r0 = ret.Error(0)
 	}

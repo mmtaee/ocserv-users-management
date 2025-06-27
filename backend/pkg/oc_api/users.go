@@ -1,6 +1,7 @@
 package oc_api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,17 +13,17 @@ type OcUserApiRepository struct {
 }
 
 type OcUserApiRepositoryInterface interface {
-	CreateUserApi(group, username, password string) error
-	LockUserApi(username string) error
-	UnLockUserApi(username string) error
-	DeleteUserApi(username string) error
+	CreateUserApi(c context.Context, group, username, password string) error
+	LockUserApi(c context.Context, username string) error
+	UnLockUserApi(c context.Context, username string) error
+	DeleteUserApi(c context.Context, username string) error
 }
 
 func NewOcUserApiRepository(url string) *OcUserApiRepository {
 	return &OcUserApiRepository{url: url}
 }
 
-func (o *OcUserApiRepository) CreateUserApi(group, username, password string) error {
+func (o *OcUserApiRepository) CreateUserApi(ctx context.Context, group, username, password string) error {
 	url := o.url + "/api/users"
 	type Body struct {
 		Username string `json:"username"`
@@ -38,7 +39,7 @@ func (o *OcUserApiRepository) CreateUserApi(group, username, password string) er
 	if err != nil {
 		return err
 	}
-	resp, err := DoRequest(url, http.MethodPost, jsonData)
+	resp, err := DoRequest(ctx, url, http.MethodPost, jsonData)
 	if err != nil {
 		return err
 	}
@@ -48,9 +49,9 @@ func (o *OcUserApiRepository) CreateUserApi(group, username, password string) er
 	return nil
 }
 
-func (o *OcUserApiRepository) LockUserApi(username string) error {
+func (o *OcUserApiRepository) LockUserApi(ctx context.Context, username string) error {
 	url := fmt.Sprintf("%s/api/users/%s/lock", o.url, username)
-	resp, err := DoRequest(url, http.MethodPost, nil)
+	resp, err := DoRequest(ctx, url, http.MethodPost, nil)
 	if err != nil {
 		return err
 	}
@@ -60,9 +61,9 @@ func (o *OcUserApiRepository) LockUserApi(username string) error {
 	return nil
 }
 
-func (o *OcUserApiRepository) UnLockUserApi(username string) error {
+func (o *OcUserApiRepository) UnLockUserApi(ctx context.Context, username string) error {
 	url := fmt.Sprintf("%s/api/users/%s/unlock", o.url, username)
-	resp, err := DoRequest(url, http.MethodPost, nil)
+	resp, err := DoRequest(ctx, url, http.MethodPost, nil)
 	if err != nil {
 		return err
 	}
@@ -72,9 +73,9 @@ func (o *OcUserApiRepository) UnLockUserApi(username string) error {
 	return nil
 }
 
-func (o *OcUserApiRepository) DeleteUserApi(username string) error {
+func (o *OcUserApiRepository) DeleteUserApi(ctx context.Context, username string) error {
 	url := fmt.Sprintf("%s/api/users/%s", o.url, username)
-	resp, err := DoRequest(url, http.MethodDelete, nil)
+	resp, err := DoRequest(ctx, url, http.MethodDelete, nil)
 	if err != nil {
 		return err
 	}

@@ -14,9 +14,23 @@
 
 
 
-export * from './api/home-api';
-export * from './api/ocserv-groups-api';
-export * from './api/ocserv-users-api';
-export * from './api/system-api';
-export * from './api/system-users-api';
+/**
+ * 
+ * @export
+ * @interface HomeStatus
+ */
+export interface HomeStatus {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeStatus
+     */
+    'current_stats': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeStatus
+     */
+    'general_info': string;
+}
 

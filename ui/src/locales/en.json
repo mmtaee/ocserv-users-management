@@ -30,5 +30,7 @@
   "GENERAL_INFO": " General Info",
   "RX_STATISTICS": "RX Statistics",
   "TX_STATISTICS": "TX Statistics",
-  "ONLINE_USERS": "Online Users"
+  "ONLINE_USERS": "Online Users",
+  "DAYS": "Days",
+  "T05": "No users are currently online."
 }

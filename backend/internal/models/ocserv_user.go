@@ -84,6 +84,12 @@ type OcservUserTrafficStatistics struct {
 	Tx        int       `json:"tx" gorm:"default:0"` // in bytes
 }
 
+type DailyTraffic struct {
+	Date string `json:"date"` // Format: YYYY-MM-DD
+	Rx   int    `json:"rx"`
+	Tx   int    `json:"tx"`
+}
+
 func (c *OcservUserConfig) Value() (driver.Value, error) {
 	return json.Marshal(&c)
 }

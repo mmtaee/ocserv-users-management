@@ -78,7 +78,7 @@ func (o *OcservGroupRepository) Create(ctx context.Context, ocservGroup *models.
 		if err := tx.Create(ocservGroup).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.CreateGroupApi(ocservGroup.Name, ocservGroup.Config); err != nil {
+		if err := o.ocApi.CreateGroupApi(ctx, ocservGroup.Name, ocservGroup.Config); err != nil {
 			return err
 		}
 		return nil
@@ -95,7 +95,7 @@ func (o *OcservGroupRepository) Update(ctx context.Context, ocservGroup *models.
 		if err := tx.Model(ocservGroup).Save(ocservGroup).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.CreateGroupApi(ocservGroup.Name, ocservGroup.Config); err != nil {
+		if err := o.ocApi.CreateGroupApi(ctx, ocservGroup.Name, ocservGroup.Config); err != nil {
 			return err
 		}
 		return nil
@@ -112,7 +112,7 @@ func (o *OcservGroupRepository) Delete(ctx context.Context, uid string) error {
 			return err
 		}
 
-		if err := o.ocApi.DeleteGroupApi(uid); err != nil {
+		if err := o.ocApi.DeleteGroupApi(ctx, uid); err != nil {
 			return err
 		}
 		return nil
