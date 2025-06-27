@@ -2,7 +2,8 @@ import type {RouteRecordRaw} from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import HomeView from "@/views/HomeView.vue";
 import {useConfigStore} from "@/stores/config.ts";
-import {isSmallDevice} from '@/composables/useDevice';
+import {useIsSmallDisplay} from "@/stores/display.ts";
+
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -87,11 +88,6 @@ router.beforeEach((to, _from, next) => {
     }
 
 
-    if (to.meta.desktopOnly && isSmallDevice.value) {
-        next("/mobile-not-allowed");
-        return;
-    }
-
     if (to.path === '/setup') {
         if (token !== null) {
             next("/")
@@ -102,7 +98,7 @@ router.beforeEach((to, _from, next) => {
             next("/")
             return;
         }
-        next("/setup")
+        next()
         return;
     }
 
@@ -117,6 +113,13 @@ router.beforeEach((to, _from, next) => {
         next("/login")
         return;
     }
+
+    const smallDisplay = useIsSmallDisplay()
+    if (to.meta.desktopOnly && smallDisplay.isSmallDisplay) {
+        next("/mobile-not-allowed");
+        return;
+    }
+
     next()
 })
 

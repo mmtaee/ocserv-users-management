@@ -1515,7 +1515,6 @@ const docTemplate = `{
             "required": [
                 "_",
                 "is_admin",
-                "last_login",
                 "uid",
                 "username"
             ],
@@ -1524,13 +1523,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "createdAt": {
+                    "description": "LastLogin *time.Time ` + "`" + `json:\"last_login\"  validate:\"required\"` + "`" + `",
                     "type": "string"
                 },
                 "is_admin": {
                     "type": "boolean"
-                },
-                "last_login": {
-                    "type": "string"
                 },
                 "uid": {
                     "type": "string"

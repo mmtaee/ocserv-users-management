@@ -27,7 +27,7 @@ export interface ModelsUser {
      */
     '_': number;
     /**
-     * 
+     * LastLogin *time.Time `json:\"last_login\"  validate:\"required\"`
      * @type {string}
      * @memberof ModelsUser
      */
@@ -38,12 +38,6 @@ export interface ModelsUser {
      * @memberof ModelsUser
      */
     'is_admin': boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof ModelsUser
-     */
-    'last_login': string;
     /**
      * 
      * @type {string}

@@ -25,8 +25,13 @@ app.use(createPinia())
     } else {
         if (localStorage.getItem("token")) {
             const userStore = useUserStore()
-            await userStore.getProfile()
+            userStore.getProfile()
         }
+    }
+    const preloader = document.getElementById('preloader')
+    if (preloader) {
+        preloader.style.opacity = '0'
+        setTimeout(() => preloader.remove(), 1000)
     }
 
     app.mount('#app')

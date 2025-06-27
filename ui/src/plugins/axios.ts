@@ -5,6 +5,7 @@ import axios, {
     type InternalAxiosRequestConfig
 } from 'axios'
 import {type SnackbarItem, useSnackbarStore} from "@/stores/snackbar.ts";
+import {useLoadingStore} from "@/stores/loading.ts";
 
 
 export const BaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
@@ -14,16 +15,16 @@ const config: AxiosRequestConfig = {baseURL: BaseUrl + BasePath}
 
 const api: AxiosInstance = axios.create(config)
 
+
 api.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-        // config.headers = config.headers ?? {} as AxiosRequestHeaders
-        // const token = localStorage.getItem('token')
-        // if (token) {
-        //     config.headers["Authorization"] = `Bearer ${token}`
-        // }
+        const loadingStore = useLoadingStore()
+        loadingStore.show()
         return config
     },
     (error) => {
+        const loadingStore = useLoadingStore()
+        loadingStore.hide()
         return Promise.reject(error)
     }
 )
@@ -31,12 +32,15 @@ api.interceptors.request.use(
 // Response interceptor: Handle 401/400
 api.interceptors.response.use(
     (response: AxiosResponse): AxiosResponse => {
+        const loadingStore = useLoadingStore()
+        loadingStore.hide()
         return response
     },
     (error) => {
+        const loadingStore = useLoadingStore()
+        loadingStore.hide()
         const {response} = error
         if (response) {
-            console.log("response", response)
             if (response.status === 401) {
                 localStorage.removeItem('token')
                 return Promise.resolve(response)

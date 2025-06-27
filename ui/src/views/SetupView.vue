@@ -48,84 +48,89 @@ const setup = () => {
 </script>
 
 <template>
-  <v-row align="center" justify="center">
+  <v-container>
+    <v-card>
+      <v-row align="center" justify="center">
 
-    <v-col class="mb-10" cols="12" md="5">
-      <v-img :src="logoUrl" alt="ocserv logo"/>
-    </v-col>
+        <v-col class="mb-10" cols="12" md="5">
+          <v-img :src="logoUrl" alt="ocserv logo"/>
+        </v-col>
 
-    <v-col v-if="!showSetup" cols="12" md="4">
-      <div class="text-h6 mb-8">
-        {{ t('T01') }} <span class="text-primary">Ocserv User Management Panel</span>.
-      </div>
+        <v-col v-if="!showSetup" cols="12" md="4">
+          <div class="text-h6 mb-8">
+            {{ t('T01') }} <span class="text-primary">Ocserv User Management Panel</span>.
+          </div>
 
-      <div class="text-subtitle-1 text-justify">
-        {{ t('T02') }}
-      </div>
-      <div class="text-end mt-5">
-        <v-btn color="primary" variant="outlined" @click="showSetup=true">Start</v-btn>
-      </div>
-    </v-col>
+          <div class="text-subtitle-1 text-justify">
+            {{ t('T02') }}
+          </div>
+          <div class="text-end mt-5">
+            <v-btn color="primary" variant="outlined" @click="showSetup=true">Start</v-btn>
+          </div>
+        </v-col>
 
-    <v-col v-else cols="12" md="4">
-      <v-form v-model="valid">
-        <v-row align="start" justify="start" no-gutters>
-          <v-col md="12">
-            <v-text-field
-                v-model="data.username"
-                :label="t('USERNAME')"
-                :rules="[rules.required]"
-                density="comfortable"
-                prepend-inner-icon="mdi-account"
-                variant="underlined"
-            />
-          </v-col>
-          <v-col md="12">
-            <v-text-field
-                v-model="data.password"
-                :label="t('PASSWORD')"
-                :rules="[rules.required]"
-                density="comfortable"
-                prepend-inner-icon="mdi-key"
-                variant="underlined"
-            />
-          </v-col>
-          <v-col md="12">
-            <v-text-field
-                v-model="data.google_captcha_site_key"
-                :label="t('GOOGLE_CAPTCHA_SITE_KEY')"
-                density="comfortable"
-                prepend-inner-icon="mdi-shield-key-outline"
-                variant="underlined"
-            />
-          </v-col>
-          <v-col md="12">
-            <v-text-field
-                v-model="data.google_captcha_secret_key"
-                :label="t('GOOGLE_CAPTCHA_SECRET_KEY')"
-                density="comfortable"
-                prepend-inner-icon="mdi-shield-key-outline"
-                variant="underlined"
-            />
-          </v-col>
+        <v-col v-else cols="12" md="4">
+          <v-form v-model="valid">
+            <v-row align="start" justify="start" no-gutters>
+              <v-col md="12">
+                <v-text-field
+                    v-model="data.username"
+                    :label="t('USERNAME')"
+                    :rules="[rules.required]"
+                    density="comfortable"
+                    prepend-inner-icon="mdi-account"
+                    variant="underlined"
+                />
+              </v-col>
+              <v-col md="12">
+                <v-text-field
+                    v-model="data.password"
+                    :label="t('PASSWORD')"
+                    :rules="[rules.required]"
+                    density="comfortable"
+                    prepend-inner-icon="mdi-key"
+                    variant="underlined"
+                />
+              </v-col>
+              <v-col md="12">
+                <v-text-field
+                    v-model="data.google_captcha_site_key"
+                    :label="t('GOOGLE_CAPTCHA_SITE_KEY')"
+                    density="comfortable"
+                    prepend-inner-icon="mdi-shield-key-outline"
+                    variant="underlined"
+                />
+              </v-col>
+              <v-col md="12">
+                <v-text-field
+                    v-model="data.google_captcha_secret_key"
+                    :label="t('GOOGLE_CAPTCHA_SECRET_KEY')"
+                    density="comfortable"
+                    prepend-inner-icon="mdi-shield-key-outline"
+                    variant="underlined"
+                />
+              </v-col>
 
-          <v-col class="text-end mt-5" md="12">
-            <v-btn
-                :disabled="!valid"
-                :loading="loading"
-                color="primary"
-                variant="outlined"
-                @click="setup"
-            >
-              {{ t("SAVE") }} & {{ t("FINISH") }}
-            </v-btn>
-          </v-col>
+              <v-col class="text-end mt-5" md="12">
+                <v-btn
+                    :disabled="!valid"
+                    :loading="loading"
+                    color="primary"
+                    variant="outlined"
+                    @click="setup"
+                >
+                  {{ t("SAVE") }} & {{ t("FINISH") }}
+                </v-btn>
+              </v-col>
 
-        </v-row>
+            </v-row>
 
-      </v-form>
-    </v-col>
+          </v-form>
+        </v-col>
 
-  </v-row>
+      </v-row>
+    </v-card>
+  </v-container>
+
 </template>
 

@@ -20,5 +20,15 @@
   "CANCEL": "Cancel",
   "STAFF": "Staff",
   "ADMIN": "Admin",
-  "CHANGE_PASSWORD": "Change Password"
+  "CHANGE_PASSWORD": "Change Password",
+  "OCSERV_GROUPS": "Ocserv Groups",
+  "HOME": "Home",
+  "OCSERV_USERS": "Ocserv Users",
+  "OCSERV_SERVER": "Ocserv Server",
+  "STATISTICS": "Statistics",
+  "CURRENT_STATS_PERIOD": "Current Stats Period",
+  "GENERAL_INFO": " General Info",
+  "RX_STATISTICS": "RX Statistics",
+  "TX_STATISTICS": "TX Statistics",
+  "ONLINE_USERS": "Online Users"
 }
