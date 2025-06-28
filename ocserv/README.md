@@ -22,6 +22,9 @@ curl --location 'http://127.0.0.1:8080/api/users/?user=null' \
         "group": "defaults"
      }'
 
+
+ocpasswd -c /etc/ocserv/ocpassd masoud
+
 sudo openconnect -u masoud 127.0.0.1
 ```
 

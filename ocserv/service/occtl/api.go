@@ -28,6 +28,14 @@ type IRoute struct {
 	IRoute   string `json:"iRoutes"`
 }
 
+type OnlineUserSession struct {
+	Username    string `json:"Username"`
+	Group       string `json:"Groupname"`
+	AverageRX   string `json:"Average RX"`
+	AverageTX   string `json:"Average TX"`
+	ConnectedAt string `json:"_Connected at"`
+}
+
 const occtlExec = "/usr/bin/occtl"
 
 func New() *Controller {
@@ -55,7 +63,25 @@ func (ctrl *Controller) OnlineUsers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string][]string{"users": users})
+}
 
+// OnlineUsersInfo returns a list of currently connected user info.
+//
+// Executes: occtl -j show users
+func (ctrl *Controller) OnlineUsersInfo(c echo.Context) error {
+	var users []OnlineUserSession
+
+	command := "-j show users"
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("/usr/bin/occtl %s", command))
+	result, err := cmd.Output()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err = json.Unmarshal(result, &users); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to parse occtl output: "+err.Error())
+	}
+	return c.JSON(http.StatusOK, &users)
 }
 
 // DisconnectUser disconnects the given user.
@@ -109,10 +135,11 @@ func (ctrl *Controller) ShowIPBans(c echo.Context) error {
 	}
 
 	var ipBans []IPBanPoints
-	if err = json.Unmarshal(out, &ipBans); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse JSON: "+err.Error())
+	if output := string(out); output != "" {
+		if err = json.Unmarshal(out, &ipBans); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse JSON: "+err.Error())
+		}
 	}
-
 	return c.JSON(http.StatusOK, ipBans)
 }
 
@@ -160,15 +187,24 @@ func (ctrl *Controller) ShowStatus(c echo.Context) error {
 //
 // Executes: occtl -j show iroutes
 func (ctrl *Controller) ShowIRoutes(c echo.Context) error {
-	cmd := exec.Command(occtlExec, "-j", "show", "iroutes")
+	var iRoutes []IRoute
+
+	version := GetOcservVersion()
+
+	if version == "1.2.4" { // has bug on IRoute Command
+		return c.JSON(http.StatusOK, iRoutes)
+	}
+
+	cmd := exec.Command(occtlExec, "show", "iroutes", "")
 	out, err := cmd.Output()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get iroutes: "+err.Error())
 	}
 
-	var iRoutes []IRoute
-	if err = json.Unmarshal(out, &iRoutes); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse iroutes JSON: "+err.Error())
+	if output := string(out); output != "" {
+		if err = json.Unmarshal(out, &iRoutes); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse iroutes JSON: "+err.Error())
+		}
 	}
 
 	return c.JSON(http.StatusOK, iRoutes)

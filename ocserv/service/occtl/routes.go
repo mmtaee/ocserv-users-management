@@ -6,6 +6,7 @@ func Routes(e *echo.Group) {
 	ctrl := New()
 	g := e.Group("/occtl")
 	g.GET("/online-users", ctrl.OnlineUsers)
+	g.GET("/online-users/info", ctrl.OnlineUsersInfo)
 	g.POST("/disconnect/:username", ctrl.DisconnectUser)
 	g.POST("/reload", ctrl.Reload)
 	g.GET("/ip-bans", ctrl.ShowIPBans)
