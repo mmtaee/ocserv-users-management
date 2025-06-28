@@ -2,9 +2,13 @@ basePath: /api
 definitions:
   home.HomeResponse:
     properties:
-      online_user:
+      ipbans:
         items:
-          type: string
+          $ref: '#/definitions/models.IPBan'
+        type: array
+      online_users_session:
+        items:
+          $ref: '#/definitions/models.OnlineUserSession'
         type: array
       stats:
         items:
@@ -44,6 +48,18 @@ definitions:
         type: integer
       tx:
         type: integer
+    type: object
+  models.IPBan:
+    properties:
+      _Since:
+        description: maps to "_Since" in JSON
+        type: string
+      IP:
+        type: string
+      Score:
+        type: integer
+      Since:
+        type: string
     type: object
   models.OcservGroup:
     properties:
@@ -284,6 +300,19 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  models.OnlineUserSession:
+    properties:
+      _Connected at:
+        type: string
+      Average RX:
+        type: string
+      Average TX:
+        type: string
+      Groupname:
+        type: string
+      Username:
+        type: string
     type: object
   models.System:
     properties:

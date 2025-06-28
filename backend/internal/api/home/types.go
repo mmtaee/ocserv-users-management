@@ -8,7 +8,9 @@ type StatsSections struct {
 }
 
 type HomeResponse struct {
-	Status     StatsSections          `json:"status" validate:"required"`
-	Stats      *[]models.DailyTraffic `json:"stats" validate:"omitempty"`
-	OnlineUser *[]string              `json:"online_user" validate:"omitempty"`
+	Status     StatsSections               `json:"status" validate:"required"`
+	Stats      *[]models.DailyTraffic      `json:"stats" validate:"omitempty"`
+	OnlineUser *[]models.OnlineUserSession `json:"online_users_session" validate:"omitempty"`
+	IPBans     *[]models.IPBan             `json:"ipbans" validate:"omitempty"`
+	//IRoutes    *[]models.Iroute       `json:"iroutes" validate:"omitempty"` // has bug on version 1.2.4
 }

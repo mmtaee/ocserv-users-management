@@ -1233,10 +1233,16 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
-                "online_user": {
+                "ipbans": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/models.IPBan"
+                    }
+                },
+                "online_users_session": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OnlineUserSession"
                     }
                 },
                 "stats": {
@@ -1293,6 +1299,24 @@ const docTemplate = `{
                 },
                 "tx": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.IPBan": {
+            "type": "object",
+            "properties": {
+                "IP": {
+                    "type": "string"
+                },
+                "Score": {
+                    "type": "integer"
+                },
+                "Since": {
+                    "type": "string"
+                },
+                "_Since": {
+                    "description": "maps to \"_Since\" in JSON",
+                    "type": "string"
                 }
             }
         },
@@ -1590,6 +1614,26 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "models.OnlineUserSession": {
+            "type": "object",
+            "properties": {
+                "Average RX": {
+                    "type": "string"
+                },
+                "Average TX": {
+                    "type": "string"
+                },
+                "Groupname": {
+                    "type": "string"
+                },
+                "Username": {
+                    "type": "string"
+                },
+                "_Connected at": {
+                    "type": "string"
                 }
             }
         },
