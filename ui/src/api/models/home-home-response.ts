@@ -19,6 +19,12 @@ import type { HomeStatsSections } from './home-stats-sections';
 // May contain unused imports in some cases
 // @ts-ignore
 import type { ModelsDailyTraffic } from './models-daily-traffic';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ModelsIPBan } from './models-ipban';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ModelsOnlineUserSession } from './models-online-user-session';
 
 /**
  * 
@@ -28,10 +34,16 @@ import type { ModelsDailyTraffic } from './models-daily-traffic';
 export interface HomeHomeResponse {
     /**
      * 
-     * @type {Array<string>}
+     * @type {Array<ModelsIPBan>}
      * @memberof HomeHomeResponse
      */
-    'online_user'?: Array<string>;
+    'ipbans'?: Array<ModelsIPBan>;
+    /**
+     * 
+     * @type {Array<ModelsOnlineUserSession>}
+     * @memberof HomeHomeResponse
+     */
+    'online_users_session'?: Array<ModelsOnlineUserSession>;
     /**
      * 
      * @type {Array<ModelsDailyTraffic>}

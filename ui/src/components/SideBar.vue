@@ -102,18 +102,20 @@ const items = [
     </v-list>
 
     <template #append>
-      <v-divider class="mb-2"/>
-      <div style="text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 10px">
-        <div>Built with ❤️ in 2025</div>
-        <div>
-          Need help? Contact
-          <a
-              href="https://github.com/mmtaee/ocserv-users-management/issues"
-              style="color: #007BFF; text-decoration: none;"
-              target="_blank"
-          >
-            Github
-          </a>
+      <div v-if="!smallDisplay.isSmallDisplay">
+        <v-divider class="mb-2"/>
+        <div style="text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 10px">
+          <div>Built with ❤️ in 2025</div>
+          <div>
+            Need help? Contact
+            <a
+                href="https://github.com/mmtaee/ocserv-users-management/issues"
+                style="color: #007BFF; text-decoration: none;"
+                target="_blank"
+            >
+              Github
+            </a>
+          </div>
         </div>
       </div>
     </template>

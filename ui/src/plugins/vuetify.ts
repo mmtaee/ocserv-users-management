@@ -53,6 +53,7 @@ export default createVuetify({
                     warning: '#FACC15',          // Punchy Yellow
                     success: '#10B981',          // Lush Green
                     info: '#3B82F6',             // Azure Blue
+                    odd: '#8f8585',
                     'on-primary': '#FFFFFF',
                     'on-surface': '#1E1E2F',
                     'on-background': '#111827',
@@ -71,6 +72,7 @@ export default createVuetify({
                     warning: '#FCD34D',            // Sunny Yellow
                     success: '#34D399',            // Green Pulse
                     info: '#60A5FA',               // Sky Blue
+                    odd: '#8f8585',
                     'on-primary': '#000000',
                     'on-surface': '#F3F4F6',
                     'on-background': '#E5E7EB',

@@ -6,28 +6,18 @@ import {
 } from 'chart.js'
 import type {ChartData} from 'chart.js'
 import {computed, onMounted, ref} from "vue";
-import {HomeApi, type ModelsDailyTraffic} from "@/api";
+import {HomeApi, type ModelsDailyTraffic, type ModelsIPBan, type ModelsOnlineUserSession} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
 import {useLocale} from "vuetify/framework";
+import {dummyBanIPs, dummyOnlineUsers, dummyTrafficData} from "@/components/home/dummy.ts";
 
 const {t} = useLocale()
 const generalInfo = ref("")
 const currentStats = ref("")
+
 const trafficData = ref<ModelsDailyTraffic[]>([])
-// const trafficData = ref<ModelsDailyTraffic[]>([
-//   {date: '2025-06-18', rx: 1.2, tx: 2.5},
-//   {date: '2025-06-19', rx: 0.9, tx: 1.1},
-//   // missing 2025-06-20
-//   {date: '2025-06-21', rx: 0.7, tx: 0.8},
-//   {date: '2025-06-22', rx: 1.0, tx: 1.3},
-//   {date: '2025-06-23', rx: 0.5, tx: 0.6},
-//   // missing 2025-06-24
-//   {date: '2025-06-25', rx: 0.3, tx: 0.4},
-//   {date: '2025-06-26', rx: 1.5, tx: 2.0},
-//   {date: '2025-06-27', rx: 2.1, tx: 3.2},
-//   {date: '2025-06-28', rx: 1.8, tx: 2.3},
-// ])
-const onlineUsers = ref<Array<string>>([])
+const onlineUsers = ref<Array<ModelsOnlineUserSession>>([])
+const banIPs = ref<Array<ModelsIPBan>>([])
 
 const labels = computed(() => trafficData.value.map(item => item.date))
 const rxValues = computed(() => trafficData.value.map(item => item.rx))
@@ -79,22 +69,29 @@ onMounted(() => {
   api.homeGet(getAuthorization()).then((res) => {
     generalInfo.value = res.data.status.general_info.replaceAll('\n', '<br>').replaceAll('"', "")
     currentStats.value = res.data.status.current_stats.replaceAll('\n', '<br>').replaceAll('"', "")
+
     if (res.data.stats) {
       trafficData.value = res.data.stats
     }
-    if (res.data.online_user) {
-      onlineUsers.value = res.data.online_user
+    trafficData.value = dummyTrafficData
+
+    if (res.data.online_users_session) {
+      onlineUsers.value = res.data.online_users_session
     }
+    onlineUsers.value = dummyOnlineUsers
+
+    if (res.data.ipbans) {
+      banIPs.value = res.data.ipbans
+    }
+    banIPs.value = dummyBanIPs
   })
 })
-
-
 </script>
 
 <template>
-  <v-row align="start" class="ma-0 pa-0" justify="start">
-    <v-col lg="4" md="6" sm="12">
-      <v-card class="my-0" elevation="4" height="450">
+  <v-row align="start" class="ma-0 pa-0" justify="center">
+    <v-col class="ma-0" lg="3" md="4" sm="12" xs="12">
+      <v-card class="my-0" elevation="4" height="400">
         <v-card-title class="bg-primary">
           {{ t("GENERAL_INFO") }}
         </v-card-title>
@@ -104,8 +101,8 @@ onMounted(() => {
       </v-card>
     </v-col>
 
-    <v-col class="ma-0" lg="4" md="6" sm="12">
-      <v-card class="my-0" elevation="4" height="450">
+    <v-col class="ma-0" lg="3" md="4" sm="12" xs="12">
+      <v-card class="my-0" elevation="4" height="400">
         <v-card-title class="bg-primary">
           {{ t("CURRENT_STATS_PERIOD") }}
         </v-card-title>
@@ -115,54 +112,63 @@ onMounted(() => {
       </v-card>
     </v-col>
 
-    <v-col class="ma-0" lg="4" md="6" sm="12">
-      <v-card class="my-0" elevation="4" height="450">
+    <v-col class="ma-0" lg="3" md="4" sm="12" xs="12">
+      <v-card class="my-0" elevation="4" height="400">
         <v-card-title class="bg-primary">
           {{ t("RX_STATISTICS") }} (10 {{ t("DAYS") }})
         </v-card-title>
         <v-card-text class="pa-5">
           <Line
               :data="rxChartData"
-              :height="220"
+              :height="280"
               :options="chartOptions"
           />
         </v-card-text>
       </v-card>
     </v-col>
 
-    <v-col class="ma-0" lg="4" md="6" sm="12">
-      <v-card class="my-0" elevation="4" height="450">
+    <v-col class="ma-0" lg="3" md="4" sm="12" xs="12">
+      <v-card class="my-0" elevation="4" height="400">
         <v-card-title class="bg-primary">
           {{ t("TX_STATISTICS") }} (10 {{ t("DAYS") }})
         </v-card-title>
         <v-card-text class="pa-5">
           <Line
               :data="txChartData"
-              :height="220"
+              :height="280"
               :options="chartOptions"
           />
         </v-card-text>
       </v-card>
     </v-col>
 
-    <v-col lg="4" md="6" sm="12">
-      <v-card class="my-0" elevation="4" height="450">
+    <v-col class="ma-0" lg="3" md="4" sm="12" xs="12">
+      <v-card class="my-0" elevation="4" height="400">
         <v-card-title class="bg-primary">
-          {{ t("ONLINE_USERS") }}
+          {{ t("ONLINE_USERS") }} ({{ onlineUsers.length }} {{ t("USERS") }})
         </v-card-title>
         <v-card-text class="my-1">
           <v-virtual-scroll
               v-if="onlineUsers.length"
               :items="onlineUsers"
               class="ma-2 mt-3"
-              height="380"
+              height="320"
           >
             <template v-slot:default="{ item, index }">
-              <div :class="['pa-2', index % 2 === 0 ? 'bg-info' : '']">
-                {{ index + 1 }} - {{ item }}
-              </div>
+              <v-card :class="['pa-2 my-1', index % 2 === 0 ? 'bg-info' : 'bg-odd']">
+                <strong>{{ t("USERNAME") }}: </strong>{{ item.Username }}
+                <br>
+                <strong>{{ t("GROUP") }}</strong>: {{ item.Groupname === "(none)" ? "defaults" : item.Groupname }}
+                <br>
+                <strong>{{ t("CONNECTED_SINCE") }}</strong>: {{ item['_Connected at'] }}
+                <br>
+                <strong>RX {{ t("AVERAGES") }}</strong>: {{ item['Average RX'] }}
+                <br>
+                <strong>TX {{ t("AVERAGES") }}</strong>: {{ item['Average TX'] }}
+              </v-card>
             </template>
           </v-virtual-scroll>
+
           <div v-else class="mt-5 text-info">
             {{ t("T05") }}
           </div>
@@ -170,21 +176,47 @@ onMounted(() => {
       </v-card>
     </v-col>
 
-    <v-col class="ma-0" lg="4" md="6" sm="12">
-      <v-card class="my-0" elevation="4" height="450">
-        <v-card-text>
-          ban users
+    <v-col class="ma-0" lg="3" md="4" sm="12" xs="12">
+      <v-card class="my-0" elevation="4" height="400">
+        <v-card-title class="bg-primary">
+          {{ t("BAN_IPS") }} ({{ banIPs.length }} {{ t("IPS") }})
+        </v-card-title>
+
+        <v-card-text class="my-1">
+          <v-virtual-scroll
+              v-if="banIPs.length"
+              :items="banIPs"
+              class="ma-2 mt-3"
+              height="320"
+              item-key="banIPs"
+          >
+            <template v-slot:default="{ item, index }">
+              <v-card :class="['pa-2 my-1', index % 2 === 0 ? 'bg-info' : 'bg-odd']">
+                <strong>IP:</strong> {{ item.IP }} ({{ item.Score }} {{ t("SCORES") }})
+                <br>
+                <strong> {{ t("SINCE") }}:</strong> {{ item.Since }} ({{ item._Since?.trim() }})
+              </v-card>
+            </template>
+          </v-virtual-scroll>
+
+          <div v-else class="mt-5 text-info">
+            {{ t("T06") }}
+          </div>
         </v-card-text>
       </v-card>
     </v-col>
 
-    <v-col class="ma-0" lg="4" md="6" sm="12">
-      <v-card class="my-0" elevation="4" height="450">
+    <v-col class="ma-0" lg="3" md="4" sm="12" xs="12">
+      <v-card class="my-0" elevation="4" height="400">
+        <v-card-title class="bg-primary">
+          {{ t("IROUTES") }}
+        </v-card-title>
         <v-card-text>
-          iroutes
+          <div class="mt-5 text-info">
+            this section is disable in ocserv version 1.2.4
+          </div>
         </v-card-text>
       </v-card>
     </v-col>
-
   </v-row>
 </template>

@@ -28,12 +28,13 @@ app.use(createPinia())
             userStore.getProfile()
         }
     }
+
+    app.mount('#app')
+
     const preloader = document.getElementById('preloader')
     if (preloader) {
         preloader.style.opacity = '0'
-        setTimeout(() => preloader.remove(), 1000)
+        setTimeout(() => preloader.remove(), 2000)
     }
-
-    app.mount('#app')
 })()
 

@@ -32,5 +32,15 @@
   "TX_STATISTICS": "TX Statistics",
   "ONLINE_USERS": "Online Users",
   "DAYS": "Days",
-  "T05": "No users are currently online."
+  "T05": "No users are currently online.",
+  "BAN_IPS": "Ban IPs",
+  "T06": "No users are currently banned.",
+  "SINCE": "Since",
+  "SCORES": "Scores",
+  "GROUP": "Group",
+  "AVERAGES": "Averages",
+  "CONNECTED_SINCE": "Connected Since",
+  "USERS": "users",
+  "IPS": "IPs",
+  "SYSTEM": "System"
 }

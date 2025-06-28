@@ -16,10 +16,12 @@ models/index.ts
 models/middlewares-permission-denied.ts
 models/middlewares-unauthorized.ts
 models/models-daily-traffic.ts
+models/models-ipban.ts
 models/models-ocserv-group-config.ts
 models/models-ocserv-group.ts
 models/models-ocserv-user-config.ts
 models/models-ocserv-user.ts
+models/models-online-user-session.ts
 models/models-system.ts
 models/models-user.ts
 models/ocserv-group-create-ocserv-group-data.ts
