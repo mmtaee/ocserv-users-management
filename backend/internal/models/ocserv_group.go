@@ -88,9 +88,8 @@ type OcservGroupConfig struct {
 
 type OcservGroup struct {
 	ID     uint               `json:"-" gorm:"primaryKey;autoIncrement"`
-	UID    string             `json:"uid" gorm:"type:varchar(26);not null;unique" validate:"required"`
 	Name   string             `json:"name" gorm:"type:varchar(255);not null;unique" validate:"required"`
-	Config *OcservGroupConfig `json:"config" gorm:"type:json"` // or `type:text` for wider compatibility
+	Config *OcservGroupConfig `json:"config" gorm:"type:json"`
 }
 
 func (c *OcservGroupConfig) Value() (driver.Value, error) {

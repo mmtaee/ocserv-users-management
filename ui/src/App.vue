@@ -33,20 +33,18 @@ const checkIsMobile = () => {
 <template>
   <v-app :theme="theme.global.name.value">
     <Skeleton/>
+    <Snackbar/>
+    <Loading/>
 
     <v-main scrollable>
       <v-container class="fill-height d-flex justify-center align-center">
-        <v-row align="center" class="ma-0 pa-0" justify="center">
+        <v-row align="center" class="py-0 my-0" justify="center">
           <v-col align-self="center" class="d-flex justify-center" cols="12">
             <RouterView/>
           </v-col>
         </v-row>
       </v-container>
     </v-main>
-
-    <Snackbar/>
-
-    <Loading/>
   </v-app>
 </template>
 

@@ -45,31 +45,16 @@ const routes: Array<RouteRecordRaw> = [
             desktopOnly: true
         }
     },
-    // {
-    //     path: '/config',
-    //     name: 'ConfigPage',
-    //     component: () => import('../views/ConfigView.vue'),
-    // },
-    // {
-    //     path: '/change_password',
-    //     name: 'ChangePasswordPage',
-    //     component: () => import('../views/ChangePasswordView.vue'),
-    // },
-    // {
-    //     path: '/staffs',
-    //     name: 'StaffsPage',
-    //     component: () => import('../views/StaffView.vue'),
-    // },
-    // {
-    //     path: '/oc_user',
-    //     name: 'OcservUserPage',
-    //     component: () => import('../views/OcservUserView.vue'),
-    // },
-    // {
-    //     path: '/error',
-    //     name: 'ErrorPage',
-    //     component: () => import('../views/ErrorView.vue'),
-    // },
+    {
+        path: '/ocserv-groups',
+        name: 'OcservGroupsPage',
+        component: () => import('../views/OcservGroupView.vue'),
+        meta: {
+            title: "Ocserv Groups",
+            desktopOnly: true
+        }
+    },
+
 ]
 
 const router = createRouter({
@@ -89,17 +74,12 @@ router.beforeEach((to, _from, next) => {
 
 
     if (to.path === '/setup') {
-        if (token !== null) {
-            next("/")
-            return;
-        }
+        localStorage.removeItem("token")
         const configStore = useConfigStore()
         if (configStore.config.setup) {
             next("/")
             return;
         }
-        next()
-        return;
     }
 
     if (to.path === '/login') {

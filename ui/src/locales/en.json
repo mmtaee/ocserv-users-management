@@ -1,8 +1,9 @@
 {
   "T01": "Welcome to the",
-  "T02": "Let's begin by completing a configuration steps to get your panel up and running.",
-  "USERNAME": "Username",
-  "PASSWORD": "Password",
+  "T02": "To set up your panel, create an admin user with a password. To enable Google reCAPTCHA v2 on the login page, fill in the CAPTCHA fields. Leave them empty if you don’t want to use CAPTCHA. You can create reCAPTCHA keys",
+  "HERE": "here",
+  "ADMIN_USERNAME": "Admin Username",
+  "ADMIN_PASSWORD": "Admin Password",
   "GOOGLE_CAPTCHA_SITE_KEY": "Google Captcha Site Key",
   "GOOGLE_CAPTCHA_SECRET_KEY": "Google Captcha Secret Key",
   "SAVE": "Save",
@@ -27,7 +28,7 @@
   "OCSERV_SERVER": "Ocserv Server",
   "STATISTICS": "Statistics",
   "CURRENT_STATS_PERIOD": "Current Stats Period",
-  "GENERAL_INFO": " General Info",
+  "CURRENT_SERVER_INFO": "Current Server Info",
   "RX_STATISTICS": "RX Statistics",
   "TX_STATISTICS": "TX Statistics",
   "ONLINE_USERS": "Online Users",
@@ -38,9 +39,10 @@
   "SINCE": "Since",
   "SCORES": "Scores",
   "GROUP": "Group",
-  "AVERAGES": "Averages",
+  "AVERAGES": "Ave",
   "CONNECTED_SINCE": "Connected Since",
   "USERS": "users",
   "IPS": "IPs",
-  "SYSTEM": "System"
+  "SYSTEM": "System",
+  "HINT": "Hint"
 }
