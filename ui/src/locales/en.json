@@ -44,5 +44,14 @@
   "USERS": "users",
   "IPS": "IPs",
   "SYSTEM": "System",
-  "HINT": "Hint"
+  "HINT": "Hint",
+  "NETWORK_CONFIGURATION": "Network Configuration",
+  "T07": "Performance and Session Settings",
+  "T08": "Access and Feature Controls",
+  "ROUTES": "routes",
+  "ADD": "add",
+  "OTHERS": "others",
+  "OTHER": "other",
+  "GROUPS": "groups",
+  "CREATE_OCSERV_GROUP": "create ocserv group"
 }

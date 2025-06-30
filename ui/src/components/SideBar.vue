@@ -4,7 +4,6 @@ import {useLocale} from "vuetify/framework";
 import {useUserStore} from "@/stores/user.ts";
 import {useIsSmallDisplay} from "@/stores/display.ts";
 
-
 const props = defineProps({
   modelValue: Boolean
 })

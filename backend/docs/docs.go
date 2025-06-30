@@ -1323,22 +1323,16 @@ const docTemplate = `{
         "models.OcservGroup": {
             "type": "object",
             "required": [
-                "name",
-                "uid"
+                "name"
             ],
             "properties": {
                 "config": {
-                    "description": "or ` + "`" + `type:text` + "`" + ` for wider compatibility",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.OcservGroupConfig"
-                        }
-                    ]
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "uid": {
                     "type": "string"
                 }
             }

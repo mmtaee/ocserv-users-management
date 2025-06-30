@@ -64,16 +64,13 @@ definitions:
   models.OcservGroup:
     properties:
       config:
-        allOf:
-        - $ref: '#/definitions/models.OcservGroupConfig'
-        description: or `type:text` for wider compatibility
+        $ref: '#/definitions/models.OcservGroupConfig'
+      id:
+        type: integer
       name:
-        type: string
-      uid:
         type: string
     required:
     - name
-    - uid
     type: object
   models.OcservGroupConfig:
     properties:

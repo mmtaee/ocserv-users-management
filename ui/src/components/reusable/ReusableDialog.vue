@@ -6,7 +6,10 @@ const props = defineProps({
   width: {type: String, default: "auto"},
   divider: {type: Boolean, default: false},
   hide_action: {type: Boolean, default: false},
-  color: {type: String, default: "primary"}
+  color: {type: String, default: "primary"},
+  transition: {type: String, default: "dialog-center-transition"},
+  btnClose: {type: Boolean, default: false},
+  fullscreen: {type: Boolean, default: false},
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -17,18 +20,27 @@ const emit = defineEmits(['update:modelValue'])
 <template>
   <v-dialog
       v-model="props.modelValue"
+      :fullscreen="fullscreen"
       :persistent="persistent"
+      :transition="transition"
       :width="width"
-      transition="dialog-top-transition"
       @update:modelValue="emit('update:modelValue', false)"
   >
     <v-card>
-      <v-card-title :class="`bg-${color}`">
-        <slot name="dialogTitle"/>
-      </v-card-title>
+      <v-toolbar :class="`bg-${color}`">
+        <v-toolbar-title>
+          <slot name="dialogTitle"/>
+        </v-toolbar-title>
+        <v-btn
+            v-if="btnClose"
+            icon="mdi-close"
+            @click="emit('update:modelValue', false)"
+        />
+      </v-toolbar>
 
       <v-card-text class="text-subtitle-1 text-capitalize">
         <slot name="dialogText"/>
+
       </v-card-text>
 
       <v-divider v-if="divider" class="mb-3"/>

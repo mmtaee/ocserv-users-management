@@ -15,9 +15,7 @@ const routes: Array<RouteRecordRaw> = [
         path: '/',
         name: 'HomePage',
         component: HomeView,
-        meta: {
-            title: "Home",
-        }
+        meta: {title: "Home"}
     },
     {
         path: '/setup',
@@ -48,13 +46,9 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/ocserv-groups',
         name: 'OcservGroupsPage',
-        component: () => import('../views/OcservGroupView.vue'),
-        meta: {
-            title: "Ocserv Groups",
-            desktopOnly: true
-        }
+        component: () => import('../views/OcservGroupsViews.vue'),
+        meta: {title: "Ocserv Groups"}
     },
-
 ]
 
 const router = createRouter({

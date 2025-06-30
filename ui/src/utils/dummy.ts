@@ -1,4 +1,10 @@
-import type {ModelsDailyTraffic, ModelsIPBan, ModelsOnlineUserSession} from "@/api";
+import type {
+    ModelsDailyTraffic,
+    ModelsIPBan,
+    ModelsOcservGroup,
+    ModelsOcservGroupConfig,
+    ModelsOnlineUserSession
+} from "@/api";
 
 const dummyTrafficData = <ModelsDailyTraffic[]>([
     {date: '2025-06-18', rx: 1.2, tx: 2.5},
@@ -75,8 +81,48 @@ const dummyBanIPs = <Array<ModelsIPBan>>([
     }
 ])
 
+
+const dummyGroupConfig: ModelsOcservGroupConfig = {
+    dns: ['8.8.8.8', '1.1.1.1'],
+    nbns: '192.168.1.1',
+    "ipv4-network": '192.168.1.0/24',
+    "rx-data-per-sec": 100000,
+    "tx-data-per-sec": 200000,
+    "explicit-ipv4": '192.168.100.10',
+    cgroup: 'cpuset,cpu:test',
+    iroute: '10.0.0.0/8',
+    route: ['0.0.0.0/0', '10.10.0.0/16'],
+    "no-route": ['192.168.0.0/16', '10.0.0.0/8'],
+    "net-priority": 1,
+    "deny-roaming": true,
+    "no-udp": false,
+    keepalive: 60,
+    dpd: 90,
+    "mobile-dpd": 300,
+    "max-same-clients": 2,
+    "tunnel-all-dns": true,
+    "stats-report-time": 300,
+    mtu: 1400,
+    "idle-timeout": 600,
+    "mobile-idle-timeout": 900,
+    "restrict-user-to-routes": true,
+    "restrict-user-to-ports": 'tcp(443),tcp(80),udp(53)',
+    "split-dns": ['example.com', 'internal.company.com'],
+    "session-timeout": 3600,
+}
+
+
+const dummyGroupList: ModelsOcservGroup[] = [
+    {id: 1, name: "Anc 1234"},
+    {id: 2, name: "Anc 4568"},
+    {id: 3, name: "Anc 1248"},
+    {id: 4, name: "Anc 1298"},
+]
+
 export {
     dummyTrafficData,
     dummyOnlineUsers,
-    dummyBanIPs
+    dummyBanIPs,
+    dummyGroupConfig,
+    dummyGroupList
 }

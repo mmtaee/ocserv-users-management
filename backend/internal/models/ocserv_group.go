@@ -87,7 +87,7 @@ type OcservGroupConfig struct {
 }
 
 type OcservGroup struct {
-	ID     uint               `json:"-" gorm:"primaryKey;autoIncrement"`
+	ID     uint               `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name   string             `json:"name" gorm:"type:varchar(255);not null;unique" validate:"required"`
 	Config *OcservGroupConfig `json:"config" gorm:"type:json"`
 }

@@ -3,7 +3,6 @@ import {useLoadingStore} from "@/stores/loading.js";
 
 const loader = useLoadingStore();
 
-console.log(loader.isLoading)
 </script>
 
 <template>

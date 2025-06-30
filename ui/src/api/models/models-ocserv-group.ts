@@ -24,22 +24,22 @@ import type { ModelsOcservGroupConfig } from './models-ocserv-group-config';
  */
 export interface ModelsOcservGroup {
     /**
-     * or `type:text` for wider compatibility
+     * 
      * @type {ModelsOcservGroupConfig}
      * @memberof ModelsOcservGroup
      */
     'config'?: ModelsOcservGroupConfig;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof ModelsOcservGroup
      */
-    'name': string;
+    'id'?: number;
     /**
      * 
      * @type {string}
      * @memberof ModelsOcservGroup
      */
-    'uid': string;
+    'name': string;
 }
 

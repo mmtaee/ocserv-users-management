@@ -62,9 +62,10 @@ const logout = () => {
   </v-app-bar>
 
   <ReusableDialog
-      v-if="userStore.user?.username" v-model="logoutDialog" Add actions
+      v-if="userStore.user?.username"
+      v-model="logoutDialog"
       color="error"
-      commentMore
+      transition="dialog-top-transition"
   >
     <template #dialogTitle>
       <v-icon>mdi-logout</v-icon>
