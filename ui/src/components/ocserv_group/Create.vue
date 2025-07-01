@@ -11,9 +11,7 @@ const props = defineProps({
   modelValue: Boolean
 })
 
-
 const emit = defineEmits(["update:modelValue", "complete"])
-
 
 const {t} = useLocale()
 const valid = ref(true)
@@ -41,7 +39,7 @@ const createGroup = () => {
       btnClose
       fullscreen
       persistent
-      @update:modelValue="emit('update:modelValue', false)"
+      @update:modelValue="emit('update:modelValue', false);Object.assign(createData, {}) "
   >
 
     <template #dialogTitle>
@@ -54,10 +52,26 @@ const createGroup = () => {
 
         <v-row align="center" justify="start">
           <v-col cols="12" md="12">
-
             <v-row align="center" dense justify="start">
+
               <v-col class="ma-0 pa-0" cols="12" md="11">
-                <v-col class="ma-0 pa-0" cols="12" md="4">
+                <h3 class="text-capitalize">{{ t("NAME") }}</h3>
+              </v-col>
+
+              <v-col cols="12" md="auto">
+                <v-btn
+                    :disabled="validCreateChecker"
+                    color="primary"
+                    @click="createGroup"
+                >
+                  {{ t("CREATE") }}
+                </v-btn>
+              </v-col>
+
+              <v-divider/>
+
+              <v-col class="ma-0 pa-0" cols="12" md="11">
+                <v-col class="ma-0 pa-0" cols="12" md="3">
                   <v-text-field
                       v-model="createData.name"
                       :label="t('GROUP_NAME')"
@@ -70,15 +84,7 @@ const createGroup = () => {
                 </v-col>
               </v-col>
 
-              <v-col cols="12" md="auto">
-                <v-btn
-                    :disabled="validCreateChecker"
-                    color="primary"
-                    @click="createGroup"
-                >
-                  {{ t("CREATE") }}
-                </v-btn>
-              </v-col>
+
             </v-row>
 
           </v-col>
@@ -99,6 +105,3 @@ const createGroup = () => {
   </ReusableDialog>
 </template>
 
-<style scoped>
-
-</style>

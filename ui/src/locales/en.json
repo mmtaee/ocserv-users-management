@@ -53,5 +53,6 @@
   "OTHERS": "others",
   "OTHER": "other",
   "GROUPS": "groups",
-  "CREATE_OCSERV_GROUP": "create ocserv group"
+  "CREATE_OCSERV_GROUP": "create ocserv group",
+  "NAME": "Name"
 }

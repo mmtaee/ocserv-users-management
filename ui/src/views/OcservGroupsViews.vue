@@ -35,8 +35,6 @@ watch(tab, (newVal) => {
         <v-tabs
             v-model="tab"
             align-tabs="center"
-            bg-color="odd"
-            color="white"
             direction="horizontal"
         >
           <v-tab :text="t('DEFAULTS')" value="defaults"></v-tab>

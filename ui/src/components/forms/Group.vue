@@ -95,31 +95,35 @@ const fields = [
 const textFields = [
   // Routes
   {
-    key: 'dns',
-    label: 'DNS',
-    type: 'text',
-    hint: 'list of DNS servers to assign to the client (e.g., 8.8.8.8,1.1.1.1)',
-    rules: [rules.ip]
-  },
-  {
     key: 'route',
     label: 'Route',
     type: 'text',
-    hint: 'Routes pushed to the client for routing traffic (e.g., 10.0.0.0/8)',
+    example: "10.0.0.0/8",
+    hint: 'Routes assigned to client',
     rules: [rules.ipOrRange]
   },
   {
     key: 'no-route',
     label: 'No Route',
     type: 'text',
-    hint: 'List of networks to exclude from VPN routing (e.g., 172.16.0.0/12)',
+    hint: 'Non-VPN networks',
+    example: "172.16.0.0/12",
     rules: [rules.ipOrRange]
+  },
+  {
+    key: 'dns',
+    label: 'DNS',
+    type: 'text',
+    hint: 'DNS servers list',
+    example: "8.8.8.8 or example.com",
+    rules: [rules.ip]
   },
   {
     key: 'split-dns',
     label: 'Split DNS',
     type: 'text',
-    hint: 'List of domains over which the provided DNS servers should be used',
+    hint: 'DNS-specific domains',
+    example: "example.com",
     rules: [rules.domain]
   }
 ]
@@ -134,13 +138,21 @@ const chipInputs = reactive<Record<string, string>>({
 
 const addRoutes = (key: string) => {
   const typedKey = key as keyof ModelsOcservGroupConfig;
-  if (chipInputs[typedKey]) {
+  const input = chipInputs[typedKey];
+
+  if (input) {
+    if (!Array.isArray(props.modelValue[typedKey])) {
+      props.modelValue[typedKey] = [] as any;
+    }
+
     const arr = props.modelValue[typedKey] as string[];
-    if (!arr.includes(chipInputs[typedKey])) {
-      arr.push(chipInputs[typedKey]);
+
+    if (!arr.includes(input)) {
+      arr.push(input);
       chipInputs[typedKey] = '';
     }
   }
+
 }
 
 const removeRoute = (key: string, value: string) => {
@@ -204,9 +216,8 @@ watch(
 
       <template v-for="field in fields.filter(f => f.type === 'text')" :key="field.key">
         <v-col
-            class="my-1"
             cols="12"
-            md="4"
+            md="3"
         >
           <v-text-field
               v-model="props.modelValue[field.key as keyof ModelsOcservGroupConfig]"
@@ -229,7 +240,6 @@ watch(
 
       <template v-for="field in fields.filter(f => f.type === 'number')" :key="field.key">
         <v-col
-            class="my-1"
             cols="12"
             lg="3"
             md="4"
@@ -256,23 +266,28 @@ watch(
       <template v-for="field in fields.filter(f => f.type === 'switch')" :key="field.key">
         <v-col
             cols="12"
-            md="6"
+            md="3"
         >
-          <v-switch
-              v-model="props.modelValue[field.key as keyof ModelsOcservGroupConfig]"
-              :hint="field.hint"
-              :label="field.label"
-              class="ms-1"
-              color="primary"
-              density="compact"
-              persistent-hint
-          />
+          <v-row align="center" justify="center">
+            <v-col cols="6" md="12">
+              <v-switch
+                  v-model="props.modelValue[field.key as keyof ModelsOcservGroupConfig]"
+                  :hint="field.hint"
+                  :label="field.label"
+                  class="ms-1"
+                  color="primary"
+                  density="compact"
+                  persistent-hint
+              />
+            </v-col>
+          </v-row>
+
         </v-col>
       </template>
     </v-row>
   </v-form>
 
-  <v-row>
+  <v-row align="center" justify="center">
     <!-- New TextFields with chips section -->
     <v-col class="mt-10" cols="12">
       <h3 class="text-capitalize">{{ t("ROUTES") }}</h3>
@@ -280,15 +295,20 @@ watch(
     </v-col>
 
     <template v-for="field in textFields" :key="field.key">
-      <v-col md="6">
-        <v-card color="#eeeee" min-height="200">
+      <v-col lg="3" md="6" sm="12">
+        <v-card min-height="300">
+
+          <v-toolbar class="text-subtitle-1 px-3" color="primary" density="compact">
+            {{ field.label }}
+          </v-toolbar>
+
           <v-card-title>
-            <v-row>
-              <v-col cols="12" md="7">
+            <v-row align="start" justify="start">
+              <v-col cols="12" md="9">
                 <v-text-field
                     v-model="chipInputs[field.key]"
                     :hint="field.hint"
-                    :label="field.label"
+                    :placeholder="field.example"
                     :rules="field.rules"
                     density="comfortable"
                     persistent-hint
@@ -297,15 +317,15 @@ watch(
                 />
               </v-col>
 
-              <v-col cols="12" md="auto">
+              <v-col cols="12" md="2">
                 <v-btn
                     class="mt-5"
                     color="success"
-                    density="comfortable"
+                    density="compact"
                     variant="outlined"
                     @click="addRoutes(field.key)"
                 >
-                  {{ t("ADD") }} {{ field.label }}
+                  {{ t("ADD") }}
                 </v-btn>
               </v-col>
             </v-row>

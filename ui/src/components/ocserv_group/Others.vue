@@ -41,16 +41,21 @@ onMounted(() => {
         <v-col cols="12" md="12">
           <v-row>
             <v-col cols="12" md="11">
-              <h3 class="text-capitalize">{{ t("OTHER") }} {{ t("GROUPS") }}</h3>
-            </v-col>
-            <v-col class="ma-0 pa-0" cols="12" md="auto">
-              <v-btn
-                  color="primary"
-                  variant="outlined"
-                  @click="createDialog = true"
-              >
-                {{ t("CREATE") }}
-              </v-btn>
+              <span class="text-capitalize text-subtitle-1">{{ t("OTHER") }} {{ t("GROUPS") }}</span>
+              <v-tooltip location="top">
+                <template #activator="{ props }">
+                  <v-icon
+                      class="ms-2"
+                      color="primary"
+                      icon="mdi-plus-circle-outline"
+                      size="x-large"
+                      v-bind="props"
+                      @click="createDialog = true"
+                  />
+                </template>
+                <span>{{ t("CREATE") }}</span>
+              </v-tooltip>
+
             </v-col>
           </v-row>
         </v-col>
@@ -62,20 +67,21 @@ onMounted(() => {
                 v-for="(item, index) in otherGroups"
                 :key="`other-groups-${index}`"
                 cols="12"
-                lg="3"
-                md="4"
-                sm="6"
-                xl="2"
+                md="2"
             >
               <v-card elevation="6">
-                <v-card-title class="text-subtitle-1 bg-info">
-                  {{ item.name }}
+                <v-card-title class="text-subtitle-1 bg-primary-darken-1">
+                  <v-row align="start" justify="start">
+
+                    <v-col cols="12" md="9"> {{ item.name }}</v-col>
+
+                    <v-col class="bg-white" cols="12" md="3">
+                      <v-icon color="odd" size="small">mdi-pencil</v-icon>
+                      <v-icon color="error" size="small">mdi-delete</v-icon>
+                    </v-col>
+                  </v-row>
+
                 </v-card-title>
-                <v-card-actions>
-                  <v-spacer/>
-                  <v-icon color="odd" size="small">mdi-pencil</v-icon>
-                  <v-icon color="error" size="small">mdi-delete</v-icon>
-                </v-card-actions>
               </v-card>
             </v-col>
           </v-row>

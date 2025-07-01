@@ -40,7 +40,6 @@ const emit = defineEmits(['update:modelValue'])
 
       <v-card-text class="text-subtitle-1 text-capitalize">
         <slot name="dialogText"/>
-
       </v-card-text>
 
       <v-divider v-if="divider" class="mb-3"/>
