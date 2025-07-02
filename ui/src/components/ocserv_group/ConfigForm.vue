@@ -192,12 +192,12 @@ watch(
   <v-form v-model="valid">
     <v-row>
       <v-col cols="12">
-        <v-row align="end" justify="start">
+        <v-row align="center" justify="start">
           <v-col cols="12" md="11">
             <h3 class="text-capitalize">{{ t("NETWORK_CONFIGURATION") }}</h3>
           </v-col>
 
-          <v-col v-if="!hideBtn" class="ma-0 pa-0" cols="12" md="auto">
+          <v-col v-if="!hideBtn" class="ma-0 pa-0" cols="12" md="1">
             <v-btn
                 :color="btnColor"
                 :disabled="!checkValid"

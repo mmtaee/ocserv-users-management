@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import {dummyGroupList} from "@/utils/dummy.ts";
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
-import type {ModelsOcservGroup} from "@/api";
+import type {ModelsOcservGroup, ModelsOcservGroupConfig} from "@/api";
 import {useLocale} from "vuetify/framework";
 
-const Create = defineAsyncComponent(() => import('@/components/ocserv_group/Create.vue'));
+const CreateOrEdit = defineAsyncComponent(() => import('@/components/ocserv_group/CreateOrUpdate.vue'));
+
 
 const {t} = useLocale()
 
@@ -14,15 +15,43 @@ const createDialog = ref(false)
 const editDialog = ref(false)
 const deleteDialog = ref(false)
 
+const createData = reactive({})
+
+const defaultGroup: ModelsOcservGroup = {name: "", id: 0}
+const editObject = ref<ModelsOcservGroup>({config: undefined, id: 0, name: ""})
+const editData = reactive({})
+
 
 const getGroups = async () => {
   console.log("getGroups")
 }
 
-const complete = () => {
+const complete = (data: ModelsOcservGroupConfig, groupName: string) => {
   createDialog.value = false
-  console.log("complete")
-  getGroups()
+  console.log("groupName: ", groupName)
+  console.log("complete: ", data)
+  otherGroups.push({
+    id: 99,
+    name: groupName,
+    config: data
+  })
+}
+
+const completeEdit = (data: ModelsOcservGroupConfig) => {
+  const index = otherGroups.findIndex(group => group.id === editObject.value.id)
+  if (index !== -1) {
+    otherGroups.splice(index, 1, editObject.value)
+  }
+  editDialog.value = false
+}
+
+const editHandler = (obj: ModelsOcservGroup) => {
+  editObject.value = JSON.parse(JSON.stringify(obj))
+  editDialog.value = true
+}
+
+const deleteGroup = (id: number) => {
+
 }
 
 onMounted(() => {
@@ -32,32 +61,24 @@ onMounted(() => {
   Object.assign(otherGroups, dummyGroupList)
 })
 
+
 </script>
 
 <template>
   <v-card flat>
     <v-card-text>
-      <v-row align="center" dense justify="start">
-        <v-col cols="12" md="12">
-          <v-row>
-            <v-col cols="12" md="11">
-              <span class="text-capitalize text-subtitle-1">{{ t("OTHER") }} {{ t("GROUPS") }}</span>
-              <v-tooltip location="top">
-                <template #activator="{ props }">
-                  <v-icon
-                      class="ms-2"
-                      color="primary"
-                      icon="mdi-plus-circle-outline"
-                      size="x-large"
-                      v-bind="props"
-                      @click="createDialog = true"
-                  />
-                </template>
-                <span>{{ t("CREATE") }}</span>
-              </v-tooltip>
-
-            </v-col>
-          </v-row>
+      <v-row align="center" justify="center">
+        <v-col cols="12" lg="10" md="10" sm="10">
+          <span class="text-capitalize text-subtitle-1">{{ t("OTHER") }} {{ t("GROUPS") }}</span>
+        </v-col>
+        <v-col cols="12" lg="auto" md="2" sm="2">
+          <v-btn
+              color="primary"
+              variant="outlined"
+              @click="createDialog = true"
+          >
+            {{ t("CREATE") }}
+          </v-btn>
         </v-col>
 
         <v-divider/>
@@ -67,20 +88,23 @@ onMounted(() => {
                 v-for="(item, index) in otherGroups"
                 :key="`other-groups-${index}`"
                 cols="12"
-                md="2"
+                lg="3"
+                md="4"
+                sm="6"
             >
-              <v-card elevation="6">
-                <v-card-title class="text-subtitle-1 bg-primary-darken-1">
-                  <v-row align="start" justify="start">
+              <v-card class="py-3" elevation="6">
+                <v-card-title class="text-subtitle-1">
+                  <v-row align="center" justify="center">
+                    <v-col cols="12" md="9" sm="8">{{ item.name }}</v-col>
 
-                    <v-col cols="12" md="9"> {{ item.name }}</v-col>
+                    <v-col cols="12" md="1" sm="1">
+                      <v-icon color="info" @click="editHandler(item)">mdi-pencil</v-icon>
+                    </v-col>
 
-                    <v-col class="bg-white" cols="12" md="3">
-                      <v-icon color="odd" size="small">mdi-pencil</v-icon>
-                      <v-icon color="error" size="small">mdi-delete</v-icon>
+                    <v-col cols="12" md="1" sm="1">
+                      <v-icon color="error">mdi-delete</v-icon>
                     </v-col>
                   </v-row>
-
                 </v-card-title>
               </v-card>
             </v-col>
@@ -90,9 +114,16 @@ onMounted(() => {
     </v-card-text>
   </v-card>
 
-  <Create
-      v-if="createDialog"
+  <CreateOrEdit
       v-model="createDialog"
       @complete="complete"
   />
+
+  <CreateOrEdit
+      v-model="editDialog"
+      :initValue="editObject"
+      @complete="completeEdit"
+  />
+
+
 </template>

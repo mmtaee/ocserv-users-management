@@ -113,7 +113,7 @@ const dummyGroupConfig: ModelsOcservGroupConfig = {
 
 
 const dummyGroupList: ModelsOcservGroup[] = [
-    {id: 1, name: "Anc 1234"},
+    {id: 1, name: "Anc 1234", config: {mtu: 1330}},
     {id: 2, name: "Anc 4568"},
     {id: 3, name: "Anc 1248"},
     {id: 4, name: "Anc 1298"},

@@ -4,7 +4,7 @@ import {defineAsyncComponent, onMounted, reactive} from "vue";
 import type {ModelsOcservGroupConfig} from "@/api";
 import {dummyGroupConfig} from "@/utils/dummy.ts";
 
-const GroupForm = defineAsyncComponent(() => import('@/components/forms/Group.vue'));
+const GroupForm = defineAsyncComponent(() => import('@/components/ocserv_group/Form.vue'));
 
 const {t} = useLocale()
 const data = reactive<ModelsOcservGroupConfig>({} as ModelsOcservGroupConfig)

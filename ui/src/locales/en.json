@@ -54,5 +54,8 @@
   "OTHER": "other",
   "GROUPS": "groups",
   "CREATE_OCSERV_GROUP": "create ocserv group",
-  "NAME": "Name"
+  "NAME": "name",
+  "GROUP_NAME": "Group Name",
+  "UPDATE": "update",
+  "UPDATE_OCSERV_GROUP": "Update Ocserv Group"
 }
