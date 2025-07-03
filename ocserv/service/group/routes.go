@@ -6,6 +6,8 @@ func Routes(e *echo.Group) {
 	ctrl := New()
 	g := e.Group("/groups")
 	g.POST("", ctrl.Create)
-	g.DELETE("", ctrl.Delete)
+	g.DELETE("/:name", ctrl.Delete)
 	g.GET("/users", ctrl.ListUsers)
+	g.GET("/defaults", ctrl.GetDefaultsGroup)
+	g.PATCH("/defaults", ctrl.UpdateDefaultsGroup)
 }

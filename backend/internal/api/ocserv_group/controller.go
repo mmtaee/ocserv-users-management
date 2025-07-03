@@ -6,18 +6,27 @@ import (
 	"net/http"
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/internal/repository"
+	"ocserv-bakend/pkg/config"
+	ocApi "ocserv-bakend/pkg/oc_api"
 	"ocserv-bakend/pkg/request"
 )
 
 type Controller struct {
 	request         request.CustomRequestInterface
 	ocservGroupRepo repository.OcservGroupRepositoryInterface
+	ocservUserRepo  repository.OcservUserRepositoryInterface
+	ocUserApi       ocApi.OcUserApiRepositoryInterface
+	OcGroupApi      ocApi.OcGroupApiRepositoryInterface
 }
 
 func New() *Controller {
+	apiURLService := config.Get().APIURLService
 	return &Controller{
 		request:         request.NewCustomRequest(),
 		ocservGroupRepo: repository.NewOcservGroupRepository(),
+		ocservUserRepo:  repository.NewtOcservUserRepository(),
+		ocUserApi:       ocApi.NewOcUserApiRepository(apiURLService),
+		OcGroupApi:      ocApi.NewOcGroupApiRepository(apiURLService),
 	}
 }
 
@@ -115,15 +124,15 @@ func (ctrl *Controller) CreateOcservGroup(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Bearer TOKEN"
-// @Param 		 uid path int true "Ocserv Group ID"
+// @Param 		 id path int true "Ocserv Group ID"
 // @Param        request    body  UpdateOcservGroupData  true "ocserv group create data"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      201  {object} models.OcservGroup
-// @Router       /ocserv/groups/{uid} [patch]
+// @Router       /ocserv/groups/{id} [patch]
 func (ctrl *Controller) UpdateOcservGroup(c echo.Context) error {
-	groupUID := c.Param("uid")
-	if groupUID == "" {
+	groupID := c.Param("id")
+	if groupID == "" {
 		return ctrl.request.BadRequest(c, errors.New("group uid is empty"))
 	}
 
@@ -132,7 +141,7 @@ func (ctrl *Controller) UpdateOcservGroup(c echo.Context) error {
 		return ctrl.request.BadRequest(c, err)
 	}
 
-	ocservGroup, err := ctrl.ocservGroupRepo.GetByUID(c.Request().Context(), groupUID)
+	ocservGroup, err := ctrl.ocservGroupRepo.GetByID(c.Request().Context(), groupID)
 	if err != nil {
 		return ctrl.request.BadRequest(c, err)
 	}
@@ -152,20 +161,86 @@ func (ctrl *Controller) UpdateOcservGroup(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Bearer TOKEN"
-// @Param 		 uid path int true "Ocserv Group ID"
+// @Param 		 id path int true "Ocserv Group ID"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      204  {object} nil
-// @Router       /ocserv/groups/{uid} [delete]
+// @Router       /ocserv/groups/{id} [delete]
 func (ctrl *Controller) DeleteOcservGroup(c echo.Context) error {
-	groupUID := c.Param("uid")
-	if groupUID == "" {
+	groupID := c.Param("id")
+	if groupID == "" {
 		return ctrl.request.BadRequest(c, errors.New("group uid is empty"))
 	}
 
-	err := ctrl.ocservGroupRepo.Delete(c.Request().Context(), groupUID)
+	//group, err := ctrl.ocservGroupRepo.Delete(c.Request().Context(), groupID)
+	_, err := ctrl.ocservGroupRepo.Delete(c.Request().Context(), groupID)
 	if err != nil {
 		return ctrl.request.BadRequest(c, err)
 	}
+
+	//go func() {
+	//	ctx, cancel := context.WithTimeout(c.Request().Context(), time.Second*20)
+	//	defer cancel()
+	//	users, err := ctrl.ocservUserRepo.UpdateUsersByDeleteGroup(ctx, group.Name)
+	//	if err != nil {
+	//		log.Println("error getting users by group", err)
+	//	}
+	//	for _, user := range *users {
+	//		user.Group = "defaults"
+	//
+	//		go func(ocservUser models.OcservUser) {
+	//			if err := ctrl.ocApi.CreateUserApi(ctx, ocservUser.Group, ocservUser.Username, ocservUser.Password); err != nil {
+	//				log.Printf("CreateUserApi error for %s: %v", ocservUser.Username, err)
+	//			}
+	//		}(user)
+	//	}
+	//}()
+
 	return c.JSON(http.StatusNoContent, nil)
+}
+
+// GetDefaultsGroup 	     Ocserv Defaults Group config
+//
+// @Summary      Ocserv Defaults Group config
+// @Description  Ocserv Defaults Group config
+// @Tags         Ocserv(Groups)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200  {object} map[string]interface{}
+// @Router       /ocserv/groups/defaults [get]
+func (ctrl *Controller) GetDefaultsGroup(c echo.Context) error {
+	conf, err := ctrl.OcGroupApi.GetDefaultsGroup(c.Request().Context())
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, conf)
+}
+
+// UpdateDefaultsGroup 	     Ocserv Defaults Group updating
+//
+// @Summary      Update Ocserv Defaults Group
+// @Description  Update Ocserv Defaults Group
+// @Tags         Ocserv(Groups)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param        request    body  UpdateOcservGroupData  true "ocserv group default data"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200  {object} nil
+// @Router       /ocserv/groups/defaults [patch]
+func (ctrl *Controller) UpdateDefaultsGroup(c echo.Context) error {
+	var data UpdateOcservGroupData
+	if err := ctrl.request.DoValidate(c, &data); err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+
+	err := ctrl.OcGroupApi.UpdateDefaultGroup(c.Request().Context(), data.Config)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, nil)
 }

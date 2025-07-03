@@ -40,6 +40,84 @@ import type { RequestErrorResponse } from '../models';
 export const OcservGroupsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * Ocserv Defaults Group config
+         * @summary Ocserv Defaults Group config
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservGroupsDefaultsGet: async (authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('ocservGroupsDefaultsGet', 'authorization', authorization)
+            const localVarPath = `/ocserv/groups/defaults`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update Ocserv Defaults Group
+         * @summary Update Ocserv Defaults Group
+         * @param {string} authorization Bearer TOKEN
+         * @param {OcservGroupUpdateOcservGroupData} request ocserv group default data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservGroupsDefaultsPatch: async (authorization: string, request: OcservGroupUpdateOcservGroupData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('ocservGroupsDefaultsPatch', 'authorization', authorization)
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('ocservGroupsDefaultsPatch', 'request', request)
+            const localVarPath = `/ocserv/groups/defaults`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(request, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * List of Ocserv groups
          * @summary List of Ocserv groups
          * @param {string} authorization Bearer TOKEN
@@ -89,6 +167,92 @@ export const OcservGroupsApiAxiosParamCreator = function (configuration?: Config
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Ocserv Group delete
+         * @summary Ocserv Group delete
+         * @param {string} authorization Bearer TOKEN
+         * @param {number} id Ocserv Group ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservGroupsIdDelete: async (authorization: string, id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('ocservGroupsIdDelete', 'authorization', authorization)
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('ocservGroupsIdDelete', 'id', id)
+            const localVarPath = `/ocserv/groups/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Ocserv Group update
+         * @summary Ocserv Group update
+         * @param {string} authorization Bearer TOKEN
+         * @param {number} id Ocserv Group ID
+         * @param {OcservGroupUpdateOcservGroupData} request ocserv group create data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservGroupsIdPatch: async (authorization: string, id: number, request: OcservGroupUpdateOcservGroupData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('ocservGroupsIdPatch', 'authorization', authorization)
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('ocservGroupsIdPatch', 'id', id)
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('ocservGroupsIdPatch', 'request', request)
+            const localVarPath = `/ocserv/groups/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(request, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -173,92 +337,6 @@ export const OcservGroupsApiAxiosParamCreator = function (configuration?: Config
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * Ocserv Group delete
-         * @summary Ocserv Group delete
-         * @param {string} authorization Bearer TOKEN
-         * @param {number} uid Ocserv Group ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        ocservGroupsUidDelete: async (authorization: string, uid: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('ocservGroupsUidDelete', 'authorization', authorization)
-            // verify required parameter 'uid' is not null or undefined
-            assertParamExists('ocservGroupsUidDelete', 'uid', uid)
-            const localVarPath = `/ocserv/groups/{uid}`
-                .replace(`{${"uid"}}`, encodeURIComponent(String(uid)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            if (authorization != null) {
-                localVarHeaderParameter['Authorization'] = String(authorization);
-            }
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Ocserv Group update
-         * @summary Ocserv Group update
-         * @param {string} authorization Bearer TOKEN
-         * @param {number} uid Ocserv Group ID
-         * @param {OcservGroupUpdateOcservGroupData} request ocserv group create data
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        ocservGroupsUidPatch: async (authorization: string, uid: number, request: OcservGroupUpdateOcservGroupData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('ocservGroupsUidPatch', 'authorization', authorization)
-            // verify required parameter 'uid' is not null or undefined
-            assertParamExists('ocservGroupsUidPatch', 'uid', uid)
-            // verify required parameter 'request' is not null or undefined
-            assertParamExists('ocservGroupsUidPatch', 'request', request)
-            const localVarPath = `/ocserv/groups/{uid}`
-                .replace(`{${"uid"}}`, encodeURIComponent(String(uid)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            if (authorization != null) {
-                localVarHeaderParameter['Authorization'] = String(authorization);
-            }
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(request, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -269,6 +347,33 @@ export const OcservGroupsApiAxiosParamCreator = function (configuration?: Config
 export const OcservGroupsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = OcservGroupsApiAxiosParamCreator(configuration)
     return {
+        /**
+         * Ocserv Defaults Group config
+         * @summary Ocserv Defaults Group config
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ocservGroupsDefaultsGet(authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<{ [key: string]: any; }>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsDefaultsGet(authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsDefaultsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update Ocserv Defaults Group
+         * @summary Update Ocserv Defaults Group
+         * @param {string} authorization Bearer TOKEN
+         * @param {OcservGroupUpdateOcservGroupData} request ocserv group default data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ocservGroupsDefaultsPatch(authorization: string, request: OcservGroupUpdateOcservGroupData, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsDefaultsPatch(authorization, request, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsDefaultsPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
         /**
          * List of Ocserv groups
          * @summary List of Ocserv groups
@@ -284,6 +389,35 @@ export const OcservGroupsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsGet(authorization, page, pageSize, order, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Ocserv Group delete
+         * @summary Ocserv Group delete
+         * @param {string} authorization Bearer TOKEN
+         * @param {number} id Ocserv Group ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ocservGroupsIdDelete(authorization: string, id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsIdDelete(authorization, id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Ocserv Group update
+         * @summary Ocserv Group update
+         * @param {string} authorization Bearer TOKEN
+         * @param {number} id Ocserv Group ID
+         * @param {OcservGroupUpdateOcservGroupData} request ocserv group create data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ocservGroupsIdPatch(authorization: string, id: number, request: OcservGroupUpdateOcservGroupData, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsOcservGroup>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsIdPatch(authorization, id, request, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -313,35 +447,6 @@ export const OcservGroupsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
-        /**
-         * Ocserv Group delete
-         * @summary Ocserv Group delete
-         * @param {string} authorization Bearer TOKEN
-         * @param {number} uid Ocserv Group ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async ocservGroupsUidDelete(authorization: string, uid: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsUidDelete(authorization, uid, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsUidDelete']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Ocserv Group update
-         * @summary Ocserv Group update
-         * @param {string} authorization Bearer TOKEN
-         * @param {number} uid Ocserv Group ID
-         * @param {OcservGroupUpdateOcservGroupData} request ocserv group create data
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async ocservGroupsUidPatch(authorization: string, uid: number, request: OcservGroupUpdateOcservGroupData, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsOcservGroup>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsUidPatch(authorization, uid, request, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsUidPatch']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
     }
 };
 
@@ -353,6 +458,26 @@ export const OcservGroupsApiFactory = function (configuration?: Configuration, b
     const localVarFp = OcservGroupsApiFp(configuration)
     return {
         /**
+         * Ocserv Defaults Group config
+         * @summary Ocserv Defaults Group config
+         * @param {OcservGroupsApiOcservGroupsDefaultsGetRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservGroupsDefaultsGet(requestParameters: OcservGroupsApiOcservGroupsDefaultsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<{ [key: string]: any; }> {
+            return localVarFp.ocservGroupsDefaultsGet(requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update Ocserv Defaults Group
+         * @summary Update Ocserv Defaults Group
+         * @param {OcservGroupsApiOcservGroupsDefaultsPatchRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservGroupsDefaultsPatch(requestParameters: OcservGroupsApiOcservGroupsDefaultsPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.ocservGroupsDefaultsPatch(requestParameters.authorization, requestParameters.request, options).then((request) => request(axios, basePath));
+        },
+        /**
          * List of Ocserv groups
          * @summary List of Ocserv groups
          * @param {OcservGroupsApiOcservGroupsGetRequest} requestParameters Request parameters.
@@ -361,6 +486,26 @@ export const OcservGroupsApiFactory = function (configuration?: Configuration, b
          */
         ocservGroupsGet(requestParameters: OcservGroupsApiOcservGroupsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<OcservGroupOcservGroupsResponse> {
             return localVarFp.ocservGroupsGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Ocserv Group delete
+         * @summary Ocserv Group delete
+         * @param {OcservGroupsApiOcservGroupsIdDeleteRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservGroupsIdDelete(requestParameters: OcservGroupsApiOcservGroupsIdDeleteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.ocservGroupsIdDelete(requestParameters.authorization, requestParameters.id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Ocserv Group update
+         * @summary Ocserv Group update
+         * @param {OcservGroupsApiOcservGroupsIdPatchRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservGroupsIdPatch(requestParameters: OcservGroupsApiOcservGroupsIdPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservGroup> {
+            return localVarFp.ocservGroupsIdPatch(requestParameters.authorization, requestParameters.id, requestParameters.request, options).then((request) => request(axios, basePath));
         },
         /**
          * List of Ocserv group names
@@ -382,28 +527,43 @@ export const OcservGroupsApiFactory = function (configuration?: Configuration, b
         ocservGroupsPost(requestParameters: OcservGroupsApiOcservGroupsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservGroup> {
             return localVarFp.ocservGroupsPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(axios, basePath));
         },
-        /**
-         * Ocserv Group delete
-         * @summary Ocserv Group delete
-         * @param {OcservGroupsApiOcservGroupsUidDeleteRequest} requestParameters Request parameters.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        ocservGroupsUidDelete(requestParameters: OcservGroupsApiOcservGroupsUidDeleteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.ocservGroupsUidDelete(requestParameters.authorization, requestParameters.uid, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Ocserv Group update
-         * @summary Ocserv Group update
-         * @param {OcservGroupsApiOcservGroupsUidPatchRequest} requestParameters Request parameters.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        ocservGroupsUidPatch(requestParameters: OcservGroupsApiOcservGroupsUidPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservGroup> {
-            return localVarFp.ocservGroupsUidPatch(requestParameters.authorization, requestParameters.uid, requestParameters.request, options).then((request) => request(axios, basePath));
-        },
     };
 };
+
+/**
+ * Request parameters for ocservGroupsDefaultsGet operation in OcservGroupsApi.
+ * @export
+ * @interface OcservGroupsApiOcservGroupsDefaultsGetRequest
+ */
+export interface OcservGroupsApiOcservGroupsDefaultsGetRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof OcservGroupsApiOcservGroupsDefaultsGet
+     */
+    readonly authorization: string
+}
+
+/**
+ * Request parameters for ocservGroupsDefaultsPatch operation in OcservGroupsApi.
+ * @export
+ * @interface OcservGroupsApiOcservGroupsDefaultsPatchRequest
+ */
+export interface OcservGroupsApiOcservGroupsDefaultsPatchRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof OcservGroupsApiOcservGroupsDefaultsPatch
+     */
+    readonly authorization: string
+
+    /**
+     * ocserv group default data
+     * @type {OcservGroupUpdateOcservGroupData}
+     * @memberof OcservGroupsApiOcservGroupsDefaultsPatch
+     */
+    readonly request: OcservGroupUpdateOcservGroupData
+}
 
 /**
  * Request parameters for ocservGroupsGet operation in OcservGroupsApi.
@@ -448,6 +608,55 @@ export interface OcservGroupsApiOcservGroupsGetRequest {
 }
 
 /**
+ * Request parameters for ocservGroupsIdDelete operation in OcservGroupsApi.
+ * @export
+ * @interface OcservGroupsApiOcservGroupsIdDeleteRequest
+ */
+export interface OcservGroupsApiOcservGroupsIdDeleteRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof OcservGroupsApiOcservGroupsIdDelete
+     */
+    readonly authorization: string
+
+    /**
+     * Ocserv Group ID
+     * @type {number}
+     * @memberof OcservGroupsApiOcservGroupsIdDelete
+     */
+    readonly id: number
+}
+
+/**
+ * Request parameters for ocservGroupsIdPatch operation in OcservGroupsApi.
+ * @export
+ * @interface OcservGroupsApiOcservGroupsIdPatchRequest
+ */
+export interface OcservGroupsApiOcservGroupsIdPatchRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof OcservGroupsApiOcservGroupsIdPatch
+     */
+    readonly authorization: string
+
+    /**
+     * Ocserv Group ID
+     * @type {number}
+     * @memberof OcservGroupsApiOcservGroupsIdPatch
+     */
+    readonly id: number
+
+    /**
+     * ocserv group create data
+     * @type {OcservGroupUpdateOcservGroupData}
+     * @memberof OcservGroupsApiOcservGroupsIdPatch
+     */
+    readonly request: OcservGroupUpdateOcservGroupData
+}
+
+/**
  * Request parameters for ocservGroupsLookupGet operation in OcservGroupsApi.
  * @export
  * @interface OcservGroupsApiOcservGroupsLookupGetRequest
@@ -483,61 +692,36 @@ export interface OcservGroupsApiOcservGroupsPostRequest {
 }
 
 /**
- * Request parameters for ocservGroupsUidDelete operation in OcservGroupsApi.
- * @export
- * @interface OcservGroupsApiOcservGroupsUidDeleteRequest
- */
-export interface OcservGroupsApiOcservGroupsUidDeleteRequest {
-    /**
-     * Bearer TOKEN
-     * @type {string}
-     * @memberof OcservGroupsApiOcservGroupsUidDelete
-     */
-    readonly authorization: string
-
-    /**
-     * Ocserv Group ID
-     * @type {number}
-     * @memberof OcservGroupsApiOcservGroupsUidDelete
-     */
-    readonly uid: number
-}
-
-/**
- * Request parameters for ocservGroupsUidPatch operation in OcservGroupsApi.
- * @export
- * @interface OcservGroupsApiOcservGroupsUidPatchRequest
- */
-export interface OcservGroupsApiOcservGroupsUidPatchRequest {
-    /**
-     * Bearer TOKEN
-     * @type {string}
-     * @memberof OcservGroupsApiOcservGroupsUidPatch
-     */
-    readonly authorization: string
-
-    /**
-     * Ocserv Group ID
-     * @type {number}
-     * @memberof OcservGroupsApiOcservGroupsUidPatch
-     */
-    readonly uid: number
-
-    /**
-     * ocserv group create data
-     * @type {OcservGroupUpdateOcservGroupData}
-     * @memberof OcservGroupsApiOcservGroupsUidPatch
-     */
-    readonly request: OcservGroupUpdateOcservGroupData
-}
-
-/**
  * OcservGroupsApi - object-oriented interface
  * @export
  * @class OcservGroupsApi
  * @extends {BaseAPI}
  */
 export class OcservGroupsApi extends BaseAPI {
+    /**
+     * Ocserv Defaults Group config
+     * @summary Ocserv Defaults Group config
+     * @param {OcservGroupsApiOcservGroupsDefaultsGetRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OcservGroupsApi
+     */
+    public ocservGroupsDefaultsGet(requestParameters: OcservGroupsApiOcservGroupsDefaultsGetRequest, options?: RawAxiosRequestConfig) {
+        return OcservGroupsApiFp(this.configuration).ocservGroupsDefaultsGet(requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update Ocserv Defaults Group
+     * @summary Update Ocserv Defaults Group
+     * @param {OcservGroupsApiOcservGroupsDefaultsPatchRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OcservGroupsApi
+     */
+    public ocservGroupsDefaultsPatch(requestParameters: OcservGroupsApiOcservGroupsDefaultsPatchRequest, options?: RawAxiosRequestConfig) {
+        return OcservGroupsApiFp(this.configuration).ocservGroupsDefaultsPatch(requestParameters.authorization, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * List of Ocserv groups
      * @summary List of Ocserv groups
@@ -548,6 +732,30 @@ export class OcservGroupsApi extends BaseAPI {
      */
     public ocservGroupsGet(requestParameters: OcservGroupsApiOcservGroupsGetRequest, options?: RawAxiosRequestConfig) {
         return OcservGroupsApiFp(this.configuration).ocservGroupsGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Ocserv Group delete
+     * @summary Ocserv Group delete
+     * @param {OcservGroupsApiOcservGroupsIdDeleteRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OcservGroupsApi
+     */
+    public ocservGroupsIdDelete(requestParameters: OcservGroupsApiOcservGroupsIdDeleteRequest, options?: RawAxiosRequestConfig) {
+        return OcservGroupsApiFp(this.configuration).ocservGroupsIdDelete(requestParameters.authorization, requestParameters.id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Ocserv Group update
+     * @summary Ocserv Group update
+     * @param {OcservGroupsApiOcservGroupsIdPatchRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OcservGroupsApi
+     */
+    public ocservGroupsIdPatch(requestParameters: OcservGroupsApiOcservGroupsIdPatchRequest, options?: RawAxiosRequestConfig) {
+        return OcservGroupsApiFp(this.configuration).ocservGroupsIdPatch(requestParameters.authorization, requestParameters.id, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -572,30 +780,6 @@ export class OcservGroupsApi extends BaseAPI {
      */
     public ocservGroupsPost(requestParameters: OcservGroupsApiOcservGroupsPostRequest, options?: RawAxiosRequestConfig) {
         return OcservGroupsApiFp(this.configuration).ocservGroupsPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Ocserv Group delete
-     * @summary Ocserv Group delete
-     * @param {OcservGroupsApiOcservGroupsUidDeleteRequest} requestParameters Request parameters.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof OcservGroupsApi
-     */
-    public ocservGroupsUidDelete(requestParameters: OcservGroupsApiOcservGroupsUidDeleteRequest, options?: RawAxiosRequestConfig) {
-        return OcservGroupsApiFp(this.configuration).ocservGroupsUidDelete(requestParameters.authorization, requestParameters.uid, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Ocserv Group update
-     * @summary Ocserv Group update
-     * @param {OcservGroupsApiOcservGroupsUidPatchRequest} requestParameters Request parameters.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof OcservGroupsApi
-     */
-    public ocservGroupsUidPatch(requestParameters: OcservGroupsApiOcservGroupsUidPatchRequest, options?: RawAxiosRequestConfig) {
-        return OcservGroupsApiFp(this.configuration).ocservGroupsUidPatch(requestParameters.authorization, requestParameters.uid, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

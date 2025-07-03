@@ -185,6 +185,99 @@ const docTemplate = `{
                 }
             }
         },
+        "/ocserv/groups/defaults": {
+            "get": {
+                "description": "Ocserv Defaults Group config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Groups)"
+                ],
+                "summary": "Ocserv Defaults Group config",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update Ocserv Defaults Group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Groups)"
+                ],
+                "summary": "Update Ocserv Defaults Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "ocserv group default data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_group.UpdateOcservGroupData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/groups/lookup": {
             "get": {
                 "description": "List of Ocserv group names",
@@ -232,7 +325,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ocserv/groups/{uid}": {
+        "/ocserv/groups/{id}": {
             "delete": {
                 "description": "Ocserv Group delete",
                 "consumes": [
@@ -256,7 +349,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Ocserv Group ID",
-                        "name": "uid",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -302,7 +395,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Ocserv Group ID",
-                        "name": "uid",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },

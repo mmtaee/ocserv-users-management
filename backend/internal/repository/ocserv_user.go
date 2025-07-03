@@ -25,6 +25,7 @@ type OcservUserRepositoryInterface interface {
 	UnLock(ctx context.Context, uid string) error
 	Delete(ctx context.Context, uid string) error
 	TenDaysStats(ctx context.Context) (*[]models.DailyTraffic, error)
+	UpdateUsersByDeleteGroup(ctx context.Context, groupName string) (*[]models.OcservUser, error)
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
@@ -159,9 +160,29 @@ func (o *OcservUserRepository) TenDaysStats(ctx context.Context) (*[]models.Dail
 		Group("DATE(created_at)").
 		Order("DATE(created_at)").
 		Scan(&results).Error
-	
+
 	if err != nil {
 		return nil, err
 	}
 	return &results, nil
+}
+
+func (o *OcservUserRepository) UpdateUsersByDeleteGroup(ctx context.Context, groupName string) (*[]models.OcservUser, error) {
+	var users []models.OcservUser
+
+	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("`group` = ?", groupName).Select("id", "group", "username").Find(&users).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Model(&models.OcservUser{}).
+			Where("`group` = ?", groupName).
+			Update("group", "defaults").Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return &users, err
 }

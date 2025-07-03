@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"gorm.io/gorm"
+	"log"
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/pkg/config"
 	"ocserv-bakend/pkg/database"
@@ -18,10 +19,10 @@ type OcservGroupRepository struct {
 type OcservGroupRepositoryInterface interface {
 	Groups(ctx context.Context, pagination *request.Pagination) (*[]models.OcservGroup, int64, error)
 	GroupsLookup(ctx context.Context) ([]string, error)
-	GetByUID(ctx context.Context, uid string) (*models.OcservGroup, error)
+	GetByID(ctx context.Context, id string) (*models.OcservGroup, error)
 	Create(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
 	Update(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
-	Delete(ctx context.Context, uid string) error
+	Delete(ctx context.Context, id string) (*models.OcservGroup, error)
 }
 
 func NewOcservGroupRepository() *OcservGroupRepository {
@@ -64,9 +65,9 @@ func (o *OcservGroupRepository) GroupsLookup(ctx context.Context) ([]string, err
 	return groups, nil
 }
 
-func (o *OcservGroupRepository) GetByUID(ctx context.Context, uid string) (*models.OcservGroup, error) {
+func (o *OcservGroupRepository) GetByID(ctx context.Context, id string) (*models.OcservGroup, error) {
 	var ocservGroup models.OcservGroup
-	err := o.db.WithContext(ctx).Where("uid = ?", uid).Find(&ocservGroup).Error
+	err := o.db.WithContext(ctx).Where("id = ?", id).Find(&ocservGroup).Error
 	if err != nil {
 		return nil, err
 	}
@@ -106,16 +107,22 @@ func (o *OcservGroupRepository) Update(ctx context.Context, ocservGroup *models.
 	return ocservGroup, nil
 }
 
-func (o *OcservGroupRepository) Delete(ctx context.Context, uid string) error {
+func (o *OcservGroupRepository) Delete(ctx context.Context, id string) (*models.OcservGroup, error) {
+	var group models.OcservGroup
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Unscoped().Where("uid = ?", uid).Delete(&models.OcservGroup{}).Error; err != nil {
+		if err := tx.Where("id = ?", id).First(&group).Error; err != nil {
 			return err
 		}
 
-		if err := o.ocApi.DeleteGroupApi(ctx, uid); err != nil {
+		if err := tx.Delete(&group).Error; err != nil {
+			log.Println("err: ", err)
+			return err
+		}
+
+		if err := o.ocApi.DeleteGroupApi(ctx, group.Name); err != nil {
 			return err
 		}
 		return nil
 	})
-	return err
+	return &group, err
 }

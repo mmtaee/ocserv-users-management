@@ -1,23 +1,34 @@
 <script lang="ts" setup>
 import {useLocale} from "vuetify/framework";
 import {defineAsyncComponent, onMounted, reactive} from "vue";
-import type {ModelsOcservGroupConfig} from "@/api";
-import {dummyGroupConfig} from "@/utils/dummy.ts";
+import {type ModelsOcservGroupConfig, OcservGroupsApi} from "@/api";
+import {getAuthorization} from "@/utils/request.ts";
 
-const GroupForm = defineAsyncComponent(() => import('@/components/ocserv_group/Form.vue'));
+const GroupForm = defineAsyncComponent(() => import('@/components/ocserv_group/ConfigForm.vue'));
 
 const {t} = useLocale()
 const data = reactive<ModelsOcservGroupConfig>({} as ModelsOcservGroupConfig)
 
+const api = new OcservGroupsApi()
+
 const updateDefaultGroup = () => {
-  // TODO: call update api
-  console.log("form update: ", data)
+  api.ocservGroupsDefaultsPatch({
+    ...getAuthorization(),
+    request: {
+      config: data
+    }
+  }).then((res) => {
+    console.log(res.data)
+  })
 }
 
 onMounted(
     () => {
-      //   TODO: call get default api
-      Object.assign(data, dummyGroupConfig)
+      api.ocservGroupsDefaultsGet({
+        ...getAuthorization()
+      }).then((res) => {
+        Object.assign(data, res.data)
+      })
     }
 )
 
@@ -28,7 +39,7 @@ onMounted(
     <v-card-text>
       <GroupForm
           v-model="data"
-          :btnText="t('SAVE')"
+          :btnText="t('UPDATE')"
           @save="updateDefaultGroup"
       />
     </v-card-text>

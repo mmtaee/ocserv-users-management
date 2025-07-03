@@ -34,7 +34,7 @@ app.use(createPinia())
     const preloader = document.getElementById('preloader')
     if (preloader) {
         preloader.style.opacity = '0'
-        setTimeout(() => preloader.remove(), 2000)
+        setTimeout(() => preloader.remove(), 500)
     }
 })()
 

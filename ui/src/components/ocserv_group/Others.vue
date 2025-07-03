@@ -1,66 +1,91 @@
 <script lang="ts" setup>
-import {dummyGroupList} from "@/utils/dummy.ts";
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
-import type {ModelsOcservGroup, ModelsOcservGroupConfig} from "@/api";
+import {
+  type ModelsOcservGroup,
+  type ModelsOcservGroupConfig,
+  type OcservGroupCreateOcservGroupData,
+  OcservGroupsApi, type OcservGroupUpdateOcservGroupData
+} from "@/api";
 import {useLocale} from "vuetify/framework";
+import {getAuthorization} from "@/utils/request.ts";
 
 const CreateOrEdit = defineAsyncComponent(() => import('@/components/ocserv_group/CreateOrUpdate.vue'));
-
+const ReusableDialog = defineAsyncComponent(() => import('@/components/reusable/ReusableDialog.vue'));
 
 const {t} = useLocale()
 
+const api = new OcservGroupsApi()
 
 const otherGroups = reactive<ModelsOcservGroup[]>([])
 const createDialog = ref(false)
 const editDialog = ref(false)
 const deleteDialog = ref(false)
 
-const createData = reactive({})
+const createData = reactive<OcservGroupCreateOcservGroupData>({config: {}, name: ""})
+const editData = reactive<OcservGroupUpdateOcservGroupData>({config: {}})
+const selectedObj = ref<ModelsOcservGroup>({config: undefined, id: 0, name: ""})
 
-const defaultGroup: ModelsOcservGroup = {name: "", id: 0}
-const editObject = ref<ModelsOcservGroup>({config: undefined, id: 0, name: ""})
-const editData = reactive({})
+const completeCreate = (data: ModelsOcservGroupConfig, groupName: string) => {
+  createData.name = groupName
+  createData.config = data
 
-
-const getGroups = async () => {
-  console.log("getGroups")
-}
-
-const complete = (data: ModelsOcservGroupConfig, groupName: string) => {
-  createDialog.value = false
-  console.log("groupName: ", groupName)
-  console.log("complete: ", data)
-  otherGroups.push({
-    id: 99,
-    name: groupName,
-    config: data
+  api.ocservGroupsPost({
+    ...getAuthorization(),
+    request: createData
+  }).then((res) => {
+    console.log("resp: ", res.data)
+    otherGroups.unshift(res.data)
+  }).finally(() => {
+    createDialog.value = false
   })
 }
 
-const completeEdit = (data: ModelsOcservGroupConfig) => {
-  const index = otherGroups.findIndex(group => group.id === editObject.value.id)
-  if (index !== -1) {
-    otherGroups.splice(index, 1, editObject.value)
+const deleteGroup = () => {
+  if (selectedObj.value.id !== undefined) {
+    api.ocservGroupsIdDelete({
+      ...getAuthorization(),
+      id: selectedObj.value.id,
+    }).then(res => {
+      console.log("resp: ", res.data)
+      let index = otherGroups.findIndex(i => i.id === selectedObj.value.id)
+      if (index > -1) {
+        otherGroups.splice(index, 1)
+      }
+    }).finally(() => {
+      deleteDialog.value = false
+    })
   }
-  editDialog.value = false
 }
 
-const editHandler = (obj: ModelsOcservGroup) => {
-  editObject.value = JSON.parse(JSON.stringify(obj))
-  editDialog.value = true
+const completeEdit = (data: ModelsOcservGroupConfig) => {
+  Object.assign(editData.config, data)
+  if (selectedObj.value.id !== undefined) {
+    api.ocservGroupsIdPatch({
+      ...getAuthorization(),
+      id: selectedObj.value.id,
+      request: {
+        config: editData.config
+      },
+    }).then((res) => {
+      const index = otherGroups.findIndex(group => group.id === selectedObj.value.id)
+      otherGroups.splice(index, 1, res.data)
+    }).finally(() => {
+      editDialog.value = false
+    })
+  }
 }
 
-const deleteGroup = (id: number) => {
-
+const objHandler = (obj: ModelsOcservGroup) => {
+  selectedObj.value = JSON.parse(JSON.stringify(obj))
 }
 
 onMounted(() => {
-  // Fetch and assign group list
-  // TODO: call group api list
-  getGroups()
-  Object.assign(otherGroups, dummyGroupList)
+  api.ocservGroupsGet({
+    ...getAuthorization(),
+  }).then((res) => {
+    Object.assign(otherGroups, res.data.result)
+  })
 })
-
 
 </script>
 
@@ -98,11 +123,11 @@ onMounted(() => {
                     <v-col cols="12" md="9" sm="8">{{ item.name }}</v-col>
 
                     <v-col cols="12" md="1" sm="1">
-                      <v-icon color="info" @click="editHandler(item)">mdi-pencil</v-icon>
+                      <v-icon color="info" @click="objHandler(item);editDialog=true">mdi-pencil</v-icon>
                     </v-col>
 
                     <v-col cols="12" md="1" sm="1">
-                      <v-icon color="error">mdi-delete</v-icon>
+                      <v-icon color="error" @click="objHandler(item);deleteDialog = true">mdi-delete</v-icon>
                     </v-col>
                   </v-row>
                 </v-card-title>
@@ -114,16 +139,56 @@ onMounted(() => {
     </v-card-text>
   </v-card>
 
+  <!-- Create Dialog -->
   <CreateOrEdit
       v-model="createDialog"
-      @complete="complete"
+      @complete="completeCreate"
   />
 
+  <!-- Edit Dialog -->
   <CreateOrEdit
       v-model="editDialog"
-      :initValue="editObject"
+      :initValue="selectedObj"
       @complete="completeEdit"
   />
 
+  <!-- Delete dialog -->
+  <ReusableDialog
+      v-model="deleteDialog"
+      color="error"
+      transition="dialog-top-transition"
+      width="500"
+  >
+    <template #dialogTitle>
+      <v-icon class="mb-1">mdi-delete</v-icon>
+      <span class="text-capitalize">{{ t("DELETE_GROUP_TITLE") }} ({{ selectedObj.name }})</span>
+    </template>
+
+    <template #dialogText>
+      {{ t("DELETE_MESSAGE") }} <br/><br/>
+      <v-icon class="mb-1 ma-0" color="error">
+        mdi-bullhorn
+      </v-icon>
+      <span class="text-subtitle-2">{{ t("DELETE_GROUP_MESSAGE_SUB") }}</span>
+    </template>
+
+    <template #dialogAction>
+      <v-btn
+          color="black"
+          variant="outlined"
+          @click="deleteDialog = false"
+      >
+        {{ t("CANCEL") }}
+      </v-btn>
+
+      <v-btn
+          color="error"
+          variant="outlined"
+          @click="deleteGroup"
+      >
+        {{ t("DELETE") }}
+      </v-btn>
+    </template>
+  </ReusableDialog>
 
 </template>

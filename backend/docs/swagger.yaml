@@ -709,7 +709,7 @@ paths:
       summary: Ocserv Group creation
       tags:
       - Ocserv(Groups)
-  /ocserv/groups/{uid}:
+  /ocserv/groups/{id}:
     delete:
       consumes:
       - application/json
@@ -722,7 +722,7 @@ paths:
         type: string
       - description: Ocserv Group ID
         in: path
-        name: uid
+        name: id
         required: true
         type: integer
       produces:
@@ -753,7 +753,7 @@ paths:
         type: string
       - description: Ocserv Group ID
         in: path
-        name: uid
+        name: id
         required: true
         type: integer
       - description: ocserv group create data
@@ -778,6 +778,68 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Ocserv Group update
+      tags:
+      - Ocserv(Groups)
+  /ocserv/groups/defaults:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv Defaults Group config
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Defaults Group config
+      tags:
+      - Ocserv(Groups)
+    patch:
+      consumes:
+      - application/json
+      description: Update Ocserv Defaults Group
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ocserv group default data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_group.UpdateOcservGroupData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Update Ocserv Defaults Group
       tags:
       - Ocserv(Groups)
   /ocserv/groups/lookup:
