@@ -10,7 +10,7 @@ const {t} = useLocale()
 const route = useRoute()
 const router = useRouter()
 
-const tab = ref('defaults')
+const tab = ref('others')
 
 onMounted(() => {
   tab.value = route.query.tab?.toString() || 'defaults'
@@ -38,8 +38,8 @@ watch(tab, (newVal) => {
             color="primary"
             direction="horizontal"
         >
-          <v-tab :text="t('DEFAULTS')" value="defaults"></v-tab>
           <v-tab :text="t('OTHERS')" value="others"></v-tab>
+          <v-tab :text="t('DEFAULTS')" value="defaults"></v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="tab">

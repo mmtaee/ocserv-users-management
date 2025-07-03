@@ -53,7 +53,7 @@ func (o *OcservGroupRepository) Groups(ctx context.Context, pagination *request.
 func (o *OcservGroupRepository) GroupsLookup(ctx context.Context) ([]string, error) {
 	var ocservGroups []models.OcservGroup
 
-	err := o.db.WithContext(ctx).Model(&models.OcservGroup{}).Select("username").Find(&ocservGroups).Error
+	err := o.db.WithContext(ctx).Model(&models.OcservGroup{}).Select("name").Find(&ocservGroups).Error
 	if err != nil {
 		return nil, err
 	}

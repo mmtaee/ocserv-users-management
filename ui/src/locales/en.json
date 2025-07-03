@@ -60,5 +60,16 @@
   "UPDATE_OCSERV_GROUP": "Update Ocserv Group",
   "DELETE_GROUP_TITLE": "delete Ocserv group",
   "DELETE_MESSAGE": "Are you sure you want to delete this group?",
-  "DELETE_GROUP_MESSAGE_SUB": "After deleting the group, its configuration file will be removed from the server, and users will fall back to the default group settings."
+  "DELETE_GROUP_MESSAGE_SUB": "After deleting the group, its configuration file will be removed from the server, and users will fall back to the default group settings.",
+  "CREATE_OCSERV_USER": "create Ocserv user",
+  "UPDATE_OCSERV_USER": "update Ocserv user",
+  "USERNAME": "username",
+  "PASSWORD": "password",
+  "TRAFFIC_TYPE": "traffic type",
+  "FREE": "free",
+  "MONTHLY_TRANSMIT": "monthly transmit",
+  "MONTHLY_RECEIVE": "monthly receive",
+  "TOTALLY_RECEIVE": "totally receive",
+  "TOTALLY_TRANSMIT": "totally transmit",
+  "TRAFFIC_SIZE": "traffic size"
 }

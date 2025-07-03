@@ -46,8 +46,14 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/ocserv-groups',
         name: 'OcservGroupsPage',
-        component: () => import('../views/OcservGroupsViews.vue'),
+        component: () => import('../views/OcservGroupsView.vue'),
         meta: {title: "Ocserv Groups"}
+    },
+    {
+        path: '/ocserv-users',
+        name: 'OcservUsersPage',
+        component: () => import('../views/OcservUsersView.vue'),
+        meta: {title: "Ocserv Users"}
     },
 ]
 
