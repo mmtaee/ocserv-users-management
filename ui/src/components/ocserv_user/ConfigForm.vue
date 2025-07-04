@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from "vue";
-import type {ModelsOcservGroupConfig} from "@/api";
+import type {ModelsOcservUserConfig} from "@/api";
 import {useLocale} from "vuetify/framework";
 import {domainRule, ipOrRangeRule, ipRule, ipWithRangeRule} from "@/utils/rules.ts";
 
 
 const props = withDefaults(defineProps<{
-  modelValue: ModelsOcservGroupConfig
+  modelValue: ModelsOcservUserConfig
   btnText?: string
   btnColor?: string
   hideBtn?: boolean
@@ -20,7 +20,7 @@ const emit = defineEmits(["update:modelValue", "save", "valid"])
 
 const {t} = useLocale()
 const valid = ref(true)
-const cloneFormData = ref<ModelsOcservGroupConfig>()
+const cloneFormData = ref<ModelsOcservUserConfig>()
 
 const rules = {
   ip: (v: string) => ipRule(v, t),
@@ -46,7 +46,6 @@ const fields = [
     hint: 'Specific IP address (e.g., 192.168.1.5)',
     rules: [rules.ip]
   },
-  {key: 'cgroup', label: 'CGroup', type: 'text', hint: 'Linux control group name (e.g., net_cls)'},
   {
     key: 'iroute',
     label: 'Internal Route',
@@ -54,42 +53,26 @@ const fields = [
     hint: 'Custom internal route (e.g., 10.0.0.0/8)',
     rules: [rules.ipOrRange]
   },
-  {key: 'restrict-user-to-ports', label: 'Restrict User To Ports', type: 'text', hint: 'Allowed ports (e.g., 80,443)'},
+  {key: 'restrict-to-ports', label: 'Restrict User To Ports', type: 'text', hint: 'Allowed ports (e.g., 80,443)'},
 
   // Performance and Session Settings
-  {key: 'rx-data-per-sec', label: 'RX Data Per Sec', type: 'number', hint: 'Max receive bytes/sec'},
-  {key: 'tx-data-per-sec', label: 'TX Data Per Sec', type: 'number', hint: 'Max transmit bytes/sec'},
-  {key: 'net-priority', label: 'Net Priority', type: 'number', hint: 'Traffic class priority'},
-  {key: 'keepalive', label: 'KeepAlive', type: 'number', hint: 'Keepalive interval (s)'},
-  {key: 'dpd', label: 'DPD Timeout', type: 'number', hint: 'Dead Peer Detection timeout'},
-  {key: 'mobile-dpd', label: 'Mobile DPD Timeout', type: 'number', hint: 'Mobile DPD timeout (s)'},
-  {key: 'max-same-clients', label: 'Max Same Clients', type: 'number', hint: 'Max logins with same username'},
-  {key: 'stats-report-time', label: 'Stats Report Time', type: 'number', hint: 'Stats interval (s)'},
-  {key: 'mtu', label: 'MTU', type: 'number', hint: 'Maximum Transmission Unit'},
   {key: 'idle-timeout', label: 'Idle Timeout', type: 'number', hint: 'Inactivity timeout (s)'},
   {key: 'mobile-idle-timeout', label: 'Mobile Idle Timeout', type: 'number', hint: 'Mobile inactivity timeout (s)'},
   {key: 'session-timeout', label: 'Session Timeout', type: 'number', hint: 'Max session duration (s)'},
+  {
+    key: 'rekey-time',
+    label: 'Rekey Time', type: 'number',
+    hint: "Rekey time in seconds; triggers key renegotiation (e.g.,86400 for 24 hours)."
+  },
 
   // Access and Feature Controls
   {
-    key: 'deny-roaming',
-    label: 'Deny Roaming',
-    type: 'switch',
-    hint: 'Disconnect client if its IP changes (e.g., due to network switch)'
-  },
-  {key: 'no-udp', label: 'Disable UDP', type: 'switch', hint: 'Disables UDP, enforcing TCP-only VPN connection'},
-  {
-    key: 'tunnel-all-dns',
-    label: 'Tunnel All DNS',
-    type: 'switch',
-    hint: 'Force all DNS traffic through the VPN tunnel'
-  },
-  {
-    key: 'restrict-user-to-routes',
+    key: 'restrict-to-routes',
     label: 'Restrict User To Routes',
     type: 'switch',
     hint: 'Allow client access only to defined routes'
-  }
+  },
+  {key: 'banner', label: 'Banner', type: 'text', hint: "Text message shown to users when they connect to the VPN"},
 ]
 
 const textFields = [
@@ -137,7 +120,7 @@ const chipInputs = reactive<Record<string, string>>({
 })
 
 const addRoutes = (key: string) => {
-  const typedKey = key as keyof ModelsOcservGroupConfig;
+  const typedKey = key as keyof ModelsOcservUserConfig;
   const input = chipInputs[typedKey];
 
   if (input) {
@@ -156,7 +139,7 @@ const addRoutes = (key: string) => {
 }
 
 const removeRoute = (key: string, value: string) => {
-  const typedKey = key as keyof ModelsOcservGroupConfig
+  const typedKey = key as keyof ModelsOcservUserConfig
   const arr = props.modelValue[typedKey] as string[]
 
   let index = arr.findIndex(i => i == value)
@@ -196,19 +179,6 @@ watch(
           <v-col cols="12" md="11">
             <h3 class="text-capitalize">{{ t("NETWORK_CONFIGURATION") }}</h3>
           </v-col>
-
-          <v-col v-if="!hideBtn" class="ma-0 pa-0" cols="12" md="1">
-            <v-btn
-                :color="btnColor"
-                :disabled="!checkValid"
-                class="mb-4"
-                variant="outlined"
-                @click="emit('update:modelValue');emit('save')"
-            >
-              {{ btnText }}
-            </v-btn>
-          </v-col>
-
         </v-row>
 
         <v-divider/>
@@ -220,7 +190,7 @@ watch(
             lg="2" md="4"
         >
           <v-text-field
-              v-model="props.modelValue[field.key as keyof ModelsOcservGroupConfig]"
+              v-model="props.modelValue[field.key as keyof ModelsOcservUserConfig]"
               :hint="field.hint"
               :label="field.label"
               :rules="field.rules"
@@ -246,7 +216,7 @@ watch(
             xl="2"
         >
           <v-number-input
-              v-model="props.modelValue[field.key as keyof ModelsOcservGroupConfig] as number"
+              v-model="props.modelValue[field.key as keyof ModelsOcservUserConfig] as number"
               :hint="field.hint"
               :label="field.label"
               control-variant="hidden"
@@ -271,7 +241,7 @@ watch(
           <v-row align="center" justify="center">
             <v-col cols="6" md="12">
               <v-switch
-                  v-model="props.modelValue[field.key as keyof ModelsOcservGroupConfig]"
+                  v-model="props.modelValue[field.key as keyof ModelsOcservUserConfig]"
                   :hint="field.hint"
                   :label="field.label"
                   class="ms-1"
@@ -333,7 +303,7 @@ watch(
 
           <v-card-text>
             <v-chip
-                v-for="chip in props.modelValue[field.key as keyof ModelsOcservGroupConfig]"
+                v-for="chip in props.modelValue[field.key as keyof ModelsOcservUserConfig]"
                 :key="`${field.key}-${chip}`"
                 class="me-2"
                 color="primary"

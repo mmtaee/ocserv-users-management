@@ -12,12 +12,20 @@ import {getAuthorization} from "@/utils/request.ts";
 const CreateOrEdit = defineAsyncComponent(() => import('@/components/ocserv_group/CreateOrUpdate.vue'));
 const ReusableDialog = defineAsyncComponent(() => import('@/components/reusable/ReusableDialog.vue'));
 
+
+const props = defineProps<{
+  modelValue: boolean
+}>()
+
+const emit = defineEmits(["update:modelValue"]);
+
+
 const {t} = useLocale()
 
 const api = new OcservGroupsApi()
 
 const otherGroups = reactive<ModelsOcservGroup[]>([])
-const createDialog = ref(false)
+
 const editDialog = ref(false)
 const deleteDialog = ref(false)
 
@@ -35,8 +43,7 @@ const completeCreate = (data: ModelsOcservGroupConfig, groupName: string) => {
   }).then((res) => {
     console.log("resp: ", res.data)
     otherGroups.unshift(res.data)
-  }).finally(() => {
-    createDialog.value = false
+    emit("update:modelValue", false)
   })
 }
 
@@ -69,7 +76,6 @@ const completeEdit = (data: ModelsOcservGroupConfig) => {
     }).then((res) => {
       const index = otherGroups.findIndex(group => group.id === selectedObj.value.id)
       otherGroups.splice(index, 1, res.data)
-    }).finally(() => {
       editDialog.value = false
     })
   }
@@ -93,21 +99,6 @@ onMounted(() => {
   <v-card flat>
     <v-card-text>
       <v-row align="center" justify="center">
-        <v-col cols="12" lg="10" md="10" sm="10">
-          <span class="text-capitalize text-subtitle-1">{{ t("OTHER") }} {{ t("GROUPS") }}</span>
-        </v-col>
-        <v-col cols="12" lg="auto" md="2" sm="2">
-          <v-btn
-              color="primary"
-              variant="outlined"
-              @click="createDialog = true"
-          >
-            {{ t("CREATE") }}
-          </v-btn>
-        </v-col>
-
-        <v-divider/>
-
         <v-col class="mt-3" cols="12" md="12">
           <v-row>
             <v-col
@@ -142,8 +133,9 @@ onMounted(() => {
 
   <!-- Create Dialog -->
   <CreateOrEdit
-      v-model="createDialog"
+      v-model="props.modelValue"
       @complete="completeCreate"
+      @update:modelValue="val => $emit('update:modelValue', val)"
   />
 
   <!-- Edit Dialog -->
@@ -166,7 +158,7 @@ onMounted(() => {
     </template>
 
     <template #dialogText>
-      {{ t("DELETE_MESSAGE") }} <br/><br/>
+      {{ t("DELETE_OCSERV_GROUP_MESSAGE") }} <br/><br/>
       <v-icon class="mb-1 ma-0" color="error">
         mdi-bullhorn
       </v-icon>

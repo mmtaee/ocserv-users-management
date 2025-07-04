@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
+	"ocserv-service/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -53,7 +54,7 @@ func (ctrl *Controller) Create(c echo.Context) error {
 	}
 	defer file.Close()
 
-	err = groupWriter(file, req.Config)
+	err = utils.ConfigWriter(file, req.Config)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -84,7 +85,7 @@ func (ctrl *Controller) Delete(c echo.Context) error {
 	}
 
 	// Find all users currently assigned to the group
-	users, err := getUsersByGroup(group)
+	users, err := utils.GetUsersByGroup(group)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get users by group: "+err.Error())
 	}
@@ -114,7 +115,7 @@ func (ctrl *Controller) ListUsers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "group name is required")
 	}
 
-	users, err := getUsersByGroup(group)
+	users, err := utils.GetUsersByGroup(group)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -129,7 +130,7 @@ func (ctrl *Controller) ListUsers(c echo.Context) error {
 //
 // Returns HTTP 200 with defaults group config.
 func (ctrl *Controller) GetDefaultsGroup(c echo.Context) error {
-	config, err := parseOcservConfigFile(defaultGroupFile)
+	config, err := utils.ParseOcservConfigFile(defaultGroupFile)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -151,7 +152,7 @@ func (ctrl *Controller) UpdateDefaultsGroup(c echo.Context) error {
 	}
 	defer file.Close()
 
-	err = groupWriter(file, req)
+	err = utils.ConfigWriter(file, req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

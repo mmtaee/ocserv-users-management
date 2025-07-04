@@ -11,10 +11,10 @@ import (
 
 type OcservUserConfig struct {
 	// Static IPv4 address to assign to the user. Example: '192.168.100.10'
-	ExplicitIPv4 *string `json:"explicit_ipv4"`
+	ExplicitIPv4 *string `json:"explicit-ipv4"`
 
 	// The pool of addresses from which to assign to the user. Example: '192.168.1.0/24'
-	IPv4Network *string `json:"ipv4_network"`
+	IPv4Network *string `json:"ipv4-network"`
 
 	// Comma-separated list of DNS servers to assign to the user. Example: '8.8.8.8,1.1.1.1'
 	DNS *CSVStringList `json:"dns" gorm:"type:text"`
@@ -26,34 +26,34 @@ type OcservUserConfig struct {
 	Route *CSVStringList `json:"route" gorm:"type:text"`
 
 	// List of networks to exclude from VPN routing. Example: ['192.168.0.0/16', '10.0.0.0/8']
-	NoRoute *CSVStringList `json:"no_route" gorm:"type:text"`
+	NoRoute *CSVStringList `json:"no-route" gorm:"type:text"`
 
 	// Internal route available only via VPN. Example: '10.0.0.0/8'
 	IRoute *string `json:"iroute"`
 
 	// List of domains over which the provided DNS servers should be used. Example: ['example.com', 'internal.company.com']
-	SplitDNS *CSVStringList `json:"split_dns" gorm:"type:text"`
+	SplitDNS *CSVStringList `json:"split-dns" gorm:"type:text"`
 
 	// Maximum session time in seconds before forced disconnect. Example: 3600
-	SessionTimeout *int `json:"session_timeout"`
+	SessionTimeout *int `json:"session-timeout"`
 
 	// Time in seconds before disconnecting idle users. Example: 600
-	IdleTimeout *int `json:"idle_timeout"`
+	IdleTimeout *int `json:"idle-timeout"`
 
 	// Idle timeout in seconds for mobile users. Example: 900
-	MobileIdleTimeout *int `json:"mobile_idle_timeout"`
+	MobileIdleTimeout *int `json:"mobile-idle-timeout"`
 
 	// Rekey time in seconds; triggers key renegotiation. Example: 86400 for 24 hours
-	RekeyTime *int `json:"rekey_time"`
+	RekeyTime *int `json:"rekey-time"`
 
 	// Text message shown to users when they connect to the VPN. Example: 'Welcome to the company VPN!'
 	Banner *string `json:"banner"`
 
 	// Allow user access only to defined routes. Example: true
-	RestrictToRoutes *bool `json:"restrict_to_routes"`
+	RestrictToRoutes *bool `json:"restrict-to-routes"`
 
 	// Comma-separated list of allowed or blocked ports/protocols. Supports 'tcp(port)', 'udp(port)', 'icmp()', 'icmpv6()', and negation with '!()'. Example: 'tcp(443), udp(53)' or '!(tcp(22), udp(1194))'
-	RestrictToPorts *string `json:"restrict_to_ports"`
+	RestrictToPorts *string `json:"restrict-to-ports"`
 }
 
 type OcservUser struct {
@@ -102,9 +102,11 @@ func (c *OcservUserConfig) Scan(value interface{}) error {
 	return json.Unmarshal(bytes, c)
 }
 
-func (o *OcservUser) BeforeSave(tx *gorm.DB) (err error) {
-	if !validateTrafficType(o.TrafficType) {
-		return fmt.Errorf("invalid TrafficType: %s", o.TrafficType)
+func (o *OcservUser) BeforeUpdate(tx *gorm.DB) (err error) {
+	if o.TrafficType != "" {
+		if !validateTrafficType(o.TrafficType) {
+			return fmt.Errorf("invalid TrafficType: %s", o.TrafficType)
+		}
 	}
 	if o.TrafficType == Free {
 		o.TrafficSize = 0

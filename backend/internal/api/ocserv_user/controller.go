@@ -3,9 +3,12 @@ package ocserv_user
 import (
 	"errors"
 	"github.com/labstack/echo/v4"
+	"log"
 	"net/http"
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/internal/repository"
+	"ocserv-bakend/pkg/config"
+	ocApi "ocserv-bakend/pkg/oc_api"
 	"ocserv-bakend/pkg/request"
 	"slices"
 	"time"
@@ -14,12 +17,15 @@ import (
 type Controller struct {
 	request        request.CustomRequestInterface
 	ocservUserRepo repository.OcservUserRepositoryInterface
+	ocRepo         ocApi.OcOcctlApiRepositoryInterface
 }
 
 func New() *Controller {
+	apiURLService := config.Get().APIURLService
 	return &Controller{
 		request:        request.NewCustomRequest(),
 		ocservUserRepo: repository.NewtOcservUserRepository(),
+		ocRepo:         ocApi.NewOcctlApiRepository(apiURLService),
 	}
 }
 
@@ -46,6 +52,19 @@ func (ctrl *Controller) OcservUsers(c echo.Context) error {
 	if err != nil {
 		return ctrl.request.BadRequest(c, err)
 	}
+
+	onlineUser, err := ctrl.ocRepo.OnlineUsers(c.Request().Context())
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+
+	for i := range *ocservUser {
+		user := &(*ocservUser)[i]
+		if slices.Contains(*onlineUser, user.Username) {
+			user.IsOnline = true
+		}
+	}
+
 	return c.JSON(http.StatusOK, OcservUsersResponse{
 		Meta: request.Meta{
 			Page:         pagination.Page,
@@ -90,6 +109,7 @@ func (ctrl *Controller) CreateOcservUser(c echo.Context) error {
 		ExpireAt:    expireAt,
 		TrafficSize: data.TrafficSize,
 		TrafficType: data.TrafficType,
+		Config:      data.Config,
 	}
 
 	user, err := ctrl.ocservUserRepo.Create(c.Request().Context(), ocUser)
@@ -144,6 +164,11 @@ func (ctrl *Controller) UpdateOcservUser(c echo.Context) error {
 	}
 	if data.TrafficType != nil && slices.Contains([]string{"Free", "MonthlyTransmit", "MonthlyReceive", "TotallyTransmit", "TotallyReceive"}, *data.TrafficType) {
 		ocservUser.TrafficType = *data.TrafficType
+	}
+	if data.Config != nil {
+		log.Println("\n\n")
+		log.Println(data.Config)
+		ocservUser.Config = data.Config
 	}
 
 	if data.ExpireAt != nil {
@@ -236,6 +261,31 @@ func (ctrl *Controller) UnLockOcservUser(c echo.Context) error {
 	}
 
 	err := ctrl.ocservUserRepo.UnLock(c.Request().Context(), userID)
+	if err != nil {
+		return ctrl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+// DisconnectOcservUser 	     Ocserv User disconnecting
+//
+// @Summary      Disconnect Ocserv User
+// @Description  Disconnect Ocserv User
+// @Tags         Ocserv(Users)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param 		 username path string true "Ocserv User username"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200  {object} nil
+// @Router       /ocserv/users/{username}/disconnect [post]
+func (ctrl *Controller) DisconnectOcservUser(c echo.Context) error {
+	username := c.Param("username")
+	if username == "" {
+		return ctrl.request.BadRequest(c, errors.New("user id is required"))
+	}
+	err := ctrl.ocRepo.Disconnect(c.Request().Context(), username)
 	if err != nil {
 		return ctrl.request.BadRequest(c, err)
 	}

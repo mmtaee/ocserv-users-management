@@ -759,6 +759,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/ocserv/users/{username}/disconnect": {
+            "post": {
+                "description": "Disconnect Ocserv User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Disconnect Ocserv User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ocserv User username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/system": {
             "get": {
                 "description": "Get panel System Config",
@@ -1641,15 +1689,15 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "explicit_ipv4": {
+                "explicit-ipv4": {
                     "description": "Static IPv4 address to assign to the user. Example: '192.168.100.10'",
                     "type": "string"
                 },
-                "idle_timeout": {
+                "idle-timeout": {
                     "description": "Time in seconds before disconnecting idle users. Example: 600",
                     "type": "integer"
                 },
-                "ipv4_network": {
+                "ipv4-network": {
                     "description": "The pool of addresses from which to assign to the user. Example: '192.168.1.0/24'",
                     "type": "string"
                 },
@@ -1657,7 +1705,7 @@ const docTemplate = `{
                     "description": "Internal route available only via VPN. Example: '10.0.0.0/8'",
                     "type": "string"
                 },
-                "mobile_idle_timeout": {
+                "mobile-idle-timeout": {
                     "description": "Idle timeout in seconds for mobile users. Example: 900",
                     "type": "integer"
                 },
@@ -1665,22 +1713,22 @@ const docTemplate = `{
                     "description": "NetBIOS Name Servers (WINS) for Windows clients. Example: '192.168.1.1'",
                     "type": "string"
                 },
-                "no_route": {
+                "no-route": {
                     "description": "List of networks to exclude from VPN routing. Example: ['192.168.0.0/16', '10.0.0.0/8']",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "rekey_time": {
+                "rekey-time": {
                     "description": "Rekey time in seconds; triggers key renegotiation. Example: 86400 for 24 hours",
                     "type": "integer"
                 },
-                "restrict_to_ports": {
+                "restrict-to-ports": {
                     "description": "Comma-separated list of allowed or blocked ports/protocols. Supports 'tcp(port)', 'udp(port)', 'icmp()', 'icmpv6()', and negation with '!()'. Example: 'tcp(443), udp(53)' or '!(tcp(22), udp(1194))'",
                     "type": "string"
                 },
-                "restrict_to_routes": {
+                "restrict-to-routes": {
                     "description": "Allow user access only to defined routes. Example: true",
                     "type": "boolean"
                 },
@@ -1691,11 +1739,11 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "session_timeout": {
+                "session-timeout": {
                     "description": "Maximum session time in seconds before forced disconnect. Example: 3600",
                     "type": "integer"
                 },
-                "split_dns": {
+                "split-dns": {
                     "description": "List of domains over which the provided DNS servers should be used. Example: ['example.com', 'internal.company.com']",
                     "type": "array",
                     "items": {
@@ -1820,6 +1868,9 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
                 "description": {
                     "type": "string",
                     "maxLength": 1024,
@@ -1881,6 +1932,9 @@ const docTemplate = `{
         "ocserv_user.UpdateOcservUserData": {
             "type": "object",
             "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
                 "description": {
                     "type": "string",
                     "maxLength": 1024,
@@ -1896,7 +1950,8 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string",
-                    "minLength": 6,
+                    "maxLength": 32,
+                    "minLength": 2,
                     "example": "strongpassword123"
                 },
                 "traffic_size": {

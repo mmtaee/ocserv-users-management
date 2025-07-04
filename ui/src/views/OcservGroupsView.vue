@@ -12,8 +12,10 @@ const router = useRouter()
 
 const tab = ref('others')
 
+const createDialog = ref(false)
+
 onMounted(() => {
-  tab.value = route.query.tab?.toString() || 'defaults'
+  tab.value = route.query.tab?.toString() || 'others'
 })
 
 watch(tab, (newVal) => {
@@ -30,7 +32,23 @@ watch(tab, (newVal) => {
   <v-row>
     <v-col>
       <v-card min-height="850">
-        <v-toolbar :title="t('OCSERV_GROUPS')" color="primary"/>
+        <v-toolbar color="primary">
+          <v-toolbar-title>
+            {{ t('OCSERV_GROUPS') }}
+          </v-toolbar-title>
+
+          <template v-slot:append>
+            <v-btn
+                v-if="tab == 'others'"
+                class="ma-5"
+                color="white"
+                variant="outlined"
+                @click="createDialog = true"
+            >
+              {{ t("CREATE") }}
+            </v-btn>
+          </template>
+        </v-toolbar>
 
         <v-tabs
             v-model="tab"
@@ -49,7 +67,7 @@ watch(tab, (newVal) => {
           </v-tabs-window-item>
 
           <v-tabs-window-item value="others">
-            <Others/>
+            <Others v-model="createDialog"/>
           </v-tabs-window-item>
 
         </v-tabs-window>

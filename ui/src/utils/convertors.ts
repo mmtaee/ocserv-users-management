@@ -16,8 +16,8 @@ const formatDateTime = (dateString: string | undefined, message: string | undefi
     return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
-const formatDay = (dateString: string | undefined) => {
+const formatDate = (dateString: string | undefined) => {
     let dateTime = formatDateTime(dateString, "")
     return dateTime.split(" ")[0]
 }
-export {bytesToGB, formatDateTime, formatDay}
+export {bytesToGB, formatDateTime, formatDate}

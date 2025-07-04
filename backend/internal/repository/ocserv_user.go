@@ -8,6 +8,7 @@ import (
 	"ocserv-bakend/pkg/database"
 	ocApi "ocserv-bakend/pkg/oc_api"
 	"ocserv-bakend/pkg/request"
+	"ocserv-bakend/pkg/utils"
 	"time"
 )
 
@@ -53,12 +54,12 @@ func (o *OcservUserRepository) Users(ctx context.Context, pagination *request.Pa
 	return &ocservUser, totalRecords, nil
 }
 
-func (o *OcservUserRepository) Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error) {
+func (o *OcservUserRepository) Create(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error) {
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(user).Error; err != nil {
+		if err := tx.Create(ocservUser).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.CreateUserApi(ctx, user.Group, user.Username, user.Password); err != nil {
+		if err := o.ocApi.CreateUserApi(ctx, ocservUser.Group, ocservUser.Username, ocservUser.Password, utils.ToMap(ocservUser.Config)); err != nil {
 			return err
 		}
 		return nil
@@ -66,7 +67,7 @@ func (o *OcservUserRepository) Create(ctx context.Context, user *models.OcservUs
 	if err != nil {
 		return nil, err
 	}
-	return user, err
+	return ocservUser, err
 }
 
 func (o *OcservUserRepository) GetByUID(ctx context.Context, uid string) (*models.OcservUser, error) {
@@ -83,7 +84,7 @@ func (o *OcservUserRepository) Update(ctx context.Context, ocservUser *models.Oc
 		if err := tx.Save(&ocservUser).Error; err != nil {
 			return err
 		}
-		if err := o.ocApi.CreateUserApi(ctx, ocservUser.Group, ocservUser.Username, ocservUser.Password); err != nil {
+		if err := o.ocApi.CreateUserApi(ctx, ocservUser.Group, ocservUser.Username, ocservUser.Password, utils.ToMap(ocservUser.Config)); err != nil {
 			return err
 		}
 		return nil
@@ -100,7 +101,10 @@ func (o *OcservUserRepository) Lock(ctx context.Context, uid string) error {
 		if err := tx.Where("uid = ?", uid).First(&ocservUser).Error; err != nil {
 			return err
 		}
-		if err := tx.Updates(map[string]interface{}{"is_locked": true}).Error; err != nil {
+		if err := tx.
+			Model(&models.OcservUser{}).
+			Where("uid = ?", uid).
+			Updates(map[string]interface{}{"is_locked": true}).Error; err != nil {
 			return err
 		}
 
@@ -118,7 +122,10 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
 		if err := tx.Where("uid = ?", uid).First(&ocservUser).Error; err != nil {
 			return err
 		}
-		if err := tx.Updates(map[string]interface{}{"is_locked": false}).Error; err != nil {
+		if err := tx.
+			Model(&models.OcservUser{}).
+			Where("uid = ?", uid).
+			Updates(map[string]interface{}{"is_locked": false}).Error; err != nil {
 			return err
 		}
 

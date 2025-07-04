@@ -1,11 +1,22 @@
-package group
+package utils
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
+)
+
+const (
+	ocpasswdPath       = "/etc/ocserv/ocpasswd"
+	ocpasswdExec       = "/usr/bin/ocpasswd"
+	configGroupBaseDir = "/etc/ocserv/groups/"
+	defaultGroupFile   = "/etc/ocserv/defaults/group.conf"
 )
 
 var listKeys = map[string]bool{
@@ -15,8 +26,8 @@ var listKeys = map[string]bool{
 	"split-dns": true,
 }
 
-// Writer a method to write configs in group config file
-func groupWriter(file *os.File, config map[string]interface{}) error {
+// ConfigWriter a method to write configs in group config file
+func ConfigWriter(file *os.File, config map[string]interface{}) error {
 	for k, v := range config {
 		if b, ok := v.(bool); ok && !b {
 			continue
@@ -62,14 +73,14 @@ func groupWriter(file *os.File, config map[string]interface{}) error {
 	return nil
 }
 
-// getUsersByGroup parses the ocpasswd file and returns a slice of usernames
+// GetUsersByGroup parses the ocpasswd file and returns a slice of usernames
 // that belong to the specified group.
 //
 // It reads each line of the ocpasswd file, ignoring comments and malformed lines.
 // Assumes that the group is stored as the third colon-separated field.
 //
 // Returns an error if reading the file or scanning fails.
-func getUsersByGroup(groupName string) ([]string, error) {
+func GetUsersByGroup(groupName string) ([]string, error) {
 	file, err := os.Open(ocpasswdPath)
 	if err != nil {
 		return nil, err
@@ -105,7 +116,7 @@ func getUsersByGroup(groupName string) ([]string, error) {
 	return users, nil
 }
 
-func parseOcservConfigFile(filePath string) (map[string]interface{}, error) {
+func ParseOcservConfigFile(filePath string) (map[string]interface{}, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -138,7 +149,7 @@ func parseOcservConfigFile(filePath string) (map[string]interface{}, error) {
 			continue
 		}
 
-		parsedValue := parseTypedValue(rawValue)
+		parsedValue := ParseTypedValue(rawValue)
 
 		if existing, exists := config[key]; exists {
 			switch v := existing.(type) {
@@ -159,7 +170,7 @@ func parseOcservConfigFile(filePath string) (map[string]interface{}, error) {
 	return config, nil
 }
 
-func parseTypedValue(s string) interface{} {
+func ParseTypedValue(s string) interface{} {
 	s = strings.TrimSpace(s)
 
 	if s == "true" {
@@ -175,4 +186,33 @@ func parseTypedValue(s string) interface{} {
 		return f
 	}
 	return s
+}
+
+func GetOcservVersion() string {
+	cmd := exec.Command("ocserv", "--version")
+
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	if err != nil {
+		log.Println("Command error:", err)
+		return ""
+	}
+
+	// Combine stdout and stderr for pattern matching
+	fullOutput := out.String() + stderr.String()
+	log.Println("Raw output:\n" + fullOutput)
+
+	// Regex to find the version number
+	re := regexp.MustCompile(`OpenConnect VPN Server\s+([0-9]+\.[0-9]+\.[0-9]+)`)
+	match := re.FindStringSubmatch(fullOutput)
+	if len(match) >= 2 {
+		log.Println("Version:", match[1])
+		return match[1]
+	}
+	log.Println("Version not found")
+	return ""
 }

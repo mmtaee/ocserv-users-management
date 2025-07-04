@@ -12,4 +12,5 @@ func Routes(e *echo.Group) {
 	g.DELETE("/:uid", ctrl.DeleteOcservUser)
 	g.POST("/:uid/lock", ctrl.LockOcservUser)
 	g.POST("/:uid/unlock", ctrl.UnLockOcservUser)
+	g.POST("/:username/disconnect", ctrl.DisconnectOcservUser)
 }

@@ -303,6 +303,46 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Disconnect Ocserv User
+         * @summary Disconnect Ocserv User
+         * @param {string} authorization Bearer TOKEN
+         * @param {string} username Ocserv User username
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservUsersUsernameDisconnectPost: async (authorization: string, username: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('ocservUsersUsernameDisconnectPost', 'authorization', authorization)
+            // verify required parameter 'username' is not null or undefined
+            assertParamExists('ocservUsersUsernameDisconnectPost', 'username', username)
+            const localVarPath = `/ocserv/users/{username}/disconnect`
+                .replace(`{${"username"}}`, encodeURIComponent(String(username)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -401,6 +441,20 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['OcservUsersApi.ocservUsersUidUnlockPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * Disconnect Ocserv User
+         * @summary Disconnect Ocserv User
+         * @param {string} authorization Bearer TOKEN
+         * @param {string} username Ocserv User username
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ocservUsersUsernameDisconnectPost(authorization: string, username: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersUsernameDisconnectPost(authorization, username, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OcservUsersApi.ocservUsersUsernameDisconnectPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -470,6 +524,16 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
          */
         ocservUsersUidUnlockPost(requestParameters: OcservUsersApiOcservUsersUidUnlockPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.ocservUsersUidUnlockPost(requestParameters.authorization, requestParameters.uid, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Disconnect Ocserv User
+         * @summary Disconnect Ocserv User
+         * @param {OcservUsersApiOcservUsersUsernameDisconnectPostRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservUsersUsernameDisconnectPost(requestParameters: OcservUsersApiOcservUsersUsernameDisconnectPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.ocservUsersUsernameDisconnectPost(requestParameters.authorization, requestParameters.username, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -629,6 +693,27 @@ export interface OcservUsersApiOcservUsersUidUnlockPostRequest {
 }
 
 /**
+ * Request parameters for ocservUsersUsernameDisconnectPost operation in OcservUsersApi.
+ * @export
+ * @interface OcservUsersApiOcservUsersUsernameDisconnectPostRequest
+ */
+export interface OcservUsersApiOcservUsersUsernameDisconnectPostRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof OcservUsersApiOcservUsersUsernameDisconnectPost
+     */
+    readonly authorization: string
+
+    /**
+     * Ocserv User username
+     * @type {string}
+     * @memberof OcservUsersApiOcservUsersUsernameDisconnectPost
+     */
+    readonly username: string
+}
+
+/**
  * OcservUsersApi - object-oriented interface
  * @export
  * @class OcservUsersApi
@@ -705,6 +790,18 @@ export class OcservUsersApi extends BaseAPI {
      */
     public ocservUsersUidUnlockPost(requestParameters: OcservUsersApiOcservUsersUidUnlockPostRequest, options?: RawAxiosRequestConfig) {
         return OcservUsersApiFp(this.configuration).ocservUsersUidUnlockPost(requestParameters.authorization, requestParameters.uid, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Disconnect Ocserv User
+     * @summary Disconnect Ocserv User
+     * @param {OcservUsersApiOcservUsersUsernameDisconnectPostRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OcservUsersApi
+     */
+    public ocservUsersUsernameDisconnectPost(requestParameters: OcservUsersApiOcservUsersUsernameDisconnectPostRequest, options?: RawAxiosRequestConfig) {
+        return OcservUsersApiFp(this.configuration).ocservUsersUsernameDisconnectPost(requestParameters.authorization, requestParameters.username, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

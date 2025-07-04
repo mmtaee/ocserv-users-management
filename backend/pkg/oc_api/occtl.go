@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -18,6 +19,7 @@ type OcOcctlApiRepositoryInterface interface {
 	OnlineUsersInfo(ctx context.Context) (*[]byte, error)
 	IPBans(ctx context.Context) (*[]byte, error)
 	IRoutes(ctx context.Context) (*[]byte, error)
+	Disconnect(ctx context.Context, username string) error
 }
 
 func NewOcctlApiRepository(url string) *OcctlApiRepository {
@@ -118,4 +120,16 @@ func (o *OcctlApiRepository) IRoutes(ctx context.Context) (*[]byte, error) {
 		return nil, err
 	}
 	return &respBody, nil
+}
+
+func (o *OcctlApiRepository) Disconnect(ctx context.Context, username string) error {
+	url := fmt.Sprintf("%s/api/occtl/disconnect/%s", o.url, username)
+	resp, err := DoRequest(ctx, url, http.MethodPost, nil)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(resp.Status)
+	}
+	return nil
 }

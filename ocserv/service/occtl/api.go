@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net"
 	"net/http"
+	"ocserv-service/utils"
 	"os/exec"
 	"strings"
 )
@@ -189,7 +190,7 @@ func (ctrl *Controller) ShowStatus(c echo.Context) error {
 func (ctrl *Controller) ShowIRoutes(c echo.Context) error {
 	var iRoutes []IRoute
 
-	version := GetOcservVersion()
+	version := utils.GetOcservVersion()
 
 	if version == "1.2.4" { // has bug on IRoute Command
 		return c.JSON(http.StatusOK, iRoutes)

@@ -244,41 +244,41 @@ definitions:
         items:
           type: string
         type: array
-      explicit_ipv4:
+      explicit-ipv4:
         description: 'Static IPv4 address to assign to the user. Example: ''192.168.100.10'''
         type: string
-      idle_timeout:
+      idle-timeout:
         description: 'Time in seconds before disconnecting idle users. Example: 600'
         type: integer
-      ipv4_network:
+      ipv4-network:
         description: 'The pool of addresses from which to assign to the user. Example:
           ''192.168.1.0/24'''
         type: string
       iroute:
         description: 'Internal route available only via VPN. Example: ''10.0.0.0/8'''
         type: string
-      mobile_idle_timeout:
+      mobile-idle-timeout:
         description: 'Idle timeout in seconds for mobile users. Example: 900'
         type: integer
       nbns:
         description: 'NetBIOS Name Servers (WINS) for Windows clients. Example: ''192.168.1.1'''
         type: string
-      no_route:
+      no-route:
         description: 'List of networks to exclude from VPN routing. Example: [''192.168.0.0/16'',
           ''10.0.0.0/8'']'
         items:
           type: string
         type: array
-      rekey_time:
+      rekey-time:
         description: 'Rekey time in seconds; triggers key renegotiation. Example:
           86400 for 24 hours'
         type: integer
-      restrict_to_ports:
+      restrict-to-ports:
         description: 'Comma-separated list of allowed or blocked ports/protocols.
           Supports ''tcp(port)'', ''udp(port)'', ''icmp()'', ''icmpv6()'', and negation
           with ''!()''. Example: ''tcp(443), udp(53)'' or ''!(tcp(22), udp(1194))'''
         type: string
-      restrict_to_routes:
+      restrict-to-routes:
         description: 'Allow user access only to defined routes. Example: true'
         type: boolean
       route:
@@ -287,11 +287,11 @@ definitions:
         items:
           type: string
         type: array
-      session_timeout:
+      session-timeout:
         description: 'Maximum session time in seconds before forced disconnect. Example:
           3600'
         type: integer
-      split_dns:
+      split-dns:
         description: 'List of domains over which the provided DNS servers should be
           used. Example: [''example.com'', ''internal.company.com'']'
         items:
@@ -371,6 +371,8 @@ definitions:
     type: object
   ocserv_user.CreateOcservUserData:
     properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
       description:
         example: User for testing VPN access
         maxLength: 1024
@@ -421,6 +423,8 @@ definitions:
     type: object
   ocserv_user.UpdateOcservUserData:
     properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
       description:
         example: User for testing VPN access
         maxLength: 1024
@@ -433,7 +437,8 @@ definitions:
         type: string
       password:
         example: strongpassword123
-        minLength: 6
+        maxLength: 32
+        minLength: 2
         type: string
       traffic_size:
         description: 10 GiB
@@ -1091,6 +1096,38 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Ocserv User unlocking
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{username}/disconnect:
+    post:
+      consumes:
+      - application/json
+      description: Disconnect Ocserv User
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Disconnect Ocserv User
       tags:
       - Ocserv(Users)
   /system:

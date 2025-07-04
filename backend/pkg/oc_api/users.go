@@ -13,7 +13,7 @@ type OcUserApiRepository struct {
 }
 
 type OcUserApiRepositoryInterface interface {
-	CreateUserApi(c context.Context, group, username, password string) error
+	CreateUserApi(c context.Context, group, username, password string, config map[string]interface{}) error
 	LockUserApi(c context.Context, username string) error
 	UnLockUserApi(c context.Context, username string) error
 	DeleteUserApi(c context.Context, username string) error
@@ -23,18 +23,21 @@ func NewOcUserApiRepository(url string) *OcUserApiRepository {
 	return &OcUserApiRepository{url: url}
 }
 
-func (o *OcUserApiRepository) CreateUserApi(ctx context.Context, group, username, password string) error {
+func (o *OcUserApiRepository) CreateUserApi(ctx context.Context, group, username, password string, config map[string]interface{}) error {
 	url := o.url + "/api/users"
 	type Body struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Group    string `json:"group"`
+		Username string                 `json:"username"`
+		Password string                 `json:"password"`
+		Group    string                 `json:"group"`
+		Config   map[string]interface{} `json:"config"`
 	}
 	data := Body{
 		Username: username,
 		Password: password,
 		Group:    group,
+		Config:   config,
 	}
+
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -79,7 +82,7 @@ func (o *OcUserApiRepository) DeleteUserApi(ctx context.Context, username string
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != http.StatusNoContent {
+	if resp.StatusCode != http.StatusOK {
 		return errors.New(resp.Status)
 	}
 	return nil

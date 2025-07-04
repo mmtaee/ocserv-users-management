@@ -1,15 +1,22 @@
 <script lang="ts" setup>
-import {computed, defineAsyncComponent, onBeforeMount, reactive, ref, watch} from "vue";
-import {type ModelsOcservGroup, type ModelsOcservUser, ModelsOcservUserTrafficTypeEnum, OcservGroupsApi} from "@/api";
+import {computed, defineAsyncComponent, reactive, ref, watch} from "vue";
+import {
+  type ModelsOcservUser,
+  type ModelsOcservUserConfig,
+  ModelsOcservUserTrafficTypeEnum,
+} from "@/api";
 import {useLocale} from "vuetify/framework";
 import {requiredRule} from "@/utils/rules.ts";
-import {getAuthorization} from "@/utils/request.ts";
+import {formatDate} from "@/utils/convertors.ts";
 
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"))
+const UserForm = defineAsyncComponent(() => import("@/components/ocserv_user/ConfigForm.vue"))
+
 
 const props = defineProps<{
   modelValue: boolean
-  initValue?: ModelsOcservGroup
+  initValue?: ModelsOcservUser
+  groups: string[]
 }>()
 
 const emit = defineEmits(["update:modelValue", "complete"])
@@ -18,7 +25,7 @@ const {t} = useLocale()
 const valid = ref(true)
 const editMode = ref(false)
 const validConfig = ref(true)
-const groups = ref<string[]>([])
+const dateMenu = ref(false)
 const trafficTypes = ref([
   {
     label: t('FREE'),
@@ -42,7 +49,6 @@ const trafficTypes = ref([
   }
 ])
 
-
 const data = reactive<ModelsOcservUser>({
   created_at: "",
   group: "defaults",
@@ -54,29 +60,32 @@ const data = reactive<ModelsOcservUser>({
   traffic_type: ModelsOcservUserTrafficTypeEnum.TOTALLY_TRANSMIT,
   tx: 0,
   uid: "",
-  username: ""
+  username: "",
+  expire_at: ""
 })
+
+const config = reactive<ModelsOcservUserConfig>({})
 
 const rules = {
   required: (v: string) => requiredRule(v, t),
 }
 
 const save = () => {
-  emit("complete", data)
+  emit("complete", data, config)
 }
-
-const getRules = computed(() => {
-  if (editMode.value) {
-    return []
-  }
-  return [rules.required]
-})
 
 const clearData = () => {
   for (const key in data) {
     delete data[key as keyof typeof data]
   }
 }
+
+const validChecker = computed(() => {
+  if (editMode.value) {
+    return !validConfig.value
+  }
+  return !valid.value || !validConfig.value
+})
 
 
 watch(
@@ -85,7 +94,11 @@ watch(
       if (newVal) {
         clearData()
         let cloneVal = JSON.parse(JSON.stringify(newVal))
-        Object.assign(data, cloneVal.config)
+        Object.assign(data, cloneVal)
+        Object.assign(config, data.config)
+        if (data.expire_at) {
+          data.expire_at = formatDate(data.expire_at)
+        }
         editMode.value = true
       }
     },
@@ -101,22 +114,10 @@ watch(
     }
 )
 
-onBeforeMount(
-    () => {
-      const api = new OcservGroupsApi()
-      api.ocservGroupsLookupGet({
-        ...getAuthorization()
-      }).then((res) => {
-        groups.value = res.data
-        console.log(" res.data: ", res.data)
-      })
-    }
-)
 
 </script>
 
 <template>
-
   <ReusableDialog
       v-model="props.modelValue"
       btnClose
@@ -131,96 +132,132 @@ onBeforeMount(
 
 
     <template #dialogText>
-      <v-row align="center" class="mb-5" dense justify="center">
-        <v-col cols="12" md="10">
-          <h3 class="text-capitalize">{{ editMode ? t("UPDATE") : t("NAME") }}</h3>
-        </v-col>
-
-        <v-col cols="12" md="1">
-          <v-btn
-              :disabled="!valid"
-              color="primary"
-              variant="outlined"
-              @click="save"
-          >
-            {{ editMode ? t("UPDATE") : t("CREATE") }}
-          </v-btn>
-        </v-col>
-
-        <v-divider/>
-      </v-row>
-
       <v-form v-model="valid">
+        <v-row align="center" justify="start">
+          <v-col cols="12">
+            <v-row align="center" justify="start">
+              <v-col cols="12" md="11">
+                <h3 class="text-capitalize">{{ t("USER_SETUP") }}</h3>
+              </v-col>
 
+              <v-col cols="12" md="auto">
+                <v-btn
+                    :disabled="validChecker"
+                    color="primary"
+                    variant="outlined"
+                    @click="save"
+                >
+                  {{ editMode ? t("UPDATE") : t("CREATE") }}
+                </v-btn>
+              </v-col>
+            </v-row>
 
-        <v-row align="center" dense justify="start">
-
-          <v-col cols="12" lg="2" md="4">
-            <v-text-field
-                v-model="data.username"
-                :label="t('USERNAME')"
-                :readonly="editMode"
-                :rules="[rules.required]"
-                density="comfortable"
-                variant="underlined"
-            />
+            <v-divider/>
           </v-col>
 
-          <v-col cols="12" lg="2" md="4">
-            <v-select
-                v-model="data.group"
-                :items="groups"
-                :label="t('GROUP')"
-                :rules="[rules.required]"
-                density="comfortable"
-                variant="underlined"
-            />
+          <v-col class="px-4" cols="12" md="12">
+            <v-row align="center" justify="start">
+
+              <v-col cols="12" lg="2" md="4">
+                <v-text-field
+                    v-model="data.username"
+                    :label="t('USERNAME')"
+                    :readonly="editMode"
+                    :rules="[rules.required]"
+                    density="comfortable"
+                    variant="underlined"
+                />
+              </v-col>
+
+              <v-col cols="12" lg="2" md="4">
+                <v-select
+                    v-model="data.group"
+                    :items="groups"
+                    :label="t('GROUP')"
+                    :rules="[rules.required]"
+                    density="comfortable"
+                    variant="underlined"
+                />
+              </v-col>
+
+              <v-col cols="12" lg="2" md="4">
+                <v-text-field
+                    v-model="data.password"
+                    :label="t('PASSWORD')"
+                    :rules="[rules.required]"
+                    density="comfortable"
+                    variant="underlined"
+                />
+              </v-col>
+
+              <v-col cols="12" lg="2" md="4">
+                <v-select
+                    v-model="data.traffic_type"
+                    :items="trafficTypes"
+                    :label="t('TRAFFIC_TYPE')"
+                    :rules="[rules.required]"
+                    density="comfortable"
+                    item-title="label"
+                    item-value="value"
+                    variant="underlined"
+                    @update:modelValue="(v)=>v ==ModelsOcservUserTrafficTypeEnum.FREE ? data.traffic_size = 0 : false"
+                />
+              </v-col>
+
+              <v-col cols="12" lg="2" md="4">
+                <v-number-input
+                    v-model="data.traffic_size"
+                    :items="trafficTypes"
+                    :label="t('TRAFFIC_SIZE')"
+                    :readonly="data.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+                    :rules="data.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE ? []: [rules.required]"
+                    control-variant="hidden"
+                    density="comfortable"
+                    suffix="GB"
+                    variant="underlined"
+                />
+              </v-col>
+              <v-col cols="12" lg="2" md="4">
+                <v-menu
+                    v-model="dateMenu"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                >
+                  <template #activator="{ props }">
+                    <v-text-field
+                        v-model="data.expire_at"
+                        :label="t('EXPIRE_AT')"
+                        clearable
+                        density="compact"
+                        readonly
+                        v-bind="props"
+                        variant="underlined"
+                    />
+                  </template>
+                  <v-date-picker
+                      v-model="data.expire_at"
+                      :header="t('EXPIRE_AT')"
+                      elevation="24"
+                      title=""
+                      @update:model-value="data.expire_at=formatDate(data.expire_at); dateMenu = false"
+                  />
+                </v-menu>
+              </v-col>
+            </v-row>
           </v-col>
 
-
-          <v-col cols="12" lg="2" md="4">
-            <v-text-field
-                v-model="data.password"
-                :label="t('PASSWORD')"
-                :rules="[rules.required]"
-                density="comfortable"
-                variant="underlined"
-            />
-          </v-col>
-
-          <v-col cols="12" lg="2" md="4">
-            <v-select
-                v-model="data.traffic_type"
-                :items="trafficTypes"
-                :label="t('TRAFFIC_TYPE')"
-                :rules="[rules.required]"
-                density="comfortable"
-                item-title="label"
-                item-value="value"
-                variant="underlined"
-                @update:modelValue="(v)=>v ==ModelsOcservUserTrafficTypeEnum.FREE ? data.traffic_size = 0 : false"
-            />
-          </v-col>
-
-          <v-col cols="12" lg="2" md="4">
-            <v-number-input
-                v-model="data.traffic_size"
-                :items="trafficTypes"
-                :label="t('TRAFFIC_SIZE')"
-                :readonly="data.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
-                :rules="ModelsOcservUserTrafficTypeEnum.FREE ? []: [rules.required]"
-                control-variant="hidden"
-                density="comfortable"
-                suffix="GB"
-                variant="underlined"
+          <v-col cols="12" md="12">
+            <UserForm
+                v-if="props.modelValue"
+                v-model="config"
+                hideBtn
+                @valid="(v: boolean) => validConfig = v"
             />
           </v-col>
 
         </v-row>
       </v-form>
-
     </template>
-
   </ReusableDialog>
 
 </template>

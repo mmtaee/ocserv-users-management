@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"ocserv-service/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,9 +13,10 @@ import (
 
 // CreateUserData holds the input data for creating a new user.
 type CreateUserData struct {
-	Username string `json:"username" validate:"required,min=3"`
-	Password string `json:"password" validate:"required,min=2"`
-	Group    string `json:"group" validate:"required"`
+	Username string                 `json:"username" validate:"required,min=3"`
+	Password string                 `json:"password" validate:"required,min=2"`
+	Group    string                 `json:"group" validate:"required"`
+	Config   map[string]interface{} `json:"config"`
 }
 
 type Controller struct{}
@@ -27,33 +29,6 @@ const (
 
 func New() *Controller {
 	return &Controller{}
-}
-
-// validateUsername returns an error if the username is empty.
-func validateUsername(username string) error {
-	if username == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "username is required")
-	}
-	return nil
-}
-
-// runOcpasswd runs the ocpasswd command with the given args and returns combined output and error.
-func runOcpasswd(args ...string) (string, error) {
-	cmd := exec.Command(ocpasswdExec, args...)
-	out, err := cmd.CombinedOutput()
-	output := string(out)
-	if err != nil {
-		if output == "" {
-			output = err.Error()
-		}
-		return output, err
-	}
-	return output, nil
-}
-
-// configFilePath returns the file path for a user's config file.
-func configFilePath(username string) string {
-	return filepath.Join(configUserBaseDir, username)
 }
 
 // Create handles the creation of a new user with username, password, and group.
@@ -85,7 +60,22 @@ func (ctrl *Controller) Create(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": output})
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "user added", "output": output})
+	if data.Config != nil {
+		filename := filepath.Join(configUserBaseDir, data.Username)
+
+		// Open file with create, truncate, write-only flags and permission 0640
+		file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		defer file.Close()
+
+		err = utils.ConfigWriter(file, data.Config)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+	}
+	return c.JSON(http.StatusOK, nil)
 }
 
 // Lock locks a user account specified by the username path parameter.

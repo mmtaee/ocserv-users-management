@@ -37,19 +37,19 @@ export interface ModelsOcservUserConfig {
      * @type {string}
      * @memberof ModelsOcservUserConfig
      */
-    'explicit_ipv4'?: string;
+    'explicit-ipv4'?: string;
     /**
      * Time in seconds before disconnecting idle users. Example: 600
      * @type {number}
      * @memberof ModelsOcservUserConfig
      */
-    'idle_timeout'?: number;
+    'idle-timeout'?: number;
     /**
      * The pool of addresses from which to assign to the user. Example: \'192.168.1.0/24\'
      * @type {string}
      * @memberof ModelsOcservUserConfig
      */
-    'ipv4_network'?: string;
+    'ipv4-network'?: string;
     /**
      * Internal route available only via VPN. Example: \'10.0.0.0/8\'
      * @type {string}
@@ -61,7 +61,7 @@ export interface ModelsOcservUserConfig {
      * @type {number}
      * @memberof ModelsOcservUserConfig
      */
-    'mobile_idle_timeout'?: number;
+    'mobile-idle-timeout'?: number;
     /**
      * NetBIOS Name Servers (WINS) for Windows clients. Example: \'192.168.1.1\'
      * @type {string}
@@ -73,25 +73,25 @@ export interface ModelsOcservUserConfig {
      * @type {Array<string>}
      * @memberof ModelsOcservUserConfig
      */
-    'no_route'?: Array<string>;
+    'no-route'?: Array<string>;
     /**
      * Rekey time in seconds; triggers key renegotiation. Example: 86400 for 24 hours
      * @type {number}
      * @memberof ModelsOcservUserConfig
      */
-    'rekey_time'?: number;
+    'rekey-time'?: number;
     /**
      * Comma-separated list of allowed or blocked ports/protocols. Supports \'tcp(port)\', \'udp(port)\', \'icmp()\', \'icmpv6()\', and negation with \'!()\'. Example: \'tcp(443), udp(53)\' or \'!(tcp(22), udp(1194))\'
      * @type {string}
      * @memberof ModelsOcservUserConfig
      */
-    'restrict_to_ports'?: string;
+    'restrict-to-ports'?: string;
     /**
      * Allow user access only to defined routes. Example: true
      * @type {boolean}
      * @memberof ModelsOcservUserConfig
      */
-    'restrict_to_routes'?: boolean;
+    'restrict-to-routes'?: boolean;
     /**
      * Routes pushed to the user for routing traffic. Example: [\'0.0.0.0/0\', \'10.10.0.0/16\']
      * @type {Array<string>}
@@ -103,12 +103,12 @@ export interface ModelsOcservUserConfig {
      * @type {number}
      * @memberof ModelsOcservUserConfig
      */
-    'session_timeout'?: number;
+    'session-timeout'?: number;
     /**
      * List of domains over which the provided DNS servers should be used. Example: [\'example.com\', \'internal.company.com\']
      * @type {Array<string>}
      * @memberof ModelsOcservUserConfig
      */
-    'split_dns'?: Array<string>;
+    'split-dns'?: Array<string>;
 }
 

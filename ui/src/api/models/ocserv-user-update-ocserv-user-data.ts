@@ -13,6 +13,9 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ModelsOcservUserConfig } from './models-ocserv-user-config';
 
 /**
  * 
@@ -20,6 +23,12 @@
  * @interface OcservUserUpdateOcservUserData
  */
 export interface OcservUserUpdateOcservUserData {
+    /**
+     * 
+     * @type {ModelsOcservUserConfig}
+     * @memberof OcservUserUpdateOcservUserData
+     */
+    'config'?: ModelsOcservUserConfig;
     /**
      * 
      * @type {string}
