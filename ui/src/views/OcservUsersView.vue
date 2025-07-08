@@ -198,7 +198,7 @@ onBeforeMount(
   <v-row>
     <v-col>
       <v-card min-height="850">
-        <v-toolbar color="primary">
+        <v-toolbar color="odd">
           <v-toolbar-title>
             {{ t('OCSERV_USERS') }}
           </v-toolbar-title>
@@ -206,8 +206,8 @@ onBeforeMount(
           <template v-slot:append>
             <v-btn
                 class="ma-5"
-                color="white"
-                variant="outlined"
+                color="primary"
+                variant="flat"
                 @click="createDialog = true"
             >
               {{ t("CREATE") }}
@@ -232,13 +232,15 @@ onBeforeMount(
                       <v-card-title class="text-subtitle-1 bg-primary pa-4">
                         <v-row align="center" justify="start">
 
-                          <v-col cols="12" md="11" sm="8">
-                            <v-icon v-if="item.is_locked" start>mdi-lock</v-icon>
-                            <v-icon v-if="!item.is_locked" start>mdi-lock-open</v-icon>
+                          <v-col cols="12" md="9" sm="8">
+
                             {{ item.username }}
                             <span class="text-capitalize">({{ item.is_online ? t("ONLINE") : t("OFFLINE") }})</span>
                           </v-col>
-                          <v-col cols="12" md="1">
+                          <v-col cols="12" md="3">
+                            <v-icon v-if="item.is_locked" start>mdi-lock</v-icon>
+                            <v-icon v-if="!item.is_locked" start>mdi-lock-open</v-icon>
+
                             <v-menu>
                               <template v-slot:activator="{ props }">
                                 <v-icon v-bind="props">
@@ -247,7 +249,6 @@ onBeforeMount(
                               </template>
 
                               <v-list color="primary">
-
                                 <v-list-item @click="objHandler(item);editDialog = true">
                                   <v-list-item-title class="text-info text-capitalize me-5">
                                     {{ t("EDIT") }}

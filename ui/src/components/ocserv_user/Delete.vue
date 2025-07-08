@@ -19,12 +19,12 @@ const {t} = useLocale()
 <template>
   <ReusableDialog
       v-model="props.modelValue"
-      color="error"
+      color="white"
       transition="dialog-top-transition"
       width="500"
   >
     <template #dialogTitle>
-      <v-icon class="mb-1">mdi-delete</v-icon>
+<!--      <v-icon class="mb-1">mdi-delete</v-icon>-->
       <span class="text-capitalize">{{ t("DELETE_OCSERV_USER_TITLE") }} ({{ user.username }})</span>
     </template>
 
@@ -34,7 +34,7 @@ const {t} = useLocale()
 
     <template #dialogAction>
       <v-btn
-          color="black"
+          color="odd"
           variant="outlined"
           @click="emit('update:modelValue', false)"
       >
@@ -43,7 +43,7 @@ const {t} = useLocale()
 
       <v-btn
           color="error"
-          variant="outlined"
+          variant="flat"
           @click="emit('done', user.uid)"
       >
         {{ t("DELETE") }}

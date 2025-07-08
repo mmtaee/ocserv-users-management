@@ -53,7 +53,7 @@ export default createVuetify({
                     warning: '#FACC15',          // Punchy Yellow
                     success: '#10B981',          // Lush Green
                     info: '#3B82F6',             // Azure Blue
-                    odd: '#8f8585',
+                    odd: '#ebebeb',
                     'on-primary': '#FFFFFF',
                     'on-surface': '#1E1E2F',
                     'on-background': '#111827',
