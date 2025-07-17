@@ -2,6 +2,7 @@
 .npmignore
 api.ts
 api/home-api.ts
+api/occtlapi.ts
 api/ocserv-groups-api.ts
 api/ocserv-users-api.ts
 api/system-api.ts
@@ -22,6 +23,7 @@ models/models-ocserv-group.ts
 models/models-ocserv-user-config.ts
 models/models-ocserv-user.ts
 models/models-online-user-session.ts
+models/models-server-version.ts
 models/models-system.ts
 models/models-user.ts
 models/ocserv-group-create-ocserv-group-data.ts
@@ -29,6 +31,7 @@ models/ocserv-group-ocserv-groups-response.ts
 models/ocserv-group-update-ocserv-group-data.ts
 models/ocserv-user-create-ocserv-user-data.ts
 models/ocserv-user-ocserv-users-response.ts
+models/ocserv-user-statistics-data.ts
 models/ocserv-user-update-ocserv-user-data.ts
 models/request-error-response.ts
 models/request-meta.ts

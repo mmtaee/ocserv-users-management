@@ -41,17 +41,17 @@ func New() *Controller {
 // @Failure      400 {object} request.ErrorResponse
 // @Success      201  {object}  SetupSystemResponse
 // @Router       /system/setup [post]
-func (ctrl *Controller) SetupSystem(c echo.Context) error {
-	if _, err := ctrl.systemRepo.System(c.Request().Context()); err == nil {
-		return ctrl.request.BadRequest(c, errors.New("the system is already configured"))
+func (ctl *Controller) SetupSystem(c echo.Context) error {
+	if _, err := ctl.systemRepo.System(c.Request().Context()); err == nil {
+		return ctl.request.BadRequest(c, errors.New("the system is already configured"))
 	}
 
 	var data SetupSystem
-	if err := ctrl.request.DoValidate(c, &data); err != nil {
-		return ctrl.request.BadRequest(c, err)
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
 
-	passwd := ctrl.cryptoRepo.CreatePassword(data.Password)
+	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
 	user := &models.User{
 		Username: strings.ToLower(data.Username),
@@ -64,14 +64,14 @@ func (ctrl *Controller) SetupSystem(c echo.Context) error {
 		GoogleCaptchaSiteKey:   data.GoogleCaptchaSiteKey,
 		GoogleCaptchaSecretKey: data.GoogleCaptchaSecretKey,
 	}
-	newUser, newSystem, err := ctrl.systemRepo.SystemSetup(c.Request().Context(), user, system)
+	newUser, newSystem, err := ctl.systemRepo.SystemSetup(c.Request().Context(), user, system)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 
-	token, err := ctrl.userRepo.CreateToken(c.Request().Context(), newUser.ID, newUser.UID, true, newUser.IsAdmin)
+	token, err := ctl.userRepo.CreateToken(c.Request().Context(), newUser.ID, newUser.UID, true, newUser.IsAdmin)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 
 	return c.JSON(
@@ -93,13 +93,13 @@ func (ctrl *Controller) SetupSystem(c echo.Context) error {
 // @Failure      400 {object} request.ErrorResponse
 // @Success      200  {object}  GetSystemInitResponse
 // @Router       /system/init [get]
-func (ctrl *Controller) SystemInit(c echo.Context) error {
-	config, err := ctrl.systemRepo.System(c.Request().Context())
+func (ctl *Controller) SystemInit(c echo.Context) error {
+	config, err := ctl.systemRepo.System(c.Request().Context())
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.JSON(http.StatusOK, nil)
 		}
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, GetSystemInitResponse{
 		GoogleCaptchaSiteKey: config.GoogleCaptchaSiteKey,
@@ -117,13 +117,13 @@ func (ctrl *Controller) SystemInit(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object}  GetSystemResponse
 // @Router       /system [get]
-func (ctrl *Controller) System(c echo.Context) error {
-	config, err := ctrl.systemRepo.System(c.Request().Context())
+func (ctl *Controller) System(c echo.Context) error {
+	config, err := ctl.systemRepo.System(c.Request().Context())
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.JSON(http.StatusOK, nil)
 		}
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, GetSystemResponse{
 		GoogleCaptchaSiteKey:   config.GoogleCaptchaSiteKey,
@@ -143,10 +143,10 @@ func (ctrl *Controller) System(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object}  GetSystemResponse
 // @Router       /system [patch]
-func (ctrl *Controller) SystemUpdate(c echo.Context) error {
+func (ctl *Controller) SystemUpdate(c echo.Context) error {
 	var data PatchSystemUpdateData
-	if err := ctrl.request.DoValidate(c, &data); err != nil {
-		return ctrl.request.BadRequest(c, err)
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
 
 	system := models.System{}
@@ -158,9 +158,9 @@ func (ctrl *Controller) SystemUpdate(c echo.Context) error {
 		system.GoogleCaptchaSecretKey = *data.GoogleCaptchaSecretKey
 	}
 
-	updatedConfig, err := ctrl.systemRepo.SystemUpdate(c.Request().Context(), &system)
+	updatedConfig, err := ctl.systemRepo.SystemUpdate(c.Request().Context(), &system)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 
 	return c.JSON(http.StatusOK, GetSystemResponse{
@@ -180,37 +180,37 @@ func (ctrl *Controller) SystemUpdate(c echo.Context) error {
 // @Failure      400 {object} request.ErrorResponse
 // @Success      200 {object} UserLoginResponse
 // @Router       /system/users/login [post]
-func (ctrl *Controller) Login(c echo.Context) error {
+func (ctl *Controller) Login(c echo.Context) error {
 	var data LoginData
-	if err := ctrl.request.DoValidate(c, &data); err != nil {
-		return ctrl.request.BadRequest(c, err)
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
 
-	system, err := ctrl.systemRepo.System(c.Request().Context())
+	system, err := ctl.systemRepo.System(c.Request().Context())
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 
 	if secretKey := system.GoogleCaptchaSecretKey; secretKey != "" {
-		ctrl.captchaVerifier.SetSecretKey(secretKey)
-		ctrl.captchaVerifier.Verify(data.Token)
-		if !ctrl.captchaVerifier.IsValid() {
-			return ctrl.request.BadRequest(c, errors.New("captcha challenge failed"))
+		ctl.captchaVerifier.SetSecretKey(secretKey)
+		ctl.captchaVerifier.Verify(data.Token)
+		if !ctl.captchaVerifier.IsValid() {
+			return ctl.request.BadRequest(c, errors.New("captcha challenge failed"))
 		}
 	}
 
-	user, err := ctrl.userRepo.GetByUsername(c.Request().Context(), data.Username)
+	user, err := ctl.userRepo.GetByUsername(c.Request().Context(), data.Username)
 	if err != nil {
-		return ctrl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
 	}
 
-	if ok := ctrl.cryptoRepo.CheckPassword(data.Password, user.Password, user.Salt); !ok {
-		return ctrl.request.BadRequest(c, errors.New("invalid username or password"))
+	if ok := ctl.cryptoRepo.CheckPassword(data.Password, user.Password, user.Salt); !ok {
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
 	}
 
-	token, err := ctrl.userRepo.CreateToken(c.Request().Context(), user.ID, user.UID, true, user.IsAdmin)
+	token, err := ctl.userRepo.CreateToken(c.Request().Context(), user.ID, user.UID, true, user.IsAdmin)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err, "user created")
+		return ctl.request.BadRequest(c, err, "user created")
 	}
 
 	return c.JSON(http.StatusOK, UserLoginResponse{
@@ -233,12 +233,12 @@ func (ctrl *Controller) Login(c echo.Context) error {
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Success      201  {object}  models.User
 // @Router       /system/users [post]
-func (ctrl *Controller) CreateUser(c echo.Context) error {
+func (ctl *Controller) CreateUser(c echo.Context) error {
 	var data CreateUserData
-	if err := ctrl.request.DoValidate(c, &data); err != nil {
-		return ctrl.request.BadRequest(c, err)
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
-	passwd := ctrl.cryptoRepo.CreatePassword(data.Password)
+	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
 	user := &models.User{
 		Username: strings.ToLower(data.Username),
@@ -246,9 +246,9 @@ func (ctrl *Controller) CreateUser(c echo.Context) error {
 		Salt:     passwd.Salt,
 		IsAdmin:  data.Admin,
 	}
-	newUser, err := ctrl.userRepo.CreateUser(c.Request().Context(), user)
+	newUser, err := ctl.userRepo.CreateUser(c.Request().Context(), user)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusCreated, newUser)
 }
@@ -270,12 +270,12 @@ func (ctrl *Controller) CreateUser(c echo.Context) error {
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Success      200  {object}  UsersResponse
 // @Router       /system/users [get]
-func (ctrl *Controller) Users(c echo.Context) error {
-	pagination := ctrl.request.Pagination(c)
+func (ctl *Controller) Users(c echo.Context) error {
+	pagination := ctl.request.Pagination(c)
 
-	users, total, err := ctrl.userRepo.Users(c.Request().Context(), pagination)
+	users, total, err := ctl.userRepo.Users(c.Request().Context(), pagination)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 
 	return c.JSON(http.StatusOK, UsersResponse{
@@ -303,18 +303,18 @@ func (ctrl *Controller) Users(c echo.Context) error {
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Success      200  {object}  UsersResponse
 // @Router       /system/users/{uid}/password [post]
-func (ctrl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
+func (ctl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 	userID := c.Param("uid")
 
 	var data ChangeUserPassword
-	if err := ctrl.request.DoValidate(c, &data); err != nil {
-		return ctrl.request.BadRequest(c, err)
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
-	passwd := ctrl.cryptoRepo.CreatePassword(data.Password)
+	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
-	err := ctrl.userRepo.ChangePassword(c.Request().Context(), userID, passwd.Hash, passwd.Salt)
+	err := ctl.userRepo.ChangePassword(c.Request().Context(), userID, passwd.Hash, passwd.Salt)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
 }
@@ -333,11 +333,11 @@ func (ctrl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Success      204  {object}  nil
 // @Router       /system/users/{uid} [delete]
-func (ctrl *Controller) DeleteUser(c echo.Context) error {
+func (ctl *Controller) DeleteUser(c echo.Context) error {
 	userID := c.Param("uid")
-	err := ctrl.userRepo.DeleteUser(c.Request().Context(), userID)
+	err := ctl.userRepo.DeleteUser(c.Request().Context(), userID)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusNoContent, nil)
 }
@@ -355,17 +355,17 @@ func (ctrl *Controller) DeleteUser(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object}  UsersResponse
 // @Router       /system/users/password [post]
-func (ctrl *Controller) ChangePasswordBySelf(c echo.Context) error {
+func (ctl *Controller) ChangePasswordBySelf(c echo.Context) error {
 	userID := c.Get("userUID").(string)
 
 	var data ChangeUserPassword
-	if err := ctrl.request.DoValidate(c, &data); err != nil {
-		return ctrl.request.BadRequest(c, err)
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
-	passwd := ctrl.cryptoRepo.CreatePassword(data.Password)
-	err := ctrl.userRepo.ChangePassword(c.Request().Context(), userID, passwd.Hash, passwd.Salt)
+	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
+	err := ctl.userRepo.ChangePassword(c.Request().Context(), userID, passwd.Hash, passwd.Salt)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
 }
@@ -382,11 +382,11 @@ func (ctrl *Controller) ChangePasswordBySelf(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object}  models.User
 // @Router       /system/users/profile [get]
-func (ctrl *Controller) Profile(c echo.Context) error {
+func (ctl *Controller) Profile(c echo.Context) error {
 	userUID := c.Get("userUID").(string)
-	user, err := ctrl.userRepo.GetByUID(c.Request().Context(), userUID)
+	user, err := ctl.userRepo.GetByUID(c.Request().Context(), userUID)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, reactive, ref, watch} from "vue";
+import {reactive, ref, watch} from "vue";
 import type {ModelsOcservUserConfig} from "@/api";
 import {useLocale} from "vuetify/framework";
 import {domainRule, ipOrRangeRule, ipRule, ipWithRangeRule} from "@/utils/rules.ts";
@@ -148,10 +148,10 @@ const removeRoute = (key: string, value: string) => {
   }
 }
 
-const checkValid = computed(() => {
-  const isChanged = JSON.stringify(props.modelValue) !== JSON.stringify(cloneFormData.value)
-  return valid.value && isChanged
-})
+// const checkValid = computed(() => {
+//   const isChanged = JSON.stringify(props.modelValue) !== JSON.stringify(cloneFormData.value)
+//   return valid.value && isChanged
+// })
 
 
 watch(

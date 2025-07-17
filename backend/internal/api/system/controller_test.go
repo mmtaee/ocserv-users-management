@@ -31,7 +31,7 @@ func newControllerWithMocks() (
 	mockUserRepo := new(mocks.UserRepositoryInterface)
 	mockCryptoRepo := new(mocks.CustomPasswordInterface)
 
-	ctrl := &Controller{
+	ctl := &Controller{
 		request:         mockRequest,
 		systemRepo:      mockSystemRepo,
 		captchaVerifier: mockCaptcha,
@@ -97,7 +97,7 @@ func TestSystemSetupSuccess(t *testing.T) {
 	mockSystemRepo.On("SystemSetup", mock.Anything, mock.Anything, mock.Anything).Return(user, system, nil)
 	mockUserRepo.On("CreateToken", mock.Anything, user.ID, user.UID, true, user.IsAdmin).Return("mock-token", nil)
 
-	err := ctrl.SetupSystem(c)
+	err := ctl.SetupSystem(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusCreated, rec.Code)
 	mockSystemRepo.AssertExpectations(t)
@@ -123,7 +123,7 @@ func TestSystemInitSuccess(t *testing.T) {
 	expected := &models.System{GoogleCaptchaSiteKey: "abc123"}
 	mockSystemRepo.On("System", mock.Anything).Return(expected, nil)
 
-	err := ctrl.SystemInit(c)
+	err := ctl.SystemInit(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockSystemRepo.AssertExpectations(t)
@@ -136,7 +136,7 @@ func TestSystemInitNotFound(t *testing.T) {
 
 	mockSystemRepo.On("System", mock.Anything).Return(nil, gorm.ErrRecordNotFound)
 
-	err := ctrl.SystemInit(c)
+	err := ctl.SystemInit(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockSystemRepo.AssertExpectations(t)
@@ -148,7 +148,7 @@ func TestSystemConfig(t *testing.T) {
 	c, rec := setupEcho(http.MethodGet, "/system", "")
 	expected := &models.System{GoogleCaptchaSiteKey: "abc123", GoogleCaptchaSecretKey: "abc123"}
 	mockSystemRepo.On("System", mock.Anything).Return(expected, nil)
-	err := ctrl.System(c)
+	err := ctl.System(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockSystemRepo.AssertExpectations(t)
@@ -173,7 +173,7 @@ func TestSystemUpdateSuccess(t *testing.T) {
 	}
 	mockSystemRepo.On("SystemUpdate", mock.Anything, mock.Anything).Return(expected, nil)
 
-	err := ctrl.SystemUpdate(c)
+	err := ctl.SystemUpdate(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockRequest.AssertExpectations(t)
@@ -212,7 +212,7 @@ func TestSystemLogin(t *testing.T) {
 
 	mockUserRepo.On("CreateToken", mock.Anything, uint(1), "uid-123", true, false).Return("mock-token", nil)
 
-	err := ctrl.Login(c)
+	err := ctl.Login(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -252,7 +252,7 @@ func TestCreateUserSuccess(t *testing.T) {
 
 	mockUserRepo.On("CreateUser", mock.Anything, mock.Anything).Return(mockUser, nil)
 
-	err := ctrl.CreateUser(c)
+	err := ctl.CreateUser(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusCreated, rec.Code)
@@ -284,7 +284,7 @@ func TestUsers(t *testing.T) {
 		On("Users", mock.Anything, pagination).
 		Return(&[]models.User{}, int64(0), nil)
 
-	err := ctrl.Users(c)
+	err := ctl.Users(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -321,7 +321,7 @@ func TestChangeUserPasswordByAdmin(t *testing.T) {
 
 	mockUserRepo.On("ChangePassword", mock.Anything, "uid-123", "hashedPass", "saltValue").Return(nil)
 
-	err := ctrl.ChangeUserPasswordByAdmin(c)
+	err := ctl.ChangeUserPasswordByAdmin(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -340,7 +340,7 @@ func TestDeleteUser(t *testing.T) {
 	c.Set("isAdmin", true)
 
 	mockUserRepo.On("DeleteUser", mock.Anything, mock.Anything).Return(nil)
-	err := ctrl.DeleteUser(c)
+	err := ctl.DeleteUser(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusNoContent, rec.Code)
 	mockUserRepo.AssertExpectations(t)
@@ -367,7 +367,7 @@ func TestChangePasswordBySelf(t *testing.T) {
 
 	mockUserRepo.On("ChangePassword", mock.Anything, "uid-123", "hashedPass", "saltValue").Return(nil)
 
-	err := ctrl.ChangePasswordBySelf(c)
+	err := ctl.ChangePasswordBySelf(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -389,7 +389,7 @@ func TestUserProfile(t *testing.T) {
 		IsAdmin:  true,
 	}, nil)
 
-	err := ctrl.Profile(c)
+	err := ctl.Profile(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUserRepo.AssertExpectations(t)

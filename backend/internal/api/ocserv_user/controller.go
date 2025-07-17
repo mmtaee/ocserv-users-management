@@ -1,6 +1,7 @@
 package ocserv_user
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/labstack/echo/v4"
 	"log"
@@ -45,22 +46,31 @@ func New() *Controller {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object}  OcservUsersResponse
 // @Router       /ocserv/users [get]
-func (ctrl *Controller) OcservUsers(c echo.Context) error {
-	pagination := ctrl.request.Pagination(c)
+func (ctl *Controller) OcservUsers(c echo.Context) error {
+	pagination := ctl.request.Pagination(c)
 
-	ocservUser, total, err := ctrl.ocservUserRepo.Users(c.Request().Context(), pagination)
+	ocservUser, total, err := ctl.ocservUserRepo.Users(c.Request().Context(), pagination)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 
-	onlineUser, err := ctrl.ocRepo.OnlineUsers(c.Request().Context())
+	onlineUserBytes, err := ctl.ocRepo.OnlineUsers(c.Request().Context())
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
+	}
+
+	var onlineUsers struct {
+		Users []string `json:"users"`
+	}
+
+	err = json.Unmarshal(onlineUserBytes, &onlineUsers)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
 
 	for i := range *ocservUser {
 		user := &(*ocservUser)[i]
-		if slices.Contains(*onlineUser, user.Username) {
+		if slices.Contains(onlineUsers.Users, user.Username) {
 			user.IsOnline = true
 		}
 	}
@@ -88,10 +98,10 @@ func (ctrl *Controller) OcservUsers(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      201  {object} models.OcservUser
 // @Router       /ocserv/users [post]
-func (ctrl *Controller) CreateOcservUser(c echo.Context) error {
+func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 	var data CreateOcservUserData
-	if err := ctrl.request.DoValidate(c, &data); err != nil {
-		return ctrl.request.BadRequest(c, err)
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
 
 	expireAt, err := time.Parse("2006-01-02", data.ExpireAt)
@@ -112,9 +122,9 @@ func (ctrl *Controller) CreateOcservUser(c echo.Context) error {
 		Config:      data.Config,
 	}
 
-	user, err := ctrl.ocservUserRepo.Create(c.Request().Context(), ocUser)
+	user, err := ctl.ocservUserRepo.Create(c.Request().Context(), ocUser)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 
 	return c.JSON(http.StatusCreated, user)
@@ -134,20 +144,20 @@ func (ctrl *Controller) CreateOcservUser(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      201  {object} models.OcservUser
 // @Router       /ocserv/users/{uid} [patch]
-func (ctrl *Controller) UpdateOcservUser(c echo.Context) error {
+func (ctl *Controller) UpdateOcservUser(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctrl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
 	var data UpdateOcservUserData
-	if err := ctrl.request.DoValidate(c, &data); err != nil {
-		return ctrl.request.BadRequest(c, err)
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
 	}
 
-	ocservUser, err := ctrl.ocservUserRepo.GetByUID(c.Request().Context(), userID)
+	ocservUser, err := ctl.ocservUserRepo.GetByUID(c.Request().Context(), userID)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 
 	if data.Group != nil {
@@ -182,9 +192,9 @@ func (ctrl *Controller) UpdateOcservUser(c echo.Context) error {
 		}
 	}
 
-	updatedOcservUser, err := ctrl.ocservUserRepo.Update(c.Request().Context(), ocservUser)
+	updatedOcservUser, err := ctl.ocservUserRepo.Update(c.Request().Context(), ocservUser)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, updatedOcservUser)
 }
@@ -202,15 +212,15 @@ func (ctrl *Controller) UpdateOcservUser(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      204  {object} nil
 // @Router       /ocserv/users/{uid} [delete]
-func (ctrl *Controller) DeleteOcservUser(c echo.Context) error {
+func (ctl *Controller) DeleteOcservUser(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctrl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	err := ctrl.ocservUserRepo.Delete(c.Request().Context(), userID)
+	err := ctl.ocservUserRepo.Delete(c.Request().Context(), userID)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusNoContent, nil)
 }
@@ -228,15 +238,15 @@ func (ctrl *Controller) DeleteOcservUser(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object} nil
 // @Router       /ocserv/users/{uid}/lock [post]
-func (ctrl *Controller) LockOcservUser(c echo.Context) error {
+func (ctl *Controller) LockOcservUser(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctrl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	err := ctrl.ocservUserRepo.Lock(c.Request().Context(), userID)
+	err := ctl.ocservUserRepo.Lock(c.Request().Context(), userID)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
 }
@@ -254,15 +264,15 @@ func (ctrl *Controller) LockOcservUser(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object} nil
 // @Router       /ocserv/users/{uid}/unlock [post]
-func (ctrl *Controller) UnLockOcservUser(c echo.Context) error {
+func (ctl *Controller) UnLockOcservUser(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctrl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	err := ctrl.ocservUserRepo.UnLock(c.Request().Context(), userID)
+	err := ctl.ocservUserRepo.UnLock(c.Request().Context(), userID)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
 }
@@ -280,14 +290,53 @@ func (ctrl *Controller) UnLockOcservUser(c echo.Context) error {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object} nil
 // @Router       /ocserv/users/{username}/disconnect [post]
-func (ctrl *Controller) DisconnectOcservUser(c echo.Context) error {
+func (ctl *Controller) DisconnectOcservUser(c echo.Context) error {
 	username := c.Param("username")
 	if username == "" {
-		return ctrl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
-	err := ctrl.ocRepo.Disconnect(c.Request().Context(), username)
+	_, err := ctl.ocRepo.Disconnect(c.Request().Context(), username)
 	if err != nil {
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
+}
+
+// StatisticsOcservUser 	     Ocserv User Statistics
+//
+// @Summary      Ocserv User Statistics
+// @Description  Ocserv User Statistics
+// @Tags         Ocserv(Users)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param 		 uid path string true "Ocserv User UID"
+// @Param        request    body  StatisticsData  true "ocserv user statistics date data"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200  {object} []models.DailyTraffic
+// @Router       /ocserv/users/{uid}/statistics [get]
+func (ctl *Controller) StatisticsOcservUser(c echo.Context) error {
+	userID := c.Param("uid")
+	if userID == "" {
+		return ctl.request.BadRequest(c, errors.New("user id is required"))
+	}
+
+	var data StatisticsData
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if data.DateStart == nil && data.DateEnd == nil {
+		now := time.Now()
+		start := now.AddDate(0, -1, 0) // 1 month ago
+		data.DateStart = &start
+		data.DateEnd = &now
+	}
+
+	stats, err := ctl.ocservUserRepo.Statistics(c.Request().Context(), userID, data.DateStart, data.DateEnd)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, stats)
 }

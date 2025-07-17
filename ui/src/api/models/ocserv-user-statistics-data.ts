@@ -14,10 +14,23 @@
 
 
 
-export * from './api/home-api';
-export * from './api/occtlapi';
-export * from './api/ocserv-groups-api';
-export * from './api/ocserv-users-api';
-export * from './api/system-api';
-export * from './api/system-users-api';
+/**
+ * 
+ * @export
+ * @interface OcservUserStatisticsData
+ */
+export interface OcservUserStatisticsData {
+    /**
+     * 
+     * @type {string}
+     * @memberof OcservUserStatisticsData
+     */
+    'date_end'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OcservUserStatisticsData
+     */
+    'date_start'?: string;
+}
 

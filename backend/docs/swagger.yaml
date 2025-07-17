@@ -311,6 +311,13 @@ definitions:
       Username:
         type: string
     type: object
+  models.ServerVersion:
+    properties:
+      occtl_version:
+        type: string
+      version:
+        type: string
+    type: object
   models.System:
     properties:
       _:
@@ -420,6 +427,15 @@ definitions:
         type: array
     required:
     - meta
+    type: object
+  ocserv_user.StatisticsData:
+    properties:
+      date_end:
+        example: "2025-12-31"
+        type: string
+      date_start:
+        example: "2025-1-31"
+        type: string
     type: object
   ocserv_user.UpdateOcservUserData:
     properties:
@@ -629,6 +645,63 @@ paths:
       summary: Content of home
       tags:
       - Home
+  /occtl/commands:
+    get:
+      consumes:
+      - application/json
+      description: Occtl Commands
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Command Action ID (1 to 15)
+        in: query
+        name: action
+        required: true
+        type: integer
+      - description: Optional parameter depending on command
+        in: query
+        name: value
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Occtl Commands
+      tags:
+      - OCCTL
+  /occtl/server_info:
+    get:
+      consumes:
+      - application/json
+      description: Server information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ServerVersion'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Server information
+      tags:
+      - OCCTL
   /ocserv/groups:
     get:
       consumes:
@@ -1064,6 +1137,48 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Ocserv User locking
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{uid}/statistics:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv User Statistics
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      - description: ocserv user statistics date data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.StatisticsData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DailyTraffic'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv User Statistics
       tags:
       - Ocserv(Users)
   /ocserv/users/{uid}/unlock:

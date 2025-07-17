@@ -36,7 +36,7 @@ func New() *Controller {
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object}  HomeResponse
 // @Router       /home [get]
-func (ctrl *Controller) Home(c echo.Context) error {
+func (ctl *Controller) Home(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	var (
@@ -52,7 +52,7 @@ func (ctrl *Controller) Home(c echo.Context) error {
 
 	go func() {
 		defer wg.Done()
-		serverStatus, err := ctrl.occtlRepo.Stats(ctx)
+		serverStatus, err := ctl.occtlRepo.Status(ctx)
 		if err != nil {
 			errs <- err
 			return
@@ -63,7 +63,7 @@ func (ctrl *Controller) Home(c echo.Context) error {
 
 	go func() {
 		defer wg.Done()
-		data, err := ctrl.ocservUserRepo.TenDaysStats(ctx)
+		data, err := ctl.ocservUserRepo.TenDaysStats(ctx)
 		if err != nil {
 			errs <- err
 			return
@@ -73,22 +73,22 @@ func (ctrl *Controller) Home(c echo.Context) error {
 
 	go func() {
 		defer wg.Done()
-		data, err := ctrl.occtlRepo.OnlineUsersInfo(ctx)
+		data, err := ctl.occtlRepo.OnlineUsersInfo(ctx)
 		if err != nil {
 			errs <- err
 			return
 		}
-		onlineUsers = data
+		onlineUsers = &data
 	}()
 
 	go func() {
 		defer wg.Done()
-		data, err := ctrl.occtlRepo.IPBans(ctx)
+		data, err := ctl.occtlRepo.IPBans(ctx)
 		if err != nil {
 			errs <- err
 			return
 		}
-		ipBans = data
+		ipBans = &data
 	}()
 
 	wg.Wait()
@@ -96,9 +96,9 @@ func (ctrl *Controller) Home(c echo.Context) error {
 
 	if err := <-errs; err != nil {
 		log.Println("error in Home handler:", err)
-		return ctrl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err)
 	}
-	
+
 	resp := HomeResponse{
 		Status:     status,
 		Stats:      stats,

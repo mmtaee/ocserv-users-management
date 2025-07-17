@@ -32,7 +32,7 @@ watch(tab, (newVal) => {
   <v-row>
     <v-col>
       <v-card min-height="850">
-        <v-toolbar color="primary">
+        <v-toolbar color="secondary">
           <v-toolbar-title>
             {{ t('OCSERV_GROUPS') }}
           </v-toolbar-title>
@@ -41,8 +41,8 @@ watch(tab, (newVal) => {
             <v-btn
                 v-if="tab == 'others'"
                 class="ma-5"
-                color="white"
-                variant="outlined"
+                color="primary"
+                variant="elevated"
                 @click="createDialog = true"
             >
               {{ t("CREATE") }}

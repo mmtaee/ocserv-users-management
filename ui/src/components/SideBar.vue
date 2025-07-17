@@ -3,6 +3,7 @@ import avatarUrl from "@/assets/torvalds.jpg";
 import {useLocale} from "vuetify/framework";
 import {useUserStore} from "@/stores/user.ts";
 import {useIsSmallDisplay} from "@/stores/display.ts";
+import {useServerStore} from "@/stores/server.ts";
 
 const props = defineProps({
   modelValue: Boolean
@@ -11,6 +12,8 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"])
 
 const userStore = useUserStore()
+const serverStore = useServerStore()
+
 const {t} = useLocale()
 
 const smallDisplay = useIsSmallDisplay()
@@ -104,7 +107,7 @@ const items = [
       <div v-if="!smallDisplay.isSmallDisplay">
         <v-divider class="mb-2"/>
         <div style="text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 10px">
-          <div>Built with ❤️ in 2025</div>
+          <div class="me-3 text-primary">Ocserv Version: {{ serverStore.versionInfo }}</div>
           <div>
             Need help? Contact
             <a
@@ -112,7 +115,9 @@ const items = [
                 style="color: #007BFF; text-decoration: none;"
                 target="_blank"
             >
-              Github
+              <v-icon>
+                mdi-github
+              </v-icon>
             </a>
           </div>
         </div>

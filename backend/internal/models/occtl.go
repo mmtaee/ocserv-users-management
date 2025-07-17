@@ -23,3 +23,8 @@ type OnlineUserSession struct {
 	AverageTX   string `json:"Average TX"`
 	ConnectedAt string `json:"_Connected at"`
 }
+
+type ServerVersion struct {
+	Version      string `json:"version"`
+	OcctlVersion string `json:"occtl_version"`
+}

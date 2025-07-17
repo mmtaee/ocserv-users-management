@@ -23,7 +23,7 @@ func newControllerWithMocks() (
 	mockRequest := new(mocks.CustomRequestInterface)
 	ocservGroupRepo := new(mocks.OcservGroupRepositoryInterface)
 
-	ctrl := &Controller{
+	ctl := &Controller{
 		request:         mockRequest,
 		ocservGroupRepo: ocservGroupRepo,
 	}
@@ -56,7 +56,7 @@ func TestOcservGroupList(t *testing.T) {
 		On("Groups", mock.Anything, pagination).
 		Return(&[]models.OcservGroup{}, int64(0), nil)
 
-	err := ctrl.OcservGroups(c)
+	err := ctl.OcservGroups(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -76,7 +76,7 @@ func TestOcservGroupLookup(t *testing.T) {
 	c, rec := setupEcho(http.MethodGet, "/ocserv/groups/lookup", "")
 
 	ocservGroupRepo.On("GroupsLookup", mock.Anything).Return([]string{}, nil)
-	err := ctrl.OcservGroupsLookup(c)
+	err := ctl.OcservGroupsLookup(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	var resp []string
@@ -120,7 +120,7 @@ func TestCreateOcservGroupSuccess(t *testing.T) {
 	ocservGroupRepo.On("Create", mock.Anything, mock.Anything).
 		Return(&expectedGroup, nil)
 
-	err := ctrl.CreateOcservGroup(c)
+	err := ctl.CreateOcservGroup(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusCreated, rec.Code)
@@ -146,7 +146,7 @@ func TestCreateOcservGroupFailed(t *testing.T) {
 	mockRequest.On("BadRequest", mock.Anything, expectedErr).
 		Return(c.JSON(http.StatusBadRequest, expectedErr))
 
-	err := ctrl.CreateOcservGroup(c)
+	err := ctl.CreateOcservGroup(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	mockRequest.AssertExpectations(t)
@@ -192,7 +192,7 @@ func TestUpdateOcservGroupSuccess(t *testing.T) {
 	updatedGroup.Config.MaxSameClients = intPtr(3)
 	ocservGroupRepo.On("Update", mock.Anything, mock.AnythingOfType("*models.OcservGroup")).Return(&updatedGroup, nil)
 
-	err := ctrl.UpdateOcservGroup(c)
+	err := ctl.UpdateOcservGroup(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 
@@ -221,7 +221,7 @@ func TestUpdateOcservGroupFailed(t *testing.T) {
 	mockRequest.On("BadRequest", mock.Anything, expectedErr).
 		Return(c.JSON(http.StatusBadRequest, expectedErr))
 
-	err := ctrl.UpdateOcservGroup(c)
+	err := ctl.UpdateOcservGroup(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	mockRequest.AssertExpectations(t)
@@ -238,7 +238,7 @@ func TestDeleteOcservGroupSuccess(t *testing.T) {
 
 	ocservGroupRepo.On("Delete", mock.Anything, "uid-123").Return(nil)
 
-	err := ctrl.DeleteOcservGroup(c)
+	err := ctl.DeleteOcservGroup(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusNoContent, rec.Code)
 	ocservGroupRepo.AssertExpectations(t)

@@ -10,7 +10,6 @@ import {HomeApi, type ModelsDailyTraffic, type ModelsIPBan, type ModelsOnlineUse
 import {getAuthorization} from "@/utils/request.ts";
 import {useLocale} from "vuetify/framework";
 import {dummyBanIPs, dummyOnlineUsers, dummyTrafficData} from "@/utils/dummy.ts";
-import {tr} from "vuetify/locale";
 
 type StatusResult = {
   cleanedText: string;
@@ -112,8 +111,9 @@ onMounted(() => {
 
     const trafficInfo = trafficStatsWrapper(res.data.status.current_stats)
     currentStats.value = trafficInfo.cleanedText.replaceAll('\n', '<br>').replaceAll('"', "")
-    currentRX.value = trafficInfo.rx
-    currentTX.value = trafficInfo.tx
+
+    currentRX.value = trafficInfo.rx || ""
+    currentTX.value = trafficInfo.tx || ""
 
     if (res.data.stats) {
       trafficData.value = res.data.stats

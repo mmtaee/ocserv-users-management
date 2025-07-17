@@ -59,6 +59,92 @@ const docTemplate = `{
                 }
             }
         },
+        "/occtl/commands": {
+            "get": {
+                "description": "Occtl Commands",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OCCTL"
+                ],
+                "summary": "Occtl Commands",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Command Action ID (1 to 15)",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Optional parameter depending on command",
+                        "name": "value",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/occtl/server_info": {
+            "get": {
+                "description": "Server information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OCCTL"
+                ],
+                "summary": "Server information",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ServerVersion"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/groups": {
             "get": {
                 "description": "List of Ocserv groups",
@@ -695,6 +781,69 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/{uid}/statistics": {
+            "get": {
+                "description": "Ocserv User Statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Ocserv User Statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ocserv User UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ocserv user statistics date data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.StatisticsData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DailyTraffic"
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1772,6 +1921,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ServerVersion": {
+            "type": "object",
+            "properties": {
+                "occtl_version": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "models.System": {
             "type": "object",
             "properties": {
@@ -1926,6 +2086,19 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.OcservUser"
                     }
+                }
+            }
+        },
+        "ocserv_user.StatisticsData": {
+            "type": "object",
+            "properties": {
+                "date_end": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "date_start": {
+                    "type": "string",
+                    "example": "2025-1-31"
                 }
             }
         },

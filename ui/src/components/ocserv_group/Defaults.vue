@@ -18,17 +18,24 @@ const updateDefaultGroup = () => {
       config: data
     }
   }).then((res) => {
+    // TODO: update group not completed
+
     console.log(res.data)
   })
 }
 
+const getDefaultGroup = () => {
+  api.ocservGroupsDefaultsGet({
+    ...getAuthorization()
+  }).then((res) => {
+    Object.assign(data, res.data)
+  })
+}
+
+
 onMounted(
     () => {
-      api.ocservGroupsDefaultsGet({
-        ...getAuthorization()
-      }).then((res) => {
-        Object.assign(data, res.data)
-      })
+      getDefaultGroup()
     }
 )
 

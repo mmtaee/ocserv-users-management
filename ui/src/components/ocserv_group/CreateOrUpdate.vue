@@ -136,6 +136,7 @@ watch(
                 v-model="data"
                 hideBtn
                 @valid="(v: boolean) => validConfig = v"
+                @update:modelValue="(v) => Object.assign(data, v)"
             />
           </v-col>
 

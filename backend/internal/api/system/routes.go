@@ -6,19 +6,18 @@ import (
 )
 
 func Routes(e *echo.Group) {
-	ctrl := New()
-
-	e.GET("/system/init", ctrl.SystemInit)
-	e.POST("/system/setup", ctrl.SetupSystem)
-	e.POST("/system/users/login", ctrl.Login)
+	ctl := New()
+	e.GET("/system/init", ctl.SystemInit)
+	e.POST("/system/setup", ctl.SetupSystem)
+	e.POST("/system/users/login", ctl.Login)
 
 	g := e.Group("/system", middlewares.AuthMiddleware())
-	g.GET("", ctrl.System)
-	g.PATCH("", ctrl.SystemUpdate)
+	g.GET("", ctl.System)
+	g.PATCH("", ctl.SystemUpdate)
 
-	g.POST("/users", ctrl.CreateUser, middlewares.AdminPermission())
-	g.POST("/users/:uid/password", ctrl.ChangeUserPasswordByAdmin, middlewares.AdminPermission())
-	g.DELETE("/users/:uid", ctrl.DeleteUser, middlewares.AdminPermission())
-	g.POST("/users/password", ctrl.ChangePasswordBySelf)
-	g.GET("/users/profile", ctrl.Profile)
+	g.POST("/users", ctl.CreateUser, middlewares.AdminPermission())
+	g.POST("/users/:uid/password", ctl.ChangeUserPasswordByAdmin, middlewares.AdminPermission())
+	g.DELETE("/users/:uid", ctl.DeleteUser, middlewares.AdminPermission())
+	g.POST("/users/password", ctl.ChangePasswordBySelf)
+	g.GET("/users/profile", ctl.Profile)
 }

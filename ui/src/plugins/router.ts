@@ -55,6 +55,18 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../views/OcservUsersView.vue'),
         meta: {title: "Ocserv Users"}
     },
+    {
+        path: '/ocserv-server',
+        name: 'OcservServerPage',
+        component: () => import('../views/OcservServerView.vue'),
+        meta: {title: "Ocserv Server"}
+    },
+    {
+        path: '/occtl',
+        name: 'OcctlPage',
+        component: () => import('../views/OcctlView.vue'),
+        meta: {title: "Occtl"}
+    },
 ]
 
 const router = createRouter({

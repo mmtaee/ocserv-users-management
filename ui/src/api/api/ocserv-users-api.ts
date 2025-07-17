@@ -24,11 +24,15 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { MiddlewaresUnauthorized } from '../models';
 // @ts-ignore
+import type { ModelsDailyTraffic } from '../models';
+// @ts-ignore
 import type { ModelsOcservUser } from '../models';
 // @ts-ignore
 import type { OcservUserCreateOcservUserData } from '../models';
 // @ts-ignore
 import type { OcservUserOcservUsersResponse } from '../models';
+// @ts-ignore
+import type { OcservUserStatisticsData } from '../models';
 // @ts-ignore
 import type { OcservUserUpdateOcservUserData } from '../models';
 // @ts-ignore
@@ -264,6 +268,52 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
+         * Ocserv User Statistics
+         * @summary Ocserv User Statistics
+         * @param {string} authorization Bearer TOKEN
+         * @param {string} uid Ocserv User UID
+         * @param {OcservUserStatisticsData} request ocserv user statistics date data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservUsersUidStatisticsGet: async (authorization: string, uid: string, request: OcservUserStatisticsData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('ocservUsersUidStatisticsGet', 'authorization', authorization)
+            // verify required parameter 'uid' is not null or undefined
+            assertParamExists('ocservUsersUidStatisticsGet', 'uid', uid)
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('ocservUsersUidStatisticsGet', 'request', request)
+            const localVarPath = `/ocserv/users/{uid}/statistics`
+                .replace(`{${"uid"}}`, encodeURIComponent(String(uid)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(request, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Ocserv User unlocking
          * @summary Ocserv User unlocking
          * @param {string} authorization Bearer TOKEN
@@ -428,6 +478,21 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Ocserv User Statistics
+         * @summary Ocserv User Statistics
+         * @param {string} authorization Bearer TOKEN
+         * @param {string} uid Ocserv User UID
+         * @param {OcservUserStatisticsData} request ocserv user statistics date data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async ocservUsersUidStatisticsGet(authorization: string, uid: string, request: OcservUserStatisticsData, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsDailyTraffic>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersUidStatisticsGet(authorization, uid, request, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OcservUsersApi.ocservUsersUidStatisticsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Ocserv User unlocking
          * @summary Ocserv User unlocking
          * @param {string} authorization Bearer TOKEN
@@ -514,6 +579,16 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
          */
         ocservUsersUidPatch(requestParameters: OcservUsersApiOcservUsersUidPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservUser> {
             return localVarFp.ocservUsersUidPatch(requestParameters.authorization, requestParameters.uid, requestParameters.request, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Ocserv User Statistics
+         * @summary Ocserv User Statistics
+         * @param {OcservUsersApiOcservUsersUidStatisticsGetRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ocservUsersUidStatisticsGet(requestParameters: OcservUsersApiOcservUsersUidStatisticsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsDailyTraffic>> {
+            return localVarFp.ocservUsersUidStatisticsGet(requestParameters.authorization, requestParameters.uid, requestParameters.request, options).then((request) => request(axios, basePath));
         },
         /**
          * Ocserv User unlocking
@@ -672,6 +747,34 @@ export interface OcservUsersApiOcservUsersUidPatchRequest {
 }
 
 /**
+ * Request parameters for ocservUsersUidStatisticsGet operation in OcservUsersApi.
+ * @export
+ * @interface OcservUsersApiOcservUsersUidStatisticsGetRequest
+ */
+export interface OcservUsersApiOcservUsersUidStatisticsGetRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof OcservUsersApiOcservUsersUidStatisticsGet
+     */
+    readonly authorization: string
+
+    /**
+     * Ocserv User UID
+     * @type {string}
+     * @memberof OcservUsersApiOcservUsersUidStatisticsGet
+     */
+    readonly uid: string
+
+    /**
+     * ocserv user statistics date data
+     * @type {OcservUserStatisticsData}
+     * @memberof OcservUsersApiOcservUsersUidStatisticsGet
+     */
+    readonly request: OcservUserStatisticsData
+}
+
+/**
  * Request parameters for ocservUsersUidUnlockPost operation in OcservUsersApi.
  * @export
  * @interface OcservUsersApiOcservUsersUidUnlockPostRequest
@@ -778,6 +881,18 @@ export class OcservUsersApi extends BaseAPI {
      */
     public ocservUsersUidPatch(requestParameters: OcservUsersApiOcservUsersUidPatchRequest, options?: RawAxiosRequestConfig) {
         return OcservUsersApiFp(this.configuration).ocservUsersUidPatch(requestParameters.authorization, requestParameters.uid, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Ocserv User Statistics
+     * @summary Ocserv User Statistics
+     * @param {OcservUsersApiOcservUsersUidStatisticsGetRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OcservUsersApi
+     */
+    public ocservUsersUidStatisticsGet(requestParameters: OcservUsersApiOcservUsersUidStatisticsGetRequest, options?: RawAxiosRequestConfig) {
+        return OcservUsersApiFp(this.configuration).ocservUsersUidStatisticsGet(requestParameters.authorization, requestParameters.uid, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -14,10 +14,23 @@
 
 
 
-export * from './api/home-api';
-export * from './api/occtlapi';
-export * from './api/ocserv-groups-api';
-export * from './api/ocserv-users-api';
-export * from './api/system-api';
-export * from './api/system-users-api';
+/**
+ * 
+ * @export
+ * @interface ModelsServerVersion
+ */
+export interface ModelsServerVersion {
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelsServerVersion
+     */
+    'occtl_version'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelsServerVersion
+     */
+    'version'?: string;
+}
 

@@ -3,8 +3,11 @@ package utils
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/labstack/echo/v4"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
@@ -201,18 +204,79 @@ func GetOcservVersion() string {
 		log.Println("Command error:", err)
 		return ""
 	}
-
 	// Combine stdout and stderr for pattern matching
 	fullOutput := out.String() + stderr.String()
-	log.Println("Raw output:\n" + fullOutput)
-
 	// Regex to find the version number
 	re := regexp.MustCompile(`OpenConnect VPN Server\s+([0-9]+\.[0-9]+\.[0-9]+)`)
 	match := re.FindStringSubmatch(fullOutput)
 	if len(match) >= 2 {
-		log.Println("Version:", match[1])
-		return match[1]
+		return strings.TrimSpace(match[1])
 	}
-	log.Println("Version not found")
 	return ""
+}
+
+func GetOCCTLVersion() string {
+	cmd := exec.Command("occtl", "--version")
+
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	if err != nil {
+		log.Println("Command error:", err)
+		return ""
+	}
+
+	fullOutput := out.String() + stderr.String()
+	lines := strings.Split(fullOutput, "\n")
+	var resultLines []string
+	for _, line := range lines {
+		if trim := strings.TrimSpace(line); trim != "" {
+			if strings.HasPrefix(trim, "Copyright") {
+				break
+			}
+			resultLines = append(resultLines, trim)
+		}
+	}
+
+	if len(resultLines) == 0 {
+		return ""
+	}
+
+	finalOutput := strings.Join(resultLines, "\n")
+	return finalOutput
+}
+
+func fixTrailingComma(jsonBytes []byte) []byte {
+	re := regexp.MustCompile(`("in_use"\s*:\s*\d+)\s*,`)
+	return re.ReplaceAll(jsonBytes, []byte("$1"))
+}
+
+func OcctlResponse(c echo.Context, cmd *exec.Cmd, resultType interface{}) error {
+	out, err := cmd.Output()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to info: "+err.Error())
+	}
+
+	var info interface{}
+
+	switch resultType.(type) {
+	case string:
+		return c.String(http.StatusOK, string(out))
+	case map[string]interface{}:
+		info = map[string]interface{}{}
+	case []interface{}:
+		info = []interface{}{}
+	default:
+		info = new(interface{})
+	}
+
+	out = fixTrailingComma(out)
+
+	if err = json.Unmarshal(out, &info); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse info JSON: "+err.Error())
+	}
+	return c.JSON(http.StatusOK, info)
 }

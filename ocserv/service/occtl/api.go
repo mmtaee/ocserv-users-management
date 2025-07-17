@@ -176,12 +176,19 @@ func (ctrl *Controller) UnbanIP(c echo.Context) error {
 //
 // Executes: occtl -j show status
 func (ctrl *Controller) ShowStatus(c echo.Context) error {
-	cmd := exec.Command(occtlExec, "show", "status")
-	out, err := cmd.Output()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get status: "+err.Error())
+	var cmd *exec.Cmd
+	format := c.QueryParam("format")
+
+	if format == "json" {
+		cmd = exec.Command(occtlExec, "-j", "show", "status")
+	} else {
+		cmd = exec.Command(occtlExec, "show", "status")
 	}
-	return c.JSON(http.StatusOK, string(out))
+
+	if format == "json" {
+		return utils.OcctlResponse(c, cmd, map[string]interface{}{})
+	}
+	return utils.OcctlResponse(c, cmd, "")
 }
 
 // ShowIRoutes returns the current iRoutes information.
@@ -191,27 +198,15 @@ func (ctrl *Controller) ShowIRoutes(c echo.Context) error {
 	var iRoutes []IRoute
 
 	version := utils.GetOcservVersion()
-
 	if version == "1.2.4" { // has bug on IRoute Command
 		return c.JSON(http.StatusOK, iRoutes)
 	}
 
-	cmd := exec.Command(occtlExec, "show", "iroutes", "")
-	out, err := cmd.Output()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get iroutes: "+err.Error())
-	}
-
-	if output := string(out); output != "" {
-		if err = json.Unmarshal(out, &iRoutes); err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse iroutes JSON: "+err.Error())
-		}
-	}
-
-	return c.JSON(http.StatusOK, iRoutes)
+	cmd := exec.Command(occtlExec, "-j", "show", "iroutes", "")
+	return utils.OcctlResponse(c, cmd, []interface{}{})
 }
 
-// ShowUser returns detailed information about a specific user.
+// ShowUser returns detailed information about a specific user by username.
 //
 // Executes: occtl -j show user <username>
 func (ctrl *Controller) ShowUser(c echo.Context) error {
@@ -221,15 +216,87 @@ func (ctrl *Controller) ShowUser(c echo.Context) error {
 	}
 
 	cmd := exec.Command(occtlExec, "-j", "show", "user", username)
-	out, err := cmd.Output()
+	return utils.OcctlResponse(c, cmd, map[string]interface{}{})
+}
+
+// Version returns detailed information about ocserv version.
+//
+// Executes: ocserv -v
+func (ctrl *Controller) Version(c echo.Context) error {
+	version := utils.GetOcservVersion()
+	occtlVersion := utils.GetOCCTLVersion()
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"version":       version,
+		"occtl_version": occtlVersion,
+	})
+}
+
+// ShowUserByID returns detailed information about a specific user by ID.
+//
+// Executes: occtl -j show id <id>
+func (ctrl *Controller) ShowUserByID(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "id is required")
+	}
+
+	cmd := exec.Command(occtlExec, "-j", "show", "id", id)
+	return utils.OcctlResponse(c, cmd, map[string]interface{}{})
+}
+
+// ShowSession returns detailed information about a specific session by SID.
+//
+// Executes: occtl -j show session <SID>
+func (ctrl *Controller) ShowSession(c echo.Context) error {
+	sid := c.Param("sid")
+	if sid == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "SID is required")
+	}
+
+	cmd := exec.Command(occtlExec, "-j", "show", "session", sid)
+	return utils.OcctlResponse(c, cmd, map[string]interface{}{})
+}
+
+// ShowSessionsALL returns detailed information about all sessions.
+//
+// Executes: occtl -j show sessions all
+func (ctrl *Controller) ShowSessionsALL(c echo.Context) error {
+	cmd := exec.Command(occtlExec, "-j", "show", "sessions", "all")
+	return utils.OcctlResponse(c, cmd, []interface{}{})
+}
+
+// ShowSessionsValid returns detailed information  about all valid sessions.
+//
+// Executes: occtl -j show sessions valid
+func (ctrl *Controller) ShowSessionsValid(c echo.Context) error {
+	cmd := exec.Command(occtlExec, "-j", "show", "sessions", "valid")
+	return utils.OcctlResponse(c, cmd, []interface{}{})
+}
+
+// ShowEvent returns detailed information about events.
+//
+// Executes: occtl -j show events
+func (ctrl *Controller) ShowEvent(c echo.Context) error {
+	cmd := exec.Command(occtlExec, "-j", "show", "events")
+
+	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user info: "+err.Error())
+		return err
 	}
 
-	var userInfo map[string]interface{}
-	if err = json.Unmarshal(out, &userInfo); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse user info JSON: "+err.Error())
+	go func() {
+		defer stdin.Close()
+		_, _ = stdin.Write([]byte("q\n"))
+	}()
+
+	output, err := cmd.Output()
+	if err != nil {
+		return err
 	}
 
-	return c.JSON(http.StatusOK, userInfo)
+	cleaned := strings.Replace(string(output), "Press 'q' or CTRL+C to quit", "", 1)
+	cleaned = strings.TrimSpace(cleaned)
+
+	return c.String(http.StatusOK, cleaned)
 }

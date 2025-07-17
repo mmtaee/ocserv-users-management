@@ -198,7 +198,7 @@ onBeforeMount(
   <v-row>
     <v-col>
       <v-card min-height="850">
-        <v-toolbar color="odd">
+        <v-toolbar color="secondary">
           <v-toolbar-title>
             {{ t('OCSERV_USERS') }}
           </v-toolbar-title>
@@ -207,7 +207,7 @@ onBeforeMount(
             <v-btn
                 class="ma-5"
                 color="primary"
-                variant="flat"
+                variant="elevated"
                 @click="createDialog = true"
             >
               {{ t("CREATE") }}
@@ -229,26 +229,28 @@ onBeforeMount(
                       sm="12"
                   >
                     <v-card class="mt-1" elevation="6">
-                      <v-card-title class="text-subtitle-1 bg-primary pa-4">
-                        <v-row align="center" justify="start">
+                      <v-card-title class="text-subtitle-1 bg-primary py-4">
+                        <v-row align="center" justify="center">
 
-                          <v-col cols="12" md="9" sm="8">
-
+                          <v-col cols="12" md="10">
                             {{ item.username }}
                             <span class="text-capitalize">({{ item.is_online ? t("ONLINE") : t("OFFLINE") }})</span>
                           </v-col>
-                          <v-col cols="12" md="3">
-                            <v-icon v-if="item.is_locked" start>mdi-lock</v-icon>
-                            <v-icon v-if="!item.is_locked" start>mdi-lock-open</v-icon>
 
+                          <v-col cols="12" md="1">
+                            <v-icon v-if="item.is_locked" end>mdi-lock</v-icon>
+                            <v-icon v-if="!item.is_locked" end>mdi-lock-open</v-icon>
+                          </v-col>
+
+                          <v-col cols="12" md="1">
                             <v-menu>
                               <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props">
+                                <v-icon start v-bind="props">
                                   mdi-dots-vertical
                                 </v-icon>
                               </template>
 
-                              <v-list color="primary">
+                              <v-list color="info">
                                 <v-list-item @click="objHandler(item);editDialog = true">
                                   <v-list-item-title class="text-info text-capitalize me-5">
                                     {{ t("EDIT") }}
@@ -268,11 +270,11 @@ onBeforeMount(
                                 </v-list-item>
 
                                 <v-list-item v-if="!item.is_locked" @click="objHandler(item);lockDialog = true">
-                                  <v-list-item-title class="text-odd text-capitalize me-5">
+                                  <v-list-item-title class="text-info text-capitalize me-5">
                                     {{ t("LOCK") }}
                                   </v-list-item-title>
                                   <template v-slot:prepend>
-                                    <v-icon class="ms-2" color="odd">mdi-lock</v-icon>
+                                    <v-icon class="ms-2" color="info">mdi-lock</v-icon>
                                   </template>
                                 </v-list-item>
 
@@ -286,11 +288,11 @@ onBeforeMount(
                                 </v-list-item>
 
                                 <v-list-item @click="objHandler(item);statisticsDialog = true">
-                                  <v-list-item-title class="text-success text-capitalize me-5">
+                                  <v-list-item-title class="text-info text-capitalize me-5">
                                     {{ t("STATISTICS") }}
                                   </v-list-item-title>
                                   <template v-slot:prepend>
-                                    <v-icon class="ms-2" color="success">mdi-chart-bar-stacked</v-icon>
+                                    <v-icon class="ms-2" color="info">mdi-chart-bar-stacked</v-icon>
                                   </template>
                                 </v-list-item>
 

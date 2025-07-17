@@ -24,7 +24,7 @@ func newControllerWithMocks() (
 	mockRequest := new(mocks.CustomRequestInterface)
 	mockOcservUserRepo := new(mocks.OcservUserRepositoryInterface)
 
-	ctrl := &Controller{
+	ctl := &Controller{
 		request:        mockRequest,
 		ocservUserRepo: mockOcservUserRepo,
 	}
@@ -65,7 +65,7 @@ func TestOcservUsers(t *testing.T) {
 		On("Users", mock.Anything, pagination).
 		Return(&[]models.OcservUser{}, int64(0), nil)
 
-	err := ctrl.OcservUsers(c)
+	err := ctl.OcservUsers(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -117,7 +117,7 @@ func TestOcservUserCreateSuccess(t *testing.T) {
 	mockOcservUserRepo.On("Create", mock.Anything, mock.Anything).
 		Return(&expectedUser, nil)
 
-	err := ctrl.CreateOcservUser(c)
+	err := ctl.CreateOcservUser(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusCreated, rec.Code)
@@ -146,7 +146,7 @@ func TestOcservUserCreateFailed(t *testing.T) {
 	mockRequest.On("BadRequest", mock.Anything, expectedErr).
 		Return(c.JSON(http.StatusBadRequest, expectedErr))
 
-	err := ctrl.CreateOcservUser(c)
+	err := ctl.CreateOcservUser(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	mockRequest.AssertExpectations(t)
@@ -185,7 +185,7 @@ func TestOcservUserUpdateSuccess(t *testing.T) {
 	mockOcservUserRepo.On("Update", mock.Anything, &ocservUser).Return(&updatedUser, nil)
 	mockOcservUserRepo.On("Update", mock.Anything, mock.AnythingOfType("*models.OcservUser")).Return(&updatedUser, nil)
 
-	err := ctrl.UpdateOcservUser(c)
+	err := ctl.UpdateOcservUser(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 
@@ -209,7 +209,7 @@ func TestDeleteOcservUserSuccess(t *testing.T) {
 
 	mockOcservUserRepo.On("Delete", mock.Anything, "uid-123").Return(nil)
 
-	err := ctrl.DeleteOcservUser(c)
+	err := ctl.DeleteOcservUser(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusNoContent, rec.Code)
 	mockOcservUserRepo.AssertExpectations(t)
@@ -229,7 +229,7 @@ func TestDeleteOcservUserFailed(t *testing.T) {
 	mockRequest.On("BadRequest", mock.Anything, expectedErr).
 		Return(c.JSON(http.StatusBadRequest, expectedErr))
 
-	err := ctrl.DeleteOcservUser(c)
+	err := ctl.DeleteOcservUser(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	mockRequest.AssertExpectations(t)
@@ -243,7 +243,7 @@ func TestLockOcservUser(t *testing.T) {
 	c.SetParamValues("uid-123")
 
 	mockOcservUserRepo.On("Lock", mock.Anything, "uid-123").Return(nil)
-	err := ctrl.LockOcservUser(c)
+	err := ctl.LockOcservUser(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockOcservUserRepo.AssertExpectations(t)
@@ -257,7 +257,7 @@ func TestUnLockOcservUser(t *testing.T) {
 	c.SetParamValues("uid-123")
 
 	mockOcservUserRepo.On("UnLock", mock.Anything, "uid-123").Return(nil)
-	err := ctrl.UnLockOcservUser(c)
+	err := ctl.UnLockOcservUser(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockOcservUserRepo.AssertExpectations(t)

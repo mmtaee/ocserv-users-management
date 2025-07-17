@@ -6,6 +6,7 @@ import router from "@/plugins/router.ts";
 import {useConfigStore} from "@/stores/config.ts";
 import {createPinia} from "pinia";
 import {useUserStore} from "@/stores/user.ts";
+import {useServerStore} from "@/stores/server.ts";
 
 
 const app = createApp(App)
@@ -13,6 +14,9 @@ const app = createApp(App)
 app.use(createPinia())
 
 ;(async () => {
+    const serverStore = useServerStore()
+    await serverStore.getServerInfo()
+
     const configStore = useConfigStore()
     const setup = await configStore.getConfig()
 

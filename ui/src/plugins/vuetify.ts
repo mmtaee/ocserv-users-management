@@ -43,39 +43,39 @@ export default createVuetify({
             light: {
                 dark: false,
                 colors: {
-                    background: '#FDFDFD',
-                    surface: '#FFFFFF',
-                    primary: '#7C3AED',          // Vivid Violet
-                    'primary-darken-1': '#6D28D9',
-                    secondary: '#F97316',        // Vibrant Orange
-                    accent: '#06B6D4',           // Electric Cyan
-                    error: '#EF4444',            // Bright Red
-                    warning: '#FACC15',          // Punchy Yellow
-                    success: '#10B981',          // Lush Green
-                    info: '#3B82F6',             // Azure Blue
-                    odd: '#ebebeb',
-                    'on-primary': '#FFFFFF',
-                    'on-surface': '#1E1E2F',
-                    'on-background': '#111827',
+                    primary: '#2C7BE5',      // Bright blue
+                    secondary: '#6C757D',    // Cool gray
+                    background: '#F8F9FA',   // Very light gray
+                    surface: '#FFFFFF',      // White
+                    error: '#D32F2F',        // Strong red
+                    success: '#388E3C',      // Green
+                    warning: '#FFA000',      // Amber
+                    info: '#1976D2',         // Deep blue
+                    onPrimary: '#FFFFFF',    // Text on primary
+                    onSecondary: '#FFFFFF',  // Text on secondary
+                    onBackground: '#212529', // Main text
+                    onSurface: '#212529',    // Secondary text
+                    odd: '#F1F3F5',     // Light gray
+                    even: '#FFFFFF',     // White
                 },
             },
             dark: {
                 dark: true,
                 colors: {
-                    background: '#0F172A',         // Deep Navy
-                    surface: '#1E293B',            // Dark Slate
-                    primary: '#C084FC',            // Electric Purple
-                    'primary-darken-1': '#A855F7',
-                    secondary: '#FB923C',          // Lively Orange
-                    accent: '#22D3EE',             // Aqua Neon
-                    error: '#F87171',              // Bright Coral
-                    warning: '#FCD34D',            // Sunny Yellow
-                    success: '#34D399',            // Green Pulse
-                    info: '#60A5FA',               // Sky Blue
-                    odd: '#8f8585',
-                    'on-primary': '#000000',
-                    'on-surface': '#F3F4F6',
-                    'on-background': '#E5E7EB',
+                    primary: '#2C7BE5',       // Same blue
+                    secondary: '#ADB5BD',     // Soft gray
+                    background: '#121212',    // Dark background
+                    surface: '#1E1E1E',       // Slightly lighter than background
+                    error: '#EF5350',         // Softer red
+                    success: '#81C784',       // Light green
+                    warning: '#FFB74D',       // Warm amber
+                    info: '#64B5F6',          // Sky blue
+                    onPrimary: '#FFFFFF',     // White text
+                    onSecondary: '#000000',   // Black text
+                    onBackground: '#E0E0E0',  // Light text
+                    onSurface: '#E0E0E0',     // Light secondary
+                    odd: '#1A1A1A',     // Dark gray
+                    even: '#121212',    // Match background
                 },
             }
         },

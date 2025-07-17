@@ -89,5 +89,21 @@
   "LOCK_OCSERV_USER_MESSAGE": "Are you sure you want to lock this user?",
   "UNLOCK_OCSERV_USER_TITLE": "unlock Ocserv user",
   "UNLOCK_OCSERV_USER_MESSAGE": "Are you sure you want to unlock this user?",
-  "OCSERV_USER_STATISTICS_TITLE": "Ocserv user statistics"
+  "OCSERV_USER_STATISTICS_TITLE": "Ocserv user statistics",
+  "DISCONNECT_USER_DESC": "Disconnect the specified user",
+  "DISCONNECT_ID_DESC": "Disconnect the specified ID",
+  "UNBAN_IP_DESC": "Unban the specified IP",
+  "RELOAD_DESC": "Reloads the server configuration",
+  "SHOW_STATUS_DESC": "Prints the status and statistics of the server",
+  "SHOW_USERS_DESC": "Prints the connected users",
+  "SHOW_IP_BANS_DESC": "Prints the banned IP addresses",
+  "SHOW_IP_BAN_POINTS_DESC": "Prints all the known IP addresses which have points",
+  "SHOW_IROUTES_DESC": "Prints the routes provided by users of the server",
+  "SHOW_SESSIONS_ALL_DESC": "Prints all the session IDs",
+  "SHOW_SESSIONS_VALID_DESC": "Prints all the valid for reconnection sessions",
+  "SHOW_SESSION_DESC": "Prints information on the specified session",
+  "SHOW_USER_DESC": "Prints information on the specified user",
+  "SHOW_ID_DESC": "Prints information on the specified ID",
+  "SHOW_EVENTS_DESC": "Provides information about connecting users",
+  "STOP_NOW_DESC": "Terminates the server"
 }

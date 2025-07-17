@@ -3,6 +3,7 @@ package ocserv_user
 import (
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/pkg/request"
+	"time"
 )
 
 type CreateOcservUserData struct {
@@ -29,4 +30,9 @@ type UpdateOcservUserData struct {
 type OcservUsersResponse struct {
 	Meta   request.Meta         `json:"meta" validate:"required"`
 	Result *[]models.OcservUser `json:"result" validate:"omitempty"`
+}
+
+type StatisticsData struct {
+	DateStart *time.Time `json:"date_start" validate:"omitempty" example:"2025-1-31"`
+	DateEnd   *time.Time `json:"date_end" validate:"omitempty" example:"2025-12-31"`
 }
