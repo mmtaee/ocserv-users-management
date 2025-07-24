@@ -55,8 +55,8 @@ export default createVuetify({
                     onSecondary: '#FFFFFF',  // Text on secondary
                     onBackground: '#212529', // Main text
                     onSurface: '#212529',    // Secondary text
-                    odd: '#F1F3F5',     // Light gray
-                    even: '#FFFFFF',     // White
+                    odd: '#E6F0FF',   // Very light blue (soft, related to primary)
+                    even: '#F8F9FA',  // Very light gray (clean, neutral)
                 },
             },
             dark: {

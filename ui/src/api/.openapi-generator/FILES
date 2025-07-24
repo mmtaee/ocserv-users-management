@@ -4,6 +4,7 @@ api.ts
 api/home-api.ts
 api/occtlapi.ts
 api/ocserv-groups-api.ts
+api/ocserv-statistics-api.ts
 api/ocserv-users-api.ts
 api/system-api.ts
 api/system-users-api.ts
@@ -11,8 +12,10 @@ common.ts
 configuration.ts
 git_push.sh
 index.ts
-models/home-home-response.ts
-models/home-stats-sections.ts
+models/home-current-stats.ts
+models/home-general-info.ts
+models/home-get-home-response.ts
+models/home-server-status-response.ts
 models/index.ts
 models/middlewares-permission-denied.ts
 models/middlewares-unauthorized.ts
@@ -31,7 +34,6 @@ models/ocserv-group-ocserv-groups-response.ts
 models/ocserv-group-update-ocserv-group-data.ts
 models/ocserv-user-create-ocserv-user-data.ts
 models/ocserv-user-ocserv-users-response.ts
-models/ocserv-user-statistics-data.ts
 models/ocserv-user-update-ocserv-user-data.ts
 models/request-error-response.ts
 models/request-meta.ts

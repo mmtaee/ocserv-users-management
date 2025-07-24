@@ -34,14 +34,14 @@ func New() *Controller {
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
-// @Success      200  {object}  HomeResponse
+// @Success      200  {object}  GetHomeResponse
 // @Router       /home [get]
 func (ctl *Controller) Home(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	var (
-		status      StatsSections
-		stats       *[]models.DailyTraffic
+		status      ServerStatusResponse
+		statistics  *[]models.DailyTraffic
 		onlineUsers *[]models.OnlineUserSession
 		ipBans      *[]models.IPBan
 		errs        = make(chan error, 4)
@@ -57,7 +57,7 @@ func (ctl *Controller) Home(c echo.Context) error {
 			errs <- err
 			return
 		}
-		parsed := SplitStatsText(serverStatus)
+		parsed := ParseServerStatus(serverStatus)
 		status = parsed
 	}()
 
@@ -68,7 +68,7 @@ func (ctl *Controller) Home(c echo.Context) error {
 			errs <- err
 			return
 		}
-		stats = data
+		statistics = data
 	}()
 
 	go func() {
@@ -99,11 +99,11 @@ func (ctl *Controller) Home(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	resp := HomeResponse{
-		Status:     status,
-		Stats:      stats,
-		OnlineUser: onlineUsers,
-		IPBans:     ipBans,
+	resp := GetHomeResponse{
+		ServerStatus: status,
+		Statistics:   statistics,
+		OnlineUser:   onlineUsers,
+		IPBans:       ipBans,
 	}
 
 	return c.JSON(http.StatusOK, resp)

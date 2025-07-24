@@ -34,7 +34,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/home.HomeResponse"
+                            "$ref": "#/definitions/home.GetHomeResponse"
                         }
                     },
                     "400": {
@@ -636,6 +636,67 @@
                 }
             }
         },
+        "/ocserv/users/statistics": {
+            "get": {
+                "description": "Ocserv Users Statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Statistics)"
+                ],
+                "summary": "Ocserv Users Statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "date_start",
+                        "name": "date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "date_end",
+                        "name": "date_end",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DailyTraffic"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/users/{uid}": {
             "delete": {
                 "description": "Ocserv User delete",
@@ -819,13 +880,16 @@
                         "required": true
                     },
                     {
-                        "description": "ocserv user statistics date data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.StatisticsData"
-                        }
+                        "type": "string",
+                        "description": "date_start",
+                        "name": "date_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "date_end",
+                        "name": "date_end",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1510,10 +1574,130 @@
         }
     },
     "definitions": {
-        "home.HomeResponse": {
+        "home.CurrentStats": {
+            "type": "object",
+            "properties": {
+                "Authentication failures": {
+                    "type": "integer"
+                },
+                "Average auth time": {
+                    "type": "string"
+                },
+                "Average session time": {
+                    "type": "string"
+                },
+                "Closed due to error sessions": {
+                    "type": "integer"
+                },
+                "Last stats reset": {
+                    "type": "string"
+                },
+                "Max auth time": {
+                    "type": "string"
+                },
+                "Max session time": {
+                    "type": "string"
+                },
+                "RX": {
+                    "type": "string"
+                },
+                "Sessions handled": {
+                    "type": "integer"
+                },
+                "TX": {
+                    "type": "string"
+                },
+                "Timed out (idle) sessions": {
+                    "type": "integer"
+                },
+                "Timed out sessions": {
+                    "type": "integer"
+                },
+                "_Last stats reset": {
+                    "type": "string"
+                },
+                "raw_avg_auth_time": {
+                    "type": "integer"
+                },
+                "raw_avg_session_time": {
+                    "type": "integer"
+                },
+                "raw_last_stats_reset": {
+                    "type": "integer"
+                },
+                "raw_max_auth_time": {
+                    "type": "integer"
+                },
+                "raw_max_session_time": {
+                    "type": "integer"
+                },
+                "raw_rx": {
+                    "description": "raw fields if you want",
+                    "type": "integer"
+                },
+                "raw_tx": {
+                    "type": "integer"
+                }
+            }
+        },
+        "home.GeneralInfo": {
+            "type": "object",
+            "properties": {
+                "Active sessions": {
+                    "type": "integer"
+                },
+                "IPs in ban list": {
+                    "type": "integer"
+                },
+                "Median latency": {
+                    "type": "string"
+                },
+                "STDEV latency": {
+                    "type": "string"
+                },
+                "Sec-mod PID": {
+                    "type": "integer"
+                },
+                "Sec-mod instance count": {
+                    "type": "integer"
+                },
+                "Server PID": {
+                    "type": "integer"
+                },
+                "Status": {
+                    "type": "string"
+                },
+                "Total authentication failures": {
+                    "type": "integer"
+                },
+                "Total sessions": {
+                    "type": "integer"
+                },
+                "Up since": {
+                    "type": "string"
+                },
+                "_Up since": {
+                    "type": "string"
+                },
+                "raw_median_latency": {
+                    "description": "raw fields if you want",
+                    "type": "integer"
+                },
+                "raw_stdev_latency": {
+                    "type": "integer"
+                },
+                "raw_up_since": {
+                    "type": "integer"
+                },
+                "uptime": {
+                    "type": "integer"
+                }
+            }
+        },
+        "home.GetHomeResponse": {
             "type": "object",
             "required": [
-                "status"
+                "server_status"
             ],
             "properties": {
                 "ipbans": {
@@ -1528,29 +1712,25 @@
                         "$ref": "#/definitions/models.OnlineUserSession"
                     }
                 },
-                "stats": {
+                "server_status": {
+                    "$ref": "#/definitions/home.ServerStatusResponse"
+                },
+                "statistics": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.DailyTraffic"
                     }
-                },
-                "status": {
-                    "$ref": "#/definitions/home.StatsSections"
                 }
             }
         },
-        "home.StatsSections": {
+        "home.ServerStatusResponse": {
             "type": "object",
-            "required": [
-                "current_stats",
-                "general_info"
-            ],
             "properties": {
                 "current_stats": {
-                    "type": "string"
+                    "$ref": "#/definitions/home.CurrentStats"
                 },
                 "general_info": {
-                    "type": "string"
+                    "$ref": "#/definitions/home.GeneralInfo"
                 }
             }
         },
@@ -2079,19 +2259,6 @@
                     "items": {
                         "$ref": "#/definitions/models.OcservUser"
                     }
-                }
-            }
-        },
-        "ocserv_user.StatisticsData": {
-            "type": "object",
-            "properties": {
-                "date_end": {
-                    "type": "string",
-                    "example": "2025-12-31"
-                },
-                "date_start": {
-                    "type": "string",
-                    "example": "2025-1-31"
                 }
             }
         },

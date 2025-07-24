@@ -14,7 +14,7 @@ type OcctlRepository struct {
 
 type OcctlRepositoryInterface interface {
 	Version(c context.Context) (*models.ServerVersion, error)
-	Status(c context.Context) (string, error)
+	Status(c context.Context) (map[string]interface{}, error)
 	OnlineUsers(c context.Context) ([]string, error)
 	OnlineUsersInfo(c context.Context) ([]models.OnlineUserSession, error)
 	IPBans(c context.Context) ([]models.IPBan, error)
@@ -43,12 +43,15 @@ func (o *OcctlRepository) Version(c context.Context) (*models.ServerVersion, err
 	return &result, nil
 }
 
-func (o *OcctlRepository) Status(c context.Context) (string, error) {
+func (o *OcctlRepository) Status(c context.Context) (map[string]interface{}, error) {
+	c = context.WithValue(c, "format", "json")
 	res, err := o.ocApi.Status(c)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(res), nil
+	var result map[string]interface{}
+	err = json.Unmarshal(res, &result)
+	return result, nil
 }
 
 func (o *OcctlRepository) OnlineUsers(c context.Context) ([]string, error) {

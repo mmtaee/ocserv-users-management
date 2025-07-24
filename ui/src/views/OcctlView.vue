@@ -171,7 +171,6 @@ const execute = () => {
           <v-col class="ma-0 pa-0 text-subtitle-2" cols="12" md="12">
             <v-card elevation="4" variant="tonal">
               <v-sheet
-                  v-if="result.length > 2"
                   class="text-pre-wrap px-2"
                   style="overflow: auto; max-height: 630px; white-space: pre;"
               >
@@ -179,10 +178,6 @@ const execute = () => {
                 <br/>{{ result }}
               </pre>
               </v-sheet>
-
-              <div v-else class="text-center pa-5">
-                {{ t("NO_RESULT_OCCTL_DESC") }}
-              </div>
             </v-card>
           </v-col>
         </v-card>

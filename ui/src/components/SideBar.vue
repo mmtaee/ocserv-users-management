@@ -42,24 +42,24 @@ const items = [
   },
   {
     "id": 3,
-    "value": "ocserv-server",
-    "icon": "mdi-server-network",
-    "title": t("OCSERV_SERVER"),
-    "to": "/ocserv-server"
-  },
-  {
-    "id": 4,
     "value": "occtl",
     "icon": "mdi-console",
     "title": "Occtl",
     "to": "/occtl"
   },
   {
-    "id": 5,
+    "id": 4,
     "value": "stats",
     "icon": "mdi-chart-bar-stacked",
     "title": t("STATISTICS"),
     "to": "/statistics"
+  },
+  {
+    "id": 5,
+    "value": "ocserv-server",
+    "icon": "mdi-server-network",
+    "title": t("SERVER_LOGS"),
+    "to": "/ocserv-server"
   },
 ]
 

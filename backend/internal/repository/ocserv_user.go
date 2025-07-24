@@ -27,7 +27,8 @@ type OcservUserRepositoryInterface interface {
 	Delete(ctx context.Context, uid string) error
 	TenDaysStats(ctx context.Context) (*[]models.DailyTraffic, error)
 	UpdateUsersByDeleteGroup(ctx context.Context, groupName string) (*[]models.OcservUser, error)
-	Statistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
+	UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
+	Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
@@ -195,7 +196,7 @@ func (o *OcservUserRepository) UpdateUsersByDeleteGroup(ctx context.Context, gro
 	return &users, err
 }
 
-func (o *OcservUserRepository) Statistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error) {
+func (o *OcservUserRepository) UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error) {
 	var results []models.DailyTraffic
 
 	query := o.db.WithContext(ctx).
@@ -206,17 +207,6 @@ func (o *OcservUserRepository) Statistics(ctx context.Context, uid string, dateS
 			DATE(ocserv_user_traffic_statistics.created_at) AS date,
 			SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,
 			SUM(ocserv_user_traffic_statistics.tx) / 1073741824.0 AS tx`)
-	//Select(`
-	//	DATE(created_at) AS date,
-	//	SUM(rx) / 1073741824.0 AS rx,
-	//	SUM(tx) / 1073741824.0 AS tx`)
-
-	//if dateStart != nil {
-	//	query = query.Where("created_at >= ?", *dateStart)
-	//}
-	//if dateEnd != nil {
-	//	query = query.Where("created_at <= ?", *dateEnd)
-	//}
 
 	if dateStart != nil {
 		query = query.Where("ocserv_user_traffic_statistics.created_at >= ?", *dateStart)
@@ -226,6 +216,28 @@ func (o *OcservUserRepository) Statistics(ctx context.Context, uid string, dateS
 	}
 
 	err := query.
+		Group("DATE(ocserv_user_traffic_statistics.created_at)").
+		Order("DATE(ocserv_user_traffic_statistics.created_at)").
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return &results, nil
+}
+
+func (o *OcservUserRepository) Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error) {
+	var results []models.DailyTraffic
+	err := o.db.WithContext(ctx).
+		Model(&models.OcservUserTrafficStatistics{}).
+		Joins("JOIN users ON users.id = ocserv_user_traffic_statistics.oc_user_id").
+		Select(`
+			DATE(ocserv_user_traffic_statistics.created_at) AS date,
+			SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,
+			SUM(ocserv_user_traffic_statistics.tx) / 1073741824.0 AS tx`,
+		).
+		Where("ocserv_user_traffic_statistics.created_at >= ?", *dateStart).
+		Where("ocserv_user_traffic_statistics.created_at <= ?", *dateEnd).
 		Group("DATE(ocserv_user_traffic_statistics.created_at)").
 		Order("DATE(ocserv_user_traffic_statistics.created_at)").
 		Scan(&results).Error

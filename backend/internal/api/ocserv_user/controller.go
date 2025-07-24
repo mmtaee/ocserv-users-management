@@ -3,6 +3,7 @@ package ocserv_user
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
@@ -311,7 +312,8 @@ func (ctl *Controller) DisconnectOcservUser(c echo.Context) error {
 // @Produce      json
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Param 		 uid path string true "Ocserv User UID"
-// @Param        request    body  StatisticsData  true "ocserv user statistics date data"
+// @Param 		 date_start query string false "date_start"
+// @Param 		 date_end query string false "date_end"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object} []models.DailyTraffic
@@ -323,18 +325,74 @@ func (ctl *Controller) StatisticsOcservUser(c echo.Context) error {
 	}
 
 	var data StatisticsData
-	if err := ctl.request.DoValidate(c, &data); err != nil {
+	if err := c.Bind(&data); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	if data.DateStart == nil && data.DateEnd == nil {
-		now := time.Now()
-		start := now.AddDate(0, -1, 0) // 1 month ago
-		data.DateStart = &start
-		data.DateEnd = &now
+	var startDate, endDate *time.Time
+
+	if data.DateStart != "" {
+		t, err := time.Parse("2006-01-02", data.DateStart)
+		if err != nil {
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
+		}
+		startDate = &t
 	}
 
-	stats, err := ctl.ocservUserRepo.Statistics(c.Request().Context(), userID, data.DateStart, data.DateEnd)
+	if data.DateEnd != "" {
+		t, err := time.Parse("2006-01-02", data.DateEnd)
+		if err != nil {
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
+		}
+		endDate = &t
+	}
+
+	stats, err := ctl.ocservUserRepo.UserStatistics(c.Request().Context(), userID, startDate, endDate)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, stats)
+}
+
+// Statistics 	 Ocserv Users Statistics
+//
+// @Summary      Ocserv Users Statistics
+// @Description  Ocserv Users Statistics
+// @Tags         Ocserv(Statistics)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param 		 date_start query string true "date_start"
+// @Param 		 date_end query string true "date_end"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} []models.DailyTraffic
+// @Router       /ocserv/users/statistics [get]
+func (ctl *Controller) Statistics(c echo.Context) error {
+	var data StatisticsData
+	if err := c.Bind(&data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if data.DateStart == "" || data.DateEnd == "" {
+		return ctl.request.BadRequest(c, errors.New("statistics date start and end are required"))
+	}
+
+	var startDate, endDate *time.Time
+
+	t, err := time.Parse("2006-01-02", data.DateStart)
+	if err != nil {
+		return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
+	}
+	startDate = &t
+
+	t, err = time.Parse("2006-01-02", data.DateEnd)
+	if err != nil {
+		return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
+	}
+	endDate = &t
+
+	stats, err := ctl.ocservUserRepo.Statistics(c.Request().Context(), startDate, endDate)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

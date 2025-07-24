@@ -32,8 +32,6 @@ import type { OcservUserCreateOcservUserData } from '../models';
 // @ts-ignore
 import type { OcservUserOcservUsersResponse } from '../models';
 // @ts-ignore
-import type { OcservUserStatisticsData } from '../models';
-// @ts-ignore
 import type { OcservUserUpdateOcservUserData } from '../models';
 // @ts-ignore
 import type { RequestErrorResponse } from '../models';
@@ -272,17 +270,16 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
          * @summary Ocserv User Statistics
          * @param {string} authorization Bearer TOKEN
          * @param {string} uid Ocserv User UID
-         * @param {OcservUserStatisticsData} request ocserv user statistics date data
+         * @param {string} [dateStart] date_start
+         * @param {string} [dateEnd] date_end
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservUsersUidStatisticsGet: async (authorization: string, uid: string, request: OcservUserStatisticsData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        ocservUsersUidStatisticsGet: async (authorization: string, uid: string, dateStart?: string, dateEnd?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('ocservUsersUidStatisticsGet', 'authorization', authorization)
             // verify required parameter 'uid' is not null or undefined
             assertParamExists('ocservUsersUidStatisticsGet', 'uid', uid)
-            // verify required parameter 'request' is not null or undefined
-            assertParamExists('ocservUsersUidStatisticsGet', 'request', request)
             const localVarPath = `/ocserv/users/{uid}/statistics`
                 .replace(`{${"uid"}}`, encodeURIComponent(String(uid)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -296,17 +293,22 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            if (dateStart !== undefined) {
+                localVarQueryParameter['date_start'] = dateStart;
+            }
+
+            if (dateEnd !== undefined) {
+                localVarQueryParameter['date_end'] = dateEnd;
+            }
+
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(request, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -482,12 +484,13 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
          * @summary Ocserv User Statistics
          * @param {string} authorization Bearer TOKEN
          * @param {string} uid Ocserv User UID
-         * @param {OcservUserStatisticsData} request ocserv user statistics date data
+         * @param {string} [dateStart] date_start
+         * @param {string} [dateEnd] date_end
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async ocservUsersUidStatisticsGet(authorization: string, uid: string, request: OcservUserStatisticsData, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsDailyTraffic>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersUidStatisticsGet(authorization, uid, request, options);
+        async ocservUsersUidStatisticsGet(authorization: string, uid: string, dateStart?: string, dateEnd?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsDailyTraffic>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersUidStatisticsGet(authorization, uid, dateStart, dateEnd, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OcservUsersApi.ocservUsersUidStatisticsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -588,7 +591,7 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
          * @throws {RequiredError}
          */
         ocservUsersUidStatisticsGet(requestParameters: OcservUsersApiOcservUsersUidStatisticsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsDailyTraffic>> {
-            return localVarFp.ocservUsersUidStatisticsGet(requestParameters.authorization, requestParameters.uid, requestParameters.request, options).then((request) => request(axios, basePath));
+            return localVarFp.ocservUsersUidStatisticsGet(requestParameters.authorization, requestParameters.uid, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(axios, basePath));
         },
         /**
          * Ocserv User unlocking
@@ -767,11 +770,18 @@ export interface OcservUsersApiOcservUsersUidStatisticsGetRequest {
     readonly uid: string
 
     /**
-     * ocserv user statistics date data
-     * @type {OcservUserStatisticsData}
+     * date_start
+     * @type {string}
      * @memberof OcservUsersApiOcservUsersUidStatisticsGet
      */
-    readonly request: OcservUserStatisticsData
+    readonly dateStart?: string
+
+    /**
+     * date_end
+     * @type {string}
+     * @memberof OcservUsersApiOcservUsersUidStatisticsGet
+     */
+    readonly dateEnd?: string
 }
 
 /**
@@ -892,7 +902,7 @@ export class OcservUsersApi extends BaseAPI {
      * @memberof OcservUsersApi
      */
     public ocservUsersUidStatisticsGet(requestParameters: OcservUsersApiOcservUsersUidStatisticsGetRequest, options?: RawAxiosRequestConfig) {
-        return OcservUsersApiFp(this.configuration).ocservUsersUidStatisticsGet(requestParameters.authorization, requestParameters.uid, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+        return OcservUsersApiFp(this.configuration).ocservUsersUidStatisticsGet(requestParameters.authorization, requestParameters.uid, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

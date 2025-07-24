@@ -1,5 +1,7 @@
-export * from './home-home-response';
-export * from './home-stats-sections';
+export * from './home-current-stats';
+export * from './home-general-info';
+export * from './home-get-home-response';
+export * from './home-server-status-response';
 export * from './middlewares-permission-denied';
 export * from './middlewares-unauthorized';
 export * from './models-daily-traffic';
@@ -17,7 +19,6 @@ export * from './ocserv-group-ocserv-groups-response';
 export * from './ocserv-group-update-ocserv-group-data';
 export * from './ocserv-user-create-ocserv-user-data';
 export * from './ocserv-user-ocserv-users-response';
-export * from './ocserv-user-statistics-data';
 export * from './ocserv-user-update-ocserv-user-data';
 export * from './request-error-response';
 export * from './request-meta';

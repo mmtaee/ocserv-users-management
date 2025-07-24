@@ -5,7 +5,8 @@ import {useLocale} from "vuetify/framework";
 import {
   type ModelsOcservUser,
   type ModelsOcservUserConfig,
-  ModelsOcservUserTrafficTypeEnum, OcservGroupsApi,
+  ModelsOcservUserTrafficTypeEnum,
+  OcservGroupsApi,
   type OcservUserCreateOcservUserData,
   OcservUsersApi,
   type OcservUserUpdateOcservUserData
@@ -314,14 +315,14 @@ onBeforeMount(
                       <v-card-text class="pa-5">
                         <v-row align="center" justify="start">
                           <v-col cols="12" md="6">
-                            <span class="text-grey">
+                            <span class="text-grey text-capitalize">
                               {{ t('GROUP') }}:
                             </span>
                             {{ item.group }}
                           </v-col>
 
                           <v-col cols="12" md="6">
-                            <span class="text-grey">
+                            <span class="text-grey text-capitalize">
                               {{ t('PASSWORD') }}:
                             </span>
 
@@ -348,21 +349,21 @@ onBeforeMount(
                           </v-col>
 
                           <v-col cols="12" md="6">
-                            <span class="text-grey">
+                            <span class="text-grey text-capitalize">
                               {{ t('TRAFFIC_TYPE') }}:
                             </span>
                             <span class="text-capitalize">{{ trafficTypesTransformer(item.traffic_type) }}</span>
                           </v-col>
 
                           <v-col cols="12" md="6">
-                            <span class="text-grey">
+                            <span class="text-grey text-capitalize">
                               {{ t('TRAFFIC_SIZE') }}:
                             </span>
                             {{ item.traffic_size }} GB
                           </v-col>
 
                           <v-col cols="12" md="6">
-                            <span class="text-grey">
+                            <span class="text-grey text-capitalize">
                               TX:
                             </span>
                             {{ Math.round((item.tx / (1024 ** 3)) * 1000) / 1000 }} GB

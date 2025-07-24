@@ -67,6 +67,12 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../views/OcctlView.vue'),
         meta: {title: "Occtl"}
     },
+    {
+        path: '/statistics',
+        name: 'StatisticsPage',
+        component: () => import('../views/StatisticsView.vue'),
+        meta: {title: "Statistics"}
+    },
 ]
 
 const router = createRouter({

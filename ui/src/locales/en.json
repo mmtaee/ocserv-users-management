@@ -39,7 +39,7 @@
   "SINCE": "Since",
   "SCORES": "Scores",
   "GROUP": "Group",
-  "AVERAGES": "Ave",
+  "AVERAGES": "averages",
   "CONNECTED_SINCE": "Connected Since",
   "USERS": "users",
   "IPS": "IPs",
@@ -105,5 +105,7 @@
   "SHOW_USER_DESC": "Prints information on the specified user",
   "SHOW_ID_DESC": "Prints information on the specified ID",
   "SHOW_EVENTS_DESC": "Provides information about connecting users",
-  "STOP_NOW_DESC": "Terminates the server"
+  "STOP_NOW_DESC": "Terminates the server",
+  "SERVER_LOGS": "Server Logs",
+  "STATUS": "status"
 }

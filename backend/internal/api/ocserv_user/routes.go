@@ -14,4 +14,5 @@ func Routes(e *echo.Group) {
 	g.POST("/:uid/unlock", ctl.UnLockOcservUser)
 	g.POST("/:username/disconnect", ctl.DisconnectOcservUser)
 	g.GET("/:uid/statistics", ctl.StatisticsOcservUser)
+	g.GET("/statistics", ctl.Statistics)
 }

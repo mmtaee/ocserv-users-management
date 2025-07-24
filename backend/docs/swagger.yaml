@@ -1,6 +1,86 @@
 basePath: /api
 definitions:
-  home.HomeResponse:
+  home.CurrentStats:
+    properties:
+      _Last stats reset:
+        type: string
+      Authentication failures:
+        type: integer
+      Average auth time:
+        type: string
+      Average session time:
+        type: string
+      Closed due to error sessions:
+        type: integer
+      Last stats reset:
+        type: string
+      Max auth time:
+        type: string
+      Max session time:
+        type: string
+      RX:
+        type: string
+      Sessions handled:
+        type: integer
+      TX:
+        type: string
+      Timed out (idle) sessions:
+        type: integer
+      Timed out sessions:
+        type: integer
+      raw_avg_auth_time:
+        type: integer
+      raw_avg_session_time:
+        type: integer
+      raw_last_stats_reset:
+        type: integer
+      raw_max_auth_time:
+        type: integer
+      raw_max_session_time:
+        type: integer
+      raw_rx:
+        description: raw fields if you want
+        type: integer
+      raw_tx:
+        type: integer
+    type: object
+  home.GeneralInfo:
+    properties:
+      _Up since:
+        type: string
+      Active sessions:
+        type: integer
+      IPs in ban list:
+        type: integer
+      Median latency:
+        type: string
+      STDEV latency:
+        type: string
+      Sec-mod PID:
+        type: integer
+      Sec-mod instance count:
+        type: integer
+      Server PID:
+        type: integer
+      Status:
+        type: string
+      Total authentication failures:
+        type: integer
+      Total sessions:
+        type: integer
+      Up since:
+        type: string
+      raw_median_latency:
+        description: raw fields if you want
+        type: integer
+      raw_stdev_latency:
+        type: integer
+      raw_up_since:
+        type: integer
+      uptime:
+        type: integer
+    type: object
+  home.GetHomeResponse:
     properties:
       ipbans:
         items:
@@ -10,24 +90,21 @@ definitions:
         items:
           $ref: '#/definitions/models.OnlineUserSession'
         type: array
-      stats:
+      server_status:
+        $ref: '#/definitions/home.ServerStatusResponse'
+      statistics:
         items:
           $ref: '#/definitions/models.DailyTraffic'
         type: array
-      status:
-        $ref: '#/definitions/home.StatsSections'
     required:
-    - status
+    - server_status
     type: object
-  home.StatsSections:
+  home.ServerStatusResponse:
     properties:
       current_stats:
-        type: string
+        $ref: '#/definitions/home.CurrentStats'
       general_info:
-        type: string
-    required:
-    - current_stats
-    - general_info
+        $ref: '#/definitions/home.GeneralInfo'
     type: object
   middlewares.PermissionDenied:
     properties:
@@ -428,15 +505,6 @@ definitions:
     required:
     - meta
     type: object
-  ocserv_user.StatisticsData:
-    properties:
-      date_end:
-        example: "2025-12-31"
-        type: string
-      date_start:
-        example: "2025-1-31"
-        type: string
-    type: object
   ocserv_user.UpdateOcservUserData:
     properties:
       config:
@@ -633,7 +701,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/home.HomeResponse'
+            $ref: '#/definitions/home.GetHomeResponse'
         "400":
           description: Bad Request
           schema:
@@ -1155,12 +1223,14 @@ paths:
         name: uid
         required: true
         type: string
-      - description: ocserv user statistics date data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ocserv_user.StatisticsData'
+      - description: date_start
+        in: query
+        name: date_start
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        type: string
       produces:
       - application/json
       responses:
@@ -1245,6 +1315,47 @@ paths:
       summary: Disconnect Ocserv User
       tags:
       - Ocserv(Users)
+  /ocserv/users/statistics:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv Users Statistics
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: date_start
+        in: query
+        name: date_start
+        required: true
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DailyTraffic'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Users Statistics
+      tags:
+      - Ocserv(Statistics)
   /system:
     get:
       consumes:
