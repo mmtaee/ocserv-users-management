@@ -260,12 +260,12 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
         /**
          * Delete simple user
          * @summary Delete simple user
-         * @param {number} uid User ID
+         * @param {string} uid User UID
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersUidDelete: async (uid: number, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        systemUsersUidDelete: async (uid: string, authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'uid' is not null or undefined
             assertParamExists('systemUsersUidDelete', 'uid', uid)
             // verify required parameter 'authorization' is not null or undefined
@@ -300,13 +300,13 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
         /**
          * Change user password by admin
          * @summary Change user password by admin
-         * @param {number} uid User ID
+         * @param {string} uid User UID
          * @param {string} authorization Bearer TOKEN
          * @param {SystemChangeUserPassword} request user new password
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersUidPasswordPost: async (uid: number, authorization: string, request: SystemChangeUserPassword, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        systemUsersUidPasswordPost: async (uid: string, authorization: string, request: SystemChangeUserPassword, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'uid' is not null or undefined
             assertParamExists('systemUsersUidPasswordPost', 'uid', uid)
             // verify required parameter 'authorization' is not null or undefined
@@ -427,12 +427,12 @@ export const SystemUsersApiFp = function(configuration?: Configuration) {
         /**
          * Delete simple user
          * @summary Delete simple user
-         * @param {number} uid User ID
+         * @param {string} uid User UID
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersUidDelete(uid: number, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async systemUsersUidDelete(uid: string, authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersUidDelete(uid, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SystemUsersApi.systemUsersUidDelete']?.[localVarOperationServerIndex]?.url;
@@ -441,13 +441,13 @@ export const SystemUsersApiFp = function(configuration?: Configuration) {
         /**
          * Change user password by admin
          * @summary Change user password by admin
-         * @param {number} uid User ID
+         * @param {string} uid User UID
          * @param {string} authorization Bearer TOKEN
          * @param {SystemChangeUserPassword} request user new password
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersUidPasswordPost(uid: number, authorization: string, request: SystemChangeUserPassword, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
+        async systemUsersUidPasswordPost(uid: string, authorization: string, request: SystemChangeUserPassword, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersUidPasswordPost(uid, authorization, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SystemUsersApi.systemUsersUidPasswordPost']?.[localVarOperationServerIndex]?.url;
@@ -655,11 +655,11 @@ export interface SystemUsersApiSystemUsersProfileGetRequest {
  */
 export interface SystemUsersApiSystemUsersUidDeleteRequest {
     /**
-     * User ID
-     * @type {number}
+     * User UID
+     * @type {string}
      * @memberof SystemUsersApiSystemUsersUidDelete
      */
-    readonly uid: number
+    readonly uid: string
 
     /**
      * Bearer TOKEN
@@ -676,11 +676,11 @@ export interface SystemUsersApiSystemUsersUidDeleteRequest {
  */
 export interface SystemUsersApiSystemUsersUidPasswordPostRequest {
     /**
-     * User ID
-     * @type {number}
+     * User UID
+     * @type {string}
      * @memberof SystemUsersApiSystemUsersUidPasswordPost
      */
-    readonly uid: number
+    readonly uid: string
 
     /**
      * Bearer TOKEN

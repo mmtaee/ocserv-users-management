@@ -306,7 +306,7 @@ func (ctl *Controller) Users(c echo.Context) error {
 // @Tags         System(Users)
 // @Accept       json
 // @Produce      json
-// @Param 		 uid path int true "User ID"
+// @Param 		 uid path string true "User UID"
 // @Param        request    body  ChangeUserPassword  true "user new password"
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
@@ -337,7 +337,7 @@ func (ctl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 // @Tags         System(Users)
 // @Accept       json
 // @Produce      json
-// @Param 		 uid path int true "User ID"
+// @Param 		 uid path string true "User UID"
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized

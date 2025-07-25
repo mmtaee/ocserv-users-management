@@ -1562,11 +1562,11 @@ paths:
       - application/json
       description: Delete simple user
       parameters:
-      - description: User ID
+      - description: User UID
         in: path
         name: uid
         required: true
-        type: integer
+        type: string
       - description: Bearer TOKEN
         in: header
         name: Authorization
@@ -1598,11 +1598,11 @@ paths:
       - application/json
       description: Change user password by admin
       parameters:
-      - description: User ID
+      - description: User UID
         in: path
         name: uid
         required: true
-        type: integer
+        type: string
       - description: user new password
         in: body
         name: request

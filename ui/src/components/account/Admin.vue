@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import {type ModelsUser, SystemUsersApi} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
-import {defineAsyncComponent, onMounted, reactive} from "vue";
+import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 import type {Meta} from "@/utils/interfaces.ts";
 import {useLocale} from "vuetify/framework";
 import {formatDateTimeWithRelative} from "@/utils/convertors.ts";
 
 const ReusablePagination = defineAsyncComponent(() => import("@/components/reusable/ReusablePagination.vue"))
+const Delete = defineAsyncComponent(() => import("@/components/account/Delete.vue"))
+const ChangePassword = defineAsyncComponent(() => import("@/components/account/ChangePassword.vue"))
 
 const {t} = useLocale()
 const adminUsers = reactive<ModelsUser[]>([])
@@ -17,6 +19,13 @@ const meta = reactive<Meta>({
   total_records: 0
 })
 
+const logDialog = ref(false)
+const changePasswordDialog = ref(false)
+const deleteDialog = ref(false)
+const selectedObj = ref<ModelsUser>({is_admin: false, last_login: "", uid: "", username: ""})
+
+const api = new SystemUsersApi()
+
 const getAdmins = () => {
   const api = new SystemUsersApi()
   api.systemUsersGet({
@@ -25,6 +34,38 @@ const getAdmins = () => {
   }).then(res => {
     adminUsers.splice(0, adminUsers.length, ...(res.data.result ?? []))
     Object.assign(meta, res.data.meta)
+  })
+}
+
+
+const objHandler = (obj: ModelsUser) => {
+  selectedObj.value = JSON.parse(JSON.stringify(obj))
+}
+
+const deleteUser = () => {
+  api.systemUsersUidDelete({
+    ...getAuthorization(),
+    uid: selectedObj.value.uid,
+  }).then(() => {
+    let index = adminUsers.findIndex(i => i.uid === selectedObj.value.uid)
+    if (index > -1) {
+      adminUsers.splice(index, 1)
+    }
+  }).finally(() => {
+    deleteDialog.value = false
+  })
+}
+
+const changePassword = (uid: string, password: string) => {
+  api.systemUsersUidPasswordPost({
+    ...getAuthorization(),
+    uid: uid,
+    request: {
+      password: password
+    }
+  }).then(() => {
+  }).finally(() => {
+    changePasswordDialog.value = false
   })
 }
 
@@ -69,7 +110,7 @@ onMounted(() => {
                       </template>
 
                       <v-list color="info">
-                        <v-list-item @click="">
+                        <v-list-item @click="objHandler(user.raw);logDialog=true">
                           <v-list-item-title class="text-info text-capitalize me-5">
                             {{ t("LOGS") }}
                           </v-list-item-title>
@@ -78,7 +119,7 @@ onMounted(() => {
                           </template>
                         </v-list-item>
 
-                        <v-list-item @click="">
+                        <v-list-item @click="objHandler(user.raw);changePasswordDialog=true">
                           <v-list-item-title class="text-info text-capitalize me-5">
                             {{ t("CHANGE_PASSWORD") }}
                           </v-list-item-title>
@@ -87,7 +128,7 @@ onMounted(() => {
                           </template>
                         </v-list-item>
 
-                        <v-list-item @click="">
+                        <v-list-item @click="objHandler(user.raw);deleteDialog=true">
                           <v-list-item-title class="text-error  text-capitalize me-5">
                             {{ t("DELETE") }}
                           </v-list-item-title>
@@ -143,12 +184,25 @@ onMounted(() => {
             />
           </v-footer>
         </template>
-
       </v-data-iterator>
-
 
     </v-card-text>
   </v-card>
+
+  <!-- Delete Dialog -->
+  <Delete
+      v-model="deleteDialog"
+      :user="selectedObj"
+      @done="deleteUser"
+  />
+
+  <!--  ChangePassword Dialog -->
+  <ChangePassword
+      v-model="changePasswordDialog"
+      :user="selectedObj"
+      @save="changePassword"
+  />
+
 </template>
 
 <style scoped>

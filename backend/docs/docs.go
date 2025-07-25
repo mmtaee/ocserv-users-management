@@ -1474,8 +1474,8 @@ const docTemplate = `{
                 "summary": "Delete simple user",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "User ID",
+                        "type": "string",
+                        "description": "User UID",
                         "name": "uid",
                         "in": "path",
                         "required": true
@@ -1528,8 +1528,8 @@ const docTemplate = `{
                 "summary": "Change user password by admin",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "User ID",
+                        "type": "string",
+                        "description": "User UID",
                         "name": "uid",
                         "in": "path",
                         "required": true

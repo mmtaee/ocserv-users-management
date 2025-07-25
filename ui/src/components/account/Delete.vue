@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import {defineAsyncComponent} from "vue";
-import type {ModelsOcservUser} from "@/api";
+import type {ModelsUser} from "@/api";
 import {useLocale} from "vuetify/framework";
 
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"))
 
 const props = defineProps<{
   modelValue: boolean
-  user: ModelsOcservUser
+  user: ModelsUser
 }>()
 
 const emit = defineEmits(["update:modelValue", "done"])
@@ -24,12 +24,11 @@ const {t} = useLocale()
       width="500"
   >
     <template #dialogTitle>
-      <!--      <v-icon class="mb-1">mdi-delete</v-icon>-->
-      <span class="text-capitalize">{{ t("DELETE_OCSERV_USER_TITLE") }} ({{ user.username }})</span>
+      <span class="text-capitalize">{{ t("DELETE_ADMIN_USER_TITLE") }} ({{ user.username }})</span>
     </template>
 
     <template #dialogText>
-      {{ t("DELETE_OCSERV_USER_MESSAGE") }} <br/><br/>
+      {{ t("DELETE_ADMIN_USER_MESSAGE") }} <br/><br/>
     </template>
 
     <template #dialogAction>

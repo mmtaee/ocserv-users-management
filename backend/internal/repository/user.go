@@ -90,7 +90,7 @@ func (r *UserRepository) Users(ctx context.Context, pagination *request.Paginati
 }
 
 func (r *UserRepository) ChangePassword(ctx context.Context, uid, password, salt string) error {
-	err := r.db.WithContext(ctx).Where("uid = ?", uid).Updates(
+	err := r.db.WithContext(ctx).Model(&models.User{}).Where("uid = ?", uid).Updates(
 		map[string]interface{}{
 			"password": password,
 			"salt":     salt,
