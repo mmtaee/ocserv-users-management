@@ -3,7 +3,6 @@ import {defineAsyncComponent, ref} from "vue";
 import {useLocale} from "vuetify/framework";
 import {OcservStatisticsApi} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
-import {dummyTrafficData} from "@/utils/dummy.ts";
 
 const ReusableStatistics = defineAsyncComponent(() => import("@/components/reusable/ReusableStatistics.vue"))
 
@@ -18,10 +17,9 @@ const search = (dateStart: string, dateEnd: string) => {
     dateStart,
     dateEnd,
   }).then((res) => {
-    traffic.value = res.data || dummyTrafficData
+    traffic.value = res.data
   })
 }
-
 
 </script>
 

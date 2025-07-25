@@ -107,5 +107,6 @@
   "SHOW_EVENTS_DESC": "Provides information about connecting users",
   "STOP_NOW_DESC": "Terminates the server",
   "SERVER_LOGS": "Server Logs",
-  "STATUS": "status"
+  "STATUS": "status",
+  "NOT_CONFIGURED": "not configured"
 }

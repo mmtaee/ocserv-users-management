@@ -46,13 +46,13 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
          * @summary List of Ocserv Users
          * @param {string} authorization Bearer TOKEN
          * @param {number} [page] Page number, starting from 1
-         * @param {number} [pageSize] Number of items per page
+         * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
          * @param {OcservUsersGetSortEnum} [sort] Sort order, either ASC or DESC
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservUsersGet: async (authorization: string, page?: number, pageSize?: number, order?: string, sort?: OcservUsersGetSortEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        ocservUsersGet: async (authorization: string, page?: number, size?: number, order?: string, sort?: OcservUsersGetSortEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('ocservUsersGet', 'authorization', authorization)
             const localVarPath = `/ocserv/users`;
@@ -71,8 +71,8 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
                 localVarQueryParameter['page'] = page;
             }
 
-            if (pageSize !== undefined) {
-                localVarQueryParameter['page_size'] = pageSize;
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
             }
 
             if (order !== undefined) {
@@ -410,14 +410,14 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
          * @summary List of Ocserv Users
          * @param {string} authorization Bearer TOKEN
          * @param {number} [page] Page number, starting from 1
-         * @param {number} [pageSize] Number of items per page
+         * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
          * @param {OcservUsersGetSortEnum} [sort] Sort order, either ASC or DESC
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async ocservUsersGet(authorization: string, page?: number, pageSize?: number, order?: string, sort?: OcservUsersGetSortEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OcservUserOcservUsersResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersGet(authorization, page, pageSize, order, sort, options);
+        async ocservUsersGet(authorization: string, page?: number, size?: number, order?: string, sort?: OcservUsersGetSortEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OcservUserOcservUsersResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersGet(authorization, page, size, order, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OcservUsersApi.ocservUsersGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -541,7 +541,7 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
          * @throws {RequiredError}
          */
         ocservUsersGet(requestParameters: OcservUsersApiOcservUsersGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<OcservUserOcservUsersResponse> {
-            return localVarFp.ocservUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
+            return localVarFp.ocservUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
         },
         /**
          * Ocserv User creation
@@ -641,7 +641,7 @@ export interface OcservUsersApiOcservUsersGetRequest {
      * @type {number}
      * @memberof OcservUsersApiOcservUsersGet
      */
-    readonly pageSize?: number
+    readonly size?: number
 
     /**
      * Field to order by
@@ -842,7 +842,7 @@ export class OcservUsersApi extends BaseAPI {
      * @memberof OcservUsersApi
      */
     public ocservUsersGet(requestParameters: OcservUsersApiOcservUsersGetRequest, options?: RawAxiosRequestConfig) {
-        return OcservUsersApiFp(this.configuration).ocservUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(this.axios, this.basePath));
+        return OcservUsersApiFp(this.configuration).ocservUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

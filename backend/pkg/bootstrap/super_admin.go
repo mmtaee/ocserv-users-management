@@ -6,14 +6,16 @@ import (
 	"log"
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/pkg/config"
+	"ocserv-bakend/pkg/crypto"
 	"ocserv-bakend/pkg/database"
 	"os"
+	"strings"
 	"time"
 )
 
-func CreateSuperAdmin(username, password string) {
-	config.Init(false)
-	database.Connect(false)
+func CreateSuperAdmin(username, password string, debug bool) {
+	config.Init(debug)
+	database.Connect(debug)
 
 	if username == "" || password == "" {
 		log.Println("You need to specify username and password")
@@ -23,12 +25,17 @@ func CreateSuperAdmin(username, password string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	db := database.Get()
+	cryptoRepo := crypto.NewCustomPassword()
+	passwd := cryptoRepo.CreatePassword(password)
+
 	user := models.User{
-		Username: username,
-		Password: password,
+		Username: strings.ToLower(username),
+		Password: passwd.Hash,
+		Salt:     passwd.Salt,
 		IsAdmin:  true,
 	}
+
+	db := database.Get()
 	err := db.WithContext(ctx).Create(&user).Error
 	if err != nil {
 		log.Fatal(err)

@@ -556,13 +556,13 @@ definitions:
     properties:
       page:
         type: integer
-      page_size:
+      size:
         type: integer
       total_records:
         type: integer
     required:
     - page
-    - page_size
+    - size
     - total_records
     type: object
   system.ChangeUserPassword:
@@ -785,7 +785,7 @@ paths:
         in: query
         maximum: 100
         minimum: 1
-        name: page_size
+        name: size
         type: integer
       - description: Field to order by
         in: query
@@ -1034,7 +1034,7 @@ paths:
         in: query
         maximum: 100
         minimum: 1
-        name: page_size
+        name: size
         type: integer
       - description: Field to order by
         in: query
@@ -1479,7 +1479,7 @@ paths:
         in: query
         maximum: 100
         minimum: 1
-        name: page_size
+        name: size
         type: integer
       - description: Field to order by
         in: query

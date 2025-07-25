@@ -31,7 +31,7 @@ export interface RequestMeta {
      * @type {number}
      * @memberof RequestMeta
      */
-    'page_size': number;
+    'size': number;
     /**
      * 
      * @type {number}

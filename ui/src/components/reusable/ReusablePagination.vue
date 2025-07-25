@@ -1,85 +1,92 @@
 <script lang="ts" setup>
-import {ref, watch} from "vue";
 import {useLocale} from "vuetify/framework";
+import type {Meta} from "@/utils/interfaces.ts";
+import {computed, ref, watch} from "vue";
 
-const props = defineProps({
-  totalRecords: {
-    type: Number,
-    default: 0
-  },
-  pageCount: Number,
-  page: Number,
-  pageSize: {
-    type: Number,
-    default: 5
-  },
-})
 
-const emit = defineEmits(["reFetch"])
+const props = defineProps<{
+  modelValue: Meta;
+}>();
+
+const emit = defineEmits(["update:modelValue"]);
+
 
 const {t} = useLocale()
-const itemPerPage = ref(5)
-const pageNumber = ref(1)
-const desc = ref(false)
+const totalRecords = ref(0)
+const sort = ref(false)
+const pages = computed(() => {
+  const total = props.modelValue.total_records ?? 0;
+  const size = props.modelValue.size || 1;
+  return Math.ceil(total / size);
+});
+
+const refresh = () => {
+  props.modelValue.sort = sort.value ? "DESC" : "ASC"
+  emit("update:modelValue", props.modelValue)
+}
+
 
 watch(
-    () => props.page,
+    () => props.modelValue,
     (newVal) => {
-      pageNumber.value = newVal || 1
-    }
-)
-
-watch(
-    () => props.pageSize,
-    (newVal) => {
-      itemPerPage.value = newVal || 5
+      if (newVal) totalRecords.value = props.modelValue.total_records
     },
-    {immediate: true}
+    {immediate: true, deep: true}
 )
 
 </script>
 
 <template>
-  <v-divider class="mt-5"/>
-  <div v-if="totalRecords>1" class="pt-2">
-    <v-row align="center" class="ma-0 pa-0" justify="center">
 
-      <v-col class="ma-0 pa-0 mx-5 me-5" cols="12" lg="2" md="2" sm="2">
+  <v-footer
+      v-if="totalRecords >1"
+      class="justify-space-between text-body-2 mt-4"
+      color="surface-variant"
+  >
+
+    <v-row align="center" justify="center">
+
+      <v-col class="ma-0" cols="12">
+        <span>{{ t("TOTAL_RECORDS") }}: {{ totalRecords }}</span>
+      </v-col>
+
+      <v-divider opacity="10"/>
+
+      <v-col cols="12" md="2">
         <v-select
-            v-model="itemPerPage"
+            v-model="modelValue.size"
             :items="[5,10,25,50,100]"
             :label="t('ITEMS_PER_PAGE')"
             density="comfortable"
             hide-details
             variant="underlined"
-            @update:modelValue='emit("reFetch",pageNumber,  itemPerPage, desc)'
+            @update:modelValue='refresh'
         />
+
       </v-col>
 
-
-      <v-col class="ma-0 pa-0 mx-5" cols="12" lg="auto" md="auto" sm="auto">
+      <v-col cols="12" md="8">
         <v-pagination
-            v-model="pageNumber"
-            :length="pageCount"
+            v-model="modelValue.page"
+            :length="pages"
             :total-visible="5"
-            @update:modelValue='emit("reFetch",  pageNumber,  itemPerPage, desc)'
+            @update:modelValue='refresh'
         />
       </v-col>
 
-      <v-spacer/>
 
-      <v-col class="ma-0 pa-0 mx-5 me-5" cols="12" lg="auto" md="auto" sm="auto">
+      <v-col cols="12" md="2">
         <v-checkbox
-            v-model="desc"
+            v-model="sort"
             :label="t('DESCENDING_SORT')"
             color="primary"
             density="compact"
             hide-details
             variant="underlined"
-            @update:modelValue='emit("reFetch",  pageNumber,  itemPerPage, desc)'
+            @update:modelValue='refresh'
         />
       </v-col>
 
     </v-row>
-  </div>
+  </v-footer>
 </template>

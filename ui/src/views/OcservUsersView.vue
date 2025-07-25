@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 import {defineAsyncComponent, onBeforeMount, onMounted, reactive, ref} from "vue";
 import {useLocale} from "vuetify/framework";
 import {
@@ -12,7 +11,7 @@ import {
   type OcservUserUpdateOcservUserData
 } from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
-
+import type {Meta} from "@/utils/interfaces.ts";
 
 const CreateOrEdit = defineAsyncComponent(() => import('@/components/ocserv_user/CreateOrUpdate.vue'));
 const Delete = defineAsyncComponent(() => import('@/components/ocserv_user/Delete.vue'));
@@ -20,18 +19,27 @@ const Disconnect = defineAsyncComponent(() => import('@/components/ocserv_user/D
 const Lock = defineAsyncComponent(() => import('@/components/ocserv_user/Lock.vue'));
 const Unlock = defineAsyncComponent(() => import('@/components/ocserv_user/Unlock.vue'));
 const Statistics = defineAsyncComponent(() => import('@/components/ocserv_user/Statistics.vue'));
+const ReusablePagination = defineAsyncComponent(() => import("@/components/reusable/ReusablePagination.vue"))
 
 const api = new OcservUsersApi()
 
 const {t} = useLocale()
 const createDialog = ref(false)
 const users = reactive<ModelsOcservUser[]>([])
+const meta = reactive<Meta>({
+  page: 1,
+  size: 10,
+  sort: "ASC",
+  total_records: 0
+})
 const editDialog = ref(false)
 const deleteDialog = ref(false)
 const lockDialog = ref(false)
 const unlockDialog = ref(false)
 const disconnectDialog = ref(false)
 const statisticsDialog = ref(false)
+
+const loading = ref(false)
 
 const showPasswords = reactive<Record<string, boolean>>({});
 
@@ -173,12 +181,22 @@ const objHandler = (obj: ModelsOcservUser) => {
   selectedObj.value = JSON.parse(JSON.stringify(obj))
 }
 
-onMounted(() => {
+
+const getUsers = () => {
+  loading.value = true
   api.ocservUsersGet({
     ...getAuthorization(),
+    ...meta,
   }).then((res) => {
-    Object.assign(users, res.data.result)
+    users.splice(0, users.length, ...(res.data.result ?? []))
+    Object.assign(meta, res.data.meta)
+  }).finally(() => {
+    loading.value = false
   })
+}
+
+onMounted(() => {
+  getUsers()
 })
 
 onBeforeMount(
@@ -219,38 +237,7 @@ onBeforeMount(
         <v-card flat>
           <v-card-text>
 
-            <v-data-iterator :items="users">
-              <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
-                <div class="text-truncate">
-                  Most popular mice
-                </div>
-
-                <div class="d-flex align-center">
-                  <v-btn class="me-8" variant="text">
-                    <span class="text-decoration-underline text-none">See all</span>
-                  </v-btn>
-
-                  <div class="d-inline-flex">
-                    <v-btn
-                        :disabled="page === 1"
-                        class="me-2"
-                        icon="mdi-arrow-left"
-                        size="small"
-                        variant="tonal"
-                        @click="prevPage"
-                    ></v-btn>
-
-                    <v-btn
-                        :disabled="page === pageCount"
-                        icon="mdi-arrow-right"
-                        size="small"
-                        variant="tonal"
-                        @click="nextPage"
-                    ></v-btn>
-                  </div>
-                </div>
-              </template>
-
+            <v-data-iterator :items="users" :items-per-page="meta.size">
               <template v-slot:default="{ items }">
                 <v-row align="center" justify="start">
                   <v-col
@@ -347,18 +334,37 @@ onBeforeMount(
                         <tr style="text-align: right;">
                           <th>{{ t("STATUS") }}:</th>
                           <td>
-                            <v-icon v-if="!user.raw.is_locked" color="success" end size="x-small">
-                              mdi-lock-open
-                            </v-icon>
-                            <v-icon v-if="user.raw.is_locked" color="error" end size="x-small">
-                              mdi-lock
-                            </v-icon>
-                            <v-icon v-if="user.raw.is_online" color="success" end size="x-small">
-                              mdi-lan-connect
-                            </v-icon>
-                            <v-icon v-if="!user.raw.is_online" color="error" end size="x-small">
-                              mdi-lan-disconnect
-                            </v-icon>
+                            <v-tooltip v-if="!user.raw.is_locked" text="Unlocked">
+                              <template #activator="{ props }">
+                                <v-icon color="success" end v-bind="props">
+                                  mdi-lock-open
+                                </v-icon>
+                              </template>
+                            </v-tooltip>
+
+                            <v-tooltip v-if="user.raw.is_locked" text="Locked">
+                              <template #activator="{ props }">
+                                <v-icon color="error" end v-bind="props">
+                                  mdi-lock
+                                </v-icon>
+                              </template>
+                            </v-tooltip>
+
+                            <v-tooltip v-if="user.raw.is_online" text="Online">
+                              <template #activator="{ props }">
+                                <v-icon color="success" end v-bind="props">
+                                  mdi-lan-connect
+                                </v-icon>
+                              </template>
+                            </v-tooltip>
+
+                            <v-tooltip v-if="!user.raw.is_online" text="Offline">
+                              <template #activator="{ props }">
+                                <v-icon color="error" end v-bind="props">
+                                  mdi-lan-disconnect
+                                </v-icon>
+                              </template>
+                            </v-tooltip>
                           </td>
                         </tr>
 
@@ -414,186 +420,17 @@ onBeforeMount(
                 </v-row>
               </template>
 
-              <!--              <template v-slot:footer="{ page, pageCount }">-->
-              <!--                <v-footer-->
-              <!--                    class="justify-space-between text-body-2 mt-4"-->
-              <!--                    color="surface-variant"-->
-              <!--                >-->
-              <!--                  Total mice: {{ users.length }}-->
-
-              <!--                  <div>-->
-              <!--                    Page {{ page }} of {{ pageCount }}-->
-              <!--                  </div>-->
-              <!--                </v-footer>-->
-              <!--              </template>-->
+              <template v-slot:footer="{}">
+                <v-footer class="justify-space-between text-body-2 mt-4">
+                  <ReusablePagination
+                      v-model="meta"
+                      @update:modelValue="getUsers"
+                  />
+                </v-footer>
+              </template>
 
             </v-data-iterator>
 
-            <!--            <v-row align="center" justify="center">-->
-            <!--              <v-col class="mt-3" cols="12" md="12">-->
-            <!--                <v-row align="center" justify="start">-->
-            <!--                  <v-col-->
-            <!--                      v-for="(item, index) in users"-->
-            <!--                      :key="`ocserv-users-${index}`"-->
-            <!--                      cols="12"-->
-            <!--                      lg="4"-->
-            <!--                      md="3"-->
-            <!--                      sm="12"-->
-            <!--                  >-->
-            <!--                    <v-card class="mt-1" elevation="6">-->
-            <!--                      <v-card-title class="text-subtitle-1 bg-primary py-4">-->
-            <!--                        <v-row align="center" justify="center">-->
-
-            <!--                                      <v-col cols="12" md="10">-->
-            <!--                                        {{ item.username }}-->
-            <!--                                        <span class="text-capitalize">({{ item.is_online ? t("ONLINE") : t("OFFLINE") }})</span>-->
-            <!--                                      </v-col>-->
-
-            <!--                          <v-col cols="12" md="1">-->
-            <!--                                        <v-icon v-if="item.is_locked" end>mdi-lock</v-icon>-->
-            <!--                                        <v-icon v-if="!item.is_locked" end>mdi-lock-open</v-icon>-->
-            <!--                          </v-col>-->
-
-            <!--                          <v-col cols="12" md="1">-->
-            <!--                                        <v-menu>-->
-            <!--                                          <template v-slot:activator="{ props }">-->
-            <!--                                            <v-icon start v-bind="props">-->
-            <!--                                              mdi-dots-vertical-->
-            <!--                                            </v-icon>-->
-            <!--                                          </template>-->
-
-            <!--                                          <v-list color="info">-->
-            <!--                                            <v-list-item @click="objHandler(item);editDialog = true">-->
-            <!--                                              <v-list-item-title class="text-info text-capitalize me-5">-->
-            <!--                                                {{ t("EDIT") }}-->
-            <!--                                              </v-list-item-title>-->
-            <!--                                              <template v-slot:prepend>-->
-            <!--                                                <v-icon class="ms-2" color="info">mdi-pencil</v-icon>-->
-            <!--                                              </template>-->
-            <!--                                            </v-list-item>-->
-
-            <!--                                            <v-list-item v-if="item.is_online" @click="objHandler(item);disconnectDialog = true">-->
-            <!--                                              <v-list-item-title class="text-info text-capitalize me-5">-->
-            <!--                                                {{ t("DISCONNECT") }}-->
-            <!--                                              </v-list-item-title>-->
-            <!--                                              <template v-slot:prepend>-->
-            <!--                                                <v-icon class="ms-2" color="info">mdi-lan-disconnect</v-icon>-->
-            <!--                                              </template>-->
-            <!--                                            </v-list-item>-->
-
-            <!--                                            <v-list-item v-if="!item.is_locked" @click="objHandler(item);lockDialog = true">-->
-            <!--                                              <v-list-item-title class="text-info text-capitalize me-5">-->
-            <!--                                                {{ t("LOCK") }}-->
-            <!--                                              </v-list-item-title>-->
-            <!--                                              <template v-slot:prepend>-->
-            <!--                                                <v-icon class="ms-2" color="info">mdi-lock</v-icon>-->
-            <!--                                              </template>-->
-            <!--                                            </v-list-item>-->
-
-            <!--                                            <v-list-item v-if="item.is_locked" @click="objHandler(item);unlockDialog = true">-->
-            <!--                                              <v-list-item-title class="text-info text-capitalize me-5">-->
-            <!--                                                {{ t("UNLOCK") }}-->
-            <!--                                              </v-list-item-title>-->
-            <!--                                              <template v-slot:prepend>-->
-            <!--                                                <v-icon class="ms-2" color="info">mdi-lock-open</v-icon>-->
-            <!--                                              </template>-->
-            <!--                                            </v-list-item>-->
-
-            <!--                                            <v-list-item @click="objHandler(item);statisticsDialog = true">-->
-            <!--                                              <v-list-item-title class="text-info text-capitalize me-5">-->
-            <!--                                                {{ t("STATISTICS") }}-->
-            <!--                                              </v-list-item-title>-->
-            <!--                                              <template v-slot:prepend>-->
-            <!--                                                <v-icon class="ms-2" color="info">mdi-chart-bar-stacked</v-icon>-->
-            <!--                                              </template>-->
-            <!--                                            </v-list-item>-->
-
-            <!--                                            <v-list-item @click="objHandler(item);deleteDialog=true">-->
-            <!--                                              <v-list-item-title class="text-error  text-capitalize me-5">-->
-            <!--                                                {{ t("DELETE") }}-->
-            <!--                                              </v-list-item-title>-->
-            <!--                                              <template v-slot:prepend>-->
-            <!--                                                <v-icon class="ms-2" color="error">mdi-delete</v-icon>-->
-            <!--                                              </template>-->
-            <!--                                            </v-list-item>-->
-
-            <!--                                          </v-list>-->
-            <!--                                        </v-menu>-->
-            <!--                          </v-col>-->
-            <!--                        </v-row>-->
-            <!--                      </v-card-title>-->
-
-            <!--                      <v-card-text class="pa-5">-->
-            <!--                        <v-row align="center" justify="start">-->
-            <!--                          <v-col cols="12" md="6">-->
-            <!--                            <span class="text-grey text-capitalize">-->
-            <!--                              {{ t('GROUP') }}:-->
-            <!--                            </span>-->
-            <!--                            {{ item.group }}-->
-            <!--                          </v-col>-->
-
-            <!--                          <v-col cols="12" md="6">-->
-            <!--                                        <span class="text-grey text-capitalize">-->
-            <!--                                          {{ t('PASSWORD') }}:-->
-            <!--                                        </span>-->
-
-            <!--                                        <span v-if="showPasswords[item.username]">-->
-            <!--                                          {{ item.password }}-->
-            <!--                                        </span>-->
-            <!--                                        <span v-else>-->
-            <!--                                          {{ '*'.repeat(item.password?.length || 0) }}-->
-            <!--                                        </span>-->
-            <!--                                        <v-icon-->
-            <!--                                            v-if="!showPasswords[item.username]"-->
-            <!--                                            class="ms-2"-->
-            <!--                                            color="grey"-->
-            <!--                                            icon="mdi-eye"-->
-            <!--                                            @click="togglePassword(item.username)"-->
-            <!--                                        />-->
-            <!--                                        <v-icon-->
-            <!--                                            v-else-->
-            <!--                                            class="ms-2"-->
-            <!--                                            color="grey"-->
-            <!--                                            icon="mdi-eye-off"-->
-            <!--                                            @click="togglePassword(item.username)"-->
-            <!--                                        />-->
-            <!--                          </v-col>-->
-
-            <!--                          <v-col cols="12" md="6">-->
-            <!--                            <span class="text-grey text-capitalize">-->
-            <!--                              {{ t('TRAFFIC_TYPE') }}:-->
-            <!--                            </span>-->
-            <!--                            <span class="text-capitalize">{{ trafficTypesTransformer(item.traffic_type) }}</span>-->
-            <!--                          </v-col>-->
-
-            <!--                          <v-col cols="12" md="6">-->
-            <!--                            <span class="text-grey text-capitalize">-->
-            <!--                              {{ t('TRAFFIC_SIZE') }}:-->
-            <!--                            </span>-->
-            <!--                            {{ item.traffic_size }} GB-->
-            <!--                          </v-col>-->
-
-            <!--                          <v-col cols="12" md="6">-->
-            <!--                            <span class="text-grey text-capitalize">-->
-            <!--                              TX:-->
-            <!--                            </span>-->
-            <!--                            {{ Math.round((item.tx / (1024 ** 3)) * 1000) / 1000 }} GB-->
-            <!--                          </v-col>-->
-
-            <!--                          <v-col cols="12" md="6">-->
-            <!--                            <span class="text-grey">-->
-            <!--                              RX:-->
-            <!--                            </span>-->
-            <!--                            {{ Math.round((item.rx / (1024 ** 3)) * 1000) / 1000 }} GB-->
-            <!--                          </v-col>-->
-
-            <!--                        </v-row>-->
-            <!--                      </v-card-text>-->
-            <!--                    </v-card>-->
-            <!--                  </v-col>-->
-            <!--                </v-row>-->
-            <!--              </v-col>-->
-            <!--            </v-row>-->
           </v-card-text>
         </v-card>
       </v-card>

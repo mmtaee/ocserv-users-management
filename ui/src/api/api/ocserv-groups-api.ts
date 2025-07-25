@@ -122,13 +122,13 @@ export const OcservGroupsApiAxiosParamCreator = function (configuration?: Config
          * @summary List of Ocserv groups
          * @param {string} authorization Bearer TOKEN
          * @param {number} [page] Page number, starting from 1
-         * @param {number} [pageSize] Number of items per page
+         * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
          * @param {OcservGroupsGetSortEnum} [sort] Sort order, either ASC or DESC
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservGroupsGet: async (authorization: string, page?: number, pageSize?: number, order?: string, sort?: OcservGroupsGetSortEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        ocservGroupsGet: async (authorization: string, page?: number, size?: number, order?: string, sort?: OcservGroupsGetSortEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('ocservGroupsGet', 'authorization', authorization)
             const localVarPath = `/ocserv/groups`;
@@ -147,8 +147,8 @@ export const OcservGroupsApiAxiosParamCreator = function (configuration?: Config
                 localVarQueryParameter['page'] = page;
             }
 
-            if (pageSize !== undefined) {
-                localVarQueryParameter['page_size'] = pageSize;
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
             }
 
             if (order !== undefined) {
@@ -379,14 +379,14 @@ export const OcservGroupsApiFp = function(configuration?: Configuration) {
          * @summary List of Ocserv groups
          * @param {string} authorization Bearer TOKEN
          * @param {number} [page] Page number, starting from 1
-         * @param {number} [pageSize] Number of items per page
+         * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
          * @param {OcservGroupsGetSortEnum} [sort] Sort order, either ASC or DESC
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async ocservGroupsGet(authorization: string, page?: number, pageSize?: number, order?: string, sort?: OcservGroupsGetSortEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OcservGroupOcservGroupsResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsGet(authorization, page, pageSize, order, sort, options);
+        async ocservGroupsGet(authorization: string, page?: number, size?: number, order?: string, sort?: OcservGroupsGetSortEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OcservGroupOcservGroupsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservGroupsGet(authorization, page, size, order, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OcservGroupsApi.ocservGroupsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -485,7 +485,7 @@ export const OcservGroupsApiFactory = function (configuration?: Configuration, b
          * @throws {RequiredError}
          */
         ocservGroupsGet(requestParameters: OcservGroupsApiOcservGroupsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<OcservGroupOcservGroupsResponse> {
-            return localVarFp.ocservGroupsGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
+            return localVarFp.ocservGroupsGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
         },
         /**
          * Ocserv Group delete
@@ -590,7 +590,7 @@ export interface OcservGroupsApiOcservGroupsGetRequest {
      * @type {number}
      * @memberof OcservGroupsApiOcservGroupsGet
      */
-    readonly pageSize?: number
+    readonly size?: number
 
     /**
      * Field to order by
@@ -731,7 +731,7 @@ export class OcservGroupsApi extends BaseAPI {
      * @memberof OcservGroupsApi
      */
     public ocservGroupsGet(requestParameters: OcservGroupsApiOcservGroupsGetRequest, options?: RawAxiosRequestConfig) {
-        return OcservGroupsApiFp(this.configuration).ocservGroupsGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(this.axios, this.basePath));
+        return OcservGroupsApiFp(this.configuration).ocservGroupsGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

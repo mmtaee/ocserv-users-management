@@ -43,7 +43,7 @@ const {t} = useLocale()
       </v-btn>
 
       <v-btn
-          color="odd"
+          color="primary"
           variant="outlined"
           @click="emit('done', user.uid)"
       >

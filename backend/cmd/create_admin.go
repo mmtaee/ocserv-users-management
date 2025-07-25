@@ -14,11 +14,12 @@ var createAdminUserCmd = &cobra.Command{
 	Use:   "create-admin",
 	Short: "create a new admin user",
 	Run: func(cmd *cobra.Command, args []string) {
-		bootstrap.CreateSuperAdmin(username, password)
+		bootstrap.CreateSuperAdmin(username, password, debug)
 	},
 }
 
 func init() {
+	createAdminUserCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Enable debug mode")
 	createAdminUserCmd.Flags().StringVarP(&username, "username", "u", "", "Username for admin")
 	createAdminUserCmd.Flags().StringVarP(&password, "password", "p", "", "Password for admin")
 	if err := createAdminUserCmd.MarkFlagRequired("username"); err != nil {

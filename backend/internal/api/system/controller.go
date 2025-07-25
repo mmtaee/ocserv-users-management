@@ -201,11 +201,11 @@ func (ctl *Controller) Login(c echo.Context) error {
 
 	user, err := ctl.userRepo.GetByUsername(c.Request().Context(), data.Username)
 	if err != nil {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password!"))
 	}
 
 	if ok := ctl.cryptoRepo.CheckPassword(data.Password, user.Password, user.Salt); !ok {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password!!!"))
 	}
 
 	token, err := ctl.userRepo.CreateToken(c.Request().Context(), user.ID, user.UID, true, user.IsAdmin)
@@ -261,7 +261,7 @@ func (ctl *Controller) CreateUser(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param 		 page query int false "Page number, starting from 1" minimum(1)
-// @Param 		 page_size query int false "Number of items per page" minimum(1) maximum(100)
+// @Param 		 size query int false "Number of items per page" minimum(1) maximum(100) name(size)
 // @Param 		 order query string false "Field to order by"
 // @Param 		 sort query string false "Sort order, either ASC or DESC" Enums(ASC, DESC)
 // @Param        Authorization header string true "Bearer TOKEN"

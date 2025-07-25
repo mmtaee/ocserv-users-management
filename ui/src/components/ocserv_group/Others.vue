@@ -8,9 +8,11 @@ import {
 } from "@/api";
 import {useLocale} from "vuetify/framework";
 import {getAuthorization} from "@/utils/request.ts";
+import type {Meta} from "@/utils/interfaces.ts";
 
 const CreateOrEdit = defineAsyncComponent(() => import('@/components/ocserv_group/CreateOrUpdate.vue'));
 const ReusableDialog = defineAsyncComponent(() => import('@/components/reusable/ReusableDialog.vue'));
+const ReusablePagination = defineAsyncComponent(() => import('@/components/reusable/ReusablePagination.vue'));
 
 
 const props = defineProps<{
@@ -19,16 +21,20 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue"]);
 
-
-const {t} = useLocale()
-
 const api = new OcservGroupsApi()
 
+const {t} = useLocale()
+const loading = ref(false)
+const meta = reactive<Meta>({
+  page: 1,
+  size: 10,
+  sort: "ASC",
+  total_records: 0
+})
 const otherGroups = reactive<ModelsOcservGroup[]>([])
 
 const editDialog = ref(false)
 const deleteDialog = ref(false)
-
 const createData = reactive<OcservGroupCreateOcservGroupData>({config: {}, name: ""})
 const editData = reactive<OcservGroupUpdateOcservGroupData>({config: {}})
 const selectedObj = ref<ModelsOcservGroup>({config: undefined, id: 0, name: ""})
@@ -85,12 +91,21 @@ const objHandler = (obj: ModelsOcservGroup) => {
   selectedObj.value = JSON.parse(JSON.stringify(obj))
 }
 
-onMounted(() => {
+const getGroups = () => {
+  loading.value = true
   api.ocservGroupsGet({
     ...getAuthorization(),
+    ...meta
   }).then((res) => {
-    Object.assign(otherGroups, res.data.result)
+    otherGroups.splice(0, otherGroups.length, ...(res.data.result ?? []))
+    Object.assign(meta, res.data.meta)
+  }).finally(() => {
+    loading.value = false
   })
+}
+
+onMounted(() => {
+  getGroups()
 })
 
 </script>
@@ -98,36 +113,182 @@ onMounted(() => {
 <template>
   <v-card flat>
     <v-card-text>
-      <v-row align="center" justify="center">
-        <v-col class="mt-3" cols="12" md="12">
-          <v-row>
+      <v-data-iterator :items="otherGroups" :items-per-page="meta.size">
+        <template v-slot:default="{ items }">
+          <v-row align="center" justify="start">
             <v-col
-                v-for="(item, index) in otherGroups"
-                :key="`other-groups-${index}`"
+                v-for="(group, i) in items"
+                :key="i"
                 cols="12"
-                lg="3"
-                md="4"
                 sm="6"
+                xl="3"
             >
-              <v-card class="py-3" elevation="6">
-                <v-card-title class="text-subtitle-1">
-                  <v-row align="center" justify="center">
-                    <v-col cols="12" md="9" sm="8">{{ item.name }}</v-col>
+              <v-sheet border>
+                <v-list-item
+                    :title="group.raw.name"
+                    class="bg-primary"
+                    density="comfortable"
+                    lines="two"
+                >
+                  <template v-slot:prepend>
+                    <v-avatar color="grey-lighten-1">
+                      <v-icon color="white">mdi-account-network</v-icon>
+                    </v-avatar>
+                  </template>
 
-                    <v-col cols="12" md="1" sm="1">
-                      <v-icon color="info" @click="objHandler(item);editDialog=true">mdi-pencil</v-icon>
-                    </v-col>
+                  <template v-slot:append>
+                    <v-menu>
+                      <template v-slot:activator="{ props }">
+                        <v-icon start v-bind="props">
+                          mdi-dots-vertical
+                        </v-icon>
+                      </template>
 
-                    <v-col cols="12" md="1" sm="1">
-                      <v-icon color="error" @click="objHandler(item);deleteDialog = true">mdi-delete</v-icon>
-                    </v-col>
-                  </v-row>
-                </v-card-title>
-              </v-card>
+                      <v-list color="info">
+                        <v-list-item @click="objHandler(group.raw);editDialog = true">
+                          <v-list-item-title class="text-info text-capitalize me-5">
+                            {{ t("EDIT") }}
+                          </v-list-item-title>
+                          <template v-slot:prepend>
+                            <v-icon class="ms-2" color="info">mdi-pencil</v-icon>
+                          </template>
+                        </v-list-item>
+
+                        <v-list-item @click="objHandler(group.raw);deleteDialog=true">
+                          <v-list-item-title class="text-error  text-capitalize me-5">
+                            {{ t("DELETE") }}
+                          </v-list-item-title>
+                          <template v-slot:prepend>
+                            <v-icon class="ms-2" color="error">mdi-delete</v-icon>
+                          </template>
+                        </v-list-item>
+
+                      </v-list>
+                    </v-menu>
+                  </template>
+
+                </v-list-item>
+
+                <v-table class="text-caption text-capitalize" density="compact">
+                  <tbody>
+                  <tr style="text-align: right;">
+                    <th>IPv4 Network:</th>
+                    <td>
+                      {{ group.raw?.config?.["ipv4-network"] ?? t("NOT_CONFIGURED") }}
+                    </td>
+                  </tr>
+                  <tr style="text-align: right;">
+                    <th>Max Same Clients:</th>
+                    <td>
+                      {{ group.raw?.config?.["max-same-clients"] ?? t("NOT_CONFIGURED") }}
+                    </td>
+                  </tr>
+                  <tr style="text-align: right;">
+                    <th>MTU:</th>
+                    <td>
+                      {{ group.raw?.config?.["mtu"] ?? t("NOT_CONFIGURED") }}
+                    </td>
+                  </tr>
+
+                  <tr style="text-align: right;">
+                    <th>TX Data Per Sec:</th>
+                    <td>
+                      {{ group.raw?.config?.["tx-data-per-sec"] ?? t("NOT_CONFIGURED") }}
+                    </td>
+                  </tr>
+
+                  <tr style="text-align: right;">
+                    <th>RX Data Per Sec:</th>
+                    <td>
+                      {{ group.raw?.config?.["rx-data-per-sec"] ?? t("NOT_CONFIGURED") }}
+                    </td>
+                  </tr>
+
+                  <tr style="text-align: right;">
+                    <th>Keepalive:</th>
+                    <td>
+                      {{ group.raw?.config?.["keepalive"] ?? t("NOT_CONFIGURED") }}
+                    </td>
+                  </tr>
+
+                  <tr style="text-align: right;">
+                    <th>Net Priority:</th>
+                    <td>
+                      {{ group.raw?.config?.["net-priority"] ?? t("NOT_CONFIGURED") }}
+                    </td>
+                  </tr>
+
+                  <tr style="text-align: right;">
+                    <th>Session Timeout:</th>
+                    <td>
+                      {{ group.raw?.config?.["session-timeout"] ?? t("NOT_CONFIGURED") }}
+                    </td>
+                  </tr>
+
+                  <!--                  <tr style="text-align: right;">-->
+                  <!--                    <th>{{ t("GROUP") }}:</th>-->
+                  <!--                    <td>{{ user.raw.group }}</td>-->
+                  <!--                  </tr>-->
+                  <!--                  <tr style="text-align: right;">-->
+                  <!--                    <th>{{ t("PASSWORD") }}:</th>-->
+                  <!--                    <td>-->
+                  <!--                            <span v-if="showPasswords[user.raw.username]">-->
+                  <!--                              {{ user.raw.password }}-->
+                  <!--                            </span>-->
+                  <!--                      <span v-else>-->
+                  <!--                              {{ '*'.repeat(user.raw.password?.length || 0) }}-->
+                  <!--                            </span>-->
+                  <!--                      <v-icon-->
+                  <!--                          v-if="!showPasswords[user.raw.username]"-->
+                  <!--                          class="ms-2 mb-2"-->
+                  <!--                          color="grey"-->
+                  <!--                          icon="mdi-eye"-->
+                  <!--                          @click="togglePassword(user.raw.username)"-->
+                  <!--                      />-->
+                  <!--                      <v-icon-->
+                  <!--                          v-else-->
+                  <!--                          class="ms-2 mb-2"-->
+                  <!--                          color="grey"-->
+                  <!--                          icon="mdi-eye-off"-->
+                  <!--                          @click="togglePassword(user.raw.username)"-->
+                  <!--                      />-->
+                  <!--                    </td>-->
+                  <!--                  </tr>-->
+                  <!--                  <tr style="text-align: right;">-->
+                  <!--                    <th>{{ t("TRAFFIC_TYPE") }}:</th>-->
+                  <!--                    <td>{{ trafficTypesTransformer(user.raw.traffic_type) }}</td>-->
+                  <!--                  </tr>-->
+                  <!--                  <tr style="text-align: right;">-->
+                  <!--                    <th>{{ t("TRAFFIC_SIZE") }}:</th>-->
+                  <!--                    <td>{{ user.raw.traffic_size }} GB</td>-->
+                  <!--                  </tr>-->
+                  <!--                  <tr style="text-align: right;">-->
+                  <!--                    <th>RX:</th>-->
+                  <!--                    <td>{{ Math.round((user.raw.rx / (1024 ** 3)) * 1000) / 1000 }} GB</td>-->
+                  <!--                  </tr>-->
+                  <!--                  <tr style="text-align: right;">-->
+                  <!--                    <th>TX:</th>-->
+                  <!--                    <td>{{ Math.round((user.raw.tx / (1024 ** 3)) * 1000) / 1000 }} GB</td>-->
+                  <!--                  </tr>-->
+                  </tbody>
+                </v-table>
+              </v-sheet>
             </v-col>
           </v-row>
-        </v-col>
-      </v-row>
+        </template>
+
+        <template v-slot:footer="{}">
+          <v-footer class="justify-space-between text-body-2 mt-4">
+            <ReusablePagination
+                v-model="meta"
+                @update:modelValue="getGroups"
+            />
+          </v-footer>
+        </template>
+
+      </v-data-iterator>
+
+
     </v-card-text>
   </v-card>
 

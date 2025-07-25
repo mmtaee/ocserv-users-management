@@ -50,13 +50,13 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * @summary List of Admin or simple users
          * @param {string} authorization Bearer TOKEN
          * @param {number} [page] Page number, starting from 1
-         * @param {number} [pageSize] Number of items per page
+         * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
          * @param {SystemUsersGetSortEnum} [sort] Sort order, either ASC or DESC
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersGet: async (authorization: string, page?: number, pageSize?: number, order?: string, sort?: SystemUsersGetSortEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        systemUsersGet: async (authorization: string, page?: number, size?: number, order?: string, sort?: SystemUsersGetSortEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('systemUsersGet', 'authorization', authorization)
             const localVarPath = `/system/users`;
@@ -75,8 +75,8 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
                 localVarQueryParameter['page'] = page;
             }
 
-            if (pageSize !== undefined) {
-                localVarQueryParameter['page_size'] = pageSize;
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
             }
 
             if (order !== undefined) {
@@ -358,14 +358,14 @@ export const SystemUsersApiFp = function(configuration?: Configuration) {
          * @summary List of Admin or simple users
          * @param {string} authorization Bearer TOKEN
          * @param {number} [page] Page number, starting from 1
-         * @param {number} [pageSize] Number of items per page
+         * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
          * @param {SystemUsersGetSortEnum} [sort] Sort order, either ASC or DESC
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersGet(authorization: string, page?: number, pageSize?: number, order?: string, sort?: SystemUsersGetSortEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersGet(authorization, page, pageSize, order, sort, options);
+        async systemUsersGet(authorization: string, page?: number, size?: number, order?: string, sort?: SystemUsersGetSortEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersGet(authorization, page, size, order, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SystemUsersApi.systemUsersGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -471,7 +471,7 @@ export const SystemUsersApiFactory = function (configuration?: Configuration, ba
          * @throws {RequiredError}
          */
         systemUsersGet(requestParameters: SystemUsersApiSystemUsersGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<SystemUsersResponse> {
-            return localVarFp.systemUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
+            return localVarFp.systemUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
         },
         /**
          * Admin users login with Google captcha(captcha site key required in get config api)
@@ -561,7 +561,7 @@ export interface SystemUsersApiSystemUsersGetRequest {
      * @type {number}
      * @memberof SystemUsersApiSystemUsersGet
      */
-    readonly pageSize?: number
+    readonly size?: number
 
     /**
      * Field to order by
@@ -713,7 +713,7 @@ export class SystemUsersApi extends BaseAPI {
      * @memberof SystemUsersApi
      */
     public systemUsersGet(requestParameters: SystemUsersApiSystemUsersGetRequest, options?: RawAxiosRequestConfig) {
-        return SystemUsersApiFp(this.configuration).systemUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.pageSize, requestParameters.order, requestParameters.sort, options).then((request) => request(this.axios, this.basePath));
+        return SystemUsersApiFp(this.configuration).systemUsersGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

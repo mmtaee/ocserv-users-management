@@ -171,7 +171,7 @@ const docTemplate = `{
                         "minimum": 1,
                         "type": "integer",
                         "description": "Number of items per page",
-                        "name": "page_size",
+                        "name": "size",
                         "in": "query"
                     },
                     {
@@ -543,7 +543,7 @@ const docTemplate = `{
                         "minimum": 1,
                         "type": "integer",
                         "description": "Number of items per page",
-                        "name": "page_size",
+                        "name": "size",
                         "in": "query"
                     },
                     {
@@ -1210,7 +1210,7 @@ const docTemplate = `{
                         "minimum": 1,
                         "type": "integer",
                         "description": "Number of items per page",
-                        "name": "page_size",
+                        "name": "size",
                         "in": "query"
                     },
                     {
@@ -2337,14 +2337,14 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "page",
-                "page_size",
+                "size",
                 "total_records"
             ],
             "properties": {
                 "page": {
                     "type": "integer"
                 },
-                "page_size": {
+                "size": {
                     "type": "integer"
                 },
                 "total_records": {
