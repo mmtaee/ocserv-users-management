@@ -12,6 +12,7 @@ import {
 } from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
 import type {Meta} from "@/utils/interfaces.ts";
+import {formatDateTimeWithRelative} from "../utils/convertors.ts";
 
 const CreateOrEdit = defineAsyncComponent(() => import('@/components/ocserv_user/CreateOrUpdate.vue'));
 const Delete = defineAsyncComponent(() => import('@/components/ocserv_user/Delete.vue'));
@@ -412,6 +413,14 @@ onBeforeMount(
                         <tr style="text-align: right;">
                           <th>TX:</th>
                           <td>{{ Math.round((user.raw.tx / (1024 ** 3)) * 1000) / 1000 }} GB</td>
+                        </tr>
+                        <tr style="text-align: right;">
+                          <th>{{ t("DEACTIVATED_AT") }}:</th>
+                          <td>{{ formatDateTimeWithRelative(user.raw.deactivated_at, t("USER_IS_ACTIVE")) }}</td>
+                        </tr>
+                        <tr style="text-align: right;">
+                          <th>{{ t("EXPIRE_AT") }}:</th>
+                          <td>{{ formatDateTimeWithRelative(user.raw.expire_at, t("USER_NO_EXPIRE_TIME_SET")) }}</td>
                         </tr>
                         </tbody>
                       </v-table>

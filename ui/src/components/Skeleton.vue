@@ -29,6 +29,7 @@ const logout = () => {
   const userStore = useUserStore()
   userStore.clearUser()
   localStorage.removeItem('token')
+  logoutDialog.value = false
   router.push('/login')
 }
 

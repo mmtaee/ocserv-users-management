@@ -117,7 +117,7 @@ func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 		Username:    data.Username,
 		Password:    data.Password,
 		Group:       data.Group,
-		ExpireAt:    expireAt,
+		ExpireAt:    &expireAt,
 		TrafficSize: data.TrafficSize,
 		TrafficType: data.TrafficType,
 		Config:      data.Config,
@@ -189,7 +189,7 @@ func (ctl *Controller) UpdateOcservUser(c echo.Context) error {
 				"2006-01-02",
 				time.Now().AddDate(0, 0, 30).Format("2006-01-02"),
 			)
-			ocservUser.ExpireAt = expire
+			ocservUser.ExpireAt = &expire
 		}
 	}
 

@@ -20,4 +20,5 @@ func Routes(e *echo.Group) {
 	g.DELETE("/users/:uid", ctl.DeleteUser, middlewares.AdminPermission())
 	g.POST("/users/password", ctl.ChangePasswordBySelf)
 	g.GET("/users/profile", ctl.Profile)
+	g.GET("/users", ctl.Users)
 }

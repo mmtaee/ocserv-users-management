@@ -78,7 +78,7 @@ const items = [
             <v-col>
               <span class="text-capitalize">
                 {{ userStore.user.username }}
-                (<span>{{ userStore.user.isAdmin ? t('ADMIN') : t('STAFF') }}</span>)
+                (<span>{{ userStore.isAdmin ? t('ADMIN') : t('STAFF') }}</span>)
              </span>
             </v-col>
             <v-col v-if="smallDisplay.isSmallDisplay" class="text-end">

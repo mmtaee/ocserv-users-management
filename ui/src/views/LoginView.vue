@@ -35,11 +35,7 @@ const login = async () => {
       }
   ).then((res) => {
     const userStore = useUserStore()
-    userStore.setUser({
-      uid: res.data.user.uid,
-      username: res.data.user.username,
-      isAdmin: res.data.user.is_admin,
-    })
+    userStore.setUser(res.data.user)
     localStorage.setItem("token", res.data.token)
     router.push("/")
   }).finally(() => {

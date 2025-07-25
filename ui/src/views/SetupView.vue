@@ -33,11 +33,7 @@ const setup = () => {
     const userStore = useUserStore()
 
     configStore.setConfig(res.data.system.google_captcha_site_key)
-    userStore.setUser({
-      uid: res.data.user.uid,
-      username: res.data.user.username,
-      isAdmin: res.data.user.is_admin,
-    })
+    userStore.setUser(res.data.user)
     localStorage.setItem("token", res.data.token)
     router.push({name: 'HomePage'})
   }).finally(() => {

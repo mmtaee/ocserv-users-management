@@ -224,52 +224,6 @@ onMounted(() => {
                       {{ group.raw?.config?.["session-timeout"] ?? t("NOT_CONFIGURED") }}
                     </td>
                   </tr>
-
-                  <!--                  <tr style="text-align: right;">-->
-                  <!--                    <th>{{ t("GROUP") }}:</th>-->
-                  <!--                    <td>{{ user.raw.group }}</td>-->
-                  <!--                  </tr>-->
-                  <!--                  <tr style="text-align: right;">-->
-                  <!--                    <th>{{ t("PASSWORD") }}:</th>-->
-                  <!--                    <td>-->
-                  <!--                            <span v-if="showPasswords[user.raw.username]">-->
-                  <!--                              {{ user.raw.password }}-->
-                  <!--                            </span>-->
-                  <!--                      <span v-else>-->
-                  <!--                              {{ '*'.repeat(user.raw.password?.length || 0) }}-->
-                  <!--                            </span>-->
-                  <!--                      <v-icon-->
-                  <!--                          v-if="!showPasswords[user.raw.username]"-->
-                  <!--                          class="ms-2 mb-2"-->
-                  <!--                          color="grey"-->
-                  <!--                          icon="mdi-eye"-->
-                  <!--                          @click="togglePassword(user.raw.username)"-->
-                  <!--                      />-->
-                  <!--                      <v-icon-->
-                  <!--                          v-else-->
-                  <!--                          class="ms-2 mb-2"-->
-                  <!--                          color="grey"-->
-                  <!--                          icon="mdi-eye-off"-->
-                  <!--                          @click="togglePassword(user.raw.username)"-->
-                  <!--                      />-->
-                  <!--                    </td>-->
-                  <!--                  </tr>-->
-                  <!--                  <tr style="text-align: right;">-->
-                  <!--                    <th>{{ t("TRAFFIC_TYPE") }}:</th>-->
-                  <!--                    <td>{{ trafficTypesTransformer(user.raw.traffic_type) }}</td>-->
-                  <!--                  </tr>-->
-                  <!--                  <tr style="text-align: right;">-->
-                  <!--                    <th>{{ t("TRAFFIC_SIZE") }}:</th>-->
-                  <!--                    <td>{{ user.raw.traffic_size }} GB</td>-->
-                  <!--                  </tr>-->
-                  <!--                  <tr style="text-align: right;">-->
-                  <!--                    <th>RX:</th>-->
-                  <!--                    <td>{{ Math.round((user.raw.rx / (1024 ** 3)) * 1000) / 1000 }} GB</td>-->
-                  <!--                  </tr>-->
-                  <!--                  <tr style="text-align: right;">-->
-                  <!--                    <th>TX:</th>-->
-                  <!--                    <td>{{ Math.round((user.raw.tx / (1024 ** 3)) * 1000) / 1000 }} GB</td>-->
-                  <!--                  </tr>-->
                   </tbody>
                 </v-table>
               </v-sheet>

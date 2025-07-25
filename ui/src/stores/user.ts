@@ -1,46 +1,54 @@
 import {defineStore} from "pinia";
-import {SystemUsersApi} from "@/api";
+import {type ModelsUser, SystemUsersApi} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
 
-interface UserState {
-    uid: string;
-    username: string;
-    isAdmin: boolean;
-}
 
 export const useUserStore = defineStore('user', {
-    state: (): UserState => ({
+    state: (): ModelsUser => ({
+        is_admin: false,
         uid: "",
         username: "",
-        isAdmin: false,
+        created_at: undefined,
+        updated_at: undefined,
+        last_login: "",
     }),
 
     actions: {
-        getProfile() {
+        async getProfile() {
             const api = new SystemUsersApi()
-            api.systemUsersProfileGet(getAuthorization()).then((res) => {
+            try {
+                const res = await api.systemUsersProfileGet(getAuthorization())
                 if (res.data) {
-                    this.uid = res.data.uid;
-                    this.username = res.data.username;
-                    this.isAdmin = res.data.is_admin;
+                    this.setUser(res.data)
                 }
-            })
-        },
-        setUser(user: UserState) {
-            this.uid = user.uid;
-            this.username = user.username;
-            this.isAdmin = user.isAdmin;
-        },
-        clearUser() {
-            this.uid = "";
-            this.username = "";
-            this.isAdmin = false;
+            } catch (error) {
+                console.error("Failed to fetch user profile", error)
+                this.clearUser()
+            }
         },
 
+        setUser(user: ModelsUser) {
+            Object.assign(this, user)
+        },
+
+        clearUser() {
+            Object.assign(this, {
+                _: 0,
+                is_admin: false,
+                uid: "",
+                username: "",
+                created_at: undefined,
+                updated_at: undefined,
+                last_login: ""
+            })
+        },
     },
     getters: {
-        user(state): UserState | null {
+        user(state): ModelsUser | null {
             return state;
         },
+        isAdmin(state: ModelsUser) {
+            return state.is_admin
+        }
     }
 })

@@ -108,5 +108,8 @@
   "STOP_NOW_DESC": "Terminates the server",
   "SERVER_LOGS": "Server Logs",
   "STATUS": "status",
-  "NOT_CONFIGURED": "not configured"
+  "NOT_CONFIGURED": "not configured",
+  "NO_LOGIN_YET": "no login yet",
+  "USER_IS_ACTIVE": "user is currently active",
+  "USER_NO_EXPIRE_TIME_SET": "No expiration time set"
 }

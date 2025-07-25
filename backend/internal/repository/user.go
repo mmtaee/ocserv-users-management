@@ -21,6 +21,7 @@ type UserRepositoryInterface interface {
 	Users(ctx context.Context, pagination *request.Pagination) (*[]models.User, int64, error)
 	ChangePassword(ctx context.Context, uid, password, salt string) error
 	DeleteUser(ctx context.Context, uid string) error
+	UpdateLastLogin(ctx context.Context, user *models.User) error
 }
 
 func NewUserRepository() *UserRepository {
@@ -122,4 +123,13 @@ func (r *UserRepository) GetByUID(ctx context.Context, uid string) (*models.User
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *UserRepository) UpdateLastLogin(ctx context.Context, user *models.User) error {
+	return r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("id = ?", user.ID).
+		Updates(map[string]interface{}{
+			"last_login": user.LastLogin,
+		}).Error
 }

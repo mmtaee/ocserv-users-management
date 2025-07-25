@@ -406,22 +406,21 @@ definitions:
     type: object
   models.User:
     properties:
-      _:
-        type: integer
-      createdAt:
-        description: LastLogin *time.Time `json:"last_login"  validate:"required"`
+      created_at:
         type: string
       is_admin:
         type: boolean
+      last_login:
+        type: string
       uid:
         type: string
-      updatedAt:
+      updated_at:
         type: string
       username:
         type: string
     required:
-    - _
     - is_admin
+    - last_login
     - uid
     - username
     type: object

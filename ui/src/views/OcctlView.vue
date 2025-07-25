@@ -115,7 +115,6 @@ const execute = () => {
 </script>
 
 <template>
-
   <v-row align="start" justify="center">
     <v-col>
       <v-card min-height="850">

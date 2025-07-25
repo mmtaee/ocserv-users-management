@@ -1,6 +1,7 @@
 package system
 
 import (
+	"context"
 	"errors"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -11,6 +12,7 @@ import (
 	"ocserv-bakend/pkg/request"
 	"ocserv-bakend/pkg/utils/captcha"
 	"strings"
+	"time"
 )
 
 type Controller struct {
@@ -201,17 +203,26 @@ func (ctl *Controller) Login(c echo.Context) error {
 
 	user, err := ctl.userRepo.GetByUsername(c.Request().Context(), data.Username)
 	if err != nil {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password!"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
 	}
 
 	if ok := ctl.cryptoRepo.CheckPassword(data.Password, user.Password, user.Salt); !ok {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password!!!"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
 	}
 
 	token, err := ctl.userRepo.CreateToken(c.Request().Context(), user.ID, user.UID, true, user.IsAdmin)
 	if err != nil {
 		return ctl.request.BadRequest(c, err, "user created")
 	}
+
+	go func() {
+		ctx, cancel := context.WithTimeout(c.Request().Context(), 10*time.Second)
+		defer cancel()
+
+		now := time.Now()
+		user.LastLogin = &now
+		_ = ctl.userRepo.UpdateLastLogin(ctx, user)
+	}()
 
 	return c.JSON(http.StatusOK, UserLoginResponse{
 		User:  user,

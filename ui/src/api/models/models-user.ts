@@ -22,16 +22,10 @@
 export interface ModelsUser {
     /**
      * 
-     * @type {number}
-     * @memberof ModelsUser
-     */
-    '_': number;
-    /**
-     * LastLogin *time.Time `json:\"last_login\"  validate:\"required\"`
      * @type {string}
      * @memberof ModelsUser
      */
-    'createdAt'?: string;
+    'created_at'?: string;
     /**
      * 
      * @type {boolean}
@@ -43,13 +37,19 @@ export interface ModelsUser {
      * @type {string}
      * @memberof ModelsUser
      */
+    'last_login': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelsUser
+     */
     'uid': string;
     /**
      * 
      * @type {string}
      * @memberof ModelsUser
      */
-    'updatedAt'?: string;
+    'updated_at'?: string;
     /**
      * 
      * @type {string}
