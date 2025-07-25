@@ -12,7 +12,7 @@ const {t} = useLocale()
 const adminUsers = reactive<ModelsUser[]>([])
 const meta = reactive<Meta>({
   page: 1,
-  size: 10,
+  size: 25,
   sort: "ASC",
   total_records: 0
 })

@@ -27,7 +27,7 @@ const {t} = useLocale()
 const loading = ref(false)
 const meta = reactive<Meta>({
   page: 1,
-  size: 10,
+  size: 25,
   sort: "ASC",
   total_records: 0
 })
@@ -132,7 +132,7 @@ onMounted(() => {
                 >
                   <template v-slot:prepend>
                     <v-avatar color="grey-lighten-1">
-                      <v-icon color="white">mdi-account-network</v-icon>
+                      <v-icon color="white">mdi-router-network</v-icon>
                     </v-avatar>
                   </template>
 

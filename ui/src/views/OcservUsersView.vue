@@ -29,7 +29,7 @@ const createDialog = ref(false)
 const users = reactive<ModelsOcservUser[]>([])
 const meta = reactive<Meta>({
   page: 1,
-  size: 10,
+  size: 25,
   sort: "ASC",
   total_records: 0
 })
@@ -157,6 +157,8 @@ const lockUser = () => {
     let index = users.findIndex(i => i.uid = selectedObj.value.uid)
     if (index > -1) {
       users[index].is_locked = true
+      users[index].is_online = false
+      users[index].deactivated_at = new Date().toISOString()
     }
   }).finally(() => {
     lockDialog.value = false
@@ -172,6 +174,7 @@ const unlockUser = () => {
     let index = users.findIndex(i => i.uid = selectedObj.value.uid)
     if (index > -1) {
       users[index].is_locked = false
+      users[index].deactivated_at = ""
     }
   }).finally(() => {
     unlockDialog.value = false
@@ -335,7 +338,7 @@ onBeforeMount(
                         <tr style="text-align: right;">
                           <th>{{ t("STATUS") }}:</th>
                           <td>
-                            <v-tooltip v-if="!user.raw.is_locked" text="Unlocked">
+                            <v-tooltip v-if="!user.raw.is_locked" :text="t('ACTIVE')">
                               <template #activator="{ props }">
                                 <v-icon color="success" end v-bind="props">
                                   mdi-lock-open
@@ -343,7 +346,7 @@ onBeforeMount(
                               </template>
                             </v-tooltip>
 
-                            <v-tooltip v-if="user.raw.is_locked" text="Locked">
+                            <v-tooltip v-if="user.raw.is_locked" :text="t('LOCKED')">
                               <template #activator="{ props }">
                                 <v-icon color="error" end v-bind="props">
                                   mdi-lock
@@ -351,7 +354,7 @@ onBeforeMount(
                               </template>
                             </v-tooltip>
 
-                            <v-tooltip v-if="user.raw.is_online" text="Online">
+                            <v-tooltip v-if="user.raw.is_online" :text="t('ONLINE')">
                               <template #activator="{ props }">
                                 <v-icon color="success" end v-bind="props">
                                   mdi-lan-connect
@@ -359,7 +362,7 @@ onBeforeMount(
                               </template>
                             </v-tooltip>
 
-                            <v-tooltip v-if="!user.raw.is_online" text="Offline">
+                            <v-tooltip v-if="!user.raw.is_online" :text="t('OFFLINE')">
                               <template #activator="{ props }">
                                 <v-icon color="error" end v-bind="props">
                                   mdi-lan-disconnect
@@ -416,11 +419,15 @@ onBeforeMount(
                         </tr>
                         <tr style="text-align: right;">
                           <th>{{ t("DEACTIVATED_AT") }}:</th>
-                          <td>{{ formatDateTimeWithRelative(user.raw.deactivated_at, t("USER_IS_ACTIVE")) }}</td>
+                          <td :class="user.raw.deactivated_at? 'text-error': false">
+                            {{ formatDateTimeWithRelative(user.raw.deactivated_at, t("USER_IS_ACTIVE")) }}
+                          </td>
                         </tr>
                         <tr style="text-align: right;">
                           <th>{{ t("EXPIRE_AT") }}:</th>
-                          <td>{{ formatDateTimeWithRelative(user.raw.expire_at, t("USER_NO_EXPIRE_TIME_SET")) }}</td>
+                          <td :class="user.raw.expire_at? 'text-error': false">
+                            {{ formatDateTimeWithRelative(user.raw.expire_at, t("USER_NO_EXPIRE_TIME_SET")) }}
+                          </td>
                         </tr>
                         </tbody>
                       </v-table>

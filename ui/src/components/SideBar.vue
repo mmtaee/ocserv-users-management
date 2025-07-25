@@ -101,6 +101,16 @@ const items = [
           :value="item.value"
           color="primary"
       />
+      <v-divider class="my-3" opacity="1"/>
+      <v-list-item
+
+          color="primary"
+          prepend-icon="mdi-account-cog"
+          to="/account"
+          value="account"
+      >
+        <v-list-item-title class="text-capitalize">{{ t('ACCOUNT') }}</v-list-item-title>
+      </v-list-item>
     </v-list>
 
     <template #append>

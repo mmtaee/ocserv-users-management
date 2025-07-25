@@ -36,7 +36,7 @@ watch(tab, (newVal) => {
     <v-col>
       <v-card min-height="850">
         <v-toolbar color="secondary">
-          <v-toolbar-title>
+          <v-toolbar-title class="text-capitalize">
             {{ t('ACCOUNT') }}
           </v-toolbar-title>
         </v-toolbar>

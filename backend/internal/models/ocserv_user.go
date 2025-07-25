@@ -68,9 +68,9 @@ type OcservUser struct {
 	ExpireAt      *time.Time        `json:"expire_at" gorm:"type:date" validate:"omitempty"`
 	DeactivatedAt *time.Time        `json:"deactivated_at" gorm:"type:date" validate:"omitempty"`
 	TrafficType   string            `json:"traffic_type" gorm:"type:varchar(32);not null;default:1" enums:"Free,MonthlyTransmit,MonthlyReceive,TotallyTransmit,TotallyReceive" validate:"required"`
-	TrafficSize   int               `json:"traffic_size" gorm:"not null;default:10" validate:"required"` // in GiB  >> x * 1024 ** 3
-	Rx            int               `json:"rx" gorm:"not null;default:0" validate:"required"`            // Receive in bytes
-	Tx            int               `json:"tx" gorm:"not null;default:0" validate:"required"`            // Transmit in bytes
+	TrafficSize   int               `json:"traffic_size" gorm:"not null" validate:"required"` // in GiB  >> x * 1024 ** 3
+	Rx            int               `json:"rx" gorm:"not null;default:0" validate:"required"` // Receive in bytes
+	Tx            int               `json:"tx" gorm:"not null;default:0" validate:"required"` // Transmit in bytes
 	Description   string            `json:"description" gorm:"type:text" validate:"omitempty"`
 	IsOnline      bool              `json:"is_online" gorm:"-:migration;->" validate:"required"`
 	Config        *OcservUserConfig `json:"config" gorm:"type:text"`

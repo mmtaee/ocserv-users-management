@@ -111,5 +111,9 @@
   "NOT_CONFIGURED": "not configured",
   "NO_LOGIN_YET": "no login yet",
   "USER_IS_ACTIVE": "user is currently active",
-  "USER_NO_EXPIRE_TIME_SET": "No expiration time set"
+  "USER_NO_EXPIRE_TIME_SET": "No expiration time set",
+  "LOGS": "logs",
+  "SET_EXPIRE_HINT": "Leave blank to keep the user indefinitely. If set, the user will be deleted after the expiration date.",
+  "ACTIVE": "active",
+  "ACCOUNT": "account"
 }

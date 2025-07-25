@@ -52,11 +52,7 @@ const logout = () => {
     <template v-slot:append>
       <v-icon @click="toggleTheme">mdi-theme-light-dark</v-icon>
 
-      <v-icon v-if="userStore.user?.username" class="mx-3" @click="router.push('/account')">
-        mdi-account-cog-outline
-      </v-icon>
-
-      <v-icon v-if="userStore.user?.username" class="me-3" color="error" @click="logoutDialog = true">
+      <v-icon v-if="userStore.user?.username" class="me-5 mx-3" color="error" @click="logoutDialog = true">
         mdi-logout
       </v-icon>
     </template>

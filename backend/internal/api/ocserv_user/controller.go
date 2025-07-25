@@ -113,6 +113,10 @@ func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 		)
 	}
 
+	if data.TrafficType == models.Free {
+		data.TrafficSize = 0
+	}
+
 	ocUser := &models.OcservUser{
 		Username:    data.Username,
 		Password:    data.Password,

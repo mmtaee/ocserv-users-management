@@ -226,9 +226,12 @@ watch(
                   <template #activator="{ props }">
                     <v-text-field
                         v-model="data.expire_at"
+                        :hint="t('SET_EXPIRE_HINT')"
                         :label="t('EXPIRE_AT')"
+                        class="mt-7"
                         clearable
                         density="compact"
+                        persistent-hint
                         readonly
                         v-bind="props"
                         variant="underlined"
