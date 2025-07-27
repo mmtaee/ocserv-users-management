@@ -503,4 +503,13 @@ onBeforeMount(
   />
 
 </template>
+
+<style scoped>
+tr:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background-color: #2C7BE5; /* Optional: subtle background */
+  cursor: pointer;
+  color: white;
+}
+</style>
 `

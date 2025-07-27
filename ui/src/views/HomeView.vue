@@ -196,7 +196,7 @@ onMounted(() => {
               height="320"
           >
             <template v-slot:default="{ item, index }">
-              <v-card :class="['pa-2 my-1', index % 2 === 0 ? 'bg-odd' : 'bg-even']">
+              <v-card :class="['pa-2 my-1', index % 2 === 0 ? 'bg-odd' : 'bg-white']">
                 {{ item.Username }}
                 <span class="text-grey">[{{ t("SINCE") }} {{ item['_Connected at'] }}]</span>
                 <br>
@@ -232,7 +232,7 @@ onMounted(() => {
               item-key="banIPs"
           >
             <template v-slot:default="{ item, index }">
-              <v-card :class="['pa-2 my-1', index % 2 === 0 ? 'bg-odd' : 'bg-even']">
+              <v-card :class="['pa-2 my-1', index % 2 === 0 ? 'bg-odd' : 'bg-white']">
                 <strong class="text-grey">IP:</strong>
                 {{ item.IP }}
                 <span class="text-grey">[{{ item.Score }} {{ t("SCORES") }}]</span>
