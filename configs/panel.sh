@@ -19,7 +19,7 @@ fi
 # back-end
 echo -e "\e[0;32m"Back-end Installing ..."\e[0m"
 rm -rf /var/www/html
-rm -rf ${SITE_DIR}
+#rm -rf ${SITE_DIR}
 mkdir -p ${SITE_DIR}
 cp -r ${CURRENT_DIR}/back-end ${SITE_DIR}/back-end
 rm -rf /lib/systemd/system/backend.service
@@ -56,15 +56,30 @@ crontab -l | echo "59 23 * * * ${SITE_DIR}/back-end/venv/bin/python3 ${SITE_DIR}
 
 # front-end
 echo -e "\e[0;32m"Front-End Installing ..."\e[0m"
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-NODE_MAJOR=18
-echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-cd ${CURRENT_DIR}/front-end/
+
+CURRENT_VERSION=$(node -v 2>/dev/null | sed 's/^v//')
+REQUIRED_VERSION="20.0.0"
+
+version_lt() {
+  [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$2" ]
+}
+
+if [ -z "$CURRENT_VERSION" ] || version_lt "$CURRENT_VERSION" "$REQUIRED_VERSION"; then
+  echo -e "\e[0;33mInstalling or upgrading Node.js to version 20.x...\e[0m"
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
+  sudo apt-get install -y nodejs
+else
+  echo -e "\e[0;32mNode.js is installed: v$CURRENT_VERSION (>= 20.0.0)\e[0m"
+fi
+
+echo -e "\e[0;32m"Buliding web production..."\e[0m"
+
+cd "${CURRENT_DIR}"/front-end/ || exit
 npm install
 NODE_ENV=production npm run build
+
 mkdir -p ${SITE_DIR}/front-end
-cp -r ${CURRENT_DIR}/front-end/dist/* ${SITE_DIR}/front-end
+cp -r "${CURRENT_DIR}"/front-end/dist/* ${SITE_DIR}/front-end
 
 # nginx
 echo -e "\e[0;32m"Nginx Configurations ..."\e[0m"
@@ -75,11 +90,14 @@ cat <<\EOT >/etc/nginx/conf.d/site.conf
 server {
     listen 80;
     server_name ${DOMAIN} ;
+    server_tokens off;
+
     return 302 https://$server_name$request_uri;
 }
 server {
     listen 443 ssl http2;
     server_name ${DOMAIN} ;
+    server_tokens off;
 
     ssl_certificate         /etc/nginx/certs/cert.pem;
     ssl_certificate_key    /etc/nginx/certs/cert.key;
@@ -101,6 +119,7 @@ else
 cat <<\EOT >/etc/nginx/conf.d/site.conf
 server {
     listen 80;
+    server_tokens off;
     location / {
         root /var/www/site/front-end;
         index index.html;
@@ -145,8 +164,8 @@ else
     echo -e "\e[0;31m"backend.service Is Not Running."\e[0m"
     exit 1
 fi
-OCSERV_USERSTAT=$(systemctl is-active user_stats.service)
-if [ "$OCSERV_USERSTAT" = "active" ]; then
+OCSERV_STAT=$(systemctl is-active user_stats.service)
+if [ "$OCSERV_STAT" = "active" ]; then
     echo -e "\e[0;32m"user_stats.service Is Started."\e[0m"
 else
     echo -e "\e[0;31m"user_stats.service Is Not Running."\e[0m"

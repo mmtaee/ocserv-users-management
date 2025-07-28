@@ -5,6 +5,13 @@ if [[ $(id -u) != "0" ]]; then
     exit 1
 fi
 
+# Install NetworkManager if nmcli is not available (for minimal Ubuntu 20.04 systems)
+if ! command -v nmcli >/dev/null 2>&1; then
+    echo -e "\e[0;33mNetworkManager (nmcli) not found. Installing...\e[0m"
+    sudo apt update
+    sudo apt install -y network-manager
+fi
+
 color_echo() {
     local color=$1
     local text=$2
@@ -219,11 +226,12 @@ if [[ $mode == '1' ]]; then
     UpdateDockerProdEnv
     DOCKER_VARS="CN=${CN} ORG=${ORG} EXPIRE=${EXPIRE} OC_NET=${OC_NET} DOMAIN=${DOMAIN} HOST=${HOST} PORT=${PORT} DNS=${DNS}"
     BUILD="DOCKER_SCAN_SUGGEST=false ${DOCKER_VARS} docker compose up -d --build"
-    eval ${BUILD}
+    eval "${BUILD}"
 elif [[ $mode == '2' ]]; then
     ./configs/ocserv.sh
     ./configs/panel.sh
     UpdateIpTables
+    color_echo "35;1" "Installing completed"
 elif [[ $mode == '3' ]]; then
     ./configs/panel.sh
 fi

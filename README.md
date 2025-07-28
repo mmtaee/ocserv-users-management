@@ -31,6 +31,13 @@ This guide provides a simple and efficient way to set up and manage an OpenConne
 
 ---
 
+⚠️ System Requirements
+
+    Note: Scripts are compatible only with systemd-based systems.
+    Tested and officially supported on Ubuntu 20.04.
+
+---
+
 ## Installation Methods
 
 You can install the solution using one of the following methods:
