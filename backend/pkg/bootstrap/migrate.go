@@ -5,6 +5,7 @@ import (
 	"log"
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/pkg/database"
+	"ocserv-bakend/pkg/events"
 )
 
 var tables = []interface{}{
@@ -14,6 +15,7 @@ var tables = []interface{}{
 	&models.OcservGroup{},
 	&models.OcservUser{},
 	&models.OcservUserTrafficStatistics{},
+	&events.Event{},
 }
 
 func Migrate() {

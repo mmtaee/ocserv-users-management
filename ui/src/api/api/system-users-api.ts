@@ -32,6 +32,8 @@ import type { RequestErrorResponse } from '../models';
 // @ts-ignore
 import type { SystemChangeUserPassword } from '../models';
 // @ts-ignore
+import type { SystemChangeUserPasswordBySelf } from '../models';
+// @ts-ignore
 import type { SystemCreateUserData } from '../models';
 // @ts-ignore
 import type { SystemLoginData } from '../models';
@@ -141,11 +143,11 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * Change user password by self
          * @summary Change user password by self
          * @param {string} authorization Bearer TOKEN
-         * @param {SystemChangeUserPassword} request user new password
+         * @param {SystemChangeUserPasswordBySelf} request user new password
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersPasswordPost: async (authorization: string, request: SystemChangeUserPassword, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        systemUsersPasswordPost: async (authorization: string, request: SystemChangeUserPasswordBySelf, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('systemUsersPasswordPost', 'authorization', authorization)
             // verify required parameter 'request' is not null or undefined
@@ -387,11 +389,11 @@ export const SystemUsersApiFp = function(configuration?: Configuration) {
          * Change user password by self
          * @summary Change user password by self
          * @param {string} authorization Bearer TOKEN
-         * @param {SystemChangeUserPassword} request user new password
+         * @param {SystemChangeUserPasswordBySelf} request user new password
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersPasswordPost(authorization: string, request: SystemChangeUserPassword, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
+        async systemUsersPasswordPost(authorization: string, request: SystemChangeUserPasswordBySelf, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersPasswordPost(authorization, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SystemUsersApi.systemUsersPasswordPost']?.[localVarOperationServerIndex]?.url;
@@ -607,10 +609,10 @@ export interface SystemUsersApiSystemUsersPasswordPostRequest {
 
     /**
      * user new password
-     * @type {SystemChangeUserPassword}
+     * @type {SystemChangeUserPasswordBySelf}
      * @memberof SystemUsersApiSystemUsersPasswordPost
      */
-    readonly request: SystemChangeUserPassword
+    readonly request: SystemChangeUserPasswordBySelf
 }
 
 /**

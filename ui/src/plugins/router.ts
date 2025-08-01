@@ -35,15 +35,6 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/account',
-        name: 'AccountPage',
-        component: () => import('../views/AccountView.vue'),
-        meta: {
-            title: "Account",
-            desktopOnly: true
-        }
-    },
-    {
         path: '/ocserv-groups',
         name: 'OcservGroupsPage',
         component: () => import('../views/OcservGroupsView.vue'),
@@ -72,6 +63,24 @@ const routes: Array<RouteRecordRaw> = [
         name: 'StatisticsPage',
         component: () => import('../views/StatisticsView.vue'),
         meta: {title: "Statistics"}
+    },
+    {
+        path: '/account',
+        name: 'AccountPage',
+        component: () => import('../views/AccountView.vue'),
+        meta: {
+            title: "Account",
+            desktopOnly: true
+        }
+    },
+    {
+        path: '/config',
+        name: 'ConfigPage',
+        component: () => import('../views/ConfigView.vue'),
+        meta: {
+            title: "Config",
+            desktopOnly: true
+        }
     },
 ]
 

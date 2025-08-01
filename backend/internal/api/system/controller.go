@@ -10,6 +10,7 @@ import (
 	"ocserv-bakend/internal/repository"
 	"ocserv-bakend/pkg/crypto"
 	"ocserv-bakend/pkg/request"
+	"ocserv-bakend/pkg/routing/middlewares"
 	"ocserv-bakend/pkg/utils/captcha"
 	"strings"
 	"time"
@@ -146,6 +147,8 @@ func (ctl *Controller) System(c echo.Context) error {
 // @Success      200  {object}  GetSystemResponse
 // @Router       /system [patch]
 func (ctl *Controller) SystemUpdate(c echo.Context) error {
+	userUID := c.Param("userUID")
+
 	var data PatchSystemUpdateData
 	if err := ctl.request.DoValidate(c, &data); err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -160,7 +163,8 @@ func (ctl *Controller) SystemUpdate(c echo.Context) error {
 		system.GoogleCaptchaSecretKey = *data.GoogleCaptchaSecretKey
 	}
 
-	updatedConfig, err := ctl.systemRepo.SystemUpdate(c.Request().Context(), &system)
+	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
+	updatedConfig, err := ctl.systemRepo.SystemUpdate(ctx, &system)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -216,7 +220,8 @@ func (ctl *Controller) Login(c echo.Context) error {
 	}
 
 	go func() {
-		ctx, cancel := context.WithTimeout(c.Request().Context(), 10*time.Second)
+		userUID := c.Param("userUID")
+		ctx, cancel := context.WithTimeout(context.WithValue(c.Request().Context(), "userUID", userUID), 10*time.Second)
 		defer cancel()
 
 		now := time.Now()
@@ -245,6 +250,8 @@ func (ctl *Controller) Login(c echo.Context) error {
 // @Success      201  {object}  models.User
 // @Router       /system/users [post]
 func (ctl *Controller) CreateUser(c echo.Context) error {
+	userUID := c.Param("userUID")
+
 	var data CreateUserData
 	if err := ctl.request.DoValidate(c, &data); err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -257,7 +264,9 @@ func (ctl *Controller) CreateUser(c echo.Context) error {
 		Salt:     passwd.Salt,
 		IsAdmin:  data.Admin,
 	}
-	newUser, err := ctl.userRepo.CreateUser(c.Request().Context(), user)
+
+	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
+	newUser, err := ctl.userRepo.CreateUser(ctx, user)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -315,7 +324,8 @@ func (ctl *Controller) Users(c echo.Context) error {
 // @Success      200  {object}  UsersResponse
 // @Router       /system/users/{uid}/password [post]
 func (ctl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
-	userID := c.Param("uid")
+	userTargetID := c.Param("uid")
+	userUID := c.Param("userUID")
 
 	var data ChangeUserPassword
 	if err := ctl.request.DoValidate(c, &data); err != nil {
@@ -323,7 +333,9 @@ func (ctl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 	}
 	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
-	err := ctl.userRepo.ChangePassword(c.Request().Context(), userID, passwd.Hash, passwd.Salt)
+	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
+
+	err := ctl.userRepo.ChangePassword(ctx, userTargetID, passwd.Hash, passwd.Salt)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -345,8 +357,11 @@ func (ctl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 // @Success      204  {object}  nil
 // @Router       /system/users/{uid} [delete]
 func (ctl *Controller) DeleteUser(c echo.Context) error {
-	userID := c.Param("uid")
-	err := ctl.userRepo.DeleteUser(c.Request().Context(), userID)
+	deleteUserID := c.Param("uid")
+	userUID := c.Param("userUID")
+
+	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
+	err := ctl.userRepo.DeleteUser(ctx, deleteUserID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -360,21 +375,29 @@ func (ctl *Controller) DeleteUser(c echo.Context) error {
 // @Tags         System(Users)
 // @Accept       json
 // @Produce      json
-// @Param        request body  ChangeUserPassword  true "user new password"
+// @Param        request body  ChangeUserPasswordBySelf  true "user new password"
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
 // @Success      200  {object}  UsersResponse
 // @Router       /system/users/password [post]
 func (ctl *Controller) ChangePasswordBySelf(c echo.Context) error {
-	userID := c.Get("userUID").(string)
+	userUID := c.Get("userUID").(string)
 
-	var data ChangeUserPassword
+	var data ChangeUserPasswordBySelf
 	if err := ctl.request.DoValidate(c, &data); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
-	err := ctl.userRepo.ChangePassword(c.Request().Context(), userID, passwd.Hash, passwd.Salt)
+
+	user, _ := ctl.userRepo.GetByUID(c.Request().Context(), userUID)
+	if ok := ctl.cryptoRepo.CheckPassword(data.OldPassword, user.Password, user.Salt); !ok {
+		return ctl.request.BadRequest(c, errors.New("invalid old password"))
+	}
+
+	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
+
+	passwd := ctl.cryptoRepo.CreatePassword(data.NewPassword)
+	err := ctl.userRepo.ChangePassword(ctx, userUID, passwd.Hash, passwd.Salt)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -397,7 +420,7 @@ func (ctl *Controller) Profile(c echo.Context) error {
 	userUID := c.Get("userUID").(string)
 	user, err := ctl.userRepo.GetByUID(c.Request().Context(), userUID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return middlewares.UnauthorizedError(c, "user not found")
 	}
 	return c.JSON(http.StatusOK, user)
 }

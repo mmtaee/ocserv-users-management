@@ -1375,7 +1375,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.ChangeUserPassword"
+                            "$ref": "#/definitions/system.ChangeUserPasswordBySelf"
                         }
                     },
                     {
@@ -2351,6 +2351,21 @@
             ],
             "properties": {
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.ChangeUserPasswordBySelf": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
                     "type": "string"
                 }
             }

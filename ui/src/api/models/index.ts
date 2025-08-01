@@ -23,6 +23,7 @@ export * from './ocserv-user-update-ocserv-user-data';
 export * from './request-error-response';
 export * from './request-meta';
 export * from './system-change-user-password';
+export * from './system-change-user-password-by-self';
 export * from './system-create-user-data';
 export * from './system-get-system-init-response';
 export * from './system-get-system-response';

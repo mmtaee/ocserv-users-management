@@ -124,5 +124,6 @@ func (o *OcservGroupRepository) Delete(ctx context.Context, id string) (*models.
 		}
 		return nil
 	})
+
 	return &group, err
 }

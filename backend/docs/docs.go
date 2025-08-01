@@ -1382,7 +1382,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.ChangeUserPassword"
+                            "$ref": "#/definitions/system.ChangeUserPasswordBySelf"
                         }
                     },
                     {
@@ -2358,6 +2358,21 @@ const docTemplate = `{
             ],
             "properties": {
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.ChangeUserPasswordBySelf": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
                     "type": "string"
                 }
             }

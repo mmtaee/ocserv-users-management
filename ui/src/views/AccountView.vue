@@ -48,8 +48,8 @@ watch(tab, (newVal) => {
               direction="horizontal"
           >
             <v-tab :text="t('PROFILE')" value="profile"/>
-            <v-tab :text="t('LOGS')" value="logs"/>
             <v-tab v-if="userStore.isAdmin" :text="t('ADMINS')" value="admins"/>
+            <v-tab :text="t('LOGS')" value="logs"/>
           </v-tabs>
 
           <v-tabs-window v-model="tab">

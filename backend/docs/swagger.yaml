@@ -571,6 +571,16 @@ definitions:
     required:
     - password
     type: object
+  system.ChangeUserPasswordBySelf:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   system.CreateUserData:
     properties:
       admin:
@@ -1674,7 +1684,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.ChangeUserPassword'
+          $ref: '#/definitions/system.ChangeUserPasswordBySelf'
       - description: Bearer TOKEN
         in: header
         name: Authorization

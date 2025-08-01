@@ -46,6 +46,11 @@ type ChangeUserPassword struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type ChangeUserPasswordBySelf struct {
+	OldPassword string `json:"old_password" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required"`
+}
+
 type SetupSystem struct {
 	Username               string `json:"username" validate:"required,min=2,max=16"`
 	Password               string `json:"password" validate:"required,min=4,max=16"`

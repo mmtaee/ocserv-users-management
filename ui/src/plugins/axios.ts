@@ -43,7 +43,7 @@ api.interceptors.response.use(
         if (response) {
             if (response.status === 401) {
                 localStorage.removeItem('token')
-                return Promise.resolve(response)
+                window.location.href = '/login'
             }
             if (response.status === 400) {
                 const snackbar = useSnackbarStore()

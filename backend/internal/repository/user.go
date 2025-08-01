@@ -6,6 +6,7 @@ import (
 	"ocserv-bakend/internal/models"
 	"ocserv-bakend/pkg/crypto"
 	"ocserv-bakend/pkg/database"
+	"ocserv-bakend/pkg/events"
 	"ocserv-bakend/pkg/request"
 	"time"
 )
@@ -90,7 +91,9 @@ func (r *UserRepository) Users(ctx context.Context, pagination *request.Paginati
 }
 
 func (r *UserRepository) ChangePassword(ctx context.Context, uid, password, salt string) error {
-	err := r.db.WithContext(ctx).Model(&models.User{}).Where("uid = ?", uid).Updates(
+	var user models.User
+
+	err := r.db.WithContext(ctx).Model(&user).Where("uid = ?", uid).Updates(
 		map[string]interface{}{
 			"password": password,
 			"salt":     salt,
@@ -99,6 +102,12 @@ func (r *UserRepository) ChangePassword(ctx context.Context, uid, password, salt
 	if err != nil {
 		return err
 	}
+
+	events.LogEvent(ctx, r.db, events.EventUserModel, uid, nil, events.EventAction{
+		Action: events.EventUpdate,
+		Reason: "update user password",
+	})
+
 	return nil
 }
 

@@ -28,9 +28,11 @@ func (c *CustomPassword) CreatePassword(passwd string, saltLength ...int) Custom
 		length = saltLength[0]
 	}
 	s := salt(length)
+	hash := create(passwd, s)
+
 	return CustomPassword{
 		Salt: s,
-		Hash: create(passwd, s),
+		Hash: hash,
 	}
 }
 

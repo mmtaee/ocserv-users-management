@@ -29,8 +29,6 @@ const formatDateTimeWithRelative = (
         return message || "";
     }
 
-    console.log(dateString);
-
     const formatted = formatDateTime(dateString, message);
     const date = new Date(dateString);
     const now = new Date();

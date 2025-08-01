@@ -37,6 +37,7 @@ models/ocserv-user-ocserv-users-response.ts
 models/ocserv-user-update-ocserv-user-data.ts
 models/request-error-response.ts
 models/request-meta.ts
+models/system-change-user-password-by-self.ts
 models/system-change-user-password.ts
 models/system-create-user-data.ts
 models/system-get-system-init-response.ts

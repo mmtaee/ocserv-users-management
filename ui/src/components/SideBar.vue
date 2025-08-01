@@ -103,13 +103,22 @@ const items = [
       />
       <v-divider class="my-3" opacity="1"/>
       <v-list-item
-
           color="primary"
           prepend-icon="mdi-account-cog"
           to="/account"
           value="account"
       >
         <v-list-item-title class="text-capitalize">{{ t('ACCOUNT') }}</v-list-item-title>
+      </v-list-item>
+
+      <v-list-item
+          v-if="userStore.isAdmin"
+          color="primary"
+          prepend-icon="mdi-cog"
+          to="/config"
+          value="config"
+      >
+        <v-list-item-title class="text-capitalize">{{ t('CONFIG') }}</v-list-item-title>
       </v-list-item>
     </v-list>
 
