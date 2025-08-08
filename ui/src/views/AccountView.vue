@@ -6,6 +6,7 @@ import {useUserStore} from "@/stores/user.ts";
 
 const Profile = defineAsyncComponent(() => import("@/components/account/Profile.vue"))
 const Admin = defineAsyncComponent(() => import("@/components/account/Admin.vue"))
+const Logs = defineAsyncComponent(() => import("@/components/account/Logs.vue"))
 
 
 const {t} = useLocale()
@@ -59,6 +60,7 @@ watch(tab, (newVal) => {
             </v-tabs-window-item>
 
             <v-tabs-window-item value="logs">
+              <Logs/>
             </v-tabs-window-item>
 
             <v-tabs-window-item value="admins">

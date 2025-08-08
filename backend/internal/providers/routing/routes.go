@@ -3,6 +3,7 @@ package routing
 import (
 	"github.com/labstack/echo/v4"
 	homeRoutes "ocserv-bakend/internal/api/home"
+	logRoutes "ocserv-bakend/internal/api/log"
 	occtlRoutes "ocserv-bakend/internal/api/occtl"
 	ocservGroupRoutes "ocserv-bakend/internal/api/ocserv_group"
 	ocservUserRoutes "ocserv-bakend/internal/api/ocserv_user"
@@ -16,4 +17,5 @@ func Register(e *echo.Echo) {
 	ocservGroupRoutes.Routes(group)
 	homeRoutes.Routes(group)
 	occtlRoutes.Routes(group)
+	logRoutes.Routes(group)
 }

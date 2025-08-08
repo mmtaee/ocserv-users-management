@@ -1,5 +1,27 @@
 basePath: /api
 definitions:
+  audit_log.AuditLog:
+    properties:
+      action:
+        description: action and reason json string
+        type: string
+      changes:
+        description: Full JSON or JSON diff
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      model:
+        description: e.g., "OcservUser"
+        type: string
+      model_id:
+        description: e.g., UID or primary key
+        type: string
+      user_uid:
+        description: ULID or user identifier
+        type: string
+    type: object
   home.CurrentStats:
     properties:
       _Last stats reset:
@@ -105,6 +127,17 @@ definitions:
         $ref: '#/definitions/home.CurrentStats'
       general_info:
         $ref: '#/definitions/home.GeneralInfo'
+    type: object
+  log.UsersLogsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/audit_log.AuditLog'
+        type: array
+    required:
+    - meta
     type: object
   middlewares.PermissionDenied:
     properties:
@@ -722,6 +755,112 @@ paths:
       summary: Content of home
       tags:
       - Home
+  /logs/audit:
+    get:
+      consumes:
+      - application/json
+      description: List of logs
+      parameters:
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      - description: Field to order by
+        in: query
+        name: order
+        type: string
+      - description: Sort order, either ASC or DESC
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: sort
+        type: string
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/log.UsersLogsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: List of logs
+      tags:
+      - Logs
+  /logs/users:
+    get:
+      consumes:
+      - application/json
+      description: List of Users logs on self user model
+      parameters:
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      - description: Field to order by
+        in: query
+        name: order
+        type: string
+      - description: Sort order, either ASC or DESC
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: sort
+        type: string
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/log.UsersLogsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: List of Users logs on self user model
+      tags:
+      - Logs(Users)
   /occtl/commands:
     get:
       consumes:

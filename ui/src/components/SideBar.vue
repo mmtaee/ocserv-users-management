@@ -56,10 +56,10 @@ const items = [
   },
   {
     "id": 5,
-    "value": "ocserv-server",
+    "value": "logs",
     "icon": "mdi-server-network",
-    "title": t("SERVER_LOGS"),
-    "to": "/ocserv-server"
+    "title": t("LOGS"),
+    "to": "/logs"
   },
 ]
 

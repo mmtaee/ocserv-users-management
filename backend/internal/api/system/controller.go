@@ -220,8 +220,7 @@ func (ctl *Controller) Login(c echo.Context) error {
 	}
 
 	go func() {
-		userUID := c.Param("userUID")
-		ctx, cancel := context.WithTimeout(context.WithValue(c.Request().Context(), "userUID", userUID), 10*time.Second)
+		ctx, cancel := context.WithTimeout(context.WithValue(c.Request().Context(), "userUID", user.UID), 10*time.Second)
 		defer cancel()
 
 		now := time.Now()

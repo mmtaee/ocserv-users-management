@@ -59,6 +59,162 @@ const docTemplate = `{
                 }
             }
         },
+        "/logs/audit": {
+            "get": {
+                "description": "List of logs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "List of logs",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number, starting from 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to order by",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ASC",
+                            "DESC"
+                        ],
+                        "type": "string",
+                        "description": "Sort order, either ASC or DESC",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/log.UsersLogsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            }
+        },
+        "/logs/users": {
+            "get": {
+                "description": "List of Users logs on self user model",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Logs(Users)"
+                ],
+                "summary": "List of Users logs on self user model",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number, starting from 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to order by",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ASC",
+                            "DESC"
+                        ],
+                        "type": "string",
+                        "description": "Sort order, either ASC or DESC",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/log.UsersLogsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/occtl/commands": {
             "get": {
                 "description": "Occtl Commands",
@@ -1581,6 +1737,37 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "audit_log.AuditLog": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "action and reason json string",
+                    "type": "string"
+                },
+                "changes": {
+                    "description": "Full JSON or JSON diff",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "model": {
+                    "description": "e.g., \"OcservUser\"",
+                    "type": "string"
+                },
+                "model_id": {
+                    "description": "e.g., UID or primary key",
+                    "type": "string"
+                },
+                "user_uid": {
+                    "description": "ULID or user identifier",
+                    "type": "string"
+                }
+            }
+        },
         "home.CurrentStats": {
             "type": "object",
             "properties": {
@@ -1738,6 +1925,23 @@ const docTemplate = `{
                 },
                 "general_info": {
                     "$ref": "#/definitions/home.GeneralInfo"
+                }
+            }
+        },
+        "log.UsersLogsResponse": {
+            "type": "object",
+            "required": [
+                "meta"
+            ],
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/request.Meta"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/audit_log.AuditLog"
+                    }
                 }
             }
         },

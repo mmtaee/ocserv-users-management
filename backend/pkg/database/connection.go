@@ -4,16 +4,13 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
-	"ocserv-bakend/pkg/config"
 )
 
 var DB *gorm.DB
 
 func Connect(debug bool) {
-	cfg := config.Get()
-
-	log.Printf("Connecting to database %s ...", cfg.Databases)
-	db, err := gorm.Open(sqlite.Open(cfg.Databases), &gorm.Config{})
+	log.Printf("Connecting to database %s ...", "ocserv.db")
+	db, err := gorm.Open(sqlite.Open("ocserv.db"), &gorm.Config{})
 	if err != nil {
 		log.Fatal("failed to connect database")
 	}

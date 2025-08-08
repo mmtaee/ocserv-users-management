@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -15,7 +14,6 @@ type Config struct {
 	SecretKey     string
 	JWTSecret     string
 	AllowOrigins  []string
-	Databases     string
 	APIURLService string
 }
 
@@ -46,18 +44,9 @@ func Init(debug bool) {
 
 	allowOrigins := os.Getenv("ALLOW_ORIGINS")
 
-	databases := os.Getenv("DATABASES")
-	if databases == "" {
-		databases = "ocserv.db"
-	}
-
-	if dockerized := os.Getenv("DOCKERIZED"); dockerized == "true" {
-		databases = fmt.Sprintf("/db/%s", databases)
-	}
-
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		jwtSecret = secretKey
+		log.Fatal("JWT_SECRET environment variable not set")
 	}
 
 	apiURLService := os.Getenv("API_URL_SERVICE")
@@ -72,7 +61,6 @@ func Init(debug bool) {
 		SecretKey:     secretKey,
 		JWTSecret:     jwtSecret,
 		AllowOrigins:  strings.Split(allowOrigins, ","),
-		Databases:     databases,
 		APIURLService: apiURLService,
 	}
 

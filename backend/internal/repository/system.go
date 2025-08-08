@@ -48,9 +48,23 @@ func (s *SystemRepository) System(ctx context.Context) (*models.System, error) {
 }
 
 func (s *SystemRepository) SystemUpdate(ctx context.Context, system *models.System) (*models.System, error) {
-	err := s.db.WithContext(ctx).Save(&system).Error
-	if err != nil {
+	var latest models.System
+	if err := s.db.WithContext(ctx).Order("id desc").First(&latest).Error; err != nil {
 		return nil, err
 	}
+
+	// Update the latest system record with new values
+	if err := s.db.WithContext(ctx).
+		Model(&models.System{}).
+		Where("id = ?", latest.ID).
+		Updates(
+			map[string]interface{}{
+				"google_captcha_secret_key": system.GoogleCaptchaSecretKey,
+				"google_captcha_site_key":   system.GoogleCaptchaSiteKey,
+			},
+		).Error; err != nil {
+		return nil, err
+	}
+
 	return system, nil
 }

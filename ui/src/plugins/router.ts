@@ -47,10 +47,10 @@ const routes: Array<RouteRecordRaw> = [
         meta: {title: "Ocserv Users"}
     },
     {
-        path: '/ocserv-server',
-        name: 'OcservServerPage',
-        component: () => import('../views/OcservServerView.vue'),
-        meta: {title: "Ocserv Server"}
+        path: '/logs',
+        name: 'LogsPage',
+        component: () => import('../views/LogsView.vue'),
+        meta: {title: "Logs"}
     },
     {
         path: '/occtl',

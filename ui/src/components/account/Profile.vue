@@ -48,7 +48,6 @@ const resetForm = () => {
     </v-card-title>
 
     <v-card-text>
-
       <v-row align="start" justify="center">
         <v-col>
           <v-list>

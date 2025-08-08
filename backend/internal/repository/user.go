@@ -4,9 +4,9 @@ import (
 	"context"
 	"gorm.io/gorm"
 	"ocserv-bakend/internal/models"
+	AuditLog "ocserv-bakend/pkg/audit_log"
 	"ocserv-bakend/pkg/crypto"
 	"ocserv-bakend/pkg/database"
-	"ocserv-bakend/pkg/events"
 	"ocserv-bakend/pkg/request"
 	"time"
 )
@@ -103,9 +103,9 @@ func (r *UserRepository) ChangePassword(ctx context.Context, uid, password, salt
 		return err
 	}
 
-	events.LogEvent(ctx, r.db, events.EventUserModel, uid, nil, events.EventAction{
-		Action: events.EventUpdate,
-		Reason: "update user password",
+	AuditLog.AuditLogHandler(ctx, r.db, AuditLog.EventUserModel, uid, nil, AuditLog.AuditLogAction{
+		Action: AuditLog.EventUpdate,
+		Reason: "user password changed",
 	})
 
 	return nil
@@ -135,10 +135,18 @@ func (r *UserRepository) GetByUID(ctx context.Context, uid string) (*models.User
 }
 
 func (r *UserRepository) UpdateLastLogin(ctx context.Context, user *models.User) error {
-	return r.db.WithContext(ctx).
+	err := r.db.WithContext(ctx).
 		Model(&models.User{}).
 		Where("id = ?", user.ID).
 		Updates(map[string]interface{}{
 			"last_login": user.LastLogin,
 		}).Error
+
+	AuditLog.AuditLogHandler(ctx, r.db, AuditLog.EventUserModel, user.UID, map[string]string{
+		"last_login": user.LastLogin.Format("2006-01-02 15:04:05"),
+	}, AuditLog.AuditLogAction{
+		Action: AuditLog.EventUpdate,
+		Reason: "user last login",
+	})
+	return err
 }

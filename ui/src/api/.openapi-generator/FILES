@@ -2,6 +2,8 @@
 .npmignore
 api.ts
 api/home-api.ts
+api/logs-api.ts
+api/logs-users-api.ts
 api/occtlapi.ts
 api/ocserv-groups-api.ts
 api/ocserv-statistics-api.ts
@@ -12,11 +14,13 @@ common.ts
 configuration.ts
 git_push.sh
 index.ts
+models/audit-log-audit-log.ts
 models/home-current-stats.ts
 models/home-general-info.ts
 models/home-get-home-response.ts
 models/home-server-status-response.ts
 models/index.ts
+models/log-users-logs-response.ts
 models/middlewares-permission-denied.ts
 models/middlewares-unauthorized.ts
 models/models-daily-traffic.ts

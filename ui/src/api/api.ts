@@ -15,6 +15,8 @@
 
 
 export * from './api/home-api';
+export * from './api/logs-api';
+export * from './api/logs-users-api';
 export * from './api/occtlapi';
 export * from './api/ocserv-groups-api';
 export * from './api/ocserv-statistics-api';

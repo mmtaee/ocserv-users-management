@@ -13,12 +13,13 @@ func Routes(e *echo.Group) {
 
 	g := e.Group("/system", middlewares.AuthMiddleware())
 	g.GET("", ctl.System)
-	g.PATCH("", ctl.SystemUpdate)
+	g.POST("/users/password", ctl.ChangePasswordBySelf)
+	g.GET("/users/profile", ctl.Profile)
 
+	g.PATCH("", ctl.SystemUpdate, middlewares.AdminPermission())
 	g.POST("/users", ctl.CreateUser, middlewares.AdminPermission())
 	g.POST("/users/:uid/password", ctl.ChangeUserPasswordByAdmin, middlewares.AdminPermission())
 	g.DELETE("/users/:uid", ctl.DeleteUser, middlewares.AdminPermission())
-	g.POST("/users/password", ctl.ChangePasswordBySelf)
-	g.GET("/users/profile", ctl.Profile)
-	g.GET("/users", ctl.Users)
+	g.GET("/users", ctl.Users, middlewares.AdminPermission())
+
 }
