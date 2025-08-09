@@ -383,18 +383,23 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 	}
 
 	var startDate, endDate *time.Time
+	log.Println("startDate: ", data.DateStart)
+	log.Println("endDate: ", data.DateEnd)
 
-	t, err := time.Parse("2006-01-02", data.DateStart)
+	tStart, err := time.Parse("2006-01-02", data.DateStart)
 	if err != nil {
 		return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
 	}
-	startDate = &t
 
-	t, err = time.Parse("2006-01-02", data.DateEnd)
+	log.Println("t startDate: ", tStart)
+	startDate = &tStart
+
+	tEnd, err := time.Parse("2006-01-02", data.DateEnd)
 	if err != nil {
 		return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
 	}
-	endDate = &t
+	log.Println("t endDate: ", tEnd)
+	endDate = &tEnd
 
 	stats, err := ctl.ocservUserRepo.Statistics(c.Request().Context(), startDate, endDate)
 	if err != nil {

@@ -60,12 +60,12 @@ func main() {
 
 	go func() {
 		http.HandleFunc("/logs", sseServer.SSEHandler())
-		log.Println("Starting server on 0.0.0.0:8081")
-		if err := http.ListenAndServe("0.0.0.0:8081", nil); err != nil {
+		log.Println("Starting server on 0.0.0.0:8082")
+		if err := http.ListenAndServe("0.0.0.0:8082", nil); err != nil {
 			log.Fatalf("ListenAndServe failed: %v", err)
 		}
 	}()
-	
+
 	<-ctx.Done() // wait for context cancellation
 	log.Println("Main exited")
 

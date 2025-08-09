@@ -61,7 +61,7 @@ max-same-clients=2
 ipv4-network=${OC_NET}
 config-per-group=/etc/ocserv/groups/
 config-per-user=/etc/ocserv/users/
-log-level=2
+log-level=3
 EOT
 
 mkdir -p /etc/ocserv/defaults /etc/ocserv/groups /etc/ocserv/users/

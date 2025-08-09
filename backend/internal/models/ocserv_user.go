@@ -85,9 +85,9 @@ type OcservUserTrafficStatistics struct {
 }
 
 type DailyTraffic struct {
-	Date string `json:"date"` // Format: YYYY-MM-DD
-	Rx   int    `json:"rx"`
-	Tx   int    `json:"tx"`
+	Date string  `json:"date"` // Format: YYYY-MM-DD
+	Rx   float64 `json:"rx"`   // in GiB
+	Tx   float64 `json:"tx"`   // in GiB
 }
 
 func (c *OcservUserConfig) Value() (driver.Value, error) {

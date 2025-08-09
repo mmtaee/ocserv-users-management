@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type Server struct {
@@ -64,6 +65,7 @@ func (s *Server) SSEHandler() http.HandlerFunc {
 
 		// Setup SSE headers
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Expose-Headers", "Content-Type")
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
@@ -75,19 +77,27 @@ func (s *Server) SSEHandler() http.HandlerFunc {
 		}
 
 		clientChan := make(chan string, 10)
-		ip := r.RemoteAddr
-		s.AddClient(clientChan, ip)
-		defer s.RemoveClient(clientChan)
+		s.AddClient(clientChan, r.RemoteAddr)
+		//defer s.RemoveClient(clientChan)
 
 		ctx := r.Context()
 
 		for {
 			select {
 			case <-ctx.Done():
+				s.RemoveClient(clientChan)
 				return
-			case msg := <-clientChan:
-				fmt.Fprintf(w, "data: %s\n\n", msg)
+			case message := <-clientChan:
+				if message == "" {
+					return
+				}
+				_, err := fmt.Fprintf(w, "data: %s\n\n", message)
+				if err != nil {
+					log.Println("Error writing to client:", err)
+					return
+				}
 				flusher.Flush()
+				time.Sleep(500 * time.Millisecond)
 			}
 		}
 	}

@@ -12,7 +12,6 @@ import {
 } from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
 import {useLocale} from "vuetify/framework";
-import {dummyBanIPs, dummyOnlineUsers} from "@/utils/dummy.ts";
 
 const {t} = useLocale()
 const trafficData = ref<ModelsDailyTraffic[]>([])
@@ -115,8 +114,9 @@ onMounted(() => {
     homeData.value = res.data
     generalInfo.value = getGeneralInfo(res.data.server_status.general_info || {})
     currentStats.value = getCurrentStats(res.data.server_status.current_stats || {})
-    homeData.value.online_users_session = dummyOnlineUsers
-    homeData.value.ipbans = dummyBanIPs
+    homeData.value.online_users_session = res.data.online_users_session
+    homeData.value.ipbans = res.data.ipbans
+    trafficData.value = res.data.statistics || []
   })
 })
 

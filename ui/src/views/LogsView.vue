@@ -58,17 +58,17 @@ watch(tab, (newVal) => {
             direction="horizontal"
         >
           <v-tab :text="t('AUDIT_LOGS')" value="audit_logs"></v-tab>
-          <v-tab :text="t('OCSERV')" value="defaults"></v-tab>
+          <v-tab :text="t('OCSERV')" value="ocserv"></v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="tab">
 
           <v-tabs-window-item value="audit_logs">
-            <AuditLogs/>
+            <AuditLogs v-if="tab == 'audit_logs'"/>
           </v-tabs-window-item>
 
           <v-tabs-window-item value="ocserv">
-            <Ocserv/>
+            <Ocserv v-if="tab == 'ocserv'"/>
           </v-tabs-window-item>
 
         </v-tabs-window>

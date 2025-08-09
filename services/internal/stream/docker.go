@@ -19,7 +19,7 @@ func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan
 		ShowStderr: true,
 		Follow:     true,
 		Tail:       "100",
-		Timestamps: true,
+		Timestamps: false,
 	}
 
 	logReader, err := cli.ContainerLogs(ctx, containerName, options)

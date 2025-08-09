@@ -207,12 +207,12 @@ func (o *OcservUserRepository) UserStatistics(ctx context.Context, uid string, d
 
 	query := o.db.WithContext(ctx).
 		Model(&models.OcservUserTrafficStatistics{}).
-		Joins("JOIN users ON users.id = ocserv_user_traffic_statistics.oc_user_id").
-		Where("users.uid = ?", uid).
+		Joins("JOIN ocserv_users ou ON ou.id = ocserv_user_traffic_statistics.oc_user_id").
 		Select(`
-			DATE(ocserv_user_traffic_statistics.created_at) AS date,
-			SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,
-			SUM(ocserv_user_traffic_statistics.tx) / 1073741824.0 AS tx`)
+		DATE(ocserv_user_traffic_statistics.created_at) AS date,
+		SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,
+		SUM(ocserv_user_traffic_statistics.tx) / 1073741824.0 AS tx
+	`)
 
 	if dateStart != nil {
 		query = query.Where("ocserv_user_traffic_statistics.created_at >= ?", *dateStart)
@@ -236,12 +236,12 @@ func (o *OcservUserRepository) Statistics(ctx context.Context, dateStart, dateEn
 	var results []models.DailyTraffic
 	err := o.db.WithContext(ctx).
 		Model(&models.OcservUserTrafficStatistics{}).
-		Joins("JOIN users ON users.id = ocserv_user_traffic_statistics.oc_user_id").
+		Joins("JOIN ocserv_users ou ON ou.id = ocserv_user_traffic_statistics.oc_user_id").
 		Select(`
-			DATE(ocserv_user_traffic_statistics.created_at) AS date,
-			SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,
-			SUM(ocserv_user_traffic_statistics.tx) / 1073741824.0 AS tx`,
-		).
+		DATE(ocserv_user_traffic_statistics.created_at) AS date,
+		SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,
+		SUM(ocserv_user_traffic_statistics.tx) / 1073741824.0 AS tx
+	`).
 		Where("ocserv_user_traffic_statistics.created_at >= ?", *dateStart).
 		Where("ocserv_user_traffic_statistics.created_at <= ?", *dateEnd).
 		Group("DATE(ocserv_user_traffic_statistics.created_at)").
