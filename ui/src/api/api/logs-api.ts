@@ -43,10 +43,11 @@ export const LogsApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
          * @param {LogsAuditGetSortEnum} [sort] Sort order, either ASC or DESC
+         * @param {string} [uid] Search User by UID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        logsAuditGet: async (authorization: string, page?: number, size?: number, order?: string, sort?: LogsAuditGetSortEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        logsAuditGet: async (authorization: string, page?: number, size?: number, order?: string, sort?: LogsAuditGetSortEnum, uid?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
             assertParamExists('logsAuditGet', 'authorization', authorization)
             const localVarPath = `/logs/audit`;
@@ -75,6 +76,10 @@ export const LogsApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (sort !== undefined) {
                 localVarQueryParameter['sort'] = sort;
+            }
+
+            if (uid !== undefined) {
+                localVarQueryParameter['uid'] = uid;
             }
 
 
@@ -109,11 +114,12 @@ export const LogsApiFp = function(configuration?: Configuration) {
          * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
          * @param {LogsAuditGetSortEnum} [sort] Sort order, either ASC or DESC
+         * @param {string} [uid] Search User by UID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async logsAuditGet(authorization: string, page?: number, size?: number, order?: string, sort?: LogsAuditGetSortEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LogUsersLogsResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.logsAuditGet(authorization, page, size, order, sort, options);
+        async logsAuditGet(authorization: string, page?: number, size?: number, order?: string, sort?: LogsAuditGetSortEnum, uid?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LogUsersLogsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.logsAuditGet(authorization, page, size, order, sort, uid, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LogsApi.logsAuditGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -136,7 +142,7 @@ export const LogsApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         logsAuditGet(requestParameters: LogsApiLogsAuditGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<LogUsersLogsResponse> {
-            return localVarFp.logsAuditGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, options).then((request) => request(axios, basePath));
+            return localVarFp.logsAuditGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, requestParameters.uid, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -181,6 +187,13 @@ export interface LogsApiLogsAuditGetRequest {
      * @memberof LogsApiLogsAuditGet
      */
     readonly sort?: LogsAuditGetSortEnum
+
+    /**
+     * Search User by UID
+     * @type {string}
+     * @memberof LogsApiLogsAuditGet
+     */
+    readonly uid?: string
 }
 
 /**
@@ -199,7 +212,7 @@ export class LogsApi extends BaseAPI {
      * @memberof LogsApi
      */
     public logsAuditGet(requestParameters: LogsApiLogsAuditGetRequest, options?: RawAxiosRequestConfig) {
-        return LogsApiFp(this.configuration).logsAuditGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, options).then((request) => request(this.axios, this.basePath));
+        return LogsApiFp(this.configuration).logsAuditGet(requestParameters.authorization, requestParameters.page, requestParameters.size, requestParameters.order, requestParameters.sort, requestParameters.uid, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

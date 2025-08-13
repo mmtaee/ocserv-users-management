@@ -348,6 +348,7 @@ func (ctl *Controller) StatisticsOcservUser(c echo.Context) error {
 		if err != nil {
 			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
 		}
+		t = t.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
 		endDate = &t
 	}
 

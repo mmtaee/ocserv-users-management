@@ -62,5 +62,11 @@ export interface AuditLogAuditLog {
      * @memberof AuditLogAuditLog
      */
     'user_uid'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuditLogAuditLog
+     */
+    'username'?: string;
 }
 

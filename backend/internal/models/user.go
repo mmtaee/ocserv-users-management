@@ -29,6 +29,11 @@ type UserToken struct {
 	User      User      `json:"user"`
 }
 
+type UsersLookup struct {
+	UID      string `json:"uid" validate:"required"`
+	Username string `json:"username" validate:"required"`
+}
+
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	u.UID = ulid.Make().String()
 	return

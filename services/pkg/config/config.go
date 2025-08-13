@@ -8,12 +8,14 @@ import (
 )
 
 type Config struct {
-	Debug        bool
-	Host         string
-	Port         string
-	JWTSecret    string
-	AllowOrigins []string
-	Dockerized   bool
+	Debug         bool
+	Host          string
+	Port          string
+	JWTSecret     string
+	AllowOrigins  []string
+	Database      string
+	Dockerized    bool
+	APIURLService string
 }
 
 var cfg *Config
@@ -45,13 +47,25 @@ func Init(debug bool) {
 		log.Fatal("JWT_SECRET environment variable not set")
 	}
 
+	database := os.Getenv("DATABASE")
+	if database == "" {
+		log.Fatal("DATABASE environment variable not set")
+	}
+
+	apiURLService := os.Getenv("API_URL_SERVICE")
+	if apiURLService == "" {
+		apiURLService = "http://ocserv:8080"
+	}
+
 	cfg = &Config{
-		Debug:        debug,
-		Host:         host,
-		Port:         port,
-		JWTSecret:    jwtSecret,
-		AllowOrigins: strings.Split(allowOrigins, ","),
-		Dockerized:   dockerizedEnv == "true",
+		Debug:         debug,
+		Host:          host,
+		Port:          port,
+		JWTSecret:     jwtSecret,
+		AllowOrigins:  strings.Split(allowOrigins, ","),
+		Dockerized:    dockerizedEnv == "true",
+		Database:      database,
+		APIURLService: apiURLService,
 	}
 
 	log.Println("config initialized")
@@ -59,8 +73,4 @@ func Init(debug bool) {
 
 func Get() *Config {
 	return cfg
-}
-
-func Set(c *Config) {
-	cfg = c
 }

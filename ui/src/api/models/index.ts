@@ -16,6 +16,7 @@ export * from './models-online-user-session';
 export * from './models-server-version';
 export * from './models-system';
 export * from './models-user';
+export * from './models-users-lookup';
 export * from './ocserv-group-create-ocserv-group-data';
 export * from './ocserv-group-ocserv-groups-response';
 export * from './ocserv-group-update-ocserv-group-data';

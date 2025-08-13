@@ -43,7 +43,7 @@ onMounted(() => {
 
   <v-row align="start" justify="center">
     <v-col cols="12">
-      <v-card class="p" min-height="850">
+      <v-card min-height="850">
         <v-toolbar color="secondary">
           <v-toolbar-title class="text-capitalize">
             {{ t('CONFIG') }}

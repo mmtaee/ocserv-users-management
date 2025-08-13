@@ -138,12 +138,12 @@ const dynamicHeight = computed(() => {
   } else if (width >= 600 && width < 960) {
     // Tablet
     return 190
-  } else if (width >= 960 && width < 1280) {
+  } else if (width >= 960 && width <= 1280) {
     // Desktop
     return 300
   } else {
     // Large Desktop
-    return 230
+    return 200
   }
 })
 

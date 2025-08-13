@@ -30,15 +30,18 @@ func CalculateUserStats(ctx context.Context, stream <-chan string) {
 	for s := range stream {
 		u, err := extractUser(s)
 		if err != nil {
+
 			continue
 		}
+
+		log.Println("user found:", u)
 
 		if err = save(ctx, u); err != nil {
 			log.Printf("failed to save user %v: %v", u, err)
 			continue
 		}
 
-		log.Printf("processed user: %v", u)
+		log.Printf("processed user: %v successfully", u)
 
 		select {
 		case <-time.After(500 * time.Millisecond):
@@ -102,14 +105,19 @@ func save(ctx context.Context, u UserStats) error {
 	}
 
 	now := time.Now()
-	user.DeactivatedAt = &now
+	if user.IsLocked {
+		err = ocUserApi.LockUserApi(ctx, user.Username)
+		if err != nil {
+			log.Println(err)
+		}
+		user.DeactivatedAt = &now
+	}
 	err = db.Save(&user).Error
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	return nil
-
 }
 
 func getCurrentMonthTotals(db *gorm.DB, userID uint) (Totals, error) {

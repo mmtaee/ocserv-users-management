@@ -28,6 +28,8 @@ import type { MiddlewaresUnauthorized } from '../models';
 // @ts-ignore
 import type { ModelsUser } from '../models';
 // @ts-ignore
+import type { ModelsUsersLookup } from '../models';
+// @ts-ignore
 import type { RequestErrorResponse } from '../models';
 // @ts-ignore
 import type { SystemChangeUserPassword } from '../models';
@@ -133,6 +135,42 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(request, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * List of Users Lookup
+         * @summary List of Users Lookup
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        systemUsersLookupGet: async (authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('systemUsersLookupGet', 'authorization', authorization)
+            const localVarPath = `/system/users/lookup`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -386,6 +424,19 @@ export const SystemUsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * List of Users Lookup
+         * @summary List of Users Lookup
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async systemUsersLookupGet(authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsUsersLookup>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersLookupGet(authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemUsersApi.systemUsersLookupGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Change user password by self
          * @summary Change user password by self
          * @param {string} authorization Bearer TOKEN
@@ -484,6 +535,16 @@ export const SystemUsersApiFactory = function (configuration?: Configuration, ba
          */
         systemUsersLoginPost(requestParameters: SystemUsersApiSystemUsersLoginPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<SystemUserLoginResponse> {
             return localVarFp.systemUsersLoginPost(requestParameters.request, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * List of Users Lookup
+         * @summary List of Users Lookup
+         * @param {SystemUsersApiSystemUsersLookupGetRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        systemUsersLookupGet(requestParameters: SystemUsersApiSystemUsersLookupGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsUsersLookup>> {
+            return localVarFp.systemUsersLookupGet(requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
          * Change user password by self
@@ -592,6 +653,20 @@ export interface SystemUsersApiSystemUsersLoginPostRequest {
      * @memberof SystemUsersApiSystemUsersLoginPost
      */
     readonly request: SystemLoginData
+}
+
+/**
+ * Request parameters for systemUsersLookupGet operation in SystemUsersApi.
+ * @export
+ * @interface SystemUsersApiSystemUsersLookupGetRequest
+ */
+export interface SystemUsersApiSystemUsersLookupGetRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof SystemUsersApiSystemUsersLookupGet
+     */
+    readonly authorization: string
 }
 
 /**
@@ -728,6 +803,18 @@ export class SystemUsersApi extends BaseAPI {
      */
     public systemUsersLoginPost(requestParameters: SystemUsersApiSystemUsersLoginPostRequest, options?: RawAxiosRequestConfig) {
         return SystemUsersApiFp(this.configuration).systemUsersLoginPost(requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * List of Users Lookup
+     * @summary List of Users Lookup
+     * @param {SystemUsersApiSystemUsersLookupGetRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemUsersApi
+     */
+    public systemUsersLookupGet(requestParameters: SystemUsersApiSystemUsersLookupGetRequest, options?: RawAxiosRequestConfig) {
+        return SystemUsersApiFp(this.configuration).systemUsersLookupGet(requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

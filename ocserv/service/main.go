@@ -37,7 +37,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 func main() {
 	e := echo.New()
 
-	server := "0.0.0.0:8080"
+	server := "0.0.0.0:8081"
 
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Logger())
@@ -51,7 +51,7 @@ func main() {
 	go func() {
 		e.Logger.SetLevel(LabstackLog.WARN)
 		e.HideBanner = true
-		
+
 		if err := e.Start(server); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			e.Logger.Fatal("shutting down the server due to error:", err)
 		}

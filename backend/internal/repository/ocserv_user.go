@@ -208,6 +208,7 @@ func (o *OcservUserRepository) UserStatistics(ctx context.Context, uid string, d
 	query := o.db.WithContext(ctx).
 		Model(&models.OcservUserTrafficStatistics{}).
 		Joins("JOIN ocserv_users ou ON ou.id = ocserv_user_traffic_statistics.oc_user_id").
+		Where("ou.uid = ?", uid).
 		Select(`
 		DATE(ocserv_user_traffic_statistics.created_at) AS date,
 		SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,

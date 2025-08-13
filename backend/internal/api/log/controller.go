@@ -66,6 +66,7 @@ func (ctl *Controller) UsersLogs(c echo.Context) error {
 // @Param 		 size query int false "Number of items per page" minimum(1) maximum(100) name(size)
 // @Param 		 order query string false "Field to order by"
 // @Param 		 sort query string false "Sort order, either ASC or DESC" Enums(ASC, DESC)
+// @Param 		 uid query string false "Search User by UID"
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
@@ -74,8 +75,8 @@ func (ctl *Controller) UsersLogs(c echo.Context) error {
 // @Router       /logs/audit [get]
 func (ctl *Controller) AuditLogs(c echo.Context) error {
 	pagination := ctl.request.Pagination(c)
-
-	logs, count, err := ctl.logRepo.Logs(c.Request().Context(), pagination)
+	uid := c.QueryParam("uid")
+	logs, count, err := ctl.logRepo.Logs(c.Request().Context(), pagination, uid)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

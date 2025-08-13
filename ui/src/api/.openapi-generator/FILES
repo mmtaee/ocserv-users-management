@@ -33,6 +33,7 @@ models/models-online-user-session.ts
 models/models-server-version.ts
 models/models-system.ts
 models/models-user.ts
+models/models-users-lookup.ts
 models/ocserv-group-create-ocserv-group-data.ts
 models/ocserv-group-ocserv-groups-response.ts
 models/ocserv-group-update-ocserv-group-data.ts

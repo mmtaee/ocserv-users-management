@@ -27,13 +27,13 @@ export interface ModelsDailyTraffic {
      */
     'date'?: string;
     /**
-     * 
+     * in GiB
      * @type {number}
      * @memberof ModelsDailyTraffic
      */
     'rx'?: number;
     /**
-     * 
+     * in GiB
      * @type {number}
      * @memberof ModelsDailyTraffic
      */

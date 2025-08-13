@@ -21,6 +21,8 @@ definitions:
       user_uid:
         description: ULID or user identifier
         type: string
+      username:
+        type: string
     type: object
   home.CurrentStats:
     properties:
@@ -155,9 +157,11 @@ definitions:
         description: 'Format: YYYY-MM-DD'
         type: string
       rx:
-        type: integer
+        description: in GiB
+        type: number
       tx:
-        type: integer
+        description: in GiB
+        type: number
     type: object
   models.IPBan:
     properties:
@@ -454,6 +458,16 @@ definitions:
     required:
     - is_admin
     - last_login
+    - uid
+    - username
+    type: object
+  models.UsersLookup:
+    properties:
+      uid:
+        type: string
+      username:
+        type: string
+    required:
     - uid
     - username
     type: object
@@ -782,6 +796,10 @@ paths:
         - DESC
         in: query
         name: sort
+        type: string
+      - description: Search User by UID
+        in: query
+        name: uid
         type: string
       - description: Bearer TOKEN
         in: header
@@ -1810,6 +1828,41 @@ paths:
           schema:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Admin users login
+      tags:
+      - System(Users)
+  /system/users/lookup:
+    get:
+      consumes:
+      - application/json
+      description: List of Users Lookup
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UsersLookup'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: List of Users Lookup
       tags:
       - System(Users)
   /system/users/password:

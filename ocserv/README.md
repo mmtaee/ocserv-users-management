@@ -1,7 +1,6 @@
 
 ```bash
-sudo docker build -t ocserv:latest . 
-
+sudo docker build -t ocserv:latest . && \ 
 sudo docker run -it --rm \
     --cap-add=NET_ADMIN \
     --device /dev/net/tun \
@@ -9,7 +8,7 @@ sudo docker run -it --rm \
     -v $(pwd)/volumes/logs:/logs \
     -p 443:443/tcp \
     -p 443:443/udp \
-    -p 8888:8080 \
+    -p 8081:8081 \
     --name ocserv \
     ocserv
 

@@ -120,6 +120,15 @@ const items = [
       >
         <v-list-item-title class="text-capitalize">{{ t('CONFIG') }}</v-list-item-title>
       </v-list-item>
+      <v-list-item
+          v-if="userStore.isAdmin"
+          color="primary"
+          prepend-icon="mdi-account-tie-outline"
+          to="/admins"
+          value="admins"
+      >
+        <v-list-item-title class="text-capitalize">{{ t('ADMINS') }}</v-list-item-title>
+      </v-list-item>
     </v-list>
 
     <template #append>

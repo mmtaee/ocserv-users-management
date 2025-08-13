@@ -13,7 +13,7 @@ type LogsRepository struct {
 }
 type LogsRepositoryInterface interface {
 	UsersLogs(ctx context.Context, pagination *request.Pagination, userUID string) (*[]auditLogs.AuditLog, int64, error)
-	Logs(ctx context.Context, pagination *request.Pagination) (*[]auditLogs.AuditLog, int64, error)
+	Logs(ctx context.Context, pagination *request.Pagination, userUID ...string) (*[]auditLogs.AuditLog, int64, error)
 }
 
 func NewLogsRepository() *LogsRepository {
@@ -48,17 +48,35 @@ func (l *LogsRepository) UsersLogs(ctx context.Context, pagination *request.Pagi
 	return &logs, totalRecords, nil
 }
 
-func (l *LogsRepository) Logs(ctx context.Context, pagination *request.Pagination) (*[]auditLogs.AuditLog, int64, error) {
+func (l *LogsRepository) Logs(ctx context.Context, pagination *request.Pagination, userUID ...string) (*[]auditLogs.AuditLog, int64, error) {
 	var (
 		totalRecords int64
 		logs         []auditLogs.AuditLog
+		filters      string
+		args         []interface{}
 	)
-	if err := l.db.WithContext(ctx).Model(&auditLogs.AuditLog{}).Count(&totalRecords).Error; err != nil {
+	
+	if len(userUID) > 0 && userUID[0] != "" {
+		filters = "user_uid = ?"
+		args = []interface{}{userUID[0]}
+	}
+
+	query := l.db.WithContext(ctx).Model(&auditLogs.AuditLog{})
+	if filters != "" {
+		query = query.Where(filters, args...)
+	}
+
+	err := query.Count(&totalRecords).Error
+	if err != nil {
 		return nil, 0, err
 	}
 
-	txPaginator := paginator(ctx, l.db, pagination)
-	if err := txPaginator.Model(&logs).Find(&logs).Error; err != nil {
+	query = paginator(ctx, l.db, pagination)
+	if filters != "" {
+		query = query.Where(filters, args...)
+	}
+
+	if err = query.Model(&logs).Find(&logs).Error; err != nil {
 		return nil, 0, err
 	}
 

@@ -72,7 +72,7 @@ func (ctl *Controller) SetupSystem(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	token, err := ctl.userRepo.CreateToken(c.Request().Context(), newUser.ID, newUser.UID, true, newUser.IsAdmin)
+	token, err := ctl.userRepo.CreateToken(c.Request().Context(), newUser, true)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -214,13 +214,14 @@ func (ctl *Controller) Login(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
 	}
 
-	token, err := ctl.userRepo.CreateToken(c.Request().Context(), user.ID, user.UID, true, user.IsAdmin)
+	token, err := ctl.userRepo.CreateToken(c.Request().Context(), user, data.RememberMe)
 	if err != nil {
 		return ctl.request.BadRequest(c, err, "user created")
 	}
 
 	go func() {
 		ctx, cancel := context.WithTimeout(context.WithValue(c.Request().Context(), "userUID", user.UID), 10*time.Second)
+		ctx = context.WithValue(ctx, "username", user.Username)
 		defer cancel()
 
 		now := time.Now()
@@ -393,10 +394,8 @@ func (ctl *Controller) ChangePasswordBySelf(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("invalid old password"))
 	}
 
-	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
-
 	passwd := ctl.cryptoRepo.CreatePassword(data.NewPassword)
-	err := ctl.userRepo.ChangePassword(ctx, userUID, passwd.Hash, passwd.Salt)
+	err := ctl.userRepo.ChangePassword(c.Request().Context(), userUID, passwd.Hash, passwd.Salt)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -422,4 +421,25 @@ func (ctl *Controller) Profile(c echo.Context) error {
 		return middlewares.UnauthorizedError(c, "user not found")
 	}
 	return c.JSON(http.StatusOK, user)
+}
+
+// UsersLookup 	 List of Users Lookup
+//
+// @Summary      List of Users Lookup
+// @Description  List of Users Lookup
+// @Tags         System(Users)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Failure      403 {object} middlewares.PermissionDenied
+// @Success      200  {object}  []models.UsersLookup
+// @Router       /system/users/lookup [get]
+func (ctl *Controller) UsersLookup(c echo.Context) error {
+	users, err := ctl.userRepo.UsersLookup(c.Request().Context())
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, users)
 }

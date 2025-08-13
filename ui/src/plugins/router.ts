@@ -68,19 +68,19 @@ const routes: Array<RouteRecordRaw> = [
         path: '/account',
         name: 'AccountPage',
         component: () => import('../views/AccountView.vue'),
-        meta: {
-            title: "Account",
-            desktopOnly: true
-        }
+        meta: {title: "Account"}
     },
     {
         path: '/config',
         name: 'ConfigPage',
         component: () => import('../views/ConfigView.vue'),
-        meta: {
-            title: "Config",
-            desktopOnly: true
-        }
+        meta: {title: "Config"}
+    },
+    {
+        path: '/admins',
+        name: 'AdminsPage',
+        component: () => import('../views/AdminView.vue'),
+        meta: {title: "Admin"}
     },
 ]
 

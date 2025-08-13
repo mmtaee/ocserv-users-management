@@ -14,7 +14,7 @@ const userLogs = reactive<AuditLogAuditLog[]>([])
 const meta = reactive<Meta>({
   page: 1,
   size: 25,
-  sort: "ASC",
+  sort: "DESC",
   total_records: 0
 })
 
@@ -66,6 +66,12 @@ onMounted(() => {
               <v-sheet border>
                 <v-table class="text-caption text-capitalize" density="compact">
                   <tbody>
+                  <tr class="text-capitalize" style="text-align: right;">
+                    <th>{{ t("USERNAME") }}:</th>
+                    <td>
+                      {{ log.raw.username }}
+                    </td>
+                  </tr>
                   <tr class="text-capitalize" style="text-align: right;">
                     <th>{{ t("ACTION") }}:</th>
                     <td>

@@ -106,6 +106,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Search User by UID",
+                        "name": "uid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Bearer TOKEN",
                         "name": "Authorization",
                         "in": "header",
@@ -1518,6 +1524,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/users/lookup": {
+            "get": {
+                "description": "List of Users Lookup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System(Users)"
+                ],
+                "summary": "List of Users Lookup",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.UsersLookup"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            }
+        },
         "/system/users/password": {
             "post": {
                 "description": "Change user password by self",
@@ -1765,6 +1824,9 @@ const docTemplate = `{
                 "user_uid": {
                     "description": "ULID or user identifier",
                     "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
@@ -1969,10 +2031,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "rx": {
-                    "type": "integer"
+                    "description": "in GiB",
+                    "type": "number"
                 },
                 "tx": {
-                    "type": "integer"
+                    "description": "in GiB",
+                    "type": "number"
                 }
             }
         },
@@ -2352,6 +2416,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UsersLookup": {
+            "type": "object",
+            "required": [
+                "uid",
+                "username"
+            ],
+            "properties": {
+                "uid": {
                     "type": "string"
                 },
                 "username": {

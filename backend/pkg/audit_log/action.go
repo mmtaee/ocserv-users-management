@@ -10,17 +10,21 @@ import (
 )
 
 func AuditLogHandler(ctx context.Context, db *gorm.DB, modelName string, modelID string, obj interface{}, eventAction AuditLogAction) {
+	userUID, _ := ctx.Value("userUID").(string)
+	username, _ := ctx.Value("username").(string)
+	if userUID == "" {
+		log.Println(fmt.Errorf("user UID is empty"))
+		return
+	}
+
 	go func() {
+		c, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+
 		var (
 			data []byte
 			err  error
 		)
-
-		userUID, _ := ctx.Value("userUID").(string)
-		if userUID == "" {
-			log.Println(fmt.Errorf("user UID is empty"))
-			return
-		}
 
 		if eventAction.Action != EventDelete || obj != nil {
 			data, err = json.Marshal(obj)
@@ -34,6 +38,7 @@ func AuditLogHandler(ctx context.Context, db *gorm.DB, modelName string, modelID
 
 		eventLog := AuditLog{
 			UserUID:   userUID,
+			Username:  username,
 			Model:     modelName,
 			ModelID:   modelID,
 			Action:    string(action),
@@ -41,7 +46,7 @@ func AuditLogHandler(ctx context.Context, db *gorm.DB, modelName string, modelID
 			CreatedAt: time.Now(),
 		}
 
-		if err = db.Create(&eventLog).Error; err != nil {
+		if err = db.WithContext(c).Create(&eventLog).Error; err != nil {
 			fmt.Printf("events insert error: %v\n", err)
 		}
 	}()

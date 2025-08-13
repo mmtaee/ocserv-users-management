@@ -17,12 +17,13 @@ type UserRepository struct {
 type UserRepositoryInterface interface {
 	GetByUsername(ctx context.Context, username string) (*models.User, error)
 	GetByUID(ctx context.Context, uid string) (*models.User, error)
-	CreateToken(ctx context.Context, id uint, uid string, rememberMe bool, isAdmin bool) (string, error)
+	CreateToken(ctx context.Context, user *models.User, rememberMe bool) (string, error)
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
 	Users(ctx context.Context, pagination *request.Pagination) (*[]models.User, int64, error)
 	ChangePassword(ctx context.Context, uid, password, salt string) error
 	DeleteUser(ctx context.Context, uid string) error
 	UpdateLastLogin(ctx context.Context, user *models.User) error
+	UsersLookup(ctx context.Context) (*[]models.UsersLookup, error)
 }
 
 func NewUserRepository() *UserRepository {
@@ -40,20 +41,20 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*m
 	return &user, nil
 }
 
-func (r *UserRepository) CreateToken(ctx context.Context, id uint, uid string, rememberMe bool, isAdmin bool) (string, error) {
+func (r *UserRepository) CreateToken(ctx context.Context, user *models.User, rememberMe bool) (string, error) {
 	expire := time.Now().Add(24 * time.Hour)
 	if rememberMe {
 		expire = expire.AddDate(0, 1, 0)
 	}
 
-	access, err := crypto.GenerateAccessToken(uid, expire.Unix(), isAdmin)
+	access, err := crypto.GenerateAccessToken(user.UID, user.Username, expire.Unix(), user.IsAdmin)
 	if err != nil {
 		return "", err
 	}
 
 	err = r.db.WithContext(ctx).Create(
 		&models.UserToken{
-			UserID:   id,
+			UserID:   user.ID,
 			Token:    access,
 			ExpireAt: expire,
 		},
@@ -149,4 +150,13 @@ func (r *UserRepository) UpdateLastLogin(ctx context.Context, user *models.User)
 		Reason: "user last login",
 	})
 	return err
+}
+
+func (r *UserRepository) UsersLookup(ctx context.Context) (*[]models.UsersLookup, error) {
+	var users []models.UsersLookup
+	err := r.db.Model(&models.User{}).WithContext(ctx).Scan(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return &users, nil
 }
