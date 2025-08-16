@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 import {type AuditLogAuditLog, LogsApi, type ModelsUsersLookup, SystemUsersApi} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
@@ -11,7 +11,8 @@ import {useRoute} from "vue-router";
 const ReusablePagination = defineAsyncComponent(() => import("@/components/reusable/ReusablePagination.vue"))
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"))
 
-const {t} = useLocale()
+
+const {t} = useI18n()
 const route = useRoute()
 const loading = ref(false)
 const userLogs = reactive<AuditLogAuditLog[]>([])

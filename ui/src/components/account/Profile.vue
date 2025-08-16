@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import {useUserStore} from "@/stores/user.ts";
-import {useLocale} from "vuetify/framework";
 import {reactive, ref} from "vue";
 import {requiredRule} from "@/utils/rules.ts";
 import {formatDateTimeWithRelative} from "@/utils/convertors.ts";
 import {type SystemChangeUserPasswordBySelf, SystemUsersApi} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
+import {useI18n} from "vue-i18n";
 
 const userStore = useUserStore()
 
-const {t} = useLocale()
+const {t} = useI18n()
 const validPassword = ref(true)
 const passwordForm = ref()
 const showChangePassword = ref(false)

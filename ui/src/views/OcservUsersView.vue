@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {defineAsyncComponent, onBeforeMount, onMounted, reactive, ref} from "vue";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {
   type ModelsOcservUser,
   type ModelsOcservUserConfig,
@@ -24,7 +24,8 @@ const ReusablePagination = defineAsyncComponent(() => import("@/components/reusa
 
 const api = new OcservUsersApi()
 
-const {t} = useLocale()
+
+const {t} = useI18n()
 const createDialog = ref(false)
 const users = reactive<ModelsOcservUser[]>([])
 const meta = reactive<Meta>({

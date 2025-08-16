@@ -1,20 +1,32 @@
 <script lang="ts" setup>
 import logoUrl from "@/assets/ocserv.png"
-import {useLocale, useTheme} from "vuetify/framework";
+import {useTheme} from "vuetify/framework";
 import {defineAsyncComponent, onBeforeMount, ref} from "vue";
 import {useUserStore} from "@/stores/user.ts";
 import router from "@/plugins/router.ts";
 import {useIsSmallDisplay} from "@/stores/display.ts";
+import {useI18n} from "vue-i18n";
+import {languages} from '@/plugins/i18n'
 
 const SideBar = defineAsyncComponent(() => import("@/components/SideBar.vue"));
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"));
 
-const {t} = useLocale()
+const {t, locale} = useI18n()
 const theme = useTheme()
 const userStore = useUserStore()
 const logoutDialog = ref(false)
 const smallDisplay = useIsSmallDisplay()
 const drawer = ref(!smallDisplay.isSmallDisplay)
+const currentLang = ref(locale.value)
+const languageDialog = ref(false)
+
+
+function changeLanguage() {
+  localStorage.setItem("language", currentLang.value)
+  locale.value = currentLang.value
+  window.location.reload()
+  languageDialog.value = false
+}
 
 onBeforeMount(() => {
   theme.global.name.value = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
@@ -50,6 +62,10 @@ const logout = () => {
     </template>
 
     <template v-slot:append>
+      <v-icon class="me-3" @click="languageDialog=true">
+        mdi-translate
+      </v-icon>
+
       <v-icon @click="toggleTheme">mdi-theme-light-dark</v-icon>
 
       <v-icon v-if="userStore.user?.username" class="me-5 mx-3" color="error" @click="logoutDialog = true">
@@ -67,7 +83,7 @@ const logout = () => {
   >
     <template #dialogTitle>
       <v-icon>mdi-logout</v-icon>
-      {{ t("LOGOUT_TITLE") }}
+      <span class="text-capitalize">{{ t("LOGOUT_TITLE") }}</span>
     </template>
 
     <template #dialogText>
@@ -94,4 +110,38 @@ const logout = () => {
       </v-btn>
     </template>
   </ReusableDialog>
+
+  <ReusableDialog
+      v-model="languageDialog"
+      color="white"
+      transition="dialog-top-transition"
+  >
+    <template #dialogText>
+      <div class="pa-0" dir="ltr">
+        <v-radio-group
+            v-model="currentLang"
+            class="mt-3"
+            density="comfortable"
+            dir="ltr"
+            hide-details
+            inline
+            @change="changeLanguage"
+        >
+          <v-radio
+              v-for="item in languages"
+              :key="item.code"
+              :label="item.label"
+              :value="item.code"
+              class="mx-1"
+              density="comfortable"
+              dir="ltr"
+              inline
+          >
+          </v-radio>
+        </v-radio-group>
+      </div>
+    </template>
+
+  </ReusableDialog>
+
 </template>

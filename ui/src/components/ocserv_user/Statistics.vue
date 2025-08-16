@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {defineAsyncComponent, ref} from "vue";
 import {type ModelsOcservUser, OcservUsersApi} from "@/api";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {getAuthorization} from "@/utils/request.ts";
 
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"))
@@ -14,7 +14,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue"])
 
-const {t} = useLocale()
+const {t} = useI18n()
 const traffic = ref<any[]>([])
 
 const search = (dateStart: string, dateEnd: string) => {

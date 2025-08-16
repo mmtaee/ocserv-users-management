@@ -2,14 +2,14 @@
 import {computed, defineAsyncComponent, reactive, ref} from "vue";
 import {type SystemLoginData, SystemUsersApi} from "@/api";
 import {useConfigStore} from "@/stores/config.ts";
-import {useLocale} from "vuetify/framework";
 import {requiredRule} from "@/utils/rules.ts";
 import router from "@/plugins/router.ts";
 import {useUserStore} from "@/stores/user.ts";
+import {useI18n} from "vue-i18n";
 
 const Captcha = defineAsyncComponent(() => import('@/components/Captcha.vue'));
 
-const {t} = useLocale()
+const {t} = useI18n()
 const configStore = useConfigStore()
 
 const valid = ref(true)

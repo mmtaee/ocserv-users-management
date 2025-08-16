@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import setupImage from "@/assets/setup2.png"
-import {useLocale} from "vuetify/framework";
 import {reactive, ref} from "vue";
 import {SystemApi, type SystemSetupSystem} from "@/api";
 import {requiredRule} from "@/utils/rules.ts";
 import {useConfigStore} from "@/stores/config.ts";
 import {useUserStore} from "@/stores/user.ts";
 import router from "@/plugins/router.ts";
+import {useI18n} from "vue-i18n";
 
-const {t} = useLocale()
+const {t} = useI18n()
 
 const valid = ref(true)
 const loading = ref(false)

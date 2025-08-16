@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {defineAsyncComponent} from "vue";
 import type {ModelsOcservUser} from "@/api";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"))
 
@@ -13,7 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue", "done"])
 
-const {t} = useLocale()
+const {t} = useI18n()
 
 </script>
 

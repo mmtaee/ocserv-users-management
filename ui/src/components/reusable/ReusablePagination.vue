@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import type {Meta} from "@/utils/interfaces.ts";
 import {computed, ref, watch} from "vue";
 
@@ -11,7 +11,7 @@ const props = defineProps<{
 const emit = defineEmits(["update:modelValue"]);
 
 
-const {t} = useLocale()
+const {t} = useI18n()
 const totalRecords = ref(0)
 const sort = ref(false)
 const pages = computed(() => {

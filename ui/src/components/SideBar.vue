@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import avatarUrl from "@/assets/torvalds.jpg";
-import {useLocale} from "vuetify/framework";
 import {useUserStore} from "@/stores/user.ts";
 import {useIsSmallDisplay} from "@/stores/display.ts";
 import {useServerStore} from "@/stores/server.ts";
+import {useI18n} from "vue-i18n";
 
 const props = defineProps({
   modelValue: Boolean
@@ -14,7 +14,7 @@ const emit = defineEmits(["update:modelValue"])
 const userStore = useUserStore()
 const serverStore = useServerStore()
 
-const {t} = useLocale()
+const {t} = useI18n()
 
 const smallDisplay = useIsSmallDisplay()
 
@@ -44,7 +44,7 @@ const items = [
     "id": 3,
     "value": "occtl",
     "icon": "mdi-console",
-    "title": "Occtl",
+    "title": "occtl",
     "to": "/occtl"
   },
   {
@@ -100,7 +100,11 @@ const items = [
           :to="item.to"
           :value="item.value"
           color="primary"
-      />
+      >
+        <template #title>
+          <span class="text-capitalize">{{ item.title }}</span>
+        </template>
+      </v-list-item>
       <v-divider class="my-3" opacity="1"/>
       <v-list-item
           color="primary"
@@ -132,7 +136,7 @@ const items = [
     </v-list>
 
     <template #append>
-      <div v-if="!smallDisplay.isSmallDisplay">
+      <div v-if="!smallDisplay.isSmallDisplay" dir="ltr">
         <v-divider class="mb-2"/>
         <div style="text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 10px">
           <div class="me-3 text-primary">Ocserv Version: {{ serverStore.versionInfo }}</div>

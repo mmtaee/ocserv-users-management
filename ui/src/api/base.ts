@@ -16,10 +16,9 @@
 import type {Configuration} from './configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
-import {type AxiosPromise, type AxiosInstance, type RawAxiosRequestConfig, BasePath} from "@/plugins/axios";
-import globalAxios from "@/plugins/axios"
+import globalAxios, {ApiUrl, type AxiosInstance, type AxiosPromise, type RawAxiosRequestConfig} from "@/plugins/axios";
 
-export const BASE_PATH = BasePath
+export const BASE_PATH = ApiUrl
 
 /**
  *

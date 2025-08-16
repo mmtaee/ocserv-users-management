@@ -1,11 +1,7 @@
 <script lang="ts" setup>
 import {computed, defineAsyncComponent, reactive, ref, watch} from "vue";
-import {
-  type ModelsOcservUser,
-  type ModelsOcservUserConfig,
-  ModelsOcservUserTrafficTypeEnum,
-} from "@/api";
-import {useLocale} from "vuetify/framework";
+import {type ModelsOcservUser, type ModelsOcservUserConfig, ModelsOcservUserTrafficTypeEnum,} from "@/api";
+import {useI18n} from "vue-i18n";
 import {requiredRule} from "@/utils/rules.ts";
 import {formatDate} from "@/utils/convertors.ts";
 
@@ -21,7 +17,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue", "complete"])
 
-const {t} = useLocale()
+const {t} = useI18n()
 const valid = ref(true)
 const editMode = ref(false)
 const validConfig = ref(true)

@@ -11,9 +11,9 @@ import {
   type ModelsDailyTraffic
 } from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 
-const {t} = useLocale()
+const {t} = useI18n()
 const trafficData = ref<ModelsDailyTraffic[]>([])
 
 const homeData = ref<HomeGetHomeResponse>({
@@ -186,7 +186,7 @@ onMounted(() => {
     <v-col class="ma-0" lg="4" md="6" sm="12" xl="3" xs="12">
       <v-card class="my-0" elevation="4" height="400">
         <v-card-title class="bg-primary">
-          {{ t("ONLINE_USERS") }} ({{ homeData.online_users_session?.length }} {{ t("USERS") }})
+          {{ t("ONLINE_USERS") }} ({{ homeData.online_users_session?.length }} {{ t("USER") }})
         </v-card-title>
         <v-card-text class="my-1">
           <v-virtual-scroll
@@ -220,7 +220,7 @@ onMounted(() => {
     <v-col class="ma-0" lg="4" md="6" sm="12" xl="3" xs="12">
       <v-card class="my-0" elevation="4" height="400">
         <v-card-title class="bg-primary">
-          {{ t("BAN_IPS") }} ({{ homeData.ipbans?.length }} {{ t("IPS") }})
+          {{ t("BANNED_IPS") }} ({{ homeData.ipbans?.length }} {{ t("IP") }})
         </v-card-title>
 
         <v-card-text class="my-1">

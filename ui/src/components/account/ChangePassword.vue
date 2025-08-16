@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import {defineAsyncComponent, ref} from "vue";
 import type {ModelsUser} from "@/api";
-import {useLocale} from "vuetify/framework";
 import {requiredRule} from "@/utils/rules.ts";
+import {useI18n} from "vue-i18n";
 
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"))
 
@@ -13,7 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue", "save"])
 
-const {t} = useLocale()
+const {t} = useI18n()
 
 const rules = {
   required: (v: string) => requiredRule(v, t)

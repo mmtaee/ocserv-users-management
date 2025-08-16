@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {reactive, ref, watch} from "vue";
 import type {ModelsOcservUserConfig} from "@/api";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {domainRule, ipOrRangeRule, ipRule, ipWithRangeRule} from "@/utils/rules.ts";
 
 
@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(["update:modelValue", "save", "valid"])
 
-const {t} = useLocale()
+const {t} = useI18n()
 const valid = ref(true)
 const cloneFormData = ref<ModelsOcservUserConfig>()
 
@@ -31,48 +31,59 @@ const rules = {
 
 const fields = [
   // Network Configuration
-  {key: 'nbns', label: 'NBNS', type: 'text', hint: 'NetBIOS Name Server (e.g., 192.168.1.10)', rules: [rules.ip]},
+  {
+    key: 'nbns', label: 'NBNS', type: 'text', hint: "Net BIOS",
+    example: "192.168.1.10",
+    rules: [rules.ip]
+  },
   {
     key: 'ipv4-network',
     label: 'IPv4 Network',
     type: 'text',
-    hint: 'CIDR notation (e.g., 192.168.0.0/24)',
+    hint: 'CIDR',
+    example: "192.168.0.0/24",
     rules: [rules.ipWithRange]
   },
   {
     key: 'explicit-ipv4',
     label: 'Explicit IPv4',
     type: 'text',
-    hint: 'Specific IP address (e.g., 192.168.1.5)',
+    hint: t('SPECIFIC_IP_ADDRESS'),
+    example: "192.168.1.5",
     rules: [rules.ip]
   },
   {
     key: 'iroute',
     label: 'Internal Route',
     type: 'text',
-    hint: 'Custom internal route (e.g., 10.0.0.0/8)',
+    hint: t('CUSTOM_INTERNAL_ROUTE'),
+    example: " 10.0.0.0/8 ",
     rules: [rules.ipOrRange]
   },
-  {key: 'restrict-to-ports', label: 'Restrict User To Ports', type: 'text', hint: 'Allowed ports (e.g., 80,443)'},
+  {
+    key: 'restrict-user-to-ports', label: 'Restrict User To Ports', type: 'text', hint: t('ALLOWED_PORTS'),
+    example: "80,443",
+  },
 
   // Performance and Session Settings
-  {key: 'idle-timeout', label: 'Idle Timeout', type: 'number', hint: 'Inactivity timeout (s)'},
-  {key: 'mobile-idle-timeout', label: 'Mobile Idle Timeout', type: 'number', hint: 'Mobile inactivity timeout (s)'},
-  {key: 'session-timeout', label: 'Session Timeout', type: 'number', hint: 'Max session duration (s)'},
+  {key: 'idle-timeout', label: 'Idle Timeout', type: 'number', hint: t("INACTIVITY_TIMEOUT_S")},
+  {key: 'mobile-idle-timeout', label: 'Mobile Idle Timeout', type: 'number', hint: t("MOBILE_INACTIVITY_TIMEOUT_S")},
+  {key: 'session-timeout', label: 'Session Timeout', type: 'number', hint: t("MAX_SESSION_DURATION_S")},
   {
     key: 'rekey-time',
     label: 'Rekey Time', type: 'number',
-    hint: "Rekey time in seconds; triggers key renegotiation (e.g.,86400 for 24 hours)."
+    hint: t("TRIGGERS_KEY_RENEGOTIATION"),
+    example: "86400 for 24 hours",
   },
 
   // Access and Feature Controls
   {
-    key: 'restrict-to-routes',
+    key: 'restrict-user-to-routes',
     label: 'Restrict User To Routes',
     type: 'switch',
-    hint: 'Allow client access only to defined routes'
+    hint: t("ALLOW_CLIENT_ACCESS_ONLY_TO_DEFINED_ROUTES")
   },
-  {key: 'banner', label: 'Banner', type: 'text', hint: "Text message shown to users when they connect to the VPN"},
+  {key: 'banner', label: 'Banner', type: 'text', hint: t("BANNER_HINT")},
 ]
 
 const textFields = [
@@ -82,14 +93,14 @@ const textFields = [
     label: 'Route',
     type: 'text',
     example: "10.0.0.0/8",
-    hint: 'Routes assigned to client',
+    hint: t("ROUTES_ASSIGNED_TO_CLIENT"),
     rules: [rules.ipOrRange]
   },
   {
     key: 'no-route',
     label: 'No Route',
     type: 'text',
-    hint: 'Non-VPN networks',
+    hint: t("NON_VPN_NETWORKS"),
     example: "172.16.0.0/12",
     rules: [rules.ipOrRange]
   },
@@ -97,15 +108,15 @@ const textFields = [
     key: 'dns',
     label: 'DNS',
     type: 'text',
-    hint: 'DNS servers list',
-    example: "8.8.8.8 or example.com",
+    hint: t("DNS_SERVERS_LIST"),
+    example: "8.8.8.8/example.com",
     rules: [rules.ip]
   },
   {
     key: 'split-dns',
     label: 'Split DNS',
     type: 'text',
-    hint: 'DNS-specific domains',
+    hint: t("DNS_SPECIFIC_DOMAINS"),
     example: "example.com",
     rules: [rules.domain]
   }

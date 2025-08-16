@@ -71,7 +71,7 @@ func main() {
 		}
 	}()
 
-	<-ctx.Done() // wait for context cancellation
-	log.Println("Main exited")
+	<-ctx.Done()
+	log.Println("Service shutting down successfully")
 
 }

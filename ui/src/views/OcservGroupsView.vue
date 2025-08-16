@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {defineAsyncComponent, onMounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from "vue-router";
 
 const Defaults = defineAsyncComponent(() => import('@/components/ocserv_group/Defaults.vue'));
 const Others = defineAsyncComponent(() => import('@/components/ocserv_group/Others.vue'));
 
-const {t} = useLocale()
+
+const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
 

@@ -3,7 +3,7 @@ import {type ModelsUser, SystemUsersApi} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 import type {Meta} from "@/utils/interfaces.ts";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {formatDateTimeWithRelative} from "@/utils/convertors.ts";
 import router from "@/plugins/router.ts";
 
@@ -11,7 +11,7 @@ const ReusablePagination = defineAsyncComponent(() => import("@/components/reusa
 const Delete = defineAsyncComponent(() => import("@/components/account/Delete.vue"))
 const ChangePassword = defineAsyncComponent(() => import("@/components/account/ChangePassword.vue"))
 
-const {t} = useLocale()
+const {t} = useI18n()
 const adminUsers = reactive<ModelsUser[]>([])
 const meta = reactive<Meta>({
   page: 1,

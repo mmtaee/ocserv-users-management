@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {defineAsyncComponent, onMounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from "vue-router";
 
@@ -8,7 +8,7 @@ const Ocserv = defineAsyncComponent(() => import("@/components/system_logs/Ocser
 const AuditLogs = defineAsyncComponent(() => import("@/components/system_logs/AuditLogs.vue"));
 
 
-const {t} = useLocale()
+const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
 

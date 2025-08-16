@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import {useLocale} from "vuetify/framework";
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 import {type AuditLogAuditLog, LogsUsersApi} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
 import type {Meta} from "@/utils/interfaces.ts";
 import {formatDateTimeWithRelative} from "@/utils/convertors.ts";
+import {useI18n} from "vue-i18n";
 
 const ReusablePagination = defineAsyncComponent(() => import("@/components/reusable/ReusablePagination.vue"))
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"))
 
-const {t} = useLocale()
+const {t} = useI18n()
 const userLogs = reactive<AuditLogAuditLog[]>([])
 const meta = reactive<Meta>({
   page: 1,

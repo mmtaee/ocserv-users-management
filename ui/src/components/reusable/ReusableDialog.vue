@@ -27,7 +27,7 @@ const emit = defineEmits(['update:modelValue'])
       @update:modelValue="emit('update:modelValue', false)"
   >
     <v-card>
-      <v-toolbar :class="`bg-${color}`">
+      <v-toolbar v-if="$slots.dialogTitle" :class="`bg-${color}`">
         <v-toolbar-title>
           <slot name="dialogTitle"/>
         </v-toolbar-title>
@@ -38,13 +38,13 @@ const emit = defineEmits(['update:modelValue'])
         />
       </v-toolbar>
 
-      <v-card-text class="text-subtitle-1 text-capitalize">
+      <v-card-text v-if="$slots.dialogText" class="text-subtitle-1 text-capitalize">
         <slot name="dialogText"/>
       </v-card-text>
 
       <v-divider v-if="divider" class="mb-3"/>
 
-      <v-card-actions v-if="!hide_action" class="justify-end me-2 mb-2">
+      <v-card-actions v-if="!hide_action && $slots.dialogAction" class="justify-end me-2 mb-2">
         <slot name="dialogAction"/>
       </v-card-actions>
 

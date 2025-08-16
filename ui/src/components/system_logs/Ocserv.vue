@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import {onMounted, onUnmounted, ref} from 'vue'
-import {useLocale} from 'vuetify/framework'
 
-const {t} = useLocale()
+import {useI18n} from "vue-i18n";
+
+const {t} = useI18n()
 const logs = ref<string[]>([])
 
 

@@ -13,7 +13,7 @@ import {
   Title,
   Tooltip
 } from "chart.js";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {formatDate} from "@/utils/convertors.ts";
 
 interface Traffic {
@@ -48,7 +48,7 @@ ChartJS.register(
 )
 
 
-const {t} = useLocale()
+const {t} = useI18n()
 const dateStartMenu = ref(false)
 const dateEndMenu = ref(false)
 const width = window.innerWidth

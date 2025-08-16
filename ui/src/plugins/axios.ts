@@ -6,12 +6,12 @@ import axios, {
 } from 'axios'
 import {type SnackbarItem, useSnackbarStore} from "@/stores/snackbar.ts";
 import {useLoadingStore} from "@/stores/loading.ts";
+import {useI18n} from "vue-i18n";
 
 
-export const BaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
-export const BasePath = import.meta.env.VITE_API_PATH ?? '/api';
+export const ApiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api'
 
-const config: AxiosRequestConfig = {baseURL: BaseUrl + BasePath}
+const config: AxiosRequestConfig = {baseURL: ApiUrl}
 
 const api: AxiosInstance = axios.create(config)
 
@@ -57,9 +57,10 @@ api.interceptors.response.use(
                     }))
                     snackbar.show(messages)
                 } else {
+                    const {t} = useI18n()
                     snackbar.show({
                         id: 1,
-                        message: typeof errorList === 'string' ? errorList : 'Unknown error',
+                        message: typeof errorList === 'string' ? errorList : t('UNKNOWN_ERROR'),
                         color: 'error',
                         timeout: 4000,
                     })

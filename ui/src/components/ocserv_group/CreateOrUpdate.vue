@@ -2,7 +2,7 @@
 import {computed, defineAsyncComponent, reactive, ref, watch} from "vue";
 import {requiredRule} from "@/utils/rules.ts";
 import type {ModelsOcservGroup, ModelsOcservGroupConfig} from "@/api";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 
 const ReusableDialog = defineAsyncComponent(() => import("@/components/reusable/ReusableDialog.vue"))
 const GroupForm = defineAsyncComponent(() => import('@/components/ocserv_group/ConfigForm.vue'));
@@ -16,7 +16,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue", "complete"])
 
-const {t} = useLocale()
+const {t} = useI18n()
 const valid = ref(true)
 const editMode = ref(false)
 const validConfig = ref(true)

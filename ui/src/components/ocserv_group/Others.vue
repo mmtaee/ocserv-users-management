@@ -4,9 +4,10 @@ import {
   type ModelsOcservGroup,
   type ModelsOcservGroupConfig,
   type OcservGroupCreateOcservGroupData,
-  OcservGroupsApi, type OcservGroupUpdateOcservGroupData
+  OcservGroupsApi,
+  type OcservGroupUpdateOcservGroupData
 } from "@/api";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {getAuthorization} from "@/utils/request.ts";
 import type {Meta} from "@/utils/interfaces.ts";
 
@@ -23,7 +24,7 @@ const emit = defineEmits(["update:modelValue"]);
 
 const api = new OcservGroupsApi()
 
-const {t} = useLocale()
+const {t} = useI18n()
 const loading = ref(false)
 const meta = reactive<Meta>({
   page: 1,
@@ -300,7 +301,6 @@ onMounted(() => {
   </ReusableDialog>
 
 </template>
-
 
 
 <style scoped>

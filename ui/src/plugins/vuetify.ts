@@ -5,9 +5,9 @@ import type {DisplayThresholds} from "vuetify"
 import {createVuetify} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import i18n from "@/plugins/i18n"
 import {createVueI18nAdapter} from "vuetify/locale/adapters/vue-i18n"
-import {useI18n} from "vue-i18n"
+import {useI18n} from "vue-i18n";
+import i18n from "@/plugins/i18n.ts";
 
 
 const breakpoints: DisplayThresholds = {
@@ -23,22 +23,12 @@ export default createVuetify({
     components,
     directives,
     locale: {
-        adapter: createVueI18nAdapter({i18n, useI18n}),
+        adapter: createVueI18nAdapter({i18n: i18n as any, useI18n}),
     },
-    display: {
-        mobileBreakpoint: 'sm',
-        thresholds: breakpoints
-    },
-    icons: {
-        defaultSet: 'mdi', // This is already the default value - only for display purposes
-    },
-    // icons: {
-    //     defaultSet: 'mdi',
-    //     aliases,
-    //     sets: {mdi},
-    // },
+    display: {mobileBreakpoint: 'sm', thresholds: breakpoints},
+    icons: {defaultSet: 'mdi'},
     theme: {
-        defaultTheme: 'light', // or 'dark' depending on your needs
+        defaultTheme: 'light',
         themes: {
             light: {
                 dark: false,

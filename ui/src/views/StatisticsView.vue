@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import {defineAsyncComponent, ref} from "vue";
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import {OcservStatisticsApi} from "@/api";
 import {getAuthorization} from "@/utils/request.ts";
 
 const ReusableStatistics = defineAsyncComponent(() => import("@/components/reusable/ReusableStatistics.vue"))
 
-const {t} = useLocale()
+
+const {t} = useI18n()
 const traffic = ref<any[]>([])
 
 const search = (dateStart: string, dateEnd: string) => {

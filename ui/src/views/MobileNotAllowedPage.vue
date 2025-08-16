@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import {useLocale} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 import router from "@/plugins/router.ts";
 
-const {t} = useLocale()
+
+const {t} = useI18n()
 
 </script>
 
