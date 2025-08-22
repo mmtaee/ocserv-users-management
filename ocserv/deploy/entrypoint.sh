@@ -1,31 +1,25 @@
 #!/bin/bash
 
-if [ -z "$CN" ]; then
-    CN="End-way-Cisco-VPN"
+if [ -z "$SSL_CN" ]; then
+    SSL_CN="End-way-Cisco-VPN"
 fi
-if [ -z "$ORG" ]; then
-    ORG="End-way"
+if [ -z "$SSL_ORG" ]; then
+    SSL_ORG="End-way"
 fi
-if [ -z "$EXPIRE" ]; then
-    EXPIRE=3650
+if [ -z "$SSL_EXPIRE" ]; then
+    SSL_EXPIRE=3650
 fi
-if [ -z "$OC_NET" ]; then
-    OC_NET=172.16.24.0/24
+if [ -z "$SSL_OC_NET" ]; then
+    SSL_OC_NET=172.16.24.0/24
 fi
-if [ -z "$HOST" ]; then
-    HOST=$(dig +short myip.opendns.com @resolver1.opendns.com)
-    if [ "$?" != "0" ]; then
-        HOST=$(hostname -I | cut -d' ' -f1)
-    fi
-fi
+
 
 cat <<EOT >/etc/ocserv/ocserv.conf
 # custom config
 auth="plain[passwd=/etc/ocserv/ocpasswd]"
 run-as-user=root
 run-as-group=root
-socket-file=ocserv.sock
-chroot-dir=/run
+socket-file=/var/run/ocserv-socket
 isolate-workers=true
 max-clients=1024
 keepalive=32400
@@ -36,7 +30,8 @@ try-mtu-discovery=true
 server-cert=/etc/ocserv/certs/cert.pem
 server-key=/etc/ocserv/certs/cert.key
 #tls-priorities="NORMAL:%SERVER_PRECEDENCE:%COMPAT:-VERS-SSL3.0"
-tls-priorities="NORMAL:%SERVER_PRECEDENCE:%COMPAT:-VERS-SSL3.0:-VERS-TLS1.0:-VERS-TLS1.1"
+#tls-priorities="NORMAL:%SERVER_PRECEDENCE:%COMPAT:-VERS-SSL3.0:-VERS-TLS1.0:-VERS-TLS1.1"
+tls-priorities="NORMAL:%SERVER_PRECEDENCE:%COMPAT:-RSA:-VERS-SSL3.0:-ARCFOUR-128"
 auth-timeout=40
 min-reauth-time=300
 max-ban-score=50
@@ -50,7 +45,7 @@ pid-file=/var/run/ocserv.pid
 device=vpns
 predictable-ips=true
 tunnel-all-dns=true
-dns=${DNS}
+dns=${OCSERV_DNS}
 ping-leases=false
 mtu=1420
 cisco-client-compat=true
@@ -58,10 +53,11 @@ dtls-legacy=true
 tcp-port=443
 udp-port=443
 max-same-clients=2
-ipv4-network=${OC_NET}
+ipv4-network=${SSL_OC_NET}
 config-per-group=/etc/ocserv/groups/
 config-per-user=/etc/ocserv/users/
 log-level=3
+rate-limit-ms=100
 EOT
 
 mkdir -p /etc/ocserv/defaults /etc/ocserv/groups /etc/ocserv/users/
@@ -70,16 +66,16 @@ mkdir -p /etc/ocserv/defaults /etc/ocserv/groups /etc/ocserv/users/
 
 if [ ! -f /etc/ocserv/certs/cert.pem ]; then
     mkdir -p /etc/ocserv/certs
-    cd /etc/ocserv/certs
+    cd /etc/ocserv/certs || exit
     touch /etc/ocserv/ocpasswd
     servercert="cert.pem"
     serverkey="key.pem"
     certtool --generate-privkey --outfile ca-key.pem
     cat <<_EOF_ >ca.tmpl
-cn = "${CN}"
-organization = "${ORG}"
+cn = "${SSL_CN}"
+organization = "${SSL_ORG}"
 serial = 1
-expiration_days = ${EXPIRE}
+expiration_days = ${SSL_EXPIRE}
 ca
 signing_key
 cert_signing_key
@@ -89,10 +85,10 @@ _EOF_
         --template ca.tmpl --outfile ca-cert.pem
     certtool --generate-privkey --outfile ${serverkey}
     cat <<_EOF_ >server.tmpl
-cn = "${CN}"
-organization = "${ORG}"
+cn = "${SSL_CN}"
+organization = "${SSL_ORG}"
 serial = 2
-expiration_days = ${EXPIRE}
+expiration_days = ${SSL_EXPIRE}
 signing_key
 encryption_key
 tls_www_server
@@ -113,6 +109,4 @@ sysctl -p
 mkdir -p /dev/net               #TUN device
 mknod /dev/net/tun c 10 200
 chmod 600 /dev/net/tun
-mkdir -p /var/log/ocserv/
-
 exec "$@"

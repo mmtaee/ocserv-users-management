@@ -1,0 +1,88 @@
+networks:
+  shared-app:
+
+volumes:
+  webhook:
+
+services:
+  webhook:
+    image: ocserv_users_management:webhook
+    build:
+      context: ./webhook
+    container_name: webhook
+    restart: always
+    volumes:
+      - webhook:/app
+
+  ocserv:
+    image: ocserv_users_management:ocserv
+    build:
+      context: ./ocserv
+    container_name: ocserv
+    privileged: true
+    restart: always
+    volumes:
+      - ./volumes/ocserv:/etc/ocserv
+      - ./volumes/ocserv/ssl:/etc/ocserv/certs
+      - webhook:/app
+    ports:
+      - ${OCSERV_PORT:-443}:443/tcp
+      - ${OCSERV_PORT:-443}:443/udp
+    env_file:
+      - ./.env
+    networks:
+      - shared-app
+    depends_on:
+      - webhook
+
+  api:
+    image: ocserv_users_management:api
+    build:
+      context: ./api
+    container_name: api
+    restart: always
+    volumes:
+      - ./volumes/db:/app/db
+    env_file:
+      - ./.env
+    networks:
+      - shared-app
+    depends_on:
+      - ocserv
+
+  stream_log:
+    image: ocserv_users_management:stream_log
+    build:
+      context: stream_log
+    container_name: stream_log
+    restart: always
+    volumes:
+      - ./volumes/db:/app/db
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - ./.env
+    networks:
+      - shared-app
+    depends_on:
+      - ocserv
+      - api
+
+  web:
+    image: ocserv_users_management:web
+    build:
+      context: ./web
+    container_name: web
+    restart: always
+    volumes:
+      - ./volumes/nginx/certs:/etc/nginx/certs
+    env_file:
+      - ./.env
+    ports:
+#      - ${NGINX_PORT:-3000}:80
+      - ${NGINX_S_PORT:-3443}:443
+    networks:
+      - shared-app
+    depends_on:
+      - ocserv
+      - api
+      - stream_log
