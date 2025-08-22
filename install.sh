@@ -12,8 +12,7 @@ OCSERV_DNS="8.8.8.8"
 LANGUAGES=en:English,zh:中文,ru:Русский,fa:فارسی,ar:العربية
 NGINX_PORT=3000
 NGINX_S_PORT=3443
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin
+
 
 print_message() {
     local type="$1"
@@ -174,70 +173,8 @@ get_envs(){
       fi
       print_message highlight "✅ Using ocserv DNS: ${OCSERV_DNS}"
       printf "\n"
-
-      # Super admin username
-      read -rp "Enter Super Admin username: " admin_user
-      [[ -n "$admin_user" ]] && ADMIN_USERNAME=$admin_user
-      print_message highlight "✅ Using Admin username: ${ADMIN_USERNAME}"
-      printf "\n"
-
-      # Super admin password (hidden input)
-      read -srp "Enter Super Admin password: " admin_password
-      echo ""  # move to new line after hidden input
-      [[ -n "$admin_password" ]] && ADMIN_PASSWORD=$admin_password
-      print_message highlight "✅ Admin password set successfully"
-      printf "\n"
 }
 
-# ===============================
-# Create env file
-# ===============================
-set_environment() {
-    SECRET_KEY=$(openssl rand -hex 32)
-    JWT_SECRET=$(openssl rand -hex 32)
-    ALLOW_ORIGINS="http://${HOST}:${NGINX_PORT},https://${HOST}:${NGINX_S_PORT}"
-    WEBHOOK_API=http://ocserv:8080
-
-    ENV_FILE=".env"
-
-    print_message info "Creating environment file at $ENV_FILE ..."
-    cat > "$ENV_FILE" <<EOL
-HOST=${HOST}
-SECRET_KEY=${SECRET_KEY}
-JWT_SECRET=${JWT_SECRET}
-ALLOW_ORIGINS=${ALLOW_ORIGINS}
-WEBHOOK_API=${WEBHOOK_API}
-NGINX_PORT=${NGINX_PORT}
-NGINX_S_PORT=${NGINX_S_PORT}
-SSL_CN=${SSL_CN}
-SSL_ORG=${SSL_ORG}
-SSL_OC_NET=${SSL_OC_NET}
-SSL_EXPIRE=${SSL_EXPIRE}
-OCSERV_PORT=${OCSERV_PORT}
-OCSERV_DNS=${OCSERV_DNS}
-ADMIN_USERNAME=${ADMIN_USERNAME}
-ADMIN_PASSWORD=${ADMIN_PASSWORD}
-EOL
-
-    print_message success "✅ Environment file created successfully."
-    print_message info "🔧 Environments written to .env:"
-    print_message highlight "   HOST            = ${HOST}"
-    print_message highlight "   SECRET_KEY      = ${SECRET_KEY:0:8}..."
-    print_message highlight "   JWT_SECRET      = ${JWT_SECRET:0:8}..."
-    print_message highlight "   ALLOW_ORIGINS   = ${ALLOW_ORIGINS}"
-    print_message highlight "   WEBHOOK_API     = ${WEBHOOK_API}"
-    print_message highlight "   NGINX_PORT      = ${NGINX_PORT}"
-    print_message highlight "   NGINX_S_PORT    = ${NGINX_S_PORT}"
-    print_message highlight "   SSL_CN          = ${SSL_CN}"
-    print_message highlight "   SSL_ORG         = ${SSL_ORG}"
-    print_message highlight "   SSL_OC_NET      = ${SSL_OC_NET}"
-    print_message highlight "   SSL_EXPIRE      = ${SSL_EXPIRE}"
-    print_message highlight "   OCSERV_PORT     = ${OCSERV_PORT}"
-    print_message highlight "   OCSERV_DNS      = ${OCSERV_DNS}"
-    print_message highlight "   ADMIN_USERNAME  = ${ADMIN_USERNAME}"
-    print_message highlight "   ADMIN_PASSWORD  = ${ADMIN_PASSWORD}"
-    printf "\n"
-}
 
 get_site_lang() {
     print_message info "🌐 Available languages:"
@@ -270,6 +207,61 @@ get_site_lang() {
 }
 
 
+# ===============================
+# Create env file
+# ===============================
+set_environment() {
+    SECRET_KEY=$(openssl rand -hex 32)
+    JWT_SECRET=$(openssl rand -hex 32)
+    ALLOW_ORIGINS=http://${HOST}:${NGINX_PORT},https://${HOST}:${NGINX_S_PORT}
+    WEBHOOK_API=http://ocserv:8080
+    API_URL=https://${HOST}:${NGINX_S_PORT}/api
+    LOG_SOCKET_URL=https://${HOST}:${NGINX_S_PORT}/ws/logs
+    ENV_FILE=".env"
+
+    print_message info "Creating environment file at $ENV_FILE ..."
+    cat > "$ENV_FILE" <<EOL
+HOST=${HOST}
+SECRET_KEY=${SECRET_KEY}
+JWT_SECRET=${JWT_SECRET}
+ALLOW_ORIGINS=${ALLOW_ORIGINS}
+WEBHOOK_API=${WEBHOOK_API}
+NGINX_PORT=${NGINX_PORT}
+NGINX_S_PORT=${NGINX_S_PORT}
+SSL_CN=${SSL_CN}
+SSL_ORG=${SSL_ORG}
+SSL_OC_NET=${SSL_OC_NET}
+SSL_EXPIRE=${SSL_EXPIRE}
+OCSERV_PORT=${OCSERV_PORT}
+OCSERV_DNS=${OCSERV_DNS}
+API_URL=${API_URL}
+LOG_SOCKET_URL=${LOG_SOCKET_URL}
+LANGUAGES="${LANGUAGES}"
+EOL
+
+    print_message success "✅ Environment file created successfully."
+    print_message info "🔧 Environments written to .env:"
+    print_message highlight "   HOST            = ${HOST}"
+    print_message highlight "   SECRET_KEY      = ${SECRET_KEY:0:8}..."
+    print_message highlight "   JWT_SECRET      = ${JWT_SECRET:0:8}..."
+    print_message highlight "   ALLOW_ORIGINS   = ${ALLOW_ORIGINS}"
+    print_message highlight "   WEBHOOK_API     = ${WEBHOOK_API}"
+    print_message highlight "   NGINX_PORT      = ${NGINX_PORT}"
+    print_message highlight "   NGINX_S_PORT    = ${NGINX_S_PORT}"
+    print_message highlight "   SSL_CN          = ${SSL_CN}"
+    print_message highlight "   SSL_ORG         = ${SSL_ORG}"
+    print_message highlight "   SSL_OC_NET      = ${SSL_OC_NET}"
+    print_message highlight "   SSL_EXPIRE      = ${SSL_EXPIRE}"
+    print_message highlight "   OCSERV_PORT     = ${OCSERV_PORT}"
+    print_message highlight "   OCSERV_DNS      = ${OCSERV_DNS}"
+    print_message highlight "   API_URL         = ${API_URL}"
+    print_message highlight "   LOG_SOCKET_URL  = ${LOG_SOCKET_URL}"
+    print_message highlight "   LANGUAGES       = ${LANGUAGES}"
+
+    printf "\n"
+}
+
+
 pull_images(){
   print_message info "🚀 Pulling required Docker images..."
   docker pull golang:1.25.0
@@ -285,8 +277,8 @@ build_services(){
   docker build -t ocserv_users_management:api        -f api/Dockerfile ./api
   docker build -t ocserv_users_management:stream_log -f stream_log/Dockerfile ./stream_log
   docker build -t ocserv_users_management:web \
-        --build-arg API_URL=https://"${HOST}:${NGINX_S_PORT}"/api \
-        --build-arg LOG_SOCKET_URL=https://"${HOST}:${NGINX_S_PORT}"/ws/logs \
+        --build-arg API_URL=https://"${HOST}":"${NGINX_S_PORT}"/api \
+        --build-arg LOG_SOCKET_URL=https://"${HOST}":"${NGINX_S_PORT}"/ws/logs \
         --build-arg LANGUAGES="${LANGUAGES}" \
         -f web/Dockerfile ./web
   print_message success "🎉 All Docker images built successfully!"
@@ -305,8 +297,8 @@ main() {
   check_docker
   get_ip
   get_envs
-  set_environment
   get_site_lang
+  set_environment
   pull_images
   build_services
   up_services

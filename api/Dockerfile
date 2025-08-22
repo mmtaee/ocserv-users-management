@@ -26,10 +26,6 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copy entrypoint script
-COPY scripts/server.sh /server.sh
-RUN chmod +x /server.sh
-
 # Copy compiled binary
 COPY --from=builder /app/api .
 
@@ -37,4 +33,4 @@ VOLUME ["/app/db"]
 
 EXPOSE 8080
 
-CMD ["/server.sh"]
+CMD ["/app/api", "serve"]

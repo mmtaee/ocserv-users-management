@@ -71,6 +71,10 @@ services:
     image: ocserv_users_management:web
     build:
       context: ./web
+      args:
+        - API_URL=https://${HOST}:${NGINX_S_PORT}/api
+        - LOG_SOCKET_URL=https://${HOST}:${NGINX_S_PORT}/ws/logs
+        - LANGUAGES=${LANGUAGES}
     container_name: web
     restart: always
     volumes:

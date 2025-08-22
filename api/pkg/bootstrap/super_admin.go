@@ -16,6 +16,7 @@ import (
 func CreateSuperAdmin(username, password string, debug bool) {
 	cfg := config.NewConfig(debug, "", 0)
 	database.Connect(cfg)
+	Migrate()
 
 	if username == "" || password == "" {
 		log.Println("You need to specify username and password")

@@ -25,11 +25,11 @@ app.use(createPinia())
     app.use(router)
 
     if (!setup) {
-        await router.push({name: 'SetupPage'})
+        router.push({name: 'SetupPage'})
     } else {
         if (localStorage.getItem("token")) {
             const userStore = useUserStore()
-            userStore.getProfile()
+            await userStore.getProfile()
         }
     }
 

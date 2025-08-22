@@ -5,6 +5,7 @@ import (
 	"context"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"log"
 )
 
 func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan<- string) error {
@@ -28,12 +29,17 @@ func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan
 	}
 	defer logReader.Close()
 
+	log.Println("logReader connected successfuly")
+	log.Println("Reading logs from Docker container")
+	log.Println(containerName, options)
+
 	scanner := bufio.NewScanner(logReader)
 	for scanner.Scan() {
 		select {
 		case <-ctx.Done():
 			return nil
 		case streamChan <- scanner.Text():
+			log.Println("receive log: ", scanner.Text())
 		}
 	}
 	return scanner.Err()

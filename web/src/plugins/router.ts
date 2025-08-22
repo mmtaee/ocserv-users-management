@@ -104,27 +104,24 @@ router.beforeEach((to, _from, next) => {
         localStorage.removeItem("token")
         const configStore = useConfigStore()
         if (configStore.config.setup) {
-            next("/")
-            return;
+            return next("/")
         }
+        return next()
     }
 
     if (to.path === '/login') {
         if (token !== null) {
-            next("/")
-            return;
+            return next("/")
         }
     }
 
     if (token === null && to.path !== '/login') {
-        next("/login")
-        return;
+        return next("/login")
     }
 
     const smallDisplay = useIsSmallDisplay()
     if (to.meta.desktopOnly && smallDisplay.isSmallDisplay) {
-        next("/mobile-not-allowed");
-        return;
+        return next("/mobile-not-allowed")
     }
 
     next()
