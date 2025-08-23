@@ -5,7 +5,6 @@ import (
 	"common/models"
 	"common/ocserv"
 	"common/pkg"
-	"encoding/json"
 	"errors"
 	"os"
 	"os/exec"
@@ -89,13 +88,14 @@ func (u *OcservUser) Delete(username string) (string, error) {
 }
 
 func (u *OcservUser) CreateConfig(username string, config *models.OcservUserConfig) error {
-	jsonBytes, err := json.Marshal(config)
+	filename := pkg.ConfigFilePathCreator(username)
+	// Open file with create, truncate, write-only flags and permission 0640
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
 	if err != nil {
 		return err
 	}
-
-	filename := pkg.ConfigFilePathCreator(username)
-	if err = os.WriteFile(filename, jsonBytes, 0640); err != nil {
+	err = pkg.ConfigWriter(file, pkg.ToMap(config))
+	if err != nil {
 		return err
 	}
 	return nil
