@@ -11,8 +11,8 @@ import (
 )
 
 type OcservGroupRepository struct {
-	db              *gorm.DB
-	ocservGroupRepo group.OcservGroupInterface
+	db                    *gorm.DB
+	commonOcservGroupRepo group.OcservGroupInterface
 }
 
 type OcservGroupRepositoryInterface interface {
@@ -22,12 +22,14 @@ type OcservGroupRepositoryInterface interface {
 	Create(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
 	Update(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
 	Delete(ctx context.Context, id string) (*models.OcservGroup, error)
+	DefaultGroup() (*models.OcservGroupConfig, error)
+	UpdateDefaultGroup(groupConfig *models.OcservGroupConfig) error
 }
 
 func NewOcservGroupRepository() *OcservGroupRepository {
 	return &OcservGroupRepository{
-		db:              database.GetConnection(),
-		ocservGroupRepo: group.NewOcservGroup(),
+		db:                    database.GetConnection(),
+		commonOcservGroupRepo: group.NewOcservGroup(),
 	}
 }
 
@@ -79,7 +81,7 @@ func (o *OcservGroupRepository) Create(ctx context.Context, ocservGroup *models.
 		if err := tx.Create(ocservGroup).Error; err != nil {
 			return err
 		}
-		if err := o.ocservGroupRepo.Create(ocservGroup.Name, ocservGroup.Config); err != nil {
+		if err := o.commonOcservGroupRepo.Create(ocservGroup.Name, ocservGroup.Config); err != nil {
 			return err
 		}
 		return nil
@@ -96,7 +98,7 @@ func (o *OcservGroupRepository) Update(ctx context.Context, ocservGroup *models.
 		if err := tx.Model(ocservGroup).Save(ocservGroup).Error; err != nil {
 			return err
 		}
-		if err := o.ocservGroupRepo.Create(ocservGroup.Name, ocservGroup.Config); err != nil {
+		if err := o.commonOcservGroupRepo.Create(ocservGroup.Name, ocservGroup.Config); err != nil {
 			return err
 		}
 		return nil
@@ -119,11 +121,24 @@ func (o *OcservGroupRepository) Delete(ctx context.Context, id string) (*models.
 			return err
 		}
 
-		if err := o.ocservGroupRepo.Delete(ocservGroup.Name); err != nil {
+		if err := o.commonOcservGroupRepo.Delete(ocservGroup.Name); err != nil {
 			return err
 		}
 		return nil
 	})
 
 	return &ocservGroup, err
+}
+
+func (o *OcservGroupRepository) DefaultGroup() (*models.OcservGroupConfig, error) {
+	defaultsGroup, err := o.commonOcservGroupRepo.DefaultsGroup()
+	if err != nil {
+		return nil, err
+	}
+	return defaultsGroup, nil
+}
+
+func (o *OcservGroupRepository) UpdateDefaultGroup(groupConfig *models.OcservGroupConfig) error {
+	return o.commonOcservGroupRepo.UpdateDefaultsGroup(groupConfig)
+
 }
