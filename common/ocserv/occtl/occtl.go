@@ -189,3 +189,17 @@ func (o *OcservOcctl) ShowIRoutes() (*[]IRoute, error) {
 	}
 	return &routes, nil
 }
+
+func (o *OcservOcctl) ShowUser(username string) (OnlineUserSession, error) {
+	var session OnlineUserSession
+
+	cmd := exec.Command(occtlExec, "-j", "show", "user", username)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return session, err
+	}
+	if err = json.Unmarshal(out, &session); err != nil {
+		return session, err
+	}
+	return session, nil
+}
