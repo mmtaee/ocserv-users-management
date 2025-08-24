@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,8 +34,6 @@ func (u *OcservUser) Create(group, username, password string, config *models.Ocs
 		args = append([]string{"-g", group}, args...)
 	}
 	cmd := exec.Command(utils.OcpasswdExec, args...)
-
-	log.Println("commands: ", utils.OcpasswdExec, args)
 
 	cmd.Stdin = bytes.NewBufferString(password + "\n" + password + "\n")
 	_, err := cmd.CombinedOutput()
