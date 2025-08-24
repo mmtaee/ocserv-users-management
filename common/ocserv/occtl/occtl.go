@@ -40,6 +40,11 @@ type OcservOcctlInterface interface {
 	DisconnectUser(username string) (string, error)
 	ReloadConfigs() (string, error)
 	ShowIPBans() (*[]IPBanPoints, error)
+	UnbanIP(ip string) (string, error)
+	ShowStatus(raw bool) (interface{}, error)
+	ShowIRoutes() (*[]IRoute, error)
+	ShowUser(username string) (OnlineUserSession, error)
+	Version() map[string]string
 }
 
 const occtlExec = "/usr/bin/occtl"
