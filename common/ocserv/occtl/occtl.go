@@ -49,6 +49,7 @@ type OcservOcctlInterface interface {
 	ShowSession(sid string) (map[string]interface{}, error)
 	ShowSessionAll() (*[]interface{}, error)
 	ShowSessionsValid() (*[]interface{}, error)
+	ShowEvent() string
 }
 
 const occtlExec = "/usr/bin/occtl"
@@ -289,4 +290,28 @@ func (o *OcservOcctl) ShowSessionsValid() (*[]interface{}, error) {
 		return nil, err
 	}
 	return &sessions, nil
+}
+
+// ShowEvent returns detailed information about events.
+// Executes: occtl -j show events
+func (o *OcservOcctl) ShowEvent() string {
+	cmd := exec.Command(occtlExec, "-j", "show", "events")
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return err.Error()
+	}
+
+	go func() {
+		defer stdin.Close()
+		_, _ = stdin.Write([]byte("q\n"))
+	}()
+
+	output, err := cmd.Output()
+	if err != nil {
+		return err.Error()
+	}
+
+	cleaned := strings.Replace(string(output), "Press 'q' or CTRL+C to quit", "", 1)
+	cleaned = strings.TrimSpace(cleaned)
+	return cleaned
 }
