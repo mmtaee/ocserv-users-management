@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
 	"gorm.io/gorm"
 )
 
@@ -13,11 +12,13 @@ type System struct {
 }
 
 func (s *System) BeforeCreate(tx *gorm.DB) error {
-	var system System
-	db := database.GetConnection()
-	err := db.Table("systems").First(&system).Error
-	if err != nil && system.ID == 0 {
-		return errors.New("system configs already exist")
+	var count int64
+	if err := tx.Model(&System{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return errors.New("system config already exists")
 	}
 	return nil
 }
