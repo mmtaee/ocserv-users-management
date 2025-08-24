@@ -15,7 +15,7 @@ type System struct {
 func (s *System) BeforeCreate(tx *gorm.DB) error {
 	var system System
 	db := database.GetConnection()
-	err := db.Table("panels").First(&system).Error
+	err := db.Table("systems").First(&system).Error
 	if err != nil && system.ID == 0 {
 		return errors.New("system configs already exist")
 	}
