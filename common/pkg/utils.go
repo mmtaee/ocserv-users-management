@@ -22,6 +22,9 @@ var listKeys = map[string]bool{
 	"split-dns": true,
 }
 
+// ToMap converts any struct or value into a map[string]interface{}.
+// It marshals the value into JSON and then unmarshals it into a map.
+// Returns nil if marshaling or unmarshaling fails.
 func ToMap(data interface{}) map[string]interface{} {
 	by, err := json.Marshal(data)
 	if err != nil {
@@ -36,7 +39,10 @@ func ToMap(data interface{}) map[string]interface{} {
 	return result
 }
 
-// ConfigWriter a method to write configs in group config file
+// ConfigWriter writes key-value pairs from a configuration map to the given file.
+// It skips nil values and boolean false values. For keys like dns, route, no-route,
+// and split-dns, it writes multiple lines for each entry. Other keys are written
+// as "key=value". Returns an error if writing fails.
 func ConfigWriter(file *os.File, config map[string]interface{}) error {
 	for k, v := range config {
 		if b, ok := v.(bool); ok && !b {
@@ -83,13 +89,10 @@ func ConfigWriter(file *os.File, config map[string]interface{}) error {
 	return nil
 }
 
-// GetUsersByGroup parses the ocpasswd file and returns a slice of usernames
-// that belong to the specified group.
-//
-// It reads each line of the ocpasswd file, ignoring comments and malformed lines.
-// Assumes that the group is stored as the third colon-separated field.
-//
-// Returns an error if reading the file or scanning fails.
+// GetUsersByGroup parses the ocpasswd file and returns usernames
+// belonging to the given group. It ignores comments, empty lines,
+// and malformed entries. Assumes group is stored as the third field
+// in colon-separated records. Returns an error if scanning fails.
 func GetUsersByGroup(groupName string) ([]string, error) {
 	file, err := os.Open(ocserv.OcpasswdPath)
 	if err != nil {
@@ -126,6 +129,10 @@ func GetUsersByGroup(groupName string) ([]string, error) {
 	return users, nil
 }
 
+// ParseOcservConfigFile parses an ocserv config file into a map[string]interface{}.
+// Keys with multiple values (like dns, route, no-route, split-dns) are stored as slices.
+// Values are converted into bool, int, float64, or string via ParseTypedValue.
+// Comments and empty lines are ignored.
 func ParseOcservConfigFile(filePath string) (map[string]interface{}, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -180,6 +187,10 @@ func ParseOcservConfigFile(filePath string) (map[string]interface{}, error) {
 	return config, nil
 }
 
+// ParseTypedValue attempts to convert a string into a typed value.
+// It returns a bool if the string is "true" or "false", an int if it
+// parses with strconv.Atoi, a float64 if it parses with strconv.ParseFloat,
+// or the original string otherwise.
 func ParseTypedValue(s string) interface{} {
 	s = strings.TrimSpace(s)
 
@@ -198,6 +209,9 @@ func ParseTypedValue(s string) interface{} {
 	return s
 }
 
+// GetOcservVersion runs "ocserv --version" and extracts the semantic
+// version number (X.Y.Z) using regex. Returns an empty string if
+// the command fails or no version is found.
 func GetOcservVersion() string {
 	cmd := exec.Command("ocserv", "--version")
 
@@ -222,6 +236,10 @@ func GetOcservVersion() string {
 	return ""
 }
 
+// GetOCCTLVersion runs "occtl --version" and extracts its version output.
+// It removes empty lines, stops parsing at the Copyright line, and
+// joins remaining lines into a clean version string. Returns an empty
+// string if parsing fails.
 func GetOCCTLVersion() string {
 	cmd := exec.Command("occtl", "--version")
 
@@ -256,12 +274,9 @@ func GetOCCTLVersion() string {
 	return finalOutput
 }
 
-func fixTrailingComma(jsonBytes []byte) []byte {
-	re := regexp.MustCompile(`("in_use"\s*:\s*\d+)\s*,`)
-	return re.ReplaceAll(jsonBytes, []byte("$1"))
-}
-
-// RunOcpasswd runs the ocpasswd command with the given args and returns combined output and error.
+// RunOcpasswd runs the ocpasswd command with the given arguments.
+// Returns combined output and error. If the command fails without
+// output, the error string is used as output.
 func RunOcpasswd(args ...string) (string, error) {
 	cmd := exec.Command(ocserv.OcpasswdExec, args...)
 	out, err := cmd.CombinedOutput()
@@ -275,7 +290,8 @@ func RunOcpasswd(args ...string) (string, error) {
 	return output, nil
 }
 
-// ConfigFilePathCreator returns the file path for a user's config file.
+// ConfigFilePathCreator constructs the absolute file path for a
+// user-specific config file using ocserv.ConfigUserBaseDir.
 func ConfigFilePathCreator(username string) string {
 	return filepath.Join(ocserv.ConfigUserBaseDir, username)
 }

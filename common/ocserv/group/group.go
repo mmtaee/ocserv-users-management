@@ -24,6 +24,9 @@ func NewOcservGroup() *OcservGroup {
 	return &OcservGroup{}
 }
 
+// Create creates a new group configuration file for the given group name.
+// The file is written to ocserv.ConfigGroupBaseDir/<name> with permission 0640.
+// It serializes the provided OcservGroupConfig into the file using pkg.ConfigWriter.
 func (g *OcservGroup) Create(name string, config *models.OcservGroupConfig) error {
 	filename := filepath.Join(ocserv.ConfigGroupBaseDir, name)
 
@@ -41,6 +44,11 @@ func (g *OcservGroup) Create(name string, config *models.OcservGroupConfig) erro
 	return nil
 }
 
+// Delete removes the configuration file for the given group name
+// from ocserv.ConfigGroupBaseDir. It also resets the group assignment
+// for all users belonging to this group back to the default (empty).
+// User group resets are done concurrently, but errors from resetting
+// are ignored.
 func (g *OcservGroup) Delete(name string) error {
 	filename := filepath.Join(ocserv.ConfigGroupBaseDir, name)
 	if err := os.Remove(filename); err != nil {
@@ -66,6 +74,9 @@ func (g *OcservGroup) Delete(name string) error {
 	return nil
 }
 
+// DefaultsGroup loads and returns the default group configuration
+// from ocserv.DefaultGroupFile. The configuration is parsed into
+// OcservGroupConfig via an intermediate map and JSON conversion.
 func (g *OcservGroup) DefaultsGroup() (*models.OcservGroupConfig, error) {
 	configInterface, err := pkg.ParseOcservConfigFile(ocserv.DefaultGroupFile)
 	if err != nil {
@@ -86,6 +97,9 @@ func (g *OcservGroup) DefaultsGroup() (*models.OcservGroupConfig, error) {
 	return &config, nil
 }
 
+// UpdateDefaultsGroup overwrites the ocserv.DefaultGroupFile with
+// the provided OcservGroupConfig. The file is opened with create,
+// truncate, and write-only flags and written with permission 0640.
 func (g *OcservGroup) UpdateDefaultsGroup(config *models.OcservGroupConfig) error {
 	file, err := os.OpenFile(ocserv.DefaultGroupFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
 	if err != nil {

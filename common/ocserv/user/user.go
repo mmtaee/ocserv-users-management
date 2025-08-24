@@ -26,6 +26,10 @@ func NewOcservUser() *OcservUser {
 	return &OcservUser{}
 }
 
+// Create creates a new ocserv user with the given username, group, and password.
+// It runs the ocpasswd command to register the user. If a config is provided,
+// a per-user configuration file is also written into ocserv.ConfigUserBaseDir
+// with permission 0640. Returns an error if user creation fails.
 func (u *OcservUser) Create(username, group, password string, config *models.OcservUserConfig) error {
 	args := []string{"-c", ocserv.OcpasswdPath, username}
 	if group != "" {
@@ -63,6 +67,8 @@ func (u *OcservUser) Create(username, group, password string, config *models.Ocs
 	return nil
 }
 
+// Lock disables a user account by running ocpasswd with the -l flag.
+// Returns the command output or an error.
 func (u *OcservUser) Lock(username string) (string, error) {
 	output, err := pkg.RunOcpasswd("-l", "-c", ocserv.OcpasswdPath, username)
 	if err != nil {
@@ -71,6 +77,8 @@ func (u *OcservUser) Lock(username string) (string, error) {
 	return output, nil
 }
 
+// UnLock re-enables a previously locked user account by running ocpasswd
+// with the -u flag. Returns the command output or an error.
 func (u *OcservUser) UnLock(username string) (string, error) {
 	output, err := pkg.RunOcpasswd("-u", "-c", ocserv.OcpasswdPath, username)
 	if err != nil {
@@ -79,6 +87,8 @@ func (u *OcservUser) UnLock(username string) (string, error) {
 	return output, nil
 }
 
+// Delete removes a user account from ocserv by running ocpasswd with the -d flag.
+// Returns the command output or an error.
 func (u *OcservUser) Delete(username string) (string, error) {
 	output, err := pkg.RunOcpasswd("-d", "-c", ocserv.OcpasswdPath, username)
 	if err != nil {
@@ -87,6 +97,9 @@ func (u *OcservUser) Delete(username string) (string, error) {
 	return output, nil
 }
 
+// CreateConfig writes a per-user configuration file for the given username.
+// The configuration is serialized from OcservUserConfig using pkg.ConfigWriter.
+// The file is created with permission 0640 and stored in the user config directory.
 func (u *OcservUser) CreateConfig(username string, config *models.OcservUserConfig) error {
 	filename := pkg.ConfigFilePathCreator(username)
 	// Open file with create, truncate, write-only flags and permission 0640
@@ -101,6 +114,9 @@ func (u *OcservUser) CreateConfig(username string, config *models.OcservUserConf
 	return nil
 }
 
+// DeleteConfig removes the per-user configuration file for the given username.
+// The config file path is derived from ConfigFilePathCreator. If the file does
+// not exist or cannot be removed, an error is returned.
 func (u *OcservUser) DeleteConfig(username string) error {
 	filename := pkg.ConfigFilePathCreator(username)
 	if err := os.Remove(filename); err != nil {
