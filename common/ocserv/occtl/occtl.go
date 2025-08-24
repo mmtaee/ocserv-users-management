@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
+	"log"
 	"net"
 	"os/exec"
 	"strings"
@@ -162,14 +163,23 @@ func (o *OcservOcctl) ShowStatus(raw bool) (interface{}, error) {
 // Executes: occtl -j show iroutes
 func (o *OcservOcctl) ShowIRoutes() (*[]models.IRoute, error) {
 	var routes []models.IRoute
+
 	version := utils.GetOcservVersion()
 	if version == "1.2.4" { // has bug on IRoute Command
 		return &routes, nil
 	}
+
+	log.Println("common ShowIRoutes version: ", version)
+
 	cmd := exec.Command(occtlExec, "-j", "show", "iroutes")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err
+	}
+
+	outString := strings.TrimSpace(string(out))
+	if strings.HasPrefix(outString, "{") {
+		return &routes, nil
 	}
 
 	if err = json.Unmarshal(out, &routes); err != nil {

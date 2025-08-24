@@ -2,9 +2,9 @@ package user
 
 import (
 	"bytes"
-	"errors"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -29,20 +29,19 @@ func NewOcservUser() *OcservUser {
 // It runs the ocpasswd command to register the user. If a config is provided,
 // a per-user configuration file is also written into ocserv.ConfigUserBaseDir
 // with permission 0640. Returns an error if user creation fails.
-func (u *OcservUser) Create(username, group, password string, config *models.OcservUserConfig) error {
+func (u *OcservUser) Create(group, username, password string, config *models.OcservUserConfig) error {
 	args := []string{"-c", utils.OcpasswdPath, username}
-	if group != "" {
+	if group != "" && group != "defaults" {
 		args = append([]string{"-g", group}, args...)
 	}
 	cmd := exec.Command(utils.OcpasswdExec, args...)
+
+	log.Println("commands: ", utils.OcpasswdExec, args)
+
 	cmd.Stdin = bytes.NewBufferString(password + "\n" + password + "\n")
-	out, err := cmd.CombinedOutput()
-	output := string(out)
+	_, err := cmd.CombinedOutput()
 	if err != nil {
 		return err
-	}
-	if output == "" {
-		return errors.New("create User Failed")
 	}
 
 	if config != nil {

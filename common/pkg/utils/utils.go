@@ -303,10 +303,10 @@ func ConfigFilePathCreator(username string) string {
 	return filepath.Join(ConfigUserBaseDir, username)
 }
 
-// FixTrailingComma removes a trailing comma after the "in_use" key
-// in JSON output. This is used to clean up invalid JSON emitted by
-// some ocserv/occtl commands before unmarshalling.
-func FixTrailingComma(jsonBytes []byte) []byte {
-	re := regexp.MustCompile(`("in_use"\s*:\s*\d+)\s*,`)
-	return re.ReplaceAll(jsonBytes, []byte("$1"))
-}
+//// FixTrailingComma removes a trailing comma after the "in_use" key
+//// in JSON output. This is used to clean up invalid JSON emitted by
+//// some ocserv/occtl commands before unmarshalling.
+//func FixTrailingComma(jsonBytes []byte) []byte {
+//	re := regexp.MustCompile(`("in_use"\s*:\s*\d+)\s*,`)
+//	return re.ReplaceAll(jsonBytes, []byte("$1"))
+//}
