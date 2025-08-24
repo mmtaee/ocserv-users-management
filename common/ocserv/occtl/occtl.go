@@ -3,6 +3,7 @@ package occtl
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"os/exec"
 	"strings"
 )
@@ -125,4 +126,20 @@ func (o *OcservOcctl) ShowIPBans() (*[]IPBanPoints, error) {
 
 	return &ipBans, nil
 
+}
+
+// UnbanIP removes an IP ban from the given IP address.
+// Executes: occtl unban ip <ip>
+func (o *OcservOcctl) UnbanIP(ip string) (string, error) {
+	parsedIP := net.ParseIP(ip)
+	if parsedIP == nil {
+		return "", fmt.Errorf("invalid IP: %s", ip)
+	}
+
+	cmd := exec.Command(occtlExec, "unban", "ip", ip)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
 }
