@@ -3,49 +3,27 @@ package occtl
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
 	"net"
 	"os/exec"
 	"strings"
 )
 
-type IPBanPoints struct {
-	IP    string `json:"IP"`
-	Since string `json:"Since"`
-	Until string `json:"_Since"`
-	Score int    `json:"Score"`
-}
-
-type IRoute struct {
-	ID       string `json:"ID"`
-	Username string `json:"Username"`
-	Vhost    string `json:"vhost"`
-	Device   string `json:"Device"`
-	IP       string `json:"IP"`
-	IRoute   string `json:"iRoutes"`
-}
-
-type OnlineUserSession struct {
-	Username    string `json:"Username"`
-	Group       string `json:"Groupname"`
-	AverageRX   string `json:"Average RX"`
-	AverageTX   string `json:"Average TX"`
-	ConnectedAt string `json:"_Connected at"`
-}
 type OcservOcctl struct{}
 
 type OcservOcctlInterface interface {
 	OnlineUsers() (*[]string, error)
-	OnlineSessions() (*[]OnlineUserSession, error)
+	OnlineSessions() (*[]models.OnlineUserSession, error)
 	DisconnectUser(username string) (string, error)
 	ReloadConfigs() (string, error)
-	ShowIPBans() (*[]IPBanPoints, error)
+	ShowIPBans() (*[]models.IPBanPoints, error)
 	UnbanIP(ip string) (string, error)
 	ShowStatus(raw bool) (interface{}, error)
-	ShowIRoutes() (*[]IRoute, error)
-	ShowUser(username string) (OnlineUserSession, error)
-	Version() map[string]string
-	ShowUserByID(id string) (OnlineUserSession, error)
+	ShowIRoutes() (*[]models.IRoute, error)
+	ShowUser(username string) (models.OnlineUserSession, error)
+	Version() *models.ServerVersion
+	ShowUserByID(id string) (models.OnlineUserSession, error)
 	ShowSession(sid string) (map[string]interface{}, error)
 	ShowSessionAll() (*[]interface{}, error)
 	ShowSessionsValid() (*[]interface{}, error)
@@ -82,7 +60,7 @@ func (o *OcservOcctl) OnlineUsers() (*[]string, error) {
 
 // OnlineSessions returns a list of currently connected user info.
 // Executes: occtl -j show users
-func (o *OcservOcctl) OnlineSessions() (*[]OnlineUserSession, error) {
+func (o *OcservOcctl) OnlineSessions() (*[]models.OnlineUserSession, error) {
 	command := "-j show users"
 	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s %s", occtlExec, command))
 	result, err := cmd.Output()
@@ -90,7 +68,7 @@ func (o *OcservOcctl) OnlineSessions() (*[]OnlineUserSession, error) {
 		return nil, err
 	}
 
-	var sessions []OnlineUserSession
+	var sessions []models.OnlineUserSession
 	if err = json.Unmarshal(result, &sessions); err != nil {
 		return nil, err
 	}
@@ -121,14 +99,14 @@ func (o *OcservOcctl) ReloadConfigs() (string, error) {
 
 // ShowIPBans returns the current list of IP bans with scores.
 // Executes: occtl -j show ip bans points
-func (o *OcservOcctl) ShowIPBans() (*[]IPBanPoints, error) {
+func (o *OcservOcctl) ShowIPBans() (*[]models.IPBanPoints, error) {
 	cmd := exec.Command(occtlExec, "-j", "show", "ip", "bans", "points")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err
 	}
 
-	var ipBans []IPBanPoints
+	var ipBans []models.IPBanPoints
 	if output := string(out); output != "" {
 		if err = json.Unmarshal(out, &ipBans); err != nil {
 			return nil, err
@@ -182,8 +160,8 @@ func (o *OcservOcctl) ShowStatus(raw bool) (interface{}, error) {
 
 // ShowIRoutes returns the current iRoutes information.
 // Executes: occtl -j show iroutes
-func (o *OcservOcctl) ShowIRoutes() (*[]IRoute, error) {
-	var routes []IRoute
+func (o *OcservOcctl) ShowIRoutes() (*[]models.IRoute, error) {
+	var routes []models.IRoute
 	version := utils.GetOcservVersion()
 	if version == "1.2.4" { // has bug on IRoute Command
 		return &routes, nil
@@ -202,8 +180,8 @@ func (o *OcservOcctl) ShowIRoutes() (*[]IRoute, error) {
 
 // ShowUser returns detailed information about a specific user by username.
 // Executes: occtl -j show user <username>
-func (o *OcservOcctl) ShowUser(username string) (OnlineUserSession, error) {
-	var session OnlineUserSession
+func (o *OcservOcctl) ShowUser(username string) (models.OnlineUserSession, error) {
+	var session models.OnlineUserSession
 
 	cmd := exec.Command(occtlExec, "-j", "show", "user", username)
 	out, err := cmd.CombinedOutput()
@@ -218,19 +196,19 @@ func (o *OcservOcctl) ShowUser(username string) (OnlineUserSession, error) {
 
 // Version returns detailed information about ocserv version.
 // Executes: ocserv -v
-func (o *OcservOcctl) Version() map[string]string {
+func (o *OcservOcctl) Version() *models.ServerVersion {
 	version := utils.GetOcservVersion()
 	occtlVersion := utils.GetOCCTLVersion()
-	return map[string]string{
-		"version":       version,
-		"occtl_version": occtlVersion,
+	return &models.ServerVersion{
+		Version:      version,
+		OcctlVersion: occtlVersion,
 	}
 }
 
 // ShowUserByID returns detailed information about a specific user by ID.
 // Executes: occtl -j show id <id>
-func (o *OcservOcctl) ShowUserByID(id string) (OnlineUserSession, error) {
-	var session OnlineUserSession
+func (o *OcservOcctl) ShowUserByID(id string) (models.OnlineUserSession, error) {
+	var session models.OnlineUserSession
 	cmd := exec.Command(occtlExec, "-j", "show", "id", id)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
