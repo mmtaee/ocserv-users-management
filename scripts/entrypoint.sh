@@ -104,9 +104,14 @@ _EOF_
 fi
 
 iptables -t nat -A POSTROUTING -j MASQUERADE
-sysctl -w net.ipv4.ip_forward=1 # ipv4 ip forward
+# sysctl -w net.ipv4.ip_forward=1 # ipv4 ip forward
+echo "net.ipv4.ip_forward = 1" > /etc/sysctl.conf
 sysctl -p
 mkdir -p /dev/net               #TUN device
-mknod /dev/net/tun c 10 200
+
+if [ ! -c /dev/net/tun ]; then
+    mknod /dev/net/tun c 10 200
+fi
+
 chmod 600 /dev/net/tun
 exec "$@"
