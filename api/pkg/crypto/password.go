@@ -1,10 +1,10 @@
 package crypto
 
 import (
-	"api/pkg/config"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
 	"math/rand"
 )
 

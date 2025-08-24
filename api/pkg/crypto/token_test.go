@@ -1,21 +1,21 @@
 package crypto
 
 import (
-	"api/pkg/config"
-	"testing"
-	"time"
-
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"testing"
+	"time"
 )
 
 func TestGenerateAccessToken(t *testing.T) {
-	secret := "my-secret-key"
-	config.Set(&config.Config{JWTSecret: secret})
 	userID := "12345"
+	adminUsername := "admin"
+	secret := "my-secret-key"
+	err := os.Setenv("JWT_SECRET", secret)
 	expire := time.Now().Add(time.Hour).Unix()
 
-	tokenString, err := GenerateAccessToken(userID, expire, true)
+	tokenString, err := GenerateAccessToken(userID, adminUsername, expire, true)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tokenString)
 

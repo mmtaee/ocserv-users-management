@@ -1,6 +1,11 @@
 package request
 
-import "github.com/labstack/echo/v4"
+import (
+	"context"
+	"fmt"
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
+)
 
 // Pagination defines pagination query parameters for the API.
 // @Param page query int false "Page number, starting from 1" minimum(1)
@@ -47,4 +52,17 @@ type Meta struct {
 	Page         int   `json:"page" validate:"required"`
 	PageSize     int   `json:"size" validate:"required"`
 	TotalRecords int64 `json:"total_records" validate:"required"`
+}
+
+func Paginator(ctx context.Context, db *gorm.DB, pagination *Pagination) *gorm.DB {
+	if pagination.Order == "" {
+		pagination.Order = "id"
+		pagination.Sort = "DESC"
+	}
+
+	offset := (pagination.Page - 1) * pagination.PageSize
+
+	order := fmt.Sprintf("%s %s", pagination.Order, pagination.Sort)
+
+	return db.WithContext(ctx).Order(order).Limit(pagination.PageSize).Offset(offset)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	LabstackLog "github.com/labstack/gommon/log"
+	"github.com/mmtaee/ocserv-users-management/api/internal/providers/routing"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/routing/middlewares"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
 	"github.com/olekukonko/tablewriter"

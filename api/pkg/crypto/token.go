@@ -1,8 +1,8 @@
 package crypto
 
 import (
-	"api/pkg/config"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
 	"github.com/oklog/ulid/v2"
 	"log"
 	"time"

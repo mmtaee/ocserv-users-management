@@ -1,14 +1,17 @@
 package crypto_test
 
 import (
-	"api/pkg/config"
-	"api/pkg/crypto"
+	"github.com/mmtaee/ocserv-users-management/api/pkg/crypto"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
 func setup() *crypto.CustomPassword {
-	config.Set(&config.Config{SecretKey: "my-secret-key"})
+	err := os.Setenv("JWT_SECRET", "my-secret-key")
+	if err != nil {
+		return nil
+	}
 	return crypto.NewCustomPassword()
 }
 
