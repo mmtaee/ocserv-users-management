@@ -18,6 +18,13 @@ type OcctlRepositoryInterface interface {
 	IRoutes() (*[]models.IRoute, error)
 	Reload() (string, error)
 	Disconnect(username string) (string, error)
+	ShowUserByUsername(username string) (models.OnlineUserSession, error)
+	ShowUserByID(uid string) (models.OnlineUserSession, error)
+	ShowSessionsAll() (*[]interface{}, error)
+	ShowSessionsValid() (*[]interface{}, error)
+	ShowSessionBySID(sid string) (map[string]interface{}, error)
+	UnbanIP(ip string) (string, error)
+	ShowEvent() string
 }
 
 func NewOcctlRepository() *OcctlRepository {
@@ -84,4 +91,56 @@ func (o *OcctlRepository) Disconnect(username string) (string, error) {
 		return "", err
 	}
 	return result, nil
+}
+
+func (o *OcctlRepository) ShowUserByUsername(username string) (models.OnlineUserSession, error) {
+	user, err := o.commonOcservOcctlRepo.ShowUser(username)
+	if err != nil {
+		return models.OnlineUserSession{}, err
+	}
+	return user, nil
+}
+
+func (o *OcctlRepository) ShowUserByID(uid string) (models.OnlineUserSession, error) {
+	user, err := o.commonOcservOcctlRepo.ShowUserByID(uid)
+	if err != nil {
+		return models.OnlineUserSession{}, err
+	}
+	return user, nil
+}
+
+func (o *OcctlRepository) ShowSessionsAll() (*[]interface{}, error) {
+	res, err := o.commonOcservOcctlRepo.ShowSessionAll()
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (o *OcctlRepository) ShowSessionsValid() (*[]interface{}, error) {
+	res, err := o.commonOcservOcctlRepo.ShowSessionsValid()
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (o *OcctlRepository) ShowSessionBySID(sid string) (map[string]interface{}, error) {
+	res, err := o.commonOcservOcctlRepo.ShowSession(sid)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (o *OcctlRepository) UnbanIP(ip string) (string, error) {
+	res, err := o.commonOcservOcctlRepo.UnbanIP(ip)
+	if err != nil {
+		return "", err
+	}
+	return res, nil
+}
+
+func (o *OcctlRepository) ShowEvent() string {
+	return o.commonOcservOcctlRepo.ShowEvent()
 }
