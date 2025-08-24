@@ -143,3 +143,28 @@ func (o *OcservOcctl) UnbanIP(ip string) (string, error) {
 	}
 	return string(out), nil
 }
+
+// ShowStatus returns the current status of ocserv.
+// Executes: occtl -j show status
+// Executes: occtl show status
+func (o *OcservOcctl) ShowStatus(raw bool) (interface{}, error) {
+	cmd := exec.Command(occtlExec, "-j", "show", "status")
+	if raw {
+		cmd = exec.Command(occtlExec, "show", "status")
+	}
+
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	if raw {
+		return string(out), nil
+	}
+
+	var status map[string]interface{}
+	if err = json.Unmarshal(out, &status); err != nil {
+		return nil, err
+	}
+	return status, nil
+}
