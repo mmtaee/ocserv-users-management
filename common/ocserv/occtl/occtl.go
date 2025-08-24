@@ -190,6 +190,8 @@ func (o *OcservOcctl) ShowIRoutes() (*[]IRoute, error) {
 	return &routes, nil
 }
 
+// ShowUser returns detailed information about a specific user by username.
+// Executes: occtl -j show user <username>
 func (o *OcservOcctl) ShowUser(username string) (OnlineUserSession, error) {
 	var session OnlineUserSession
 
