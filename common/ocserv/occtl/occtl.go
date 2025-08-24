@@ -205,3 +205,14 @@ func (o *OcservOcctl) ShowUser(username string) (OnlineUserSession, error) {
 	}
 	return session, nil
 }
+
+// Version returns detailed information about ocserv version.
+// Executes: ocserv -v
+func (o *OcservOcctl) Version() map[string]string {
+	version := pkg.GetOcservVersion()
+	occtlVersion := pkg.GetOCCTLVersion()
+	return map[string]string{
+		"version":       version,
+		"occtl_version": occtlVersion,
+	}
+}
