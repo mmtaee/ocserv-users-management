@@ -1,6 +1,7 @@
 package occtl
 
 import (
+	"common/pkg"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -167,4 +168,24 @@ func (o *OcservOcctl) ShowStatus(raw bool) (interface{}, error) {
 		return nil, err
 	}
 	return status, nil
+}
+
+// ShowIRoutes returns the current iRoutes information.
+// Executes: occtl -j show iroutes
+func (o *OcservOcctl) ShowIRoutes() (*[]IRoute, error) {
+	var routes []IRoute
+	version := pkg.GetOcservVersion()
+	if version == "1.2.4" { // has bug on IRoute Command
+		return &routes, nil
+	}
+	cmd := exec.Command(occtlExec, "-j", "show", "iroutes")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	if err = json.Unmarshal(out, &routes); err != nil {
+		return nil, err
+	}
+	return &routes, nil
 }
