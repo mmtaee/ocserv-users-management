@@ -221,3 +221,18 @@ func (o *OcservOcctl) Version() map[string]string {
 		"occtl_version": occtlVersion,
 	}
 }
+
+// ShowUserByID returns detailed information about a specific user by ID.
+// Executes: occtl -j show id <id>
+func (o *OcservOcctl) ShowUserByID(id string) (OnlineUserSession, error) {
+	var session OnlineUserSession
+	cmd := exec.Command(occtlExec, "-j", "show", "id", id)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return session, err
+	}
+	if err = json.Unmarshal(out, &session); err != nil {
+		return session, err
+	}
+	return session, nil
+}
