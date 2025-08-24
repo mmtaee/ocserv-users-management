@@ -37,6 +37,7 @@ type OcservOcctlInterface interface {
 	OnlineSessions() (*[]OnlineUserSession, error)
 	DisconnectUser(username string) (string, error)
 	ReloadConfigs() (string, error)
+	ShowIPBans() (*[]IPBanPoints, error)
 }
 
 const occtlExec = "/usr/bin/occtl"
@@ -70,14 +71,14 @@ func (o *OcservOcctl) OnlineUsers() (*[]string, error) {
 // OnlineSessions returns a list of currently connected user info.
 // Executes: occtl -j show users
 func (o *OcservOcctl) OnlineSessions() (*[]OnlineUserSession, error) {
-	var sessions []OnlineUserSession
-
 	command := "-j show users"
 	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s %s", occtlExec, command))
 	result, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
+
+	var sessions []OnlineUserSession
 	if err = json.Unmarshal(result, &sessions); err != nil {
 		return nil, err
 	}
@@ -104,4 +105,24 @@ func (o *OcservOcctl) ReloadConfigs() (string, error) {
 		return "", err
 	}
 	return string(out), nil
+}
+
+// ShowIPBans returns the current list of IP bans with scores.
+// Executes: occtl -j show ip bans points
+func (o *OcservOcctl) ShowIPBans() (*[]IPBanPoints, error) {
+	cmd := exec.Command(occtlExec, "-j", "show", "ip", "bans", "points")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	var ipBans []IPBanPoints
+	if output := string(out); output != "" {
+		if err = json.Unmarshal(out, &ipBans); err != nil {
+			return nil, err
+		}
+	}
+
+	return &ipBans, nil
+
 }
