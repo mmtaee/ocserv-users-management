@@ -45,6 +45,8 @@ type OcservOcctlInterface interface {
 	ShowIRoutes() (*[]IRoute, error)
 	ShowUser(username string) (OnlineUserSession, error)
 	Version() map[string]string
+	ShowUserByID(id string) (OnlineUserSession, error)
+	ShowSession(sid string) (map[string]interface{}, error)
 }
 
 const occtlExec = "/usr/bin/occtl"
@@ -233,6 +235,21 @@ func (o *OcservOcctl) ShowUserByID(id string) (OnlineUserSession, error) {
 	}
 	if err = json.Unmarshal(out, &session); err != nil {
 		return session, err
+	}
+	return session, nil
+}
+
+// ShowSession returns detailed information about a specific session by SID.
+// Executes: occtl -j show session <SID>
+func (o *OcservOcctl) ShowSession(sid string) (map[string]interface{}, error) {
+	cmd := exec.Command(occtlExec, "-j", "show", "session", sid)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+	var session map[string]interface{}
+	if err = json.Unmarshal(out, &session); err != nil {
+		return nil, err
 	}
 	return session, nil
 }
