@@ -34,7 +34,7 @@ func New() *Controller {
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
-// @Success      200  {object}  GetHomeResponse
+// @Success      200  {object} GetHomeResponse
 // @Router       /home [get]
 func (ctl *Controller) Home(c echo.Context) error {
 	ctx := c.Request().Context()
