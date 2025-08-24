@@ -1,8 +1,8 @@
 package ocserv_group
 
 import (
-	"api/internal/models"
-	"api/pkg/request"
+	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
+	"github.com/mmtaee/ocserv-users-management/common/models"
 )
 
 type CreateOcservGroupData struct {
