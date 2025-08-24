@@ -16,17 +16,17 @@ type OcservUserRepository struct {
 }
 
 type OcservUserRepositoryInterface interface {
-	//Users(ctx context.Context, pagination *request.Pagination) (*[]models.OcservUser, int64, error)
-	//Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
-	//GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
-	//Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
-	//Lock(ctx context.Context, uid string) error
-	//UnLock(ctx context.Context, uid string) error
-	//Delete(ctx context.Context, uid string) error
-	//TenDaysStats(ctx context.Context) (*[]models.DailyTraffic, error)
-	//UpdateUsersByDeleteGroup(ctx context.Context, groupName string) (*[]models.OcservUser, error)
-	//UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
-	//Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
+	Users(ctx context.Context, pagination *request.Pagination) (*[]models.OcservUser, int64, error)
+	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
+	GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
+	Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
+	Lock(ctx context.Context, uid string) error
+	UnLock(ctx context.Context, uid string) error
+	Delete(ctx context.Context, uid string) error
+	TenDaysStats(ctx context.Context) (*[]models.DailyTraffic, error)
+	UpdateUsersByDeleteGroup(ctx context.Context, groupName string) (*[]models.OcservUser, error)
+	UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
+	Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {

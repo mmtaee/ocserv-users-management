@@ -17,6 +17,7 @@ type OcctlRepositoryInterface interface {
 	IPBans() (*[]models.IPBanPoints, error)
 	IRoutes() (*[]models.IRoute, error)
 	Reload() (string, error)
+	Disconnect(username string) (string, error)
 }
 
 func NewOcctlRepository() *OcctlRepository {
@@ -71,6 +72,14 @@ func (o *OcctlRepository) IRoutes() (*[]models.IRoute, error) {
 
 func (o *OcctlRepository) Reload() (string, error) {
 	result, err := o.commonOcservOcctlRepo.ReloadConfigs()
+	if err != nil {
+		return "", err
+	}
+	return result, nil
+}
+
+func (o *OcctlRepository) Disconnect(username string) (string, error) {
+	result, err := o.commonOcservOcctlRepo.DisconnectUser(username)
 	if err != nil {
 		return "", err
 	}
