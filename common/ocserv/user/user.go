@@ -2,10 +2,9 @@ package user
 
 import (
 	"bytes"
-	"common/models"
-	"common/ocserv"
-	"common/pkg"
 	"errors"
+	"github.com/mmtaee/ocserv-users-management/common/models"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,11 +30,11 @@ func NewOcservUser() *OcservUser {
 // a per-user configuration file is also written into ocserv.ConfigUserBaseDir
 // with permission 0640. Returns an error if user creation fails.
 func (u *OcservUser) Create(username, group, password string, config *models.OcservUserConfig) error {
-	args := []string{"-c", ocserv.OcpasswdPath, username}
+	args := []string{"-c", utils.OcpasswdPath, username}
 	if group != "" {
 		args = append([]string{"-g", group}, args...)
 	}
-	cmd := exec.Command(ocserv.OcpasswdExec, args...)
+	cmd := exec.Command(utils.OcpasswdExec, args...)
 	cmd.Stdin = bytes.NewBufferString(password + "\n" + password + "\n")
 	out, err := cmd.CombinedOutput()
 	output := string(out)
@@ -47,7 +46,7 @@ func (u *OcservUser) Create(username, group, password string, config *models.Ocs
 	}
 
 	if config != nil {
-		filename := filepath.Join(ocserv.ConfigUserBaseDir, username)
+		filename := filepath.Join(utils.ConfigUserBaseDir, username)
 
 		var file *os.File
 
@@ -58,7 +57,7 @@ func (u *OcservUser) Create(username, group, password string, config *models.Ocs
 		}
 		defer file.Close()
 
-		err = pkg.ConfigWriter(file, pkg.ToMap(config))
+		err = utils.ConfigWriter(file, utils.ToMap(config))
 		if err != nil {
 			return err
 		}
@@ -70,7 +69,7 @@ func (u *OcservUser) Create(username, group, password string, config *models.Ocs
 // Lock disables a user account by running ocpasswd with the -l flag.
 // Returns the command output or an error.
 func (u *OcservUser) Lock(username string) (string, error) {
-	output, err := pkg.RunOcpasswd("-l", "-c", ocserv.OcpasswdPath, username)
+	output, err := utils.RunOcpasswd("-l", "-c", utils.OcpasswdPath, username)
 	if err != nil {
 		return "", err
 	}
@@ -80,7 +79,7 @@ func (u *OcservUser) Lock(username string) (string, error) {
 // UnLock re-enables a previously locked user account by running ocpasswd
 // with the -u flag. Returns the command output or an error.
 func (u *OcservUser) UnLock(username string) (string, error) {
-	output, err := pkg.RunOcpasswd("-u", "-c", ocserv.OcpasswdPath, username)
+	output, err := utils.RunOcpasswd("-u", "-c", utils.OcpasswdPath, username)
 	if err != nil {
 		return "", err
 	}
@@ -90,7 +89,7 @@ func (u *OcservUser) UnLock(username string) (string, error) {
 // Delete removes a user account from ocserv by running ocpasswd with the -d flag.
 // Returns the command output or an error.
 func (u *OcservUser) Delete(username string) (string, error) {
-	output, err := pkg.RunOcpasswd("-d", "-c", ocserv.OcpasswdPath, username)
+	output, err := utils.RunOcpasswd("-d", "-c", utils.OcpasswdPath, username)
 	if err != nil {
 		return "", err
 	}
@@ -101,13 +100,13 @@ func (u *OcservUser) Delete(username string) (string, error) {
 // The configuration is serialized from OcservUserConfig using pkg.ConfigWriter.
 // The file is created with permission 0640 and stored in the user config directory.
 func (u *OcservUser) CreateConfig(username string, config *models.OcservUserConfig) error {
-	filename := pkg.ConfigFilePathCreator(username)
+	filename := utils.ConfigFilePathCreator(username)
 	// Open file with create, truncate, write-only flags and permission 0640
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
 	if err != nil {
 		return err
 	}
-	err = pkg.ConfigWriter(file, pkg.ToMap(config))
+	err = utils.ConfigWriter(file, utils.ToMap(config))
 	if err != nil {
 		return err
 	}
@@ -118,7 +117,7 @@ func (u *OcservUser) CreateConfig(username string, config *models.OcservUserConf
 // The config file path is derived from ConfigFilePathCreator. If the file does
 // not exist or cannot be removed, an error is returned.
 func (u *OcservUser) DeleteConfig(username string) error {
-	filename := pkg.ConfigFilePathCreator(username)
+	filename := utils.ConfigFilePathCreator(username)
 	if err := os.Remove(filename); err != nil {
 		return err
 	}

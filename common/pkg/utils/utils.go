@@ -1,9 +1,8 @@
-package pkg
+package utils
 
 import (
 	"bufio"
 	"bytes"
-	"common/ocserv"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -13,6 +12,14 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+)
+
+const (
+	OcpasswdPath       = "/etc/ocserv/ocpasswd"
+	OcpasswdExec       = "/usr/bin/ocpasswd"
+	ConfigGroupBaseDir = "/etc/ocserv/groups/"
+	DefaultGroupFile   = "/etc/ocserv/defaults/group.conf"
+	ConfigUserBaseDir  = "/etc/ocserv/users/"
 )
 
 var listKeys = map[string]bool{
@@ -94,7 +101,7 @@ func ConfigWriter(file *os.File, config map[string]interface{}) error {
 // and malformed entries. Assumes group is stored as the third field
 // in colon-separated records. Returns an error if scanning fails.
 func GetUsersByGroup(groupName string) ([]string, error) {
-	file, err := os.Open(ocserv.OcpasswdPath)
+	file, err := os.Open(OcpasswdPath)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +285,7 @@ func GetOCCTLVersion() string {
 // Returns combined output and error. If the command fails without
 // output, the error string is used as output.
 func RunOcpasswd(args ...string) (string, error) {
-	cmd := exec.Command(ocserv.OcpasswdExec, args...)
+	cmd := exec.Command(OcpasswdExec, args...)
 	out, err := cmd.CombinedOutput()
 	output := string(out)
 	if err != nil {
@@ -293,7 +300,7 @@ func RunOcpasswd(args ...string) (string, error) {
 // ConfigFilePathCreator constructs the absolute file path for a
 // user-specific config file using ocserv.ConfigUserBaseDir.
 func ConfigFilePathCreator(username string) string {
-	return filepath.Join(ocserv.ConfigUserBaseDir, username)
+	return filepath.Join(ConfigUserBaseDir, username)
 }
 
 // FixTrailingComma removes a trailing comma after the "in_use" key

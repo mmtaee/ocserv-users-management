@@ -1,4 +1,4 @@
-module common
+module github.com/mmtaee/ocserv-users-management/common
 
 go 1.25.0
 

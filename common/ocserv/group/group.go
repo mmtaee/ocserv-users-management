@@ -1,10 +1,9 @@
 package group
 
 import (
-	"common/models"
-	"common/ocserv"
-	"common/pkg"
 	"encoding/json"
+	"github.com/mmtaee/ocserv-users-management/common/models"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -28,7 +27,7 @@ func NewOcservGroup() *OcservGroup {
 // The file is written to ocserv.ConfigGroupBaseDir/<name> with permission 0640.
 // It serializes the provided OcservGroupConfig into the file using pkg.ConfigWriter.
 func (g *OcservGroup) Create(name string, config *models.OcservGroupConfig) error {
-	filename := filepath.Join(ocserv.ConfigGroupBaseDir, name)
+	filename := filepath.Join(utils.ConfigGroupBaseDir, name)
 
 	// Open file with create, truncate, write-only flags and permission 0640
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
@@ -37,7 +36,7 @@ func (g *OcservGroup) Create(name string, config *models.OcservGroupConfig) erro
 	}
 	defer file.Close()
 
-	err = pkg.ConfigWriter(file, pkg.ToMap(config))
+	err = utils.ConfigWriter(file, utils.ToMap(config))
 	if err != nil {
 		return err
 	}
@@ -50,11 +49,11 @@ func (g *OcservGroup) Create(name string, config *models.OcservGroupConfig) erro
 // User group resets are done concurrently, but errors from resetting
 // are ignored.
 func (g *OcservGroup) Delete(name string) error {
-	filename := filepath.Join(ocserv.ConfigGroupBaseDir, name)
+	filename := filepath.Join(utils.ConfigGroupBaseDir, name)
 	if err := os.Remove(filename); err != nil {
 		return err
 	}
-	users, err := pkg.GetUsersByGroup(name)
+	users, err := utils.GetUsersByGroup(name)
 	if err != nil {
 		return err
 	}
@@ -66,7 +65,7 @@ func (g *OcservGroup) Delete(name string) error {
 		wg.Add(1)
 		go func(u string) {
 			defer wg.Done()
-			_, _ = exec.Command(ocserv.OcpasswdExec, "-g", "", "-c", ocserv.OcpasswdPath, u).CombinedOutput()
+			_, _ = exec.Command(utils.OcpasswdExec, "-g", "", "-c", utils.OcpasswdPath, u).CombinedOutput()
 		}(user)
 	}
 	wg.Wait()
@@ -78,7 +77,7 @@ func (g *OcservGroup) Delete(name string) error {
 // from ocserv.DefaultGroupFile. The configuration is parsed into
 // OcservGroupConfig via an intermediate map and JSON conversion.
 func (g *OcservGroup) DefaultsGroup() (*models.OcservGroupConfig, error) {
-	configInterface, err := pkg.ParseOcservConfigFile(ocserv.DefaultGroupFile)
+	configInterface, err := utils.ParseOcservConfigFile(utils.DefaultGroupFile)
 	if err != nil {
 		return nil, err
 	}
@@ -101,13 +100,13 @@ func (g *OcservGroup) DefaultsGroup() (*models.OcservGroupConfig, error) {
 // the provided OcservGroupConfig. The file is opened with create,
 // truncate, and write-only flags and written with permission 0640.
 func (g *OcservGroup) UpdateDefaultsGroup(config *models.OcservGroupConfig) error {
-	file, err := os.OpenFile(ocserv.DefaultGroupFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
+	file, err := os.OpenFile(utils.DefaultGroupFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	err = pkg.ConfigWriter(file, pkg.ToMap(config))
+	err = utils.ConfigWriter(file, utils.ToMap(config))
 	if err != nil {
 		return err
 	}

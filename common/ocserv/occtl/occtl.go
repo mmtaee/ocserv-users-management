@@ -1,9 +1,9 @@
 package occtl
 
 import (
-	"common/pkg"
 	"encoding/json"
 	"fmt"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
 	"net"
 	"os/exec"
 	"strings"
@@ -184,7 +184,7 @@ func (o *OcservOcctl) ShowStatus(raw bool) (interface{}, error) {
 // Executes: occtl -j show iroutes
 func (o *OcservOcctl) ShowIRoutes() (*[]IRoute, error) {
 	var routes []IRoute
-	version := pkg.GetOcservVersion()
+	version := utils.GetOcservVersion()
 	if version == "1.2.4" { // has bug on IRoute Command
 		return &routes, nil
 	}
@@ -219,8 +219,8 @@ func (o *OcservOcctl) ShowUser(username string) (OnlineUserSession, error) {
 // Version returns detailed information about ocserv version.
 // Executes: ocserv -v
 func (o *OcservOcctl) Version() map[string]string {
-	version := pkg.GetOcservVersion()
-	occtlVersion := pkg.GetOCCTLVersion()
+	version := utils.GetOcservVersion()
+	occtlVersion := utils.GetOCCTLVersion()
 	return map[string]string{
 		"version":       version,
 		"occtl_version": occtlVersion,

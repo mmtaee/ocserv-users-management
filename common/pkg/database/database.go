@@ -1,6 +1,7 @@
-package pkg
+package database
 
 import (
+	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -10,9 +11,11 @@ import (
 
 var DB *gorm.DB
 
-func Connect(cfg *Config) {
+func Connect() {
+	conf := config.Get()
+
 	dbPath := "./db"
-	if cfg.Debug {
+	if conf.Debug {
 		home, err := os.UserHomeDir()
 		if err != nil {
 			log.Fatal(err)
@@ -31,7 +34,7 @@ func Connect(cfg *Config) {
 	if err != nil {
 		log.Fatal("failed to connect database")
 	}
-	if cfg.Debug {
+	if conf.Debug {
 		db = db.Debug()
 	}
 	DB = db

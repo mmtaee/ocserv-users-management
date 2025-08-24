@@ -1,4 +1,4 @@
-package pkg
+package config
 
 import (
 	"log"
@@ -40,6 +40,6 @@ func Init(debug bool, host string, port int) {
 	}
 }
 
-func GetConfig() *Config {
+func Get() *Config {
 	return cfg
 }
