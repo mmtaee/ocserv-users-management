@@ -9,8 +9,8 @@ fi
 if [ -z "$SSL_EXPIRE" ]; then
     SSL_EXPIRE=3650
 fi
-if [ -z "$SSL_OC_NET" ]; then
-    SSL_OC_NET=172.16.24.0/24
+if [ -z "$OC_NET" ]; then
+    OC_NET=172.16.24.0/24
 fi
 
 
@@ -53,7 +53,7 @@ dtls-legacy=true
 tcp-port=443
 udp-port=443
 max-same-clients=2
-ipv4-network=${SSL_OC_NET}
+ipv4-network=${OC_NET}
 config-per-group=/etc/ocserv/groups/
 config-per-user=/etc/ocserv/users/
 log-level=3
