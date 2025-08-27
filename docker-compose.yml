@@ -1,0 +1,65 @@
+services:
+  ocserv:
+    build:
+      context: .
+      dockerfile: Dockerfile-Ocserv
+    image: ocserv_users_management:ocserv_with_api
+    container_name: ocserv
+    privileged: true
+    env_file:
+      - ./.env
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./volumes/ocserv:/etc/ocserv
+      - ./volumes/db:/usr/local/bin/db
+      - ./volumes/db_tmp:/root/ocserv_db
+    ports:
+      - ${OCSERV_PORT:-443}:443/tcp
+      - ${OCSERV_PORT:-443}:443/udp
+    networks:
+      - shared-app
+    restart: unless-stopped
+
+  stream_log:
+    image: ocserv_users_management:stream_log
+    build:
+      context: .
+      dockerfile: Dockerfile-Stream-Log
+    container_name: stream_log
+    volumes:
+      - ./volumes/db:/usr/local/bin/db
+      - ./volumes/db_tmp:/root/ocserv_db
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - ./.env
+    networks:
+      - shared-app
+    depends_on:
+      - ocserv
+    restart: unless-stopped
+
+  web:
+    image: ocserv_users_management:web
+    build:
+      context: .
+      dockerfile: Dockerfile-Web
+      args:
+        - LANGUAGES=${LANGUAGES}
+    container_name: web
+    volumes:
+      - ./volumes/nginx/certs:/etc/nginx/certs
+    ports:
+      - "3000:3000"
+    networks:
+      - shared-app
+    depends_on:
+      - ocserv
+      - stream_log
+    restart: unless-stopped
+
+
+networks:
+  shared-app:

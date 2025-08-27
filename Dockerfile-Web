@@ -20,8 +20,6 @@ COPY ./web .
 
 # Build Vue app with environment variables
 RUN NODE_ENV=production \
-    VITE_API_URL="${API_URL}" \
-    VITE_LOG_SOCKET_URL="${LOG_SOCKET_URL}" \
     VITE_I18N_LANGUAGES="${LANGUAGES}" \
     npm run build
 
@@ -36,11 +34,11 @@ RUN apk add --no-cache bash gettext openssl \
     && mkdir -p /var/www/site /etc/nginx/certs
 
 # Copy custom Nginx startup script
-COPY scripts/nginx.conf  /etc/nginx/conf.d/site.conf
+COPY scripts/nginx_docker.conf  /etc/nginx/conf.d/site.conf
 
-COPY scripts/entrypoint.sh /docker-entrypoint.sh
+COPY scripts/nginx_entrypoint.sh /entrypoint.sh
 
-RUN chmod +x /docker-entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 COPY --from=vue /app/dist /var/www/site
 
@@ -48,6 +46,6 @@ VOLUME ["/etc/nginx/certs"]
 
 EXPOSE 80 443
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["nginx", "-g", "daemon off;"]

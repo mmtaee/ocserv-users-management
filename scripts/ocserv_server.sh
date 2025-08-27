@@ -13,10 +13,10 @@ trap "echo '[INFO] Caught SIGTERM, stopping...'; kill -TERM \$OCSERV_PID \$API_P
 # Start API service as non-root user
 # -----------------------------
 echo "[INFO] Starting API service..."
-if [ "$DEBUG" -eq 1 ]; then
-    sudo -u appuser /usr/local/bin/api serve -d &
+if [ "$DEBUG" = "1" ]; then
+    api serve -d &
 else
-    sudo -u appuser /usr/local/bin/api serve &
+    api serve &
 fi
 API_PID=$!
 

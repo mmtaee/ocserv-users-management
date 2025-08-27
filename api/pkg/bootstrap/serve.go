@@ -47,5 +47,7 @@ func Serve(debug bool, host string, port int) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	routing.Shutdown(ctx)
+	database.CloseConnection()
+
 	log.Println("api service shutdown complete")
 }

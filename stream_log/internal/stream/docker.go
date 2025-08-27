@@ -5,6 +5,10 @@ import (
 	"context"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
+	"io"
+	"log"
+	"strings"
 )
 
 func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan<- string) error {
@@ -19,7 +23,6 @@ func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan
 		ShowStderr: true,
 		Follow:     true,
 		Tail:       "100",
-		Timestamps: false,
 	}
 
 	logReader, err := cli.ContainerLogs(ctx, containerName, options)
@@ -28,12 +31,24 @@ func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan
 	}
 	defer logReader.Close()
 
-	scanner := bufio.NewScanner(logReader)
+	pr, pw := io.Pipe()
+	go func() {
+		defer pw.Close()
+		_, _ = stdcopy.StdCopy(pw, pw, logReader)
+	}()
+
+	scanner := bufio.NewScanner(pr)
 	for scanner.Scan() {
 		select {
 		case <-ctx.Done():
 			return nil
-		case streamChan <- scanner.Text():
+		default:
+			text := strings.TrimSpace(scanner.Text())
+			log.Println("docker proccessor log: ", text)
+			if strings.HasPrefix(text, "ocserv[") {
+				streamChan <- text
+			}
+			continue
 		}
 	}
 	return scanner.Err()
