@@ -9,7 +9,10 @@ const logs = ref<string[]>([])
 
 let eventSource: EventSource | null = null
 
-const SSE_URL = import.meta.env.VITE_LOG_SOCKET_URL || 'http://localhost:8082/logs'
+const host = window.location.host; // includes hostname:port
+const protocol = window.location.protocol
+const SSE_URL = import.meta.env.VITE_LOG_SOCKET_URL || `${protocol}//${host}/ws/logs`;
+
 const connected = ref(false)
 const containerHeight = ref(window.innerHeight)
 const maxLogs = ref(0)

@@ -1,6 +1,6 @@
 import type {
     ModelsDailyTraffic,
-    ModelsIPBan,
+    ModelsIPBanPoints,
     ModelsOcservGroup,
     ModelsOcservGroupConfig,
     ModelsOnlineUserSession
@@ -42,7 +42,7 @@ const dummyOnlineUsers = <Array<ModelsOnlineUserSession>>([
     }
 ])
 
-const dummyBanIPs = <Array<ModelsIPBan>>([
+const dummyBanIPs = <Array<ModelsIPBanPoints>>([
     {
         "IP": "172.17.0.1",
         "Since": "2025-06-28 18:26",

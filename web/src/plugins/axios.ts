@@ -9,7 +9,9 @@ import {useLoadingStore} from "@/stores/loading.ts";
 import {useI18n} from "vue-i18n";
 
 
-export const ApiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api'
+const host = window.location.host; // e.g. "example.com:3000"
+const protocol = window.location.protocol; // "http:" or "https:"
+export const ApiUrl = import.meta.env.VITE_API_URL ?? `${protocol}//${host}/api`;
 
 const config: AxiosRequestConfig = {baseURL: ApiUrl}
 

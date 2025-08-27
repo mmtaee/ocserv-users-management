@@ -11,12 +11,12 @@ ARG LANGUAGES
 WORKDIR /app
 
 # Copy package.json first to leverage Docker cache
-COPY package*.json ./
+COPY ./web/package*.json ./
 
 RUN npm install --legacy-peer-deps
 
 # Copy all source files
-COPY . .
+COPY ./web .
 
 # Build Vue app with environment variables
 RUN NODE_ENV=production \
@@ -36,9 +36,9 @@ RUN apk add --no-cache bash gettext openssl \
     && mkdir -p /var/www/site /etc/nginx/certs
 
 # Copy custom Nginx startup script
-COPY configs/nginx.conf  /etc/nginx/conf.d/site.conf
+COPY scripts/nginx.conf  /etc/nginx/conf.d/site.conf
 
-COPY configs/entrypoint.sh /docker-entrypoint.sh
+COPY scripts/entrypoint.sh /docker-entrypoint.sh
 
 RUN chmod +x /docker-entrypoint.sh
 
