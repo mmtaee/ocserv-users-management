@@ -3,7 +3,6 @@
 # -----------------------------
 FROM golang:1.25.0 AS builder
 
-ENV GIN_MODE=release
 ENV CGO_ENABLED=1
 ENV GOOS=linux
 ENV GOARCH=amd64
