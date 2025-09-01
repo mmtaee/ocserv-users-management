@@ -25,6 +25,14 @@ OCSERV_DNS="8.8.8.8"                    # Default DNS server
 LANGUAGES=en:English,zh:中文,ru:Русский,fa:فارسی,ar:العربية  # Supported languages
 SECRET_KEY=$(openssl rand -hex 32)      # Secret key for app encryption (32 hex chars)
 JWT_SECRET=$(openssl rand -hex 32)      # JWT signing secret (32 hex chars)
+SSL_C=US
+SSL_ST=CA
+SSL_L=SanFrancisco
+DB_NAME=ocserv
+DB_USERNAME=ocserv
+DB_PASSWORD=ocserv-passwd
+DB_HOST=db
+
 
 # ===============================
 # Functions
@@ -34,16 +42,11 @@ JWT_SECRET=$(openssl rand -hex 32)      # JWT signing secret (32 hex chars)
 # Ensure root or sudo access
 # ===============================
 ensure_root() {
-    if [ "$(id -u)" -ne 0 ]; then
-        if groups "$USER" | grep -qw "sudo"; then
-            print_message info "You are in the sudoers group. Using sudo..."
-            sudo -v || { print_message error "Failed to get sudo privileges."; exit 1; }
-        else
-            print_message error "You are not root and not in the sudoers group."
-            print_message info "Please run this script as root or a sudoer."
-            exit 1
-        fi
+    if ! command -v sudo >/dev/null 2>&1; then
+        print_message error "❌ Error: sudo is not installed on this system."
+        exit 1
     fi
+
 }
 
 # ===============================
@@ -197,6 +200,15 @@ check_systemd_os() {
     print_message success "✅ OS is supported for systemd deployment: $OS_NAME $OS_VERSION"
 }
 
+
+check_go_version() {
+    if ! command -v go >/dev/null 2>&1; then
+        echo "❌ Go is not installed."
+        return 1
+    fi
+}
+
+
 # ===============================
 # Function: get_ip
 # Description: Detects the public IP of the VPS
@@ -255,6 +267,24 @@ get_envs(){
     print_message highlight "✅ Using organization name: ${SSL_ORG}"
     printf "\n"
 
+    # Country
+    read -rp "Enter your country code (2 letters) or leave blank to use '${SSL_C}': " country
+    [[ -n "$country" ]] && SSL_C=$country
+    print_message highlight "✅ Using country: ${SSL_C}"
+    printf "\n"
+
+    # State / Province
+    read -rp "Enter your state or leave blank to use '${SSL_ST}': " state
+    [[ -n "$state" ]] && SSL_ST=$state
+    print_message highlight "✅ Using state: ${SSL_ST}"
+    printf "\n"
+
+    # Locality / City
+    read -rp "Enter your city or leave blank to use '${SSL_L}': " locality
+    [[ -n "$locality" ]] && SSL_L=$locality
+    print_message highlight "✅ Using city: ${SSL_L}"
+    printf "\n"
+
     # SSL Expiration Days
     read -rp "Enter SSL expire days or leave blank to use ${SSL_EXPIRE} days: " expire
     [[ -n "$expire" ]] && SSL_EXPIRE=$expire
@@ -271,6 +301,24 @@ get_envs(){
     read -rp "Enter your DNS server or leave blank to use default (${OCSERV_DNS}): " dns
     [[ -n "$dns" ]] && OCSERV_DNS="$dns"
     print_message highlight "✅ Using ocserv DNS: ${OCSERV_DNS}"
+    printf "\n"
+
+    # -----------------------
+    # Database configuration
+    # -----------------------
+    read -rp "Enter PostgreSQL database name or leave blank to use default (${DB_NAME}): " db_name
+    [[ -n "$db_name" ]] && DB_NAME="$db_name"
+    print_message highlight "✅ Using DB_NAME: ${DB_NAME}"
+    printf "\n"
+
+    read -rp "Enter PostgreSQL username or leave blank to use default (${DB_USERNAME}): " db_user
+    [[ -n "$db_user" ]] && DB_USERNAME="$db_user"
+    print_message highlight "✅ Using DB_USERNAME: ${DB_USERNAME}"
+    printf "\n"
+
+    read -rp "Enter PostgreSQL password or leave blank to use default (${DB_PASSWORD}): " db_pass
+    [[ -n "$db_pass" ]] && DB_PASSWORD="$db_pass"
+    print_message highlight "✅ Using DB_PASSWORD: ${DB_PASSWORD}"
     printf "\n"
 }
 
@@ -314,6 +362,13 @@ get_site_lang() {
 set_environment() {
     ENV_FILE=".env"
 
+    if [[ "$DEPLOY_METHOD" == "docker" ]]; then
+        DB_HOST=db
+    else
+        DB_HOST=127.0.0.1
+    fi
+
+
     print_message info "Creating environment file at $ENV_FILE ..."
     cat > "$ENV_FILE" <<EOL
 HOST=${HOST}
@@ -322,24 +377,39 @@ JWT_SECRET=${JWT_SECRET}
 SSL_CN=${SSL_CN}
 SSL_ORG=${SSL_ORG}
 OC_NET=${OC_NET}
+SSL_C=${SSL_C}
+SSL_ST=${SSL_ST}
+SSL_L=${SSL_L}
 SSL_EXPIRE=${SSL_EXPIRE}
 OCSERV_PORT=${OCSERV_PORT}
 OCSERV_DNS=${OCSERV_DNS}
 LANGUAGES="${LANGUAGES}"
+DB_NAME=${DB_NAME}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
+DB_HOST=${DB_HOST}
 EOL
 
     print_message success "✅ Environment file created successfully."
     print_message info "🔧 Environments written to .env:"
-    print_message highlight "   HOST        = ${HOST}"
-    print_message highlight "   SECRET_KEY  = ${SECRET_KEY:0:8}..."
-    print_message highlight "   JWT_SECRET  = ${JWT_SECRET:0:8}..."
-    print_message highlight "   SSL_CN      = ${SSL_CN}"
-    print_message highlight "   SSL_ORG     = ${SSL_ORG}"
-    print_message highlight "   OC_NET  = ${OC_NET}"
-    print_message highlight "   SSL_EXPIRE  = ${SSL_EXPIRE}"
-    print_message highlight "   OCSERV_PORT = ${OCSERV_PORT}"
-    print_message highlight "   OCSERV_DNS  = ${OCSERV_DNS}"
-    print_message highlight "   LANGUAGES   = ${LANGUAGES}"
+    print_message highlight "   HOST         = ${HOST}"
+    print_message highlight "   SECRET_KEY   = ${SECRET_KEY:0:8}..."
+    print_message highlight "   JWT_SECRET   = ${JWT_SECRET:0:8}..."
+    print_message highlight "   SSL_CN       = ${SSL_CN}"
+    print_message highlight "   SSL_ORG      = ${SSL_ORG}"
+    print_message highlight "   SSL_C        = ${SSL_C}"
+    print_message highlight "   SSL_ST       = ${SSL_ST}"
+    print_message highlight "   SSL_L        = ${SSL_L}"
+    print_message highlight "   OC_NET       = ${OC_NET}"
+    print_message highlight "   SSL_EXPIRE   = ${SSL_EXPIRE}"
+    print_message highlight "   OCSERV_PORT  = ${OCSERV_PORT}"
+    print_message highlight "   OCSERV_DNS   = ${OCSERV_DNS}"
+    print_message highlight "   LANGUAGES    = ${LANGUAGES}"
+    print_message highlight "   DB_NAME      = ${DB_NAME}"
+    print_message highlight "   DB_HOST      = ${DB_HOST}"
+    print_message highlight "   DB_USERNAME  = ${DB_USERNAME}"
+    print_message highlight "   DB_PASSWORD  = ${DB_PASSWORD:0:2}..."
+
 
     printf "\n"
 }
@@ -350,14 +420,14 @@ EOL
 # ===============================
 setup_docker() {
     print_message info "🚀 Pulling required Docker images..."
-    docker pull golang:1.25.0
-    docker pull debian:trixie-slim
-    docker pull nginx:alpine
+    sudo docker pull golang:1.25.0
+    sudo docker pull debian:trixie-slim
+    sudo docker pull nginx:alpine
     print_message success "🎉 All Docker images pulled successfully!"
 
     print_message info "🛠 Starting Docker Compose..."
     sleep 3
-    docker compose up --build -d
+    sudo docker compose up --build -d
     print_message success "✅ Docker Compose deployment completed!"
 }
 
@@ -454,8 +524,10 @@ setup_systemd() {
 # ===============================
 deploy(){
     if [[ "$DEPLOY_METHOD" == "docker" ]]; then
+        export DB_HOST=db
         setup_docker
     else
+        export DB_HOST=127.0.0.1
         setup_systemd
     fi
 }
@@ -466,7 +538,10 @@ deploy(){
 # ===============================
 main() {
     # Ensure script is running as root or sudo
-    ensure_root
+    ensure_root "$@"
+
+    # install curl
+    sudo apt install -y curl
 
     # Deployment choice: docker or systemd
     choose_deployment
@@ -476,6 +551,7 @@ main() {
         check_docker
     else
         check_systemd_os
+        check_go_version
     fi
 
     # Load existing .env or run interactive setup
