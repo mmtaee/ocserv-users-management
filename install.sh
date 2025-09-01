@@ -576,8 +576,8 @@ main() {
 
     # Show service URL
     print_message highlight "🌐 Web service is up and running!"
-    print_message highlight "🔗 Access it at: https://${HOST}:3000"
-    print_message highlight "⚡ Tip: Make sure your firewall allows port 3000"
+    print_message highlight "🔗 Access it at: https://${HOST}:3443 or http://${HOST}:3000"
+    print_message highlight "⚡ Tip: Make sure your firewall allows ports 3000 and 3443"
     exit 0
 }
 
