@@ -217,8 +217,7 @@ upstream stream_log_backend {
 
 server {
     listen 3000;
-    server_name ${DOMAIN} ;
-    return 302 https://$server_name:3443$request_uri;
+    return 302 https://$host:3443$request_uri;
 }
 
 server {
