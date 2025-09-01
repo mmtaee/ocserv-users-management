@@ -214,8 +214,15 @@ upstream api_backend {
 upstream stream_log_backend {
     server 127.0.0.1:8081;
 }
+
 server {
-    listen 3000 ssl http2;
+    listen 3000;
+    server_name ${DOMAIN} ;
+    return 302 https://$server_name:3443$request_uri;
+}
+
+server {
+    listen 3443 ssl http2;
     server_name _;
 
     ssl_certificate     /etc/nginx/certs/cert.pem;
@@ -268,6 +275,7 @@ fi
 
 sudo systemctl daemon-reload
 sudo systemctl enable --now nginx.service
+sudo systemctl restart nginx.service
 
 if sudo systemctl is-active --quiet nginx; then
     echo "✅ Nginx is running."
