@@ -179,16 +179,24 @@ ok "Go services deployed successfully."
 log "Checking Node.js..."
 # Prefer major-version check (23.x), not an exact pin
 REQUIRED_NODE_MAJOR="23"
-CURRENT_NODE_VERSION="$(command -v node >/dev/null 2>&1 && node -v | sed 's/^v//')"
+
+# Get current Node.js version (without leading 'v'), empty if not installed
+if command -v node >/dev/null 2>&1; then
+    CURRENT_NODE_VERSION=$(node -v | sed 's/^v//')
+else
+    CURRENT_NODE_VERSION=""
+fi
+
 CURRENT_NODE_MAJOR="${CURRENT_NODE_VERSION%%.*}"
 
-if [[ -z "${CURRENT_NODE_VERSION:-}" || "${CURRENT_NODE_MAJOR:-0}" -lt "$REQUIRED_NODE_MAJOR" ]]; then
-  warn "Node.js not found or older than ${REQUIRED_NODE_MAJOR}.x (current: ${CURRENT_NODE_VERSION:-none}). Installing Node.js 23.x..."
-  curl -fsSL https://deb.nodesource.com/setup_23.x | sudo -E bash -
-  sudo apt-get install -y nodejs
-  ok "Node.js installed: $(node -v)"
+if [[ -z "$CURRENT_NODE_VERSION" || "$CURRENT_NODE_MAJOR" -lt "$REQUIRED_NODE_MAJOR" ]]; then
+    warn "Node.js not found or older than ${REQUIRED_NODE_MAJOR}.x (current: ${CURRENT_NODE_VERSION:-none}). Installing Node.js 23.x..."
+    curl -fsSL https://deb.nodesource.com/setup_23.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+    CURRENT_NODE_VERSION=$(node -v | sed 's/^v//')
+    ok "Node.js installed: v$CURRENT_NODE_VERSION"
 else
-  ok "Node.js is already installed: v${CURRENT_NODE_VERSION}"
+    ok "Node.js is already installed: v$CURRENT_NODE_VERSION"
 fi
 
 # -----------------------
