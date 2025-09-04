@@ -200,12 +200,33 @@ check_systemd_os() {
     print_message success "✅ OS is supported for systemd deployment: $OS_NAME $OS_VERSION"
 }
 
-
+# ===============================
+# Function: check_go_version
+# Description: Check if Go is installed and meets minimum version requirement
+# Parameters:
+#   $1 - minimum Go version (default: 1.25)
+# ===============================
 check_go_version() {
+    local required_version="1.25"
+
     if ! command -v go >/dev/null 2>&1; then
         echo "❌ Go is not installed."
-        return 1
+        echo "Install Go from: https://go.dev/doc/install"
+        exit 1
     fi
+
+    local current_version
+    current_version=$(go version | awk '{print $3}' | sed 's/^go//')  # e.g., 1.25.3
+    local current_major_minor="${current_version%.*}"                     # 1.25
+
+    # Compare versions
+    if dpkg --compare-versions "$current_major_minor" "lt" "$required_version"; then
+        echo "❌ Go version $current_version is less than required $required_version."
+        echo "Please upgrade Go: https://go.dev/doc/install"
+        exit 1
+    fi
+
+    echo "✅ Go version $current_version meets requirement (≥ $required_version)."
 }
 
 
