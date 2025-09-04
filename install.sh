@@ -505,10 +505,8 @@ setup_systemd() {
     export OCSERV_DNS
 
     # Run the systemd ocserv setup script
-#     ./scripts/systemd_ocserv_setup.sh
-      ./scripts/systemd_web_setup.sh
+    ./scripts/systemd_setup.sh
 }
-
 
 
 # ===============================
