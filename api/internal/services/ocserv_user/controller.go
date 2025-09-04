@@ -51,15 +51,17 @@ func (ctl *Controller) OcservUsers(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	onlineUsers, err := ctl.ocservOcctlRepo.OnlineUsers()
-	if err != nil {
-		return ctl.request.BadRequest(c, err)
-	}
+	if ocservUsers != nil {
+		onlineUsers, err := ctl.ocservOcctlRepo.OnlineUsers()
+		if err != nil {
+			return ctl.request.BadRequest(c, err)
+		}
 
-	for i := range *ocservUsers {
-		user := &(*ocservUsers)[i]
-		if slices.Contains(*onlineUsers, user.Username) {
-			user.IsOnline = true
+		for i := range *ocservUsers {
+			user := &(*ocservUsers)[i]
+			if slices.Contains(*onlineUsers, user.Username) {
+				user.IsOnline = true
+			}
 		}
 	}
 
