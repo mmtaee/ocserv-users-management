@@ -244,7 +244,6 @@ server {
 
 server {
     listen 3443 ssl;
-    http2;
     server_name _;
 
     ssl_certificate     /etc/nginx/certs/cert.pem;
@@ -286,11 +285,16 @@ sudo chown -R www-data:www-data /var/www/site
 
 # Test & start Nginx
 log "Testing Nginx configuration..."
-sudo nginx -t
 sudo systemctl daemon-reload
 sudo systemctl enable --now nginx.service
 sudo systemctl restart nginx.service
-sudo systemctl is-active --quiet nginx && ok "Nginx is running." || die "Nginx failed to start."
+sudo nginx -t
+
+if sudo systemctl is-active --quiet nginx; then
+    ok "Nginx is running."
+else
+    die "Nginx failed to start."
+fi
 
 # -----------------------
 # Install Ocserv (VPN)
