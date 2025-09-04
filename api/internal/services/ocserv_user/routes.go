@@ -1,10 +1,13 @@
 package ocserv_user
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/mmtaee/ocserv-users-management/api/pkg/routing/middlewares"
+)
 
 func Routes(e *echo.Group) {
 	ctl := New()
-	g := e.Group("/ocserv/users")
+	g := e.Group("/ocserv/users", middlewares.AuthMiddleware())
 
 	g.GET("", ctl.OcservUsers)
 	g.POST("", ctl.CreateOcservUser)
