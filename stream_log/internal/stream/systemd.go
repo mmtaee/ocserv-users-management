@@ -7,7 +7,7 @@ import (
 )
 
 func SystemdStreamLogs(ctx context.Context, serviceName string, streamChan chan<- string) error {
-	cmd := exec.Command("journalctl", "-n", "100", "-fu", serviceName)
+	cmd := exec.Command("journalctl", "-n", "100", "-fu", serviceName, "--output=cat")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
