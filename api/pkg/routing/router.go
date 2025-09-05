@@ -45,11 +45,20 @@ func Serve(cfg *config.Config) {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middlewares.TimeoutMiddleware(10 * time.Second))
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: cfg.AllowOrigins,
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
-		AllowMethods: allowMethods,
-	}))
+
+	if cfg.Debug {
+		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins: []string{"*"},                                                                             // allow all origins
+			AllowHeaders: []string{"*"},                                                                             // allow all headers
+			AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS}, // allow all methods
+		}))
+	} else {
+		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins: cfg.AllowOrigins,
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+			AllowMethods: allowMethods,
+		}))
+	}
 
 	routing.Register(e)
 

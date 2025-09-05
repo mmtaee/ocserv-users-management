@@ -26,8 +26,8 @@ RUN go build -ldflags="-s -w" -o api main.go
 FROM debian:trixie-slim
 
 # Install dependencies
-RUN apt update && \
-    apt install -y --no-install-recommends \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
         sudo \
         ocserv \
         ca-certificates \

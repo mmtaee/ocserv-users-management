@@ -130,23 +130,23 @@ check_docker() {
     local missing=0
 
     # Check Docker
-    if ! command -v docker &> /dev/null; then
+    if ! command -v sudo docker &> /dev/null; then
         print_message error "❌ Docker is not installed."
         missing=1
     else
         print_message success "✅ Docker is installed."
         # Show Docker version and info
-        docker_info=$(docker info --format 'Server Version: {{.ServerVersion}}')
+        docker_info=$(sudo docker info --format 'Server Version: {{.ServerVersion}}')
         print_message highlight "🔹 $docker_info"
     fi
 
     # Check Docker Compose plugin
-    if ! docker compose version &> /dev/null; then
+    if ! sudo docker compose version &> /dev/null; then
         print_message error "❌ Docker Compose (plugin) is not installed."
         missing=1
     else
         print_message success "✅ Docker Compose (plugin) is installed."
-        compose_version=$(docker compose version | head -n1)
+        compose_version=$(sudo docker compose version | head -n1)
         print_message highlight "🔹 $compose_version"
     fi
 
@@ -543,7 +543,6 @@ setup_systemd() {
 # ===============================
 deploy(){
     if [[ "$DEPLOY_METHOD" == "docker" ]]; then
-        export DB_HOST=db
         setup_docker
     else
         export DB_HOST=127.0.0.1

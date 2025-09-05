@@ -1,17 +1,4 @@
 services:
-  db:
-    image: postgres:17-alpine
-    container_name: ocserv_postgres
-    environment:
-      POSTGRES_USER: ${DB_USERNAME:-ocserv}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-ocserv-passwd}
-      POSTGRES_DB: ocserv
-    volumes:
-      - ./volumes/pg_data:/var/lib/postgresql/data
-    networks:
-      - shared-app
-    restart: unless-stopped
-
   ocserv:
     build:
       context: .
@@ -22,8 +9,7 @@ services:
     env_file:
       - ./.env
     environment:
-      ALLOW_ORIGINS: "http://${HOST}:3000,https://${HOST}:3000"
-      DB_HOST: db
+      ALLOW_ORIGINS: "http://${HOST}:3000,https://${HOST}:3443"
     cap_add:
       - NET_ADMIN
     devices:
@@ -71,6 +57,7 @@ services:
       - ./.env
     ports:
       - "3000:3000"
+      - "3443:3443"
     networks:
       - shared-app
     depends_on:
