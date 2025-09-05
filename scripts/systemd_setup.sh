@@ -153,8 +153,7 @@ After=network.target
 Type=simple
 EnvironmentFile=${ENV_FILE}
 ExecStart=${binary} ${ARGS}
-Restart=on-failure
-RestartSec=5s
+Restart=always
 User=root
 WorkingDirectory=${BIN_DIR}
 StandardOutput=journal
@@ -166,11 +165,16 @@ EOF
 done
 
 log "Reloading systemd and starting services..."
+
 sudo systemctl daemon-reload
+
 for service in "${!SERVICES[@]}"; do
+  sudo systemctl stop "$service"
   sudo systemctl enable --now "$service"
+  sudo systemctl restart "$service"
   ok "Started $service service"
 done
+
 ok "Go services deployed successfully."
 
 # -----------------------
@@ -266,14 +270,20 @@ server {
     location /ws/ {
         proxy_pass http://stream_log_backend/;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
+    
+        # Keep the connection open for SSE
+        proxy_set_header Connection '';
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;   # Important for SSE (no buffering)
+        proxy_cache off;
         proxy_read_timeout 86400s;
         proxy_send_timeout 86400s;
+
+        # Nginx will automatically forward text/event-stream responses
     }
 }
 EOF
