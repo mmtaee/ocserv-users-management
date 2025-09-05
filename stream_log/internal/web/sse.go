@@ -45,6 +45,7 @@ func (s *Server) StartBroadcast(broadcaster <-chan string) {
 				select {
 				case ch <- msg:
 				default:
+					log.Println("Dropped message for client", s.clients[ch])
 					continue
 				}
 			}
@@ -55,20 +56,17 @@ func (s *Server) StartBroadcast(broadcaster <-chan string) {
 
 func (s *Server) SSEHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.mu.Lock()
 		if len(s.clients) > 3 {
-			s.mu.Unlock()
 			http.Error(w, "Too many clients connected", http.StatusTooManyRequests)
 			return
 		}
-		s.mu.Unlock()
 
 		// Setup SSE headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Expose-Headers", "Content-Type")
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Expose-Headers", "Content-Type")
 
 		flusher, ok := w.(http.Flusher)
 		if !ok {
@@ -78,13 +76,10 @@ func (s *Server) SSEHandler() http.HandlerFunc {
 
 		clientChan := make(chan string, 10)
 		s.AddClient(clientChan, r.RemoteAddr)
-		//defer s.RemoveClient(clientChan)
-
-		ctx := r.Context()
 
 		for {
 			select {
-			case <-ctx.Done():
+			case <-r.Context().Done():
 				s.RemoveClient(clientChan)
 				return
 			case message := <-clientChan:
