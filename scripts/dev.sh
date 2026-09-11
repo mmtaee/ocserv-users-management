@@ -37,15 +37,38 @@ die() {
     exit 1
 }
 
+usage() {
+    cat <<EOF
+Usage:
+  ./scripts/dev.sh [command]
+
+Commands:
+  up      Build and start all development services (default)
+  down    Stop and remove all development services
+  help    Show this help message
+
+Examples:
+  ./scripts/dev.sh
+  ./scripts/dev.sh up
+  ./scripts/dev.sh down
+EOF
+}
+
 show_failure_logs() {
     local exit_code=$?
 
     trap - ERR
+
     warn "command failed at line ${BASH_LINENO[0]} with status ${exit_code}"
-    if [[ ${#docker_cmd[@]} -gt 0 ]] && "${docker_cmd[@]}" container inspect "${CONTAINER_NAME}" >/dev/null 2>&1; then
+
+    if [[ ${#docker_cmd[@]} -gt 0 ]] \
+        && "${docker_cmd[@]}" container inspect "${CONTAINER_NAME}" >/dev/null 2>&1; then
         warn "last ${DEV_ERROR_LOG_LINES:-100} container log lines:"
-        "${docker_cmd[@]}" logs --tail "${DEV_ERROR_LOG_LINES:-100}" "${CONTAINER_NAME}" >&2 || true
+        "${docker_cmd[@]}" logs \
+            --tail "${DEV_ERROR_LOG_LINES:-100}" \
+            "${CONTAINER_NAME}" >&2 || true
     fi
+
     exit "${exit_code}"
 }
 
@@ -56,7 +79,8 @@ configure_commands() {
 
     if docker info >/dev/null 2>&1; then
         docker_cmd=(docker)
-    elif command -v sudo >/dev/null 2>&1 && sudo docker info >/dev/null 2>&1; then
+    elif command -v sudo >/dev/null 2>&1 \
+        && sudo docker info >/dev/null 2>&1; then
         docker_cmd=(sudo docker)
     else
         die "cannot connect to the Docker daemon"
@@ -66,30 +90,61 @@ configure_commands() {
 }
 
 validate_host() {
-    [[ -f "${DOCKERFILE}" ]] || die "development Dockerfile not found: ${DOCKERFILE}"
-    [[ -f "${PROJECT_ROOT}/deploy/docker/common/entrypoint.sh" ]] || die "shared Docker entrypoint not found"
-    [[ -f "${PROJECT_ROOT}/deploy/docker/common/server.sh" ]] || die "shared Docker server script not found"
-    [[ -S /var/run/docker.sock ]] || die "/var/run/docker.sock is unavailable"
-    [[ -c /dev/net/tun ]] || die "/dev/net/tun is unavailable; load the tun module before running this script"
+    [[ -f "${DOCKERFILE}" ]] \
+        || die "development Dockerfile not found: ${DOCKERFILE}"
 
-    [[ "${VPN_PORT}" =~ ^[0-9]+$ ]] || die "DEV_VPN_PORT must be numeric"
-    [[ "${API_PORT}" =~ ^[0-9]+$ ]] || die "DEV_API_PORT must be numeric"
-    [[ "${POSTGRES_PORT}" =~ ^[0-9]+$ ]] || die "DEV_POSTGRES_PORT must be numeric"
+    [[ -f "${PROJECT_ROOT}/deploy/docker/common/entrypoint.sh" ]] \
+        || die "shared Docker entrypoint not found"
+
+    [[ -f "${PROJECT_ROOT}/deploy/docker/common/server.sh" ]] \
+        || die "shared Docker server script not found"
+
+    [[ -S /var/run/docker.sock ]] \
+        || die "/var/run/docker.sock is unavailable"
+
+    [[ -c /dev/net/tun ]] \
+        || die "/dev/net/tun is unavailable; load the tun module before running this script"
+
+    [[ "${VPN_PORT}" =~ ^[0-9]+$ ]] \
+        || die "DEV_VPN_PORT must be numeric"
+
+    [[ "${API_PORT}" =~ ^[0-9]+$ ]] \
+        || die "DEV_API_PORT must be numeric"
+
+    [[ "${POSTGRES_PORT}" =~ ^[0-9]+$ ]] \
+        || die "DEV_POSTGRES_PORT must be numeric"
 
     log "creating persistent development directories under ${DATA_ROOT}"
+
     if ! mkdir -p \
         "${POSTGRES_DATA_DIR}" \
         "${DATA_ROOT}/ocserv" \
         "${DATA_ROOT}/cron_journal" \
         "${DATA_ROOT}/telegram_receipts"; then
-        command -v sudo >/dev/null 2>&1 || die "cannot create persistent directories under ${DATA_ROOT}"
+
+        command -v sudo >/dev/null 2>&1 \
+            || die "cannot create persistent directories under ${DATA_ROOT}"
+
         warn "creating ${DATA_ROOT} with sudo because it is not writable by the current user"
+
         sudo mkdir -p \
             "${POSTGRES_DATA_DIR}" \
             "${DATA_ROOT}/ocserv" \
             "${DATA_ROOT}/cron_journal" \
             "${DATA_ROOT}/telegram_receipts"
     fi
+}
+
+container_is_development() {
+    local environment_label
+
+    environment_label="$(
+        "${docker_cmd[@]}" container inspect \
+            --format '{{index .Config.Labels "io.ocserv-dashboard.environment"}}' \
+            "${CONTAINER_NAME}" 2>/dev/null || true
+    )"
+
+    [[ "${environment_label}" == development ]]
 }
 
 remove_previous_container() {
@@ -106,13 +161,16 @@ remove_previous_container() {
             --format '{{index .Config.Labels "io.ocserv-dashboard.environment"}}' \
             "${CONTAINER_NAME}" 2>/dev/null || true
     )"
+
     existing_image="$(
         "${docker_cmd[@]}" container inspect \
             --format '{{.Config.Image}}' \
             "${CONTAINER_NAME}" 2>/dev/null || true
     )"
 
-    if [[ "${environment_label}" != development && "${existing_image}" != "${IMAGE_NAME}" && "${REPLACE_CONTAINER:-false}" != true ]]; then
+    if [[ "${environment_label}" != development \
+        && "${existing_image}" != "${IMAGE_NAME}" \
+        && "${REPLACE_CONTAINER:-false}" != true ]]; then
         die "container ${CONTAINER_NAME} is not marked as development; set REPLACE_CONTAINER=true to replace it explicitly"
     fi
 
@@ -129,6 +187,7 @@ build_image() {
 
     log "building ${IMAGE_NAME} from ${DOCKERFILE}"
     log "BuildKit plain progress is enabled for detailed build logs"
+
     "${docker_cmd[@]}" build \
         --progress=plain \
         "${cache_args[@]}" \
@@ -136,11 +195,13 @@ build_image() {
         --file "${DOCKERFILE}" \
         --tag "${IMAGE_NAME}" \
         "${PROJECT_ROOT}"
+
     success "image built: ${IMAGE_NAME}"
 }
 
 start_container() {
     log "starting ${CONTAINER_NAME}"
+
     "${docker_cmd[@]}" run --detach \
         --name "${CONTAINER_NAME}" \
         --label "${DEVELOPMENT_LABEL}" \
@@ -174,6 +235,28 @@ start_container() {
     log "Ocserv log: debug level ${OCSERV_DEBUG_LEVEL}"
 }
 
+down_services() {
+    log "stopping development services"
+
+    if ! "${docker_cmd[@]}" container inspect "${CONTAINER_NAME}" >/dev/null 2>&1; then
+        success "development services are already down"
+        return
+    fi
+
+    if ! container_is_development && [[ "${REPLACE_CONTAINER:-false}" != true ]]; then
+        die "container ${CONTAINER_NAME} is not marked as development; refusing to remove it"
+    fi
+
+    log "stopping and removing container ${CONTAINER_NAME}"
+
+    "${docker_cmd[@]}" rm \
+        --force \
+        "${CONTAINER_NAME}" >/dev/null
+
+    success "all development services are down"
+    log "persistent data preserved under ${DATA_ROOT}"
+}
+
 follow_logs() {
     if [[ "${FOLLOW_LOGS:-true}" != true ]]; then
         log "log streaming disabled; run: ${docker_cmd[*]} logs -f ${CONTAINER_NAME}"
@@ -181,18 +264,45 @@ follow_logs() {
     fi
 
     log "following container logs; Ctrl-C stops log viewing but leaves the container running"
-    if ! "${docker_cmd[@]}" logs --follow --timestamps "${CONTAINER_NAME}"; then
+
+    if ! "${docker_cmd[@]}" logs \
+        --follow \
+        --timestamps \
+        "${CONTAINER_NAME}"; then
         warn "log streaming stopped; container ${CONTAINER_NAME} remains managed by Docker"
     fi
 }
 
-main() {
-    configure_commands
+up_services() {
     validate_host
     build_image
     remove_previous_container
     start_container
     follow_logs
+}
+
+main() {
+    local command="${1:-up}"
+
+    configure_commands
+
+    case "${command}" in
+        up)
+            [[ $# -le 1 ]] || die "unexpected arguments for 'up'"
+            up_services
+            ;;
+        down)
+            [[ $# -le 1 ]] || die "unexpected arguments for 'down'"
+            down_services
+            ;;
+        help | --help | -h)
+            usage
+            ;;
+        *)
+            usage >&2
+            die "unknown command: ${command}"
+            ;;
+    esac
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
