@@ -48,7 +48,7 @@ export async function getReportStatistics(
     authorization: authorization(),
     ...range,
   });
-  return response.data;
+  return response.data ?? [];
 }
 
 export async function getReportUserSummary(): Promise<UserReportSummary> {

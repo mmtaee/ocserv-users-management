@@ -65,6 +65,10 @@ function authorizationOptions() {
   return { headers: { Authorization: requireAuthorizationHeader() } };
 }
 
+function normalizeOcservUser(user: OcservUser): OcservUser {
+  return { ...user, online_sessions: user.online_sessions ?? [] };
+}
+
 export async function getOcservUsers(
   options: OcservUsersListOptions = {},
 ): Promise<OcservUsersList> {
@@ -102,7 +106,10 @@ export async function getOcservUsers(
       },
     },
   );
-  return response.data;
+  return {
+    ...response.data,
+    result: response.data.result?.map(normalizeOcservUser) ?? [],
+  };
 }
 
 export async function getOcservUser(id: number): Promise<OcservUser> {
@@ -111,7 +118,7 @@ export async function getOcservUser(id: number): Promise<OcservUser> {
     { id },
     authorizationOptions(),
   );
-  return response.data as unknown as OcservUser;
+  return normalizeOcservUser(response.data as unknown as OcservUser);
 }
 
 export async function createOcservUser(
@@ -466,5 +473,6 @@ export async function getOcservUserStatistics(
       params: { date_end: options.dateEnd, date_start: options.dateStart },
     },
   );
-  return response.data as unknown as OcservUserStatisticsResponse;
+  const data = response.data as unknown as OcservUserStatisticsResponse;
+  return { ...data, statistics: data.statistics ?? [] };
 }
