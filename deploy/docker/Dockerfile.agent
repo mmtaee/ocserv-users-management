@@ -1,8 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
-ARG GO_VERSION=1.27.1
+ARG GO_VERSION=1.26.0
 ARG NODE_VERSION=24
-ARG POSTGRES_VERSION=18
 
 FROM golang:${GO_VERSION}-bookworm AS backend-builder
 
@@ -16,67 +15,33 @@ RUN go build -trimpath -ldflags="-s -w" -o /out/backend ./main.go
 
 FROM node:${NODE_VERSION}-bookworm AS web-builder
 
+ARG AGENT_NODE=true
 ARG CUSTOMER_API_ENABLED=true
-ARG TELEGRAM_BOT_ENABLED=true
-
+ARG TELEGRAM_BOT_ENABLED=false
 WORKDIR /src
 COPY web/admin/ ./web/admin/
 COPY web/customer/ ./web/customer/
-RUN set -eux; \
-        mkdir -p /out/admin /out/customer; \
+RUN mkdir -p /out/admin /out/customer \
+    && if [ "${AGENT_NODE}" != "true" ]; then \
         corepack enable; \
         cd /src/web/admin; \
-        yarn install --immutable; \
-        VITE_API_BASE_URL=/api \
-        VITE_API_TIMEOUT_MS=15000 \
-        VITE_I18N_LANGUAGES="en:English,it:Italiano,zh-cn:中文(简体),zh-tw:中文(繁體),ru:Русский,fa:فارسی,ar:العربية" \
-        yarn build; \
+        TELEGRAM_BOT_ENABLED="${TELEGRAM_BOT_ENABLED}" VITE_API_BASE_URL=/api yarn install --immutable; \
+        TELEGRAM_BOT_ENABLED="${TELEGRAM_BOT_ENABLED}" VITE_API_BASE_URL=/api yarn build; \
         cp -a dist/. /out/admin/; \
         if [ "${CUSTOMER_API_ENABLED}" = "true" ]; then \
             cd /src/web/customer; \
-            yarn install --immutable; \
-            VITE_API_BASE_URL=/api \
-            VITE_API_TIMEOUT_MS=15000 \
-            VITE_USE_MOCKS=false \
-            VITE_I18N_LANGUAGES="en:English,it:Italiano,zh-cn:中文(简体),zh-tw:中文(繁體),ru:Русский,fa:فارسی,ar:العربية" \
-            yarn build --base=/customer/; \
+            VITE_API_BASE_URL=/api yarn install --immutable; \
+            VITE_API_BASE_URL=/api yarn build --base=/customer/; \
             cp -a dist/. /out/customer/; \
-        fi; 
+        fi; \
+    fi
 
-# PostgreSQL 18 official image is Debian 13 (Trixie) and provides the
-# PostgreSQL binaries, gosu, PGDATA layout, and docker-entrypoint.sh.
-FROM postgres:${POSTGRES_VERSION}-trixie
+FROM postgres:18-trixie
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG AGENT_NODE=false
 ARG CUSTOMER_API_ENABLED=true
-ARG TELEGRAM_BOT_ENABLED=true
-
-# TODO: to install ocserv, use  `deploy/common/ocserv_binary_install.sh`
-# COPY --chmod=0755 ../deploy/common/ocserv_binary_install.sh  /ocserv_binary_install.sh
-# RUN /ocserv_binary_install.sh
-# Dependencies for ocserv binary installtion are: 
-# apt install -y --no-install-recommends \
-    ## runtime deps
-    # sudo ca-certificates procps gnutls-bin iptables \
-    # openssl less dnsutils jq curl iproute2\
-    # \
-    ## build deps (needed for ocserv build)
-    # build-essential meson ninja-build pkg-config git \
-    # libgnutls28-dev libev-dev libreadline-dev libtasn1-bin \
-    # libpam0g-dev liblz4-dev libseccomp-dev \
-    # libnl-route-3-dev libkrb5-dev libradcli-dev \
-    # libcurl4-gnutls-dev libcjose-dev libjansson-dev liboath-dev \
-    # libprotobuf-c-dev libtalloc-dev libllhttp-dev protobuf-c-compiler \
-    # gperf ipcalc
-
-## remove build deps after install (important)
-# apt purge -y \
-#         build-essential meson ninja-build pkg-config git protobuf-c-compiler gperf \
-#     && apt-get autoremove -y \
-#     \
-#     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /ocserv_binary_install.sh
-
+ARG TELEGRAM_BOT_ENABLED=false
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -86,6 +51,7 @@ RUN apt-get update \
         iproute2 \
         iptables \
         nginx \
+        ocserv \
         procps \
         tini \
     && rm -rf /var/lib/apt/lists/* \
@@ -139,14 +105,8 @@ EXPOSE 80/tcp 443/tcp 443/udp 5432/tcp 8080/tcp
 
 VOLUME ["/var/lib/postgresql", "/etc/ocserv", "/app/cron_journal", "/opt/ocserv_dashboard/uploads/receipts"]
 
-STOPSIGNAL SIGTERM
-
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 \
-    CMD if [ "$AGENT_NODE" = "true" ]; then \
-        curl --fail --silent http://127.0.0.1:8080/health >/dev/null; \
-    else \
-        curl --fail --silent http://127.0.0.1/health >/dev/null; \
-    fi
+    CMD-SHELL if [ "$AGENT_NODE" = "true" ]; then curl --fail --silent http://127.0.0.1:8080/health >/dev/null; else curl --fail --silent http://127.0.0.1/health >/dev/null; fi
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/container-entrypoint"]
 CMD ["/usr/local/bin/container-server"]

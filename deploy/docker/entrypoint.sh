@@ -11,6 +11,9 @@ set -Eeuo pipefail
 : "${SSL_ORG:=ocserv-dashboard}"
 : "${SSL_EXPIRE:=3650}"
 : "${OCSERV_PRESERVE_CONFIG:=false}"
+: "${PGDATA:=/var/lib/postgresql/18/docker}"
+
+export PGDATA
 
 readonly OCSERV_CONF=/etc/ocserv/ocserv.conf
 readonly OCSERV_SSL_DIR=/etc/ocserv/ssl
@@ -18,9 +21,15 @@ readonly OCSERV_CERTS_DIR=/etc/ocserv/certs
 readonly OCSERV_CA_CERT="${OCSERV_SSL_DIR}/ca-cert.pem"
 readonly OCSERV_CA_KEY="${OCSERV_SSL_DIR}/ca-key.pem"
 readonly OCSERV_CRL="${OCSERV_SSL_DIR}/crl.pem"
+readonly POSTGRES_ENTRYPOINT=/usr/local/bin/docker-entrypoint.sh
 
 log() {
     printf '[container] %s\n' "$*"
+}
+
+die() {
+    printf '[container] ERROR: %s\n' "$*" >&2
+    exit 1
 }
 
 is_true() {
@@ -28,6 +37,18 @@ is_true() {
         1|true|yes|on) return 0 ;;
         *) return 1 ;;
     esac
+}
+
+validate_postgres_runtime() {
+    [[ -x "${POSTGRES_ENTRYPOINT}" ]] || \
+        die "official PostgreSQL entrypoint is missing: ${POSTGRES_ENTRYPOINT}"
+    command -v postgres >/dev/null 2>&1 || die "PostgreSQL server binary is missing"
+    command -v pg_isready >/dev/null 2>&1 || die "pg_isready is missing"
+    command -v gosu >/dev/null 2>&1 || die "gosu is missing"
+
+    if [[ "${PGDATA}" != /var/lib/postgresql/* ]]; then
+        log "WARNING: PGDATA=${PGDATA} is outside /var/lib/postgresql; make sure it is persisted explicitly"
+    fi
 }
 
 ensure_client_pki() {
@@ -253,6 +274,12 @@ setup_ocserv() {
 }
 
 main() {
+    (( $# > 0 )) || die "no container command supplied"
+
+    # Keep this wrapper running as root for Ocserv/network setup. PostgreSQL is
+    # started later by container-server through the official Postgres entrypoint,
+    # which drops only the PostgreSQL child process to the postgres user.
+    validate_postgres_runtime
     setup_ocserv
     exec "$@"
 }

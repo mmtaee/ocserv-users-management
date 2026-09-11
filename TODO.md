@@ -12,4 +12,6 @@
 
 ## Issue
 
+- [ ] TELEGRAM_BOT_ENABLED remove from ui service it should come from backend
 - [ ] telegram service disable update dashboard apio to send it to client and section of it in ui should follow api to ignore or add to routes
+- [ ] install ocserv from source
