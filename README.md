@@ -1,6 +1,6 @@
 # Ocserv Dashboard Backend
 
-This repository provides one backend application that runs the Admin API, Customer API, Worker, and optional Telegram Bot. The Docker images also run Ocserv and PostgreSQL 18 in the same container.
+This repository provides one backend application that runs the Admin API, Customer API, Worker, and optional Telegram Bot. Its single configurable Docker image also runs Ocserv, PostgreSQL 18, nginx, and the enabled UI applications.
 
 ## Runtime sequence
 
@@ -12,6 +12,7 @@ prepare Ocserv configuration and networking
 → wait for PostgreSQL readiness
 → run database migrations
 → start the unified backend
+→ start nginx on full nodes
 → start Ocserv
 → supervise all critical processes
 ```
@@ -24,7 +25,7 @@ If PostgreSQL, Ocserv, or the backend exits unexpectedly, the remaining processe
 - `/dev/net/tun` available on the host
 - Permission to add the `NET_ADMIN` capability
 - Permission to read `/var/run/docker.sock`
-- Ports `443/tcp`, `443/udp`, and `8080/tcp` available
+- Ports `443/tcp`, `443/udp`, and `80/tcp` available for a full node (`8080/tcp` for an agent node)
 
 ## Guided installation
 
@@ -34,7 +35,7 @@ Run the root installer and choose Docker or systemd first, then Master or Agent:
 ./install.sh
 ```
 
-The installer creates `.env` from `.env.sample` only when it is missing, generates initial secrets, and asks before changing an existing `AGENT_NODE` value. Non-interactive selection is also supported:
+The installer creates `.env` from `.env.example` only when it is missing, generates initial secrets, and asks before changing an existing `AGENT_NODE` value. Non-interactive selection is also supported:
 
 ```bash
 ./install.sh --deployment docker --node master
@@ -62,7 +63,7 @@ The container must be named `ocserv`. The Worker reads Ocserv logs through the D
 Copy and configure the environment file:
 
 ```bash
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Replace at least these values:
@@ -109,8 +110,8 @@ sudo ./backend agent-token get
 
 These commands reject master mode. Agent-token management is not exposed over HTTP.
 
-Use the following Compose configuration with the backend-only master image. For
-an agent deployment, change `Dockerfile.master` and the image tag to `agent`:
+Use the following Compose configuration for a full node. Keep the feature values
+in `.env` and `build.args` identical because they control both image contents and runtime services:
 
 ```yaml
 services:
@@ -119,9 +120,13 @@ services:
     image: ocserv-dashboard:latest
     build:
       context: .
-      dockerfile: deploy/docker/Dockerfile.master
+      dockerfile: deploy/docker/Dockerfile
       args:
         GO_VERSION: ${GO_VERSION:-1.26.0}
+        NODE_VERSION: ${NODE_VERSION:-24}
+        AGENT_NODE: ${AGENT_NODE:-false}
+        CUSTOMER_API_ENABLED: ${CUSTOMER_API_ENABLED:-true}
+        TELEGRAM_BOT_ENABLED: ${TELEGRAM_BOT_ENABLED:-false}
     env_file:
       - ./.env
     environment:
@@ -146,10 +151,10 @@ services:
     ports:
       - "${OCSERV_PORT:-443}:${OCSERV_PORT:-443}/tcp"
       - "${OCSERV_PORT:-443}:${OCSERV_PORT:-443}/udp"
-      - "8080:8080"
+      - "${HTTP_PORT:-80}:80"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -175,7 +180,11 @@ Build the image without Compose:
 ```bash
 sudo docker build \
   --build-arg GO_VERSION=1.26.0 \
-  -f deploy/docker/Dockerfile.master \
+  --build-arg NODE_VERSION=24 \
+  --build-arg AGENT_NODE=false \
+  --build-arg CUSTOMER_API_ENABLED=true \
+  --build-arg TELEGRAM_BOT_ENABLED=false \
+  -f deploy/docker/Dockerfile \
   -t ocserv-dashboard:master \
   .
 ```
@@ -203,7 +212,7 @@ sudo docker run -d \
   --volume /opt/ocserv_dashboard/docker_volumes/cron_journal:/app/cron_journal \
   --publish 443:443/tcp \
   --publish 443:443/udp \
-  --publish 8080:8080 \
+  --publish 80:80 \
   ocserv-dashboard:master
 ```
 
@@ -213,9 +222,13 @@ Follow its logs with:
 sudo docker logs -f ocserv
 ```
 
-## UI development Docker deployment
+For an agent image, build the same Dockerfile with `AGENT_NODE=true` and
+`CUSTOMER_API_ENABLED=false`; publish `8080:8080` instead of port 80. That
+variant skips both UI builds and does not start nginx.
 
-`deploy/docker/Dockerfile.dev` contains backend services only. It enables backend debug mode, permits local UI origins on ports `3000` and `5173`, disables Telegram by default, and supplies development-only database credentials.
+## Development Docker deployment
+
+`deploy/docker/Dockerfile.dev` provides the backend-only development image used by `scripts/dev.sh`; the admin and customer UIs continue to run from their local development servers.
 
 Development state is stored in the repository-local `.volume/` directory:
 
@@ -327,7 +340,7 @@ The development PostgreSQL server is available locally at `127.0.0.1:5435`.
 
 ### Standalone development container
 
-Build the UI-development backend image without Compose:
+Build the development image without Compose:
 
 ```bash
 sudo docker build \
@@ -412,13 +425,13 @@ journalctl -fu ocserv-dashboard
 Health check:
 
 ```bash
-curl -fsS http://127.0.0.1:8080/health
+curl -fsS http://127.0.0.1/health
 ```
 
 Open API documentation:
 
 ```text
-http://127.0.0.1:8080/swagger/index.html
+http://127.0.0.1/swagger/index.html
 ```
 
 Stop the production stack:

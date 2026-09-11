@@ -46,10 +46,10 @@ require_root() {
 
 load_environment() {
     if [[ ! -f "${SOURCE_ENV_FILE}" ]]; then
-        if [[ -f "${PROJECT_ROOT}/.env.sample" ]]; then
-            cp "${PROJECT_ROOT}/.env.sample" "${PROJECT_ROOT}/.env"
+        if [[ -f "${PROJECT_ROOT}/.env.example" ]]; then
+            cp "${PROJECT_ROOT}/.env.example" "${PROJECT_ROOT}/.env"
             chmod 600 "${PROJECT_ROOT}/.env"
-            die "created ${PROJECT_ROOT}/.env from .env.sample; set secure values and rerun"
+            die "created ${PROJECT_ROOT}/.env from .env.example; set secure values and rerun"
         fi
         die "environment file not found: ${SOURCE_ENV_FILE}"
     fi
@@ -267,8 +267,6 @@ Requires=ocserv.service
 Type=simple
 User=root
 WorkingDirectory=${INSTALL_DIR}
-Environment=TELEGRAM_BOT_ENABLED=false
-Environment=CUSTOMER_API_ENABLED=true
 EnvironmentFile=${INSTALLED_ENV_FILE}
 Environment=SYSTEMD=true
 Environment=AGENT_NODE=${DEPLOYMENT_AGENT_NODE}

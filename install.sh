@@ -101,6 +101,22 @@ confirm() {
     [[ "${answer,,}" == y || "${answer,,}" == yes ]]
 }
 
+env_value() {
+    local key="$1"
+    local fallback="$2"
+    local value
+
+    value="$(awk -F= -v key="${key}" '$1 == key { sub(/^[^=]*=/, ""); gsub(/^[[:space:]"\047]+|[[:space:]"\047]+$/, ""); print; exit }' "${ENV_FILE}")"
+    printf '%s\n' "${value:-${fallback}}"
+}
+
+normalized_bool() {
+    case "${1,,}" in
+        1|true|yes|on) printf 'true\n' ;;
+        *) printf 'false\n' ;;
+    esac
+}
+
 set_env_value() {
     local key="$1"
     local value="$2"
@@ -123,9 +139,9 @@ set_env_value() {
 prepare_environment() {
     local current_mode
     if [[ ! -f "${ENV_FILE}" ]]; then
-        [[ -f "${PROJECT_ROOT}/.env.sample" ]] || die ".env.sample is missing"
+        [[ -f "${PROJECT_ROOT}/.env.example" ]] || die ".env.example is missing"
         command -v openssl >/dev/null 2>&1 || die "openssl is required to generate initial secrets"
-        install -m 600 "${PROJECT_ROOT}/.env.sample" "${ENV_FILE}"
+        install -m 600 "${PROJECT_ROOT}/.env.example" "${ENV_FILE}"
         set_env_value SECRET_KEY "\"$(openssl rand -hex 32)\""
         set_env_value POSTGRES_PASSWORD "\"$(openssl rand -hex 32)\""
         set_env_value SUPERADMIN_PASSWORD "\"$(openssl rand -base64 24 | tr -d '\n')\""
@@ -159,7 +175,24 @@ install_docker() {
     local image="ocserv-dashboard:${node_mode}"
     local container="${CONTAINER_NAME:-ocserv}"
     local data_root="${DEPLOY_DATA_ROOT:-/opt/ocserv_dashboard/docker_volumes}"
-    local dockerfile="${PROJECT_ROOT}/deploy/docker/Dockerfile.${node_mode}"
+    local dockerfile="${PROJECT_ROOT}/deploy/docker/Dockerfile"
+    local customer_api_enabled
+    local telegram_bot_enabled
+    local http_port
+    local ocserv_port
+    local -a service_publish_args
+
+    customer_api_enabled="$(normalized_bool "$(env_value CUSTOMER_API_ENABLED true)")"
+    telegram_bot_enabled="$(normalized_bool "$(env_value TELEGRAM_BOT_ENABLED false)")"
+    http_port="$(env_value HTTP_PORT 80)"
+    ocserv_port="$(env_value OCSERV_PORT 443)"
+    [[ "${http_port}" =~ ^[0-9]+$ ]] || die "HTTP_PORT must be numeric"
+    [[ "${ocserv_port}" =~ ^[0-9]+$ ]] || die "OCSERV_PORT must be numeric"
+    if [[ "${agent_node}" == true ]]; then
+        service_publish_args=(--publish 8080:8080/tcp)
+    else
+        service_publish_args=(--publish "${http_port}:80/tcp")
+    fi
 
     check_docker
     [[ -f "${dockerfile}" ]] || die "Dockerfile not found: ${dockerfile}"
@@ -173,7 +206,15 @@ install_docker() {
             "${data_root}/cron_journal" "${data_root}/telegram_receipts"
     fi
 
-    "${docker_cmd[@]}" build --file "${dockerfile}" --tag "${image}" "${PROJECT_ROOT}"
+    "${docker_cmd[@]}" build \
+        --build-arg "GO_VERSION=$(env_value GO_VERSION 1.26.0)" \
+        --build-arg "NODE_VERSION=$(env_value NODE_VERSION 24)" \
+        --build-arg "AGENT_NODE=${agent_node}" \
+        --build-arg "CUSTOMER_API_ENABLED=${customer_api_enabled}" \
+        --build-arg "TELEGRAM_BOT_ENABLED=${telegram_bot_enabled}" \
+        --file "${dockerfile}" \
+        --tag "${image}" \
+        "${PROJECT_ROOT}"
     "${docker_cmd[@]}" run --detach \
         --name "${container}" \
         --restart unless-stopped \
@@ -191,9 +232,9 @@ install_docker() {
         --volume "${data_root}/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts" \
         --volume "${data_root}/postgresql18:/var/lib/postgresql" \
         --volume "${data_root}/cron_journal:/app/cron_journal" \
-        --publish 443:443/tcp \
-        --publish 443:443/udp \
-        --publish 8080:8080/tcp \
+        --publish "${ocserv_port}:${ocserv_port}/tcp" \
+        --publish "${ocserv_port}:${ocserv_port}/udp" \
+        "${service_publish_args[@]}" \
         "${image}"
     log "started Docker ${node_mode} node in container ${container}"
 }
@@ -217,7 +258,7 @@ main() {
     log "deployment=${deployment} node=${node_mode} AGENT_NODE=${agent_node}"
     if [[ "${dry_run}" == true ]]; then
         if [[ "${deployment}" == docker ]]; then
-            log "dry run: would use deploy/docker/Dockerfile.${node_mode}"
+            log "dry run: would use deploy/docker/Dockerfile with AGENT_NODE=${agent_node}"
         else
             log "dry run: would use deploy/systemd/${node_mode}/install.sh"
         fi

@@ -14,8 +14,13 @@ set -Eeuo pipefail
 : "${POSTGRES_READY_RETRY_SECONDS:=1}"
 : "${DEBUG:=0}"
 : "${OCSERV_DEBUG:=999}"
+: "${AGENT_NODE:=false}"
+: "${CUSTOMER_API_ENABLED:=true}"
+: "${TELEGRAM_BOT_ENABLED:=false}"
+: "${NGINX_ENABLED:=true}"
 
 backend_pid=''
+nginx_pid=''
 ocserv_pid=''
 postgres_pid=''
 stopping=false
@@ -140,13 +145,108 @@ stop_services() {
     fi
     stopping=true
 
-    log "stopping backend, Ocserv, and PostgreSQL"
+    log "stopping backend, nginx, Ocserv, and PostgreSQL"
     [[ -n "${backend_pid}" ]] && kill -TERM "${backend_pid}" 2>/dev/null || true
+    [[ -n "${nginx_pid}" ]] && kill -QUIT "${nginx_pid}" 2>/dev/null || true
     [[ -n "${ocserv_pid}" ]] && kill -TERM "${ocserv_pid}" 2>/dev/null || true
     [[ -n "${postgres_pid}" ]] && kill -INT "${postgres_pid}" 2>/dev/null || true
     [[ -n "${backend_pid}" ]] && wait "${backend_pid}" 2>/dev/null || true
+    [[ -n "${nginx_pid}" ]] && wait "${nginx_pid}" 2>/dev/null || true
     [[ -n "${ocserv_pid}" ]] && wait "${ocserv_pid}" 2>/dev/null || true
     [[ -n "${postgres_pid}" ]] && wait "${postgres_pid}" 2>/dev/null || true
+}
+
+validate_image_mode() {
+    local image_agent=false
+    local runtime_agent=false
+
+    is_true "${AGENT_NODE}" && runtime_agent=true
+    is_true "${IMAGE_AGENT_NODE:-${AGENT_NODE}}" && image_agent=true
+    if [[ "${runtime_agent}" != "${image_agent}" ]]; then
+        log "AGENT_NODE=${AGENT_NODE} does not match image build mode ${IMAGE_AGENT_NODE}"
+        return 1
+    fi
+    if ! is_true "${AGENT_NODE}" && is_true "${CUSTOMER_API_ENABLED}" && \
+       ! is_true "${IMAGE_CUSTOMER_API_ENABLED:-true}"; then
+        log "customer API is enabled but this image was built without the customer UI"
+        return 1
+    fi
+}
+
+configure_nginx() {
+    rm -f /etc/nginx/sites-enabled/default
+    if is_true "${AGENT_NODE}" || ! is_true "${NGINX_ENABLED}"; then
+        log "nginx and UI routes disabled"
+        return
+    fi
+
+    {
+        cat <<'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    root /usr/share/nginx/html;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location = /health {
+        proxy_pass http://127.0.0.1:8080/health;
+    }
+
+    location /swagger/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+EOF
+        if is_true "${CUSTOMER_API_ENABLED}"; then
+            cat <<'EOF'
+
+    location = /customer {
+        return 301 /customer/;
+    }
+
+    location /customer/ {
+        try_files $uri $uri/ /customer/index.html;
+    }
+EOF
+        else
+            cat <<'EOF'
+
+    location ^~ /customer {
+        return 404;
+    }
+EOF
+        fi
+        cat <<'EOF'
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+EOF
+    } >/etc/nginx/sites-enabled/ocserv-dashboard.conf
+
+    nginx -t
+}
+
+start_nginx() {
+    if is_true "${AGENT_NODE}" || ! is_true "${NGINX_ENABLED}"; then
+        return
+    fi
+    log "starting nginx for admin UI, API, and customer UI"
+    nginx -g 'daemon off;' &
+    nginx_pid=$!
 }
 
 handle_signal() {
@@ -159,9 +259,12 @@ handle_signal() {
 main() {
     local backend_args=(serve --docker-mode)
     local exit_code
+    local -a service_pids
 
     trap handle_signal SIGINT SIGTERM
 
+    validate_image_mode
+    configure_nginx
     load_postgres_password
     if ! start_postgres; then
         stop_services
@@ -183,6 +286,7 @@ main() {
     log "starting backend"
     /usr/local/bin/backend "${backend_args[@]}" &
     backend_pid=$!
+    start_nginx
 
     log "starting Ocserv with debug level ${OCSERV_DEBUG}"
     if [[ "${OCSERV_DEBUG}" == 0 ]]; then
@@ -198,7 +302,11 @@ main() {
     ocserv_pid=$!
 
     set +e
-    wait -n "${backend_pid}" "${ocserv_pid}" "${postgres_pid}"
+    service_pids=("${backend_pid}" "${ocserv_pid}" "${postgres_pid}")
+    if [[ -n "${nginx_pid}" ]]; then
+        service_pids+=("${nginx_pid}")
+    fi
+    wait -n "${service_pids[@]}"
     exit_code=$?
     set -e
 
@@ -207,4 +315,6 @@ main() {
     return "${exit_code}"
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

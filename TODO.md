@@ -8,3 +8,8 @@
 - [ ] Show online ocserv users by default in list (sorted by online users) #180 maybe possible
 - [ ] Add automatic update checks with GitHub release notifications, including a one-click update option #140 maybe possible
 - [ ] Publish official pre-built Docker images #100
+
+
+## Issue
+
+- [ ] telegram service disable update dashboard apio to send it to client and section of it in ui should follow api to ignore or add to routes

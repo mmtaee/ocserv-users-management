@@ -34,13 +34,13 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=backend-builder /out/backend /usr/local/bin/backend
-COPY --chmod=755 deploy/docker/entrypoint-master.sh /usr/local/bin/container-entrypoint
-COPY --chmod=755 deploy/docker/common/entrypoint.sh /usr/local/bin/container-entrypoint-common
+COPY --chmod=755 deploy/docker/common/entrypoint.sh /usr/local/bin/container-entrypoint
 COPY --chmod=755 deploy/docker/common/server.sh /usr/local/bin/container-server
 
 ENV DEBUG=1 \
     SECRET_KEY=development-secret-key \
     AGENT_NODE=false \
+    NGINX_ENABLED=false \
     SUPERADMIN_USERNAME=admin \
     SUPERADMIN_PASSWORD=admin \
     ALLOW_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173 \
@@ -78,9 +78,6 @@ RUN mkdir -p \
         /etc/ocserv/users
 
 EXPOSE 443/tcp 443/udp 5432/tcp 8080/tcp
-
-# scripts/dev.sh and the development Compose example bind-mount the
-# repository-local .volume directory onto these runtime paths.
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
     CMD curl --fail --silent http://127.0.0.1:8080/health >/dev/null || exit 1
