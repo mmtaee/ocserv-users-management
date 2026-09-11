@@ -5,8 +5,10 @@ import { isTestMode } from "@/api/environment";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 type UnauthorizedHandler = () => void | Promise<unknown>;
+type ServerRequestErrorHandler = () => void | Promise<unknown>;
 
 let unauthorizedHandler: UnauthorizedHandler | null = null;
+let serverRequestErrorHandler: ServerRequestErrorHandler | null = null;
 
 export const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "/api").replace(
   /\/$/,
@@ -63,6 +65,12 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler): void {
   unauthorizedHandler = handler;
 }
 
+export function setServerRequestErrorHandler(
+  handler: ServerRequestErrorHandler,
+): void {
+  serverRequestErrorHandler = handler;
+}
+
 export const httpClient: AxiosInstance = axios.create({
   baseURL: apiBaseUrl,
   timeout:
@@ -73,6 +81,10 @@ export const httpClient: AxiosInstance = axios.create({
     Accept: "application/json",
   },
 });
+
+export function setApiBaseUrl(baseUrl: string): void {
+  httpClient.defaults.baseURL = baseUrl;
+}
 
 httpClient.interceptors.request.use((config) => {
   if (isTestMode) {
@@ -96,6 +108,23 @@ httpClient.interceptors.response.use(
   (response) => response,
   async (error: unknown) => {
     const apiError = normalizeApiError(error);
+    const requestBaseUrl = axios.isAxiosError(error)
+      ? error.config?.baseURL
+      : undefined;
+
+    if (
+      requestBaseUrl &&
+      requestBaseUrl !== apiBaseUrl &&
+      (!axios.isAxiosError(error) ||
+        !error.response ||
+        error.response.status >= 500)
+    ) {
+      try {
+        await serverRequestErrorHandler?.();
+      } catch {
+        // Preserve the request error when server-state handling fails.
+      }
+    }
 
     if (apiError.status === 401) {
       clearAccessToken();

@@ -14,6 +14,13 @@ export default {
     switchToDarkTheme: "Переключить на тёмную тему",
     mobileSidebarDescription:
       "Отображает боковую панель на мобильных устройствах.",
+    masterServer: "Основной",
+    serverSelector: "Выбор сервера",
+    serverErrors: {
+      agentList: "Не удалось загрузить список серверов-агентов.",
+      invalidAddress: "У этого агента недопустимый адрес сервера.",
+      unavailable: "Выбранный сервер-агент недоступен.",
+    },
   },
   auth: {
     title: "С возвращением",

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Pencil, Plus, RefreshCw, Save, Trash2 } from "@lucide/vue";
 import { computed, onMounted, reactive, shallowRef } from "vue";
+import { storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
 import { normalizeApiError } from "@/api/http";
+import { MASTER_SERVER, useServerStore } from "@/stores/server";
 import {
   ModelsAgentAddressType,
   type RuntimeOcservConfig,
@@ -11,7 +13,6 @@ import {
   createOcservAgent,
   deleteOcservAgent,
   getOcservAgent,
-  getOcservAgents,
   getOcservConfig,
   getSystemConfig,
   getSystemRelease,
@@ -70,12 +71,13 @@ import {
 } from "@/components/ui/sheet";
 
 const { t } = useI18n({ useScope: "global" });
+const serverStore = useServerStore();
+const { agents, selectedServer } = storeToRefs(serverStore);
 const loading = shallowRef(true),
   saving = shallowRef<"system" | "ocserv" | "agent" | "delete" | null>(null),
   error = shallowRef(""),
   success = shallowRef("");
 const release = shallowRef<{ current: string; latest: string } | null>(null),
-  agents = shallowRef<OcservAgent[]>([]),
   ocservOriginal = shallowRef<RuntimeOcservConfig>({}),
   allowOcservUpdate = shallowRef(false),
   ocservError = shallowRef(""),
@@ -96,6 +98,7 @@ const agent = reactive<OcservAgentCreate>({
   name: "",
   address: "",
   address_type: ModelsAgentAddressType.AgentAddressTypeDomain,
+  port: 443,
   token: "",
 });
 const ocserv = reactive<RuntimeOcservConfig>({});
@@ -136,7 +139,13 @@ const updateAvailable = computed(() =>
   Boolean(release.value && release.value.current !== release.value.latest),
 );
 const agentValid = computed(() =>
-  Boolean(agent.name.trim() && agent.address.trim() && agent.token.trim()),
+  Boolean(
+    agent.name.trim() &&
+      agent.address.trim() &&
+      agent.token.trim() &&
+      (agent.port == null ||
+        (Number.isInteger(agent.port) && agent.port >= 1 && agent.port <= 65535)),
+  ),
 );
 function setPanel(value: SystemConfig): boolean {
   const keys = Object.keys(panel) as (keyof SystemUpdateData)[];
@@ -150,6 +159,7 @@ function resetAgent(): void {
     name: "",
     address: "",
     address_type: ModelsAgentAddressType.AgentAddressTypeDomain,
+    port: 443,
     token: "",
   });
 }
@@ -186,11 +196,11 @@ async function refresh(): Promise<void> {
   loading.value = true;
   error.value = "";
   try {
-    const [system, config, nextRelease, nextAgents] = await Promise.all([
+    const [system, config, nextRelease] = await Promise.all([
       getSystemConfig(),
       getOcservConfig(),
       getSystemRelease(),
-      getOcservAgents(),
+      serverStore.refreshAgents(),
     ]);
     if (!setPanel(system))
       throw new Error(t("systemSettings.invalidSystemConfig"));
@@ -199,7 +209,6 @@ async function refresh(): Promise<void> {
     ocservOriginal.value = ocservConfig;
     setOcserv(ocservConfig);
     release.value = nextRelease;
-    agents.value = nextAgents;
   } catch (cause) {
     error.value = normalizeApiError(cause).message;
   } finally {
@@ -266,7 +275,7 @@ async function saveAgent(): Promise<void> {
   try {
     if (editingAgentId.value == null) await createOcservAgent({ ...agent });
     else await updateOcservAgent(editingAgentId.value, { ...agent });
-    await refresh();
+    await serverStore.refreshAgents();
     resetAgent();
     agentDialogOpen.value = false;
     success.value = t("systemSettings.agentSaved");
@@ -282,7 +291,7 @@ async function removeAgent(): Promise<void> {
   try {
     await deleteOcservAgent(deleteAgent.value.id);
     deleteAgent.value = null;
-    await refresh();
+    await serverStore.refreshAgents();
     success.value = t("systemSettings.agentDeleted");
   } catch (cause) {
     error.value = normalizeApiError(cause).message;
@@ -325,6 +334,7 @@ onMounted(refresh);
     <div class="flex flex-wrap gap-2" role="tablist">
       <Button
         v-for="tab in ['release', 'panel', 'ocserv', 'agents'] as const"
+        v-show="tab !== 'agents' || selectedServer === MASTER_SERVER"
         :key="tab"
         type="button"
         :variant="activeTab === tab ? 'default' : 'outline'"
@@ -353,15 +363,23 @@ onMounted(refresh);
           </p>
           <p>{{ release.latest }}</p>
         </div>
-        <p class="sm:col-span-2 text-sm">
-          {{
+        <Alert
+          class="sm:col-span-2"
+          :variant="updateAvailable ? 'destructive' : 'default'"
+          :class="
+            updateAvailable
+              ? 'border-destructive bg-destructive/10'
+              : 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-400'
+          "
+        >
+          <AlertDescription>{{
             t(
               updateAvailable
                 ? "systemSettings.updateAvailable"
                 : "systemSettings.upToDate",
             )
-          }}
-        </p></CardContent
+          }}</AlertDescription>
+        </Alert></CardContent
       ></Card
     >
     <Card v-if="activeTab === 'panel'"
@@ -531,7 +549,8 @@ onMounted(refresh);
         ></CardFooter
       ></Card
     >
-    <Card v-if="activeTab === 'agents'"
+    <Card
+      v-if="activeTab === 'agents' && selectedServer === MASTER_SERVER"
       ><CardHeader
         ><CardTitle>{{ t("systemSettings.agents") }}</CardTitle
         ><CardDescription>{{
@@ -568,6 +587,12 @@ onMounted(refresh);
                   {{ t("systemSettings.agentAddress") }}
                 </th>
                 <th class="p-2 text-start">
+                  {{ t("systemSettings.addressType") }}
+                </th>
+                <th class="p-2 text-start">
+                  {{ t("systemSettings.serverPort") }}
+                </th>
+                <th class="p-2 text-start">
                   {{ t("systemSettings.actions") }}
                 </th>
               </tr>
@@ -575,9 +600,17 @@ onMounted(refresh);
             <tbody>
               <tr v-for="item in agents" :key="item.id">
                 <td class="p-2">{{ item.name }}</td>
+                <td class="p-2">{{ item.address }}</td>
                 <td class="p-2">
-                  {{ item.address }} ({{ item.address_type }})
+                  {{
+                    t(
+                      item.address_type === "ip"
+                        ? "systemSettings.ip"
+                        : "systemSettings.domain",
+                    )
+                  }}
                 </td>
+                <td class="p-2">{{ item.port ?? 443 }}</td>
                 <td class="flex gap-2 p-2">
                   <Button
                     size="sm"
@@ -675,7 +708,7 @@ onMounted(refresh);
             ><SheetDescription>{{
               t("systemSettings.agentsDescription")
             }}</SheetDescription></SheetHeader
-          ><FieldGroup class="p-4"            >
+          ><FieldGroup class="p-4">
             <Field
               ><FieldLabel for="sheet-agent-name">{{
                 t("systemSettings.agentName")
@@ -711,6 +744,17 @@ onMounted(refresh);
                   {{ t("systemSettings.ip") }}
                 </option>
               </select></Field
+            ><Field
+              ><FieldLabel for="sheet-agent-port">{{
+                t("systemSettings.serverPort")
+              }}</FieldLabel
+              ><Input
+                id="sheet-agent-port"
+                v-model.number="agent.port"
+                type="number"
+                min="1"
+                max="65535"
+                :disabled="saving !== null" /></Field
             ><Field
               ><FieldLabel for="sheet-agent-token">{{
                 t("systemSettings.agentToken")

@@ -264,6 +264,7 @@ export interface ModelsOcservAgent {
   created_at?: string;
   id?: number;
   name: string;
+  port?: number;
   token: string;
   updated_at?: string;
 }
@@ -561,6 +562,7 @@ export interface OcservAgentCreateInput {
   address: string;
   address_type: ModelsAgentAddressType;
   name: string;
+  port?: number;
   token: string;
 }
 
@@ -568,6 +570,7 @@ export interface OcservAgentUpdateInput {
   address: string;
   address_type: ModelsAgentAddressType;
   name: string;
+  port?: number;
   token: string;
 }
 

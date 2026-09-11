@@ -1,6 +1,7 @@
 import { requireAuthorizationHeader } from "@/api/auth-token";
 import { api } from "@/api/client";
 import { isTestMode } from "@/api/environment";
+import { apiBaseUrl } from "@/api/http";
 import type {
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemInitResponse,
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemResponse,
@@ -130,9 +131,10 @@ export async function getSystemRelease(): Promise<SystemRelease> {
 export async function getOcservAgents(): Promise<OcservAgent[]> {
   if (isTestMode) return getMockAgents();
   return (
-    await api.agents.ocservAgentsGet({
-      authorization: requireAuthorizationHeader(),
-    })
+    await api.agents.ocservAgentsGet(
+      { authorization: requireAuthorizationHeader() },
+      { baseURL: apiBaseUrl },
+    )
   ).data;
 }
 
@@ -140,10 +142,10 @@ export async function getOcservAgent(id: number): Promise<OcservAgent> {
   if (isTestMode)
     return (await getMockAgents()).find((agent) => agent.id === id)!;
   return (
-    await api.agents.ocservAgentsIdGet({
-      authorization: requireAuthorizationHeader(),
-      id,
-    })
+    await api.agents.ocservAgentsIdGet(
+      { authorization: requireAuthorizationHeader(), id },
+      { baseURL: apiBaseUrl },
+    )
   ).data;
 }
 
@@ -152,10 +154,10 @@ export async function createOcservAgent(
 ): Promise<OcservAgent> {
   if (isTestMode) return (await mutateMockAgent("create", request))!;
   return (
-    await api.agents.ocservAgentsPost({
-      authorization: requireAuthorizationHeader(),
-      request,
-    })
+    await api.agents.ocservAgentsPost(
+      { authorization: requireAuthorizationHeader(), request },
+      { baseURL: apiBaseUrl },
+    )
   ).data;
 }
 
@@ -165,21 +167,20 @@ export async function updateOcservAgent(
 ): Promise<OcservAgent> {
   if (isTestMode) return (await mutateMockAgent("update", request, id))!;
   return (
-    await api.agents.ocservAgentsIdPatch({
-      authorization: requireAuthorizationHeader(),
-      id,
-      request,
-    })
+    await api.agents.ocservAgentsIdPatch(
+      { authorization: requireAuthorizationHeader(), id, request },
+      { baseURL: apiBaseUrl },
+    )
   ).data;
 }
 
 export async function deleteOcservAgent(id: number): Promise<void> {
   if (isTestMode)
     return mutateMockAgent("delete", undefined, id) as Promise<void>;
-  await api.agents.ocservAgentsIdDelete({
-    authorization: requireAuthorizationHeader(),
-    id,
-  });
+  await api.agents.ocservAgentsIdDelete(
+    { authorization: requireAuthorizationHeader(), id },
+    { baseURL: apiBaseUrl },
+  );
 }
 
 export async function getRuntimeStatus(): Promise<OcservRuntimeStatus> {

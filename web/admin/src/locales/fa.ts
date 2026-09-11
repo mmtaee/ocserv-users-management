@@ -13,6 +13,13 @@ export default {
     switchToLightTheme: "تغییر به پوسته روشن",
     switchToDarkTheme: "تغییر به پوسته تیره",
     mobileSidebarDescription: "نوار کناری نسخه موبایل را نمایش می‌دهد.",
+    masterServer: "سرور اصلی",
+    serverSelector: "انتخاب سرور",
+    serverErrors: {
+      agentList: "فهرست سرورهای عامل بارگذاری نشد.",
+      invalidAddress: "نشانی سرور این عامل نامعتبر است.",
+      unavailable: "سرور عامل انتخاب‌شده در دسترس نیست.",
+    },
   },
   auth: {
     title: "خوش آمدید",

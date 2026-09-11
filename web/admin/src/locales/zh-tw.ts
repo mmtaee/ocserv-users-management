@@ -13,6 +13,13 @@ export default {
     switchToLightTheme: "切換至淺色主題",
     switchToDarkTheme: "切換至深色主題",
     mobileSidebarDescription: "顯示行動版側邊欄。",
+    masterServer: "主伺服器",
+    serverSelector: "伺服器選擇器",
+    serverErrors: {
+      agentList: "無法載入代理伺服器清單。",
+      invalidAddress: "此代理的伺服器位址無效。",
+      unavailable: "所選代理伺服器無法使用。",
+    },
   },
   auth: {
     title: "歡迎回來",

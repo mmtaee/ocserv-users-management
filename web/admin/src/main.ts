@@ -2,12 +2,16 @@ import { createPinia } from "pinia";
 import { createApp } from "vue";
 
 import App from "./App.vue";
-import { setUnauthorizedHandler } from "@/api/http";
+import {
+  setServerRequestErrorHandler,
+  setUnauthorizedHandler,
+} from "@/api/http";
 import { useTheme } from "@/composables/use-theme";
 import { i18n } from "@/locales";
 import { installRouterGuards, router } from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { useSystemInitStore } from "@/stores/system-init";
+import { useServerStore } from "@/stores/server";
 
 import "./style.css";
 
@@ -22,6 +26,7 @@ async function bootstrap(): Promise<void> {
 
   const systemInit = useSystemInitStore(pinia);
   const auth = useAuthStore(pinia);
+  const server = useServerStore(pinia);
 
   await systemInit.initialize();
 
@@ -39,6 +44,7 @@ async function bootstrap(): Promise<void> {
       await router.replace({ name: "login" });
     }
   });
+  setServerRequestErrorHandler(server.markUnavailable);
 
   await router.isReady();
   app.mount("#app");

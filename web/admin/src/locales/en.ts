@@ -11,6 +11,13 @@ const en = {
     switchToLightTheme: "Switch to light theme",
     switchToDarkTheme: "Switch to dark theme",
     mobileSidebarDescription: "Displays the mobile sidebar.",
+    masterServer: "Master",
+    serverSelector: "Server selector",
+    serverErrors: {
+      agentList: "The agent server list could not be loaded.",
+      invalidAddress: "This agent has an invalid server address.",
+      unavailable: "The selected agent server is unavailable.",
+    },
   },
   auth: {
     title: "Welcome back",

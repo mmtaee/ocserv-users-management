@@ -13,6 +13,13 @@ export default {
     switchToLightTheme: "Passa al tema chiaro",
     switchToDarkTheme: "Passa al tema scuro",
     mobileSidebarDescription: "Mostra la barra laterale su dispositivi mobili.",
+    masterServer: "Principale",
+    serverSelector: "Selettore server",
+    serverErrors: {
+      agentList: "Impossibile caricare l'elenco dei server agent.",
+      invalidAddress: "Questo agent ha un indirizzo server non valido.",
+      unavailable: "Il server agent selezionato non è disponibile.",
+    },
   },
   auth: {
     title: "Bentornato",

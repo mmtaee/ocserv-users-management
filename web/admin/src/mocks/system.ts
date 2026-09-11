@@ -40,14 +40,33 @@ let ocservConfig: RuntimeOcservConfig = {
   tcp_port: 443,
   udp_port: 443,
 };
-let agents: ModelsOcservAgent[] = [
+type MockAgent = ModelsOcservAgent;
+
+let agents: MockAgent[] = [
   {
     id: 1,
     name: "Primary agent",
     address: "vpn.example.test",
     address_type: "domain",
     token: "agent-token",
+    port: 8080,
     created_at: "2026-01-01T00:00:00Z",
+  },
+  {
+    id: 2,
+    name: "Backup agent",
+    address: "192.0.2.20",
+    address_type: "ip",
+    token: "backup-agent-token",
+    port: 8081,
+  },
+  {
+    id: 3,
+    name: "Edge agent",
+    address: "edge.example.test",
+    address_type: "domain",
+    token: "edge-agent-token",
+    port: 8080,
   },
 ];
 
@@ -98,7 +117,16 @@ export async function getMockRelease(): Promise<GithubComMmtaeeOcservDashboardBa
 }
 export async function getMockAgents(): Promise<ModelsOcservAgent[]> {
   await wait();
-  return cloneMock(scenario() === "empty" ? [] : agents);
+  if (scenario() === "agent-list-error")
+    throw new ApiError("Agent list is unavailable.", { status: 503 });
+  if (["empty", "no-agents"].includes(scenario())) return [];
+  if (scenario() === "multiple-agents") return cloneMock(agents);
+  if (scenario() === "agent-unavailable") return cloneMock(agents.slice(0, 1));
+  if (scenario() === "selected-agent-removed")
+    return cloneMock(agents.slice(1));
+  if (scenario() === "malformed-agent-address")
+    return cloneMock([{ ...agents[0], address: "" }]);
+  return cloneMock(agents.slice(0, 1));
 }
 export async function mutateMockAgent(
   action: "create" | "update" | "delete",

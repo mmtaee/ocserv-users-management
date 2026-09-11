@@ -13,6 +13,13 @@ export default {
     switchToLightTheme: "التبديل إلى السمة الفاتحة",
     switchToDarkTheme: "التبديل إلى السمة الداكنة",
     mobileSidebarDescription: "يعرض الشريط الجانبي على الأجهزة المحمولة.",
+    masterServer: "الخادم الرئيسي",
+    serverSelector: "محدد الخادم",
+    serverErrors: {
+      agentList: "تعذر تحميل قائمة خوادم الوكلاء.",
+      invalidAddress: "عنوان خادم هذا الوكيل غير صالح.",
+      unavailable: "خادم الوكيل المحدد غير متاح.",
+    },
   },
   auth: {
     title: "مرحبًا بعودتك",
