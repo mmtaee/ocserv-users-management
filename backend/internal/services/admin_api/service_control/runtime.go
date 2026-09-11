@@ -1,4 +1,4 @@
-package runtime
+package servicecontrol
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	platformsystemd "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/systemd"
-	systemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/system"
+	servicecontrolusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/service_control"
 )
 
 const (
@@ -26,9 +26,20 @@ func NewSystemdRuntime(client platformsystemd.ClientInterface, enabled bool) *Sy
 	return &SystemdRuntime{client: client, enabled: enabled}
 }
 
-func (r *SystemdRuntime) Status(ctx context.Context) (*systemusecase.Status, error) {
+func (r *SystemdRuntime) AllowedActions() []servicecontrolusecase.Action {
 	if !r.enabled {
-		return nil, systemusecase.ErrUnavailable
+		return []servicecontrolusecase.Action{}
+	}
+	return []servicecontrolusecase.Action{
+		servicecontrolusecase.ActionRestart,
+		servicecontrolusecase.ActionEnable,
+		servicecontrolusecase.ActionDisable,
+	}
+}
+
+func (r *SystemdRuntime) Status(ctx context.Context) (*servicecontrolusecase.Status, error) {
+	if !r.enabled {
+		return nil, servicecontrolusecase.ErrUnavailable
 	}
 	output, err := r.client.Status(ctx)
 	if err != nil {
@@ -39,21 +50,21 @@ func (r *SystemdRuntime) Status(ctx context.Context) (*systemusecase.Status, err
 
 func (r *SystemdRuntime) Restart(ctx context.Context) error {
 	if !r.enabled {
-		return systemusecase.ErrUnavailable
+		return servicecontrolusecase.ErrUnavailable
 	}
 	return r.client.Restart(ctx)
 }
 
 func (r *SystemdRuntime) Enable(ctx context.Context) error {
 	if !r.enabled {
-		return systemusecase.ErrUnavailable
+		return servicecontrolusecase.ErrUnavailable
 	}
 	return r.client.Enable(ctx)
 }
 
 func (r *SystemdRuntime) Disable(ctx context.Context) error {
 	if !r.enabled {
-		return systemusecase.ErrUnavailable
+		return servicecontrolusecase.ErrUnavailable
 	}
 	return r.client.Disable(ctx)
 }
@@ -75,7 +86,11 @@ func NewDockerRuntime(client DockerClient, containerName string) *DockerRuntime 
 	return &DockerRuntime{client: client, containerName: containerName}
 }
 
-func NewRuntime(dockerMode, systemdEnabled bool) (systemusecase.Runtime, error) {
+func (r *DockerRuntime) AllowedActions() []servicecontrolusecase.Action {
+	return []servicecontrolusecase.Action{}
+}
+
+func NewRuntime(dockerMode, systemdEnabled bool) (servicecontrolusecase.Runtime, error) {
 	if !dockerMode {
 		return NewSystemdRuntime(platformsystemd.NewClient(OcservSystemdService), systemdEnabled), nil
 	}
@@ -86,7 +101,7 @@ func NewRuntime(dockerMode, systemdEnabled bool) (systemusecase.Runtime, error) 
 	return NewDockerRuntime(dockerClient, OcservDockerContainer), nil
 }
 
-func (r *DockerRuntime) Status(ctx context.Context) (*systemusecase.Status, error) {
+func (r *DockerRuntime) Status(ctx context.Context) (*servicecontrolusecase.Status, error) {
 	inspection, err := r.client.ContainerInspect(ctx, r.containerName)
 	if err != nil {
 		return nil, err
@@ -102,7 +117,7 @@ func (r *DockerRuntime) Status(ctx context.Context) (*systemusecase.Status, erro
 	if inspection.HostConfig != nil && !inspection.HostConfig.RestartPolicy.IsNone() {
 		unitState = "enabled"
 	}
-	return &systemusecase.Status{
+	return &servicecontrolusecase.Status{
 		ID: r.containerName, Description: "Docker container " + r.containerName,
 		ActiveState: active, SubState: string(inspection.State.Status), UnitFileState: unitState,
 		MainPID: inspection.State.Pid, StartTime: inspection.State.StartedAt,
@@ -147,7 +162,7 @@ func (r *DockerRuntime) Disable(ctx context.Context) error {
 	return nil
 }
 
-func parseSystemdStatus(output string) *systemusecase.Status {
+func parseSystemdStatus(output string) *servicecontrolusecase.Status {
 	data := make(map[string]string)
 	for _, line := range strings.Split(output, "\n") {
 		parts := strings.SplitN(line, "=", 2)
@@ -155,7 +170,7 @@ func parseSystemdStatus(output string) *systemusecase.Status {
 			data[parts[0]] = parts[1]
 		}
 	}
-	return &systemusecase.Status{
+	return &servicecontrolusecase.Status{
 		ID: data["Id"], Description: data["Description"], ActiveState: data["ActiveState"],
 		SubState: data["SubState"], UnitFileState: data["UnitFileState"],
 		MainPID: toInt(data["MainPID"]), StartTime: data["ExecMainStartTimestamp"],

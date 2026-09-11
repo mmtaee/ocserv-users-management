@@ -14,7 +14,7 @@ func (s *Service) Register(e *echo.Group) {
 	s.registerDashboardRoutes(e)
 	s.registerBackupRoutes(e)
 	s.registerReportRoutes(e)
-	s.registerRuntimeRoutes(e)
+	s.registerServiceControlRoutes(e)
 	if s.telegramRoutes {
 		s.registerTelegramRoutes(e)
 	}
@@ -124,12 +124,12 @@ func (s *Service) registerReportRoutes(e *echo.Group) {
 	g.GET("/total-bandwidth", s.reports.TotalBandwidth)
 }
 
-func (s *Service) registerRuntimeRoutes(e *echo.Group) {
+func (s *Service) registerServiceControlRoutes(e *echo.Group) {
 	g := e.Group("/systemd", s.authenticate, middlewares.SuperadminPermission())
-	g.GET("/status", s.runtime.Status)
-	g.POST("/restart", s.runtime.Restart, middlewares.RateLimitMiddleware(1, "m", 1))
-	g.POST("/disable", s.runtime.Disable, middlewares.RateLimitMiddleware(1, "m", 1))
-	g.POST("/enable", s.runtime.Enable, middlewares.RateLimitMiddleware(1, "m", 1))
+	g.GET("/status", s.serviceControl.Status)
+	g.POST("/restart", s.serviceControl.Restart, middlewares.RateLimitMiddleware(1, "m", 1))
+	g.POST("/disable", s.serviceControl.Disable, middlewares.RateLimitMiddleware(1, "m", 1))
+	g.POST("/enable", s.serviceControl.Enable, middlewares.RateLimitMiddleware(1, "m", 1))
 }
 
 func (s *Service) registerTelegramRoutes(e *echo.Group) {

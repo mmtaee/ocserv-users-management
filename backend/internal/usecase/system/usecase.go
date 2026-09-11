@@ -8,58 +8,27 @@ import (
 )
 
 type Usecase struct {
-	runtime Runtime
-	config  ConfigStore
+	runtime     Runtime
+	config      ConfigStore
+	allowUpdate bool
 }
 
-func New(runtime Runtime, config ConfigStore) *Usecase {
-	return &Usecase{runtime: runtime, config: config}
+func New(runtime Runtime, config ConfigStore, allowUpdate bool) *Usecase {
+	return &Usecase{runtime: runtime, config: config, allowUpdate: allowUpdate}
 }
 
-func (u *Usecase) Status(ctx context.Context) (*Status, error) {
-	return u.runtime.Status(ctx)
-}
-
-func (u *Usecase) Restart(ctx context.Context) (*ActionResult, error) {
-	if err := u.runtime.Restart(ctx); err != nil {
-		return nil, err
-	}
-	return &ActionResult{Message: "service restarting started successfully"}, nil
-}
-
-func (u *Usecase) Enable(ctx context.Context) (*ActionResult, error) {
-	status, err := u.runtime.Status(ctx)
+func (u *Usecase) Config(ctx context.Context) (*ConfigResponse, error) {
+	config, err := u.config.Read(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if status.UnitFileState == "enabled" {
-		return &ActionResult{Message: "service already enabled"}, nil
-	}
-	if err := u.runtime.Enable(ctx); err != nil {
-		return nil, err
-	}
-	return &ActionResult{Message: "service enabling started successfully"}, nil
-}
-
-func (u *Usecase) Disable(ctx context.Context) (*ActionResult, error) {
-	status, err := u.runtime.Status(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if status.UnitFileState == "disabled" {
-		return &ActionResult{Message: "service already disabled"}, nil
-	}
-	if err := u.runtime.Disable(ctx); err != nil {
-		return nil, err
-	}
-	return &ActionResult{Message: "service disabling started successfully"}, nil
-}
-
-func (u *Usecase) Config(ctx context.Context) (*OcservConfig, error) {
-	return u.config.Read(ctx)
+	return &ConfigResponse{OcservConfig: *config, AllowUpdate: u.allowUpdate}, nil
 }
 
 func (u *Usecase) UpdateConfig(ctx context.Context, changes OcservConfig) (*OcservConfig, error) {
+	if !u.allowUpdate {
+		return nil, ErrUpdateNotAllowed
+	}
 	if err := ValidateConfig(changes); err != nil {
 		return nil, err
 	}

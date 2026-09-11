@@ -1,8 +1,18 @@
 {
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Administrative API for managing Ocserv Dashboard users, groups, reports, runtime, backups, system settings, Telegram integrations, and agent nodes.",
+        "title": "Ocserv Dashboard Admin API",
+        "contact": {},
+        "version": "1.0"
     },
+    "basePath": "/api",
     "paths": {
         "/auth/logout": {
             "post": {
@@ -2387,7 +2397,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/runtime.OcservConfig"
+                            "$ref": "#/definitions/runtime.ConfigResponse"
                         }
                     },
                     "400": {
@@ -2411,6 +2421,7 @@
                 }
             },
             "patch": {
+                "description": "Available only in normal/systemd mode; Docker deployments reject updates.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2513,6 +2524,13 @@
                         "schema": {
                             "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2526,6 +2544,12 @@
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
                         }
                     }
                 }
@@ -2817,7 +2841,7 @@
         "/systemd/disable": {
             "post": {
                 "tags": [
-                    "System"
+                    "Service Control"
                 ],
                 "summary": "Disable Ocserv runtime",
                 "parameters": [
@@ -2833,7 +2857,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/runtime.ActionResponse"
+                            "$ref": "#/definitions/servicecontrol.ActionResponse"
                         }
                     },
                     "400": {
@@ -2860,7 +2884,7 @@
         "/systemd/enable": {
             "post": {
                 "tags": [
-                    "System"
+                    "Service Control"
                 ],
                 "summary": "Enable Ocserv runtime",
                 "parameters": [
@@ -2876,7 +2900,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/runtime.ActionResponse"
+                            "$ref": "#/definitions/servicecontrol.ActionResponse"
                         }
                     },
                     "400": {
@@ -2903,7 +2927,7 @@
         "/systemd/restart": {
             "post": {
                 "tags": [
-                    "System"
+                    "Service Control"
                 ],
                 "summary": "Restart Ocserv runtime",
                 "parameters": [
@@ -2919,7 +2943,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/runtime.ActionResponse"
+                            "$ref": "#/definitions/servicecontrol.ActionResponse"
                         }
                     },
                     "400": {
@@ -2946,7 +2970,7 @@
         "/systemd/status": {
             "get": {
                 "tags": [
-                    "System"
+                    "Service Control"
                 ],
                 "summary": "Ocserv runtime status",
                 "parameters": [
@@ -2962,7 +2986,924 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/runtime.StatusResponse"
+                            "$ref": "#/definitions/servicecontrol.StatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/accounts": {
+            "get": {
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "List Telegram accounts for an Ocserv user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Ocserv user ID",
+                        "name": "ocserv_user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TelegramAccount"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/accounts/{id}": {
+            "delete": {
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Delete Telegram account link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Telegram account ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/packages": {
+            "get": {
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "List Telegram packages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include inactive packages",
+                        "name": "include_inactive",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TelegramPackage"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Create Telegram package",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Telegram package",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.CreatePackageData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.TelegramPackage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/packages/{id}": {
+            "delete": {
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Delete Telegram package",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Update Telegram package",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Telegram package changes",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchPackageData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TelegramPackage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/requests": {
+            "get": {
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "List Telegram requests",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number, starting from 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Field to order by",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ASC",
+                            "DESC"
+                        ],
+                        "type": "string",
+                        "default": "DESC",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "pending",
+                            "awaiting_payment",
+                            "payment_uploaded",
+                            "approved",
+                            "rejected",
+                            "delivered"
+                        ],
+                        "type": "string",
+                        "description": "Request status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "new",
+                            "renew"
+                        ],
+                        "type": "string",
+                        "description": "Request type",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RequestsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/requests/{id}": {
+            "get": {
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Get Telegram request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TelegramRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Delete Telegram request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/requests/{id}/approve": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Approve Telegram request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Approval details",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ApproveData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TelegramRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/requests/{id}/confirm-payment": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Confirm Telegram request payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Delivery overrides",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ConfirmPaymentData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/requests/{id}/receipt": {
+            "get": {
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Download Telegram request receipt",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Receipt file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/requests/{id}/reject": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Reject Telegram request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Rejection details",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RejectData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TelegramRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/settings": {
+            "get": {
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Get Telegram settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Update Telegram settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Telegram settings changes",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchSettingsData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/telegram/test": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Test Telegram bot delivery",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Optional test message",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.TestData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "400": {
@@ -3294,8 +4235,7 @@
             "type": "object",
             "required": [
                 "new_password",
-                "secret_key",
-                "username"
+                "secret_key"
             ],
             "properties": {
                 "new_password": {
@@ -3307,9 +4247,6 @@
                     "type": "string",
                     "maxLength": 64,
                     "minLength": 16
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
@@ -3357,6 +4294,272 @@
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ApproveData": {
+            "type": "object",
+            "properties": {
+                "admin_note": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "card_holder": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "card_number": {
+                    "description": "Optional overrides; empty strings fall back to Telegram settings card_number/card_holder.",
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "reply_to_user": {
+                    "type": "string",
+                    "maxLength": 1024
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ConfirmPaymentData": {
+            "type": "object",
+            "properties": {
+                "admin_note": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "group": {
+                    "type": "string",
+                    "maxLength": 16
+                },
+                "override_password": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 4
+                },
+                "override_username": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 3
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.CreatePackageData": {
+            "type": "object",
+            "required": [
+                "days",
+                "title",
+                "traffic_type"
+            ],
+            "properties": {
+                "days": {
+                    "type": "integer",
+                    "maximum": 3650,
+                    "minimum": 1
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "price_text": {
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 2
+                },
+                "traffic_size_gb": {
+                    "type": "integer",
+                    "maximum": 100000,
+                    "minimum": 0
+                },
+                "traffic_type": {
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "MonthlyRxTx",
+                        "TotallyTransmit",
+                        "TotallyReceive",
+                        "TotallyRxTx"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrafficType"
+                        }
+                    ]
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchPackageData": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer",
+                    "maximum": 3650,
+                    "minimum": 1
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "price_text": {
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 2
+                },
+                "traffic_size_gb": {
+                    "type": "integer",
+                    "maximum": 100000,
+                    "minimum": 0
+                },
+                "traffic_type": {
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "MonthlyRxTx",
+                        "TotallyTransmit",
+                        "TotallyReceive",
+                        "TotallyRxTx"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrafficType"
+                        }
+                    ]
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchSettingsData": {
+            "type": "object",
+            "properties": {
+                "admin_chat_id": {
+                    "type": "integer"
+                },
+                "bot_token": {
+                    "type": "string"
+                },
+                "card_holder": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "card_number": {
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "default_language": {
+                    "enum": [
+                        "en",
+                        "fa",
+                        "ar",
+                        "ru",
+                        "zh-cn",
+                        "zh-tw",
+                        "it"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TelegramLanguage"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "low_quota_threshold_mb": {
+                    "type": "integer",
+                    "maximum": 10240,
+                    "minimum": 10
+                },
+                "ocserv_host": {
+                    "type": "string"
+                },
+                "support_username": {
+                    "description": "SupportUsername must be a Telegram handle without @ (5–32 chars, a–z 0–9 _).",
+                    "type": "string",
+                    "maxLength": 64
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RejectData": {
+            "type": "object",
+            "properties": {
+                "admin_note": {
+                    "type": "string",
+                    "maxLength": 1024
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RequestsResponse": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/request.Meta"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.TelegramRequest"
+                    }
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse": {
+            "type": "object",
+            "properties": {
+                "admin_chat_id": {
+                    "type": "integer"
+                },
+                "bot_token": {
+                    "type": "string"
+                },
+                "bot_username": {
+                    "type": "string"
+                },
+                "card_holder": {
+                    "type": "string"
+                },
+                "card_number": {
+                    "type": "string"
+                },
+                "default_language": {
+                    "enum": [
+                        "en",
+                        "fa",
+                        "ar",
+                        "ru",
+                        "zh-cn",
+                        "zh-tw",
+                        "it"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TelegramLanguage"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "low_quota_threshold_mb": {
+                    "type": "integer"
+                },
+                "ocserv_host": {
+                    "type": "string"
+                },
+                "support_username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.TestData": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
                 }
             }
         },
@@ -4218,6 +5421,222 @@
                 }
             }
         },
+        "models.TelegramAccount": {
+            "type": "object",
+            "required": [
+                "language"
+            ],
+            "properties": {
+                "chat_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "language": {
+                    "enum": [
+                        "en",
+                        "fa",
+                        "ar",
+                        "ru",
+                        "zh-cn",
+                        "zh-tw",
+                        "it"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TelegramLanguage"
+                        }
+                    ]
+                },
+                "last_low_quota_notified_at": {
+                    "type": "string"
+                },
+                "ocserv_user_id": {
+                    "type": "integer"
+                },
+                "telegram_username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TelegramLanguage": {
+            "type": "string",
+            "enum": [
+                "en",
+                "fa",
+                "ar",
+                "ru",
+                "zh-cn",
+                "zh-tw",
+                "it"
+            ],
+            "x-enum-varnames": [
+                "TelegramLanguageEN",
+                "TelegramLanguageFA",
+                "TelegramLanguageAR",
+                "TelegramLanguageRU",
+                "TelegramLanguageZHCN",
+                "TelegramLanguageZHTW",
+                "TelegramLanguageIT"
+            ]
+        },
+        "models.TelegramPackage": {
+            "type": "object",
+            "required": [
+                "traffic_type"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "days": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "price_text": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "traffic_size_gb": {
+                    "type": "integer"
+                },
+                "traffic_type": {
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "MonthlyRxTx",
+                        "TotallyTransmit",
+                        "TotallyReceive",
+                        "TotallyRxTx"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrafficType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TelegramRequest": {
+            "type": "object",
+            "required": [
+                "status",
+                "type"
+            ],
+            "properties": {
+                "admin_note": {
+                    "type": "string"
+                },
+                "awaiting_payment_message_id": {
+                    "description": "AwaitingPaymentMessageID is the Telegram message_id of the bot message sent when\nthe request moved to awaiting_payment (may contain card details). Used to delete\nthat message if the request is later rejected.",
+                    "type": "integer"
+                },
+                "chat_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "delivered_at": {
+                    "type": "string"
+                },
+                "desired_username": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "package_id": {
+                    "type": "integer"
+                },
+                "receipt_file_path": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "awaiting_payment",
+                        "payment_uploaded",
+                        "approved",
+                        "rejected",
+                        "delivered"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TelegramRequestStatus"
+                        }
+                    ]
+                },
+                "target_ocserv_user_id": {
+                    "type": "integer"
+                },
+                "telegram_username": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "new",
+                        "renew"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TelegramRequestType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TelegramRequestStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "awaiting_payment",
+                "payment_uploaded",
+                "approved",
+                "rejected",
+                "delivered"
+            ],
+            "x-enum-varnames": [
+                "TelegramRequestStatusPending",
+                "TelegramRequestStatusAwaitingPayment",
+                "TelegramRequestStatusPaymentUploaded",
+                "TelegramRequestStatusApproved",
+                "TelegramRequestStatusRejected",
+                "TelegramRequestStatusDelivered"
+            ]
+        },
+        "models.TelegramRequestType": {
+            "type": "string",
+            "enum": [
+                "new",
+                "renew"
+            ],
+            "x-enum-varnames": [
+                "TelegramRequestTypeNew",
+                "TelegramRequestTypeRenew"
+            ]
+        },
         "models.TrafficType": {
             "type": "string",
             "enum": [
@@ -4899,14 +6318,109 @@
                 }
             }
         },
-        "runtime.ActionResponse": {
+        "runtime.ConfigResponse": {
             "type": "object",
-            "required": [
-                "message"
-            ],
             "properties": {
-                "message": {
+                "allow_update": {
+                    "type": "boolean"
+                },
+                "auth_timeout": {
+                    "type": "integer"
+                },
+                "ban_reset_time": {
+                    "type": "integer"
+                },
+                "banner": {
                     "type": "string"
+                },
+                "cisco_client_compat": {
+                    "type": "boolean"
+                },
+                "cookie_timeout": {
+                    "type": "integer"
+                },
+                "deny_roaming": {
+                    "type": "boolean"
+                },
+                "dns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dpd": {
+                    "type": "integer"
+                },
+                "dtls_legacy": {
+                    "type": "boolean"
+                },
+                "ipv4_network": {
+                    "type": "string"
+                },
+                "keepalive": {
+                    "type": "integer"
+                },
+                "log_level": {
+                    "type": "integer"
+                },
+                "max_ban_score": {
+                    "type": "integer"
+                },
+                "max_clients": {
+                    "type": "integer"
+                },
+                "max_same_clients": {
+                    "type": "integer"
+                },
+                "min_reauth_time": {
+                    "type": "integer"
+                },
+                "mobile_dpd": {
+                    "type": "integer"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "ping_leases": {
+                    "type": "boolean"
+                },
+                "pre_login_banner": {
+                    "type": "string"
+                },
+                "predictable_ips": {
+                    "type": "boolean"
+                },
+                "rate_limit_ms": {
+                    "type": "integer"
+                },
+                "rekey_method": {
+                    "enum": [
+                        "ssl",
+                        "new-tunnel"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/system.RekeyMethod"
+                        }
+                    ]
+                },
+                "rekey_time": {
+                    "type": "integer"
+                },
+                "switch_to_tcp_timeout": {
+                    "type": "integer"
+                },
+                "tcp_port": {
+                    "type": "integer"
+                },
+                "try_mtu_discovery": {
+                    "type": "boolean"
+                },
+                "tunnel_all_dns": {
+                    "type": "boolean"
+                },
+                "udp_port": {
+                    "type": "integer"
                 }
             }
         },
@@ -5013,11 +6527,46 @@
                 }
             }
         },
-        "runtime.StatusResponse": {
+        "servicecontrol.Action": {
+            "type": "string",
+            "enum": [
+                "restart",
+                "enable",
+                "disable"
+            ],
+            "x-enum-varnames": [
+                "ActionRestart",
+                "ActionEnable",
+                "ActionDisable"
+            ]
+        },
+        "servicecontrol.ActionResponse": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "servicecontrol.StatusResponse": {
             "type": "object",
             "properties": {
                 "active_state": {
                     "type": "string"
+                },
+                "allowed_actions": {
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "restart",
+                            "enable",
+                            "disable"
+                        ],
+                        "$ref": "#/definitions/servicecontrol.Action"
+                    }
                 },
                 "cpu_usage_nsec": {
                     "type": "integer"

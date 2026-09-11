@@ -43,13 +43,13 @@ func (u *Usecase) Login(ctx context.Context, input LoginData, userAgent string) 
 	return &UserLoginResponse{User: user, Token: token}, nil
 }
 
-func (u *Usecase) ResetPassword(ctx context.Context, input ResetAdminPassword, userAgent string) (*ResetPasswordResponse, error) {
+func (u *Usecase) ResetPassword(ctx context.Context, userID uint, input ResetAdminPassword, userAgent string) (*ResetPasswordResponse, error) {
 	if u.secretKey != input.SecretKey {
 		return nil, errors.New("the secret key is invalid")
 	}
-	user, err := u.users.GetByUsername(ctx, input.Username)
+	user, err := u.users.GetByID(ctx, userID)
 	if err != nil {
-		return nil, errors.New("username not found")
+		return nil, errors.New("user not found")
 	}
 	password := u.passwords.CreatePassword(input.NewPassword)
 	if err := u.users.ChangePassword(ctx, user.ID, password.Hash, password.Salt); err != nil {

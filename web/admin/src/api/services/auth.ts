@@ -9,6 +9,7 @@ import type {
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemLoginData,
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemUserLoginResponse,
   ModelsUser,
+  GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemChangeUserPasswordBySelf,
 } from "@/api/generated";
 import { cloneMock, mockCurrentUser, mockLoginResponse } from "@/mocks";
 
@@ -55,4 +56,15 @@ export async function getCurrentUser(): Promise<ModelsUser> {
   });
 
   return response.data;
+}
+
+export async function changePassword(
+  request: GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemChangeUserPasswordBySelf,
+): Promise<void> {
+  if (isTestMode) return;
+
+  await api.systemUsers.systemUsersPasswordPost({
+    authorization: requireAuthorizationHeader(),
+    request,
+  });
 }

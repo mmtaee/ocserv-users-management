@@ -85,7 +85,6 @@ type DashboardRelease struct {
 }
 
 type ResetAdminPassword struct {
-	Username    string `json:"username" validate:"required"`
 	NewPassword string `json:"new_password" validate:"required,min=4,max=16"`
 	SecretKey   string `json:"secret_key" validate:"required,min=16,max=64"`
 }

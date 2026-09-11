@@ -21,6 +21,7 @@ import {
 
 export interface DashboardRoute {
   path: string;
+  alias?: string;
   name: string;
   titleKey: string;
   sectionKey: string;
@@ -38,9 +39,9 @@ export const dashboardRoutes: DashboardRoute[] = [
     adminVisible: true,
   },
   {
-    path: "/ocserv/management/systemd_tools",
-    name: "ocserv-tools",
-    titleKey: "navigation.ocservTools",
+    path: "/ocserv/management/runtime",
+    name: "ocserv-runtime",
+    titleKey: "navigation.runtime",
     sectionKey: "navigation.ocserv",
     icon: Wrench,
     adminVisible: false,
@@ -86,7 +87,7 @@ export const dashboardRoutes: DashboardRoute[] = [
     adminVisible: false,
   },
   {
-    path: "/statistics",
+    path: "/ocserv/management/statistics",
     name: "statistics",
     titleKey: "navigation.statistics",
     sectionKey: "navigation.statistics",
@@ -94,7 +95,7 @@ export const dashboardRoutes: DashboardRoute[] = [
     adminVisible: true,
   },
   {
-    path: "/bandwidths",
+    path: "/ocserv/management/bandwidths",
     name: "bandwidths",
     titleKey: "navigation.bandwidths",
     sectionKey: "navigation.statistics",
@@ -102,7 +103,7 @@ export const dashboardRoutes: DashboardRoute[] = [
     adminVisible: true,
   },
   {
-    path: "/session_logs",
+    path: "/ocserv/management/session_logs",
     name: "session-logs",
     titleKey: "navigation.sessionLogs",
     sectionKey: "navigation.statistics",
@@ -151,6 +152,7 @@ export const dashboardRoutes: DashboardRoute[] = [
   },
   {
     path: "/system",
+    alias: "/system-settings",
     name: "system-settings",
     titleKey: "navigation.settings",
     sectionKey: "navigation.system",

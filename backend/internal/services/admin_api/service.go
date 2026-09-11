@@ -30,6 +30,7 @@ import (
 	usercontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/ocserv_user"
 	reportcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/reports"
 	runtimecontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/runtime"
+	servicecontrolcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/service_control"
 	systemcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/system"
 	telegramcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/telegram"
 	agentusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/agents"
@@ -42,6 +43,7 @@ import (
 	systemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/system"
 	telegramusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/telegram"
 	userusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/users"
+	servicecontrolusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/service_control"
 	runtimeusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/system"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/captcha"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
@@ -59,6 +61,7 @@ type Service struct {
 	groups         *groupcontroller.Controller
 	users          *usercontroller.Controller
 	reports        *reportcontroller.Controller
+	serviceControl *servicecontrolcontroller.Controller
 	system         *systemcontroller.Controller
 	runtime        *runtimecontroller.Controller
 	telegram       *telegramcontroller.Controller
@@ -78,30 +81,31 @@ func New(telegramRoutes, dockerMode bool) (*Service, error) {
 	ocservGroupUC := groupusecase.New(repository.NewOcservGroupRepository(), ocservUserUC, ocservgroupconfig.NewOcservGroup(), occtlUC)
 	telegramUC := telegramusecase.New(repository.NewTelegramRepository(), ocservUserUC, telegramclient.NewClient(&http.Client{Timeout: 8 * time.Second}))
 	dashboardUC := dashboardusecase.New(occtlUC, reportUC, telegramUC, telegramRuntimeEnabled)
-	runtimeService, err := runtimecontroller.NewRuntime(
+	runtimeService, err := servicecontrolcontroller.NewRuntime(
 		dockerMode,
 		strings.EqualFold(strings.TrimSpace(os.Getenv("SYSTEMD")), "true"),
 	)
 	if err != nil {
 		return nil, err
 	}
-	runtimeUC := runtimeusecase.New(runtimeService, runtimecontroller.NewConfigFile(runtimecontroller.DefaultOcservConfigPath))
+	runtimeUC := runtimeusecase.New(runtimeService, runtimecontroller.NewConfigFile(runtimecontroller.DefaultOcservConfigPath), !dockerMode)
 	var agents *agentcontroller.Controller
 	if !cfg.AgentNode {
 		agents = agentcontroller.New(agentusecase.New(repository.NewOcservAgentRepository()))
 	}
 
 	return &Service{
-		agentNode:    cfg.AgentNode,
-		agents:       agents,
-		auth:         authcontroller.New(authusecase.New(sessionRepository)),
-		authenticate: middlewares.AuthMiddleware(sessionRepository),
-		backup:       backupcontroller.New(backupusecase.New(repository.NewBackupRepository(), ocservGroupUC, ocservUserUC, accountStore)),
-		dashboard:    dashboardcontroller.New(dashboardUC),
-		occtl:        occtlcontroller.New(occtlUC),
-		groups:       groupcontroller.New(ocservGroupUC),
-		users:        usercontroller.New(ocservUserUC),
-		reports:      reportcontroller.New(reportUC),
+		agentNode:      cfg.AgentNode,
+		agents:         agents,
+		auth:           authcontroller.New(authusecase.New(sessionRepository)),
+		authenticate:   middlewares.AuthMiddleware(sessionRepository),
+		backup:         backupcontroller.New(backupusecase.New(repository.NewBackupRepository(), ocservGroupUC, ocservUserUC, accountStore)),
+		dashboard:      dashboardcontroller.New(dashboardUC),
+		occtl:          occtlcontroller.New(occtlUC),
+		groups:         groupcontroller.New(ocservGroupUC),
+		users:          usercontroller.New(ocservUserUC),
+		reports:        reportcontroller.New(reportUC),
+		serviceControl: servicecontrolcontroller.New(servicecontrolusecase.New(runtimeService)),
 		system: systemcontroller.New(systemusecase.New(
 			repository.NewSystemRepository(), userRepository, sessionRepository, captcha.NewGoogleVerifier(), crypto.NewCustomPassword(),
 			systemusecase.Options{

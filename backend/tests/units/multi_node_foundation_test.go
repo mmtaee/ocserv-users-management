@@ -30,11 +30,24 @@ func (loginSystemRepository) System(context.Context) (*models.System, error) {
 
 type loginUserRepository struct {
 	repository.UserRepositoryInterface
-	user *models.User
+	user              *models.User
+	changedPasswordID uint
 }
 
 func (r loginUserRepository) GetByUsername(context.Context, string) (*models.User, error) {
 	return r.user, nil
+}
+
+func (r *loginUserRepository) GetByID(_ context.Context, id uint) (*models.User, error) {
+	if r.user == nil || r.user.ID != id {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return r.user, nil
+}
+
+func (r *loginUserRepository) ChangePassword(_ context.Context, id uint, _, _ string) error {
+	r.changedPasswordID = id
+	return nil
 }
 
 func (loginUserRepository) UpdateLastLogin(context.Context, *models.User) error { return nil }
@@ -61,7 +74,7 @@ func TestLoginCreatesOpaqueDatabaseSession(t *testing.T) {
 	sessions := &loginSessionRepository{}
 	usecase := systemusecase.New(
 		loginSystemRepository{},
-		loginUserRepository{user: &models.User{ID: 7, Username: "admin", Password: password.Hash, Salt: password.Salt, Superadmin: true}},
+		&loginUserRepository{user: &models.User{ID: 7, Username: "admin", Password: password.Hash, Salt: password.Salt, Superadmin: true}},
 		sessions,
 		loginCaptcha{},
 		passwords,
@@ -78,6 +91,30 @@ func TestLoginCreatesOpaqueDatabaseSession(t *testing.T) {
 	require.Equal(t, "browser/1.0", sessions.session.UserAgent)
 	require.Equal(t, crypto.HashToken(result.Token), sessions.session.Token)
 	require.NotEqual(t, result.Token, sessions.session.Token)
+}
+
+func TestResetPasswordUsesAuthenticatedAdmin(t *testing.T) {
+	config.Init(false, "", 0)
+	users := &loginUserRepository{user: &models.User{ID: 7, Username: "admin", Superadmin: true}}
+	sessions := &loginSessionRepository{}
+	usecase := systemusecase.New(
+		loginSystemRepository{}, users, sessions, loginCaptcha{}, crypto.NewCustomPassword(),
+		systemusecase.Options{SecretKey: "0123456789abcdef"},
+	)
+
+	_, err := usecase.ResetPassword(context.Background(), 7, systemusecase.ResetAdminPassword{
+		SecretKey: "wrong-secret-key", NewPassword: "updated",
+	}, "browser/1.0")
+	require.EqualError(t, err, "the secret key is invalid")
+	require.Zero(t, users.changedPasswordID)
+
+	result, err := usecase.ResetPassword(context.Background(), 7, systemusecase.ResetAdminPassword{
+		SecretKey: "0123456789abcdef", NewPassword: "updated",
+	}, "browser/1.0")
+	require.NoError(t, err)
+	require.Equal(t, uint(7), users.changedPasswordID)
+	require.Equal(t, uint(7), result.User.ID)
+	require.Equal(t, uint(7), sessions.session.UserID)
 }
 
 type sessionRepository struct {
@@ -270,6 +307,14 @@ func TestAgentModeRoutesAreConditional(t *testing.T) {
 			}
 			require.False(t, paths["GET /agent/settings/token"])
 			require.Equal(t, test.wantMasterAgents, paths["GET /ocserv/agents"])
+			for _, route := range []string{
+				"GET /systemd/status",
+				"POST /systemd/restart",
+				"POST /systemd/enable",
+				"POST /systemd/disable",
+			} {
+				require.True(t, paths[route], route)
+			}
 		})
 	}
 }

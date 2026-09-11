@@ -39,6 +39,11 @@ interface TrafficPoint {
 const props = defineProps<{
   data: readonly DailyTraffic[];
   loading: boolean;
+  limit?: number;
+  titleKey?: string;
+  descriptionKey?: string;
+  emptyTitleKey?: string;
+  emptyDescriptionKey?: string;
 }>();
 
 const { locale, t } = useI18n({ useScope: "global" });
@@ -63,7 +68,7 @@ const chartData = computed<TrafficPoint[]>(() =>
       ];
     })
     .sort((first, second) => first.date.getTime() - second.date.getTime())
-    .slice(-10),
+    .slice(props.limit === 0 ? 0 : -(props.limit ?? 10)),
 );
 
 function formatDate(value: number | Date): string {
@@ -82,9 +87,9 @@ const tooltipTemplate = componentToString(chartConfig, ChartTooltipContent, {
 <template>
   <Card>
     <CardHeader>
-      <CardTitle>{{ t("dashboard.trafficStatistics") }}</CardTitle>
+      <CardTitle>{{ t(titleKey ?? "dashboard.trafficStatistics") }}</CardTitle>
       <CardDescription>
-        {{ t("dashboard.trafficStatisticsDescription") }}
+        {{ t(descriptionKey ?? "dashboard.trafficStatisticsDescription") }}
       </CardDescription>
     </CardHeader>
     <CardContent>
@@ -94,9 +99,16 @@ const tooltipTemplate = componentToString(chartConfig, ChartTooltipContent, {
           <EmptyMedia variant="icon">
             <ChartNoAxesCombined />
           </EmptyMedia>
-          <EmptyTitle>{{ t("dashboard.noTrafficStatistics") }}</EmptyTitle>
+          <EmptyTitle>{{
+            t(emptyTitleKey ?? "dashboard.noTrafficStatistics")
+          }}</EmptyTitle>
           <EmptyDescription>
-            {{ t("dashboard.noTrafficStatisticsDescription") }}
+            {{
+              t(
+                emptyDescriptionKey ??
+                  "dashboard.noTrafficStatisticsDescription",
+              )
+            }}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

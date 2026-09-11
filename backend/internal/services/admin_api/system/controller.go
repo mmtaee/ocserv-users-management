@@ -41,7 +41,9 @@ func (ctl *Controller) DashboardRelease(c *echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param request body ResetAdminPassword true "Reset admin password data"
+// @Param Authorization header string true "Bearer TOKEN"
 // @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
 // @Success 200 {object} ResetPasswordResponse
 // @Router /system/user/reset-password [post]
 func (ctl *Controller) ResetAdminPassword(c *echo.Context) error {
@@ -49,7 +51,11 @@ func (ctl *Controller) ResetAdminPassword(c *echo.Context) error {
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.system.ResetPassword(c.Request().Context(), input, c.Request().UserAgent())
+	userID, err := currentUserID(c)
+	if err != nil {
+		return middlewares.UnauthorizedError(c, err.Error())
+	}
+	result, err := ctl.system.ResetPassword(c.Request().Context(), userID, input, c.Request().UserAgent())
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

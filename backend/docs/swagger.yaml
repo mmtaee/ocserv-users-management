@@ -1,3 +1,6 @@
+basePath: /api
+consumes:
+- application/json
 definitions:
   auth.Session:
     properties:
@@ -213,12 +216,9 @@ definitions:
         maxLength: 64
         minLength: 16
         type: string
-      username:
-        type: string
     required:
     - new_password
     - secret_key
-    - username
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetPasswordResponse:
     properties:
@@ -250,6 +250,195 @@ definitions:
         type: array
     required:
     - meta
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ApproveData:
+    properties:
+      admin_note:
+        maxLength: 1024
+        type: string
+      card_holder:
+        maxLength: 128
+        type: string
+      card_number:
+        description: Optional overrides; empty strings fall back to Telegram settings
+          card_number/card_holder.
+        maxLength: 64
+        type: string
+      reply_to_user:
+        maxLength: 1024
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ConfirmPaymentData:
+    properties:
+      admin_note:
+        maxLength: 1024
+        type: string
+      group:
+        maxLength: 16
+        type: string
+      override_password:
+        maxLength: 64
+        minLength: 4
+        type: string
+      override_username:
+        maxLength: 64
+        minLength: 3
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.CreatePackageData:
+    properties:
+      days:
+        maximum: 3650
+        minimum: 1
+        type: integer
+      is_active:
+        type: boolean
+      price_text:
+        maxLength: 64
+        type: string
+      title:
+        maxLength: 128
+        minLength: 2
+        type: string
+      traffic_size_gb:
+        maximum: 100000
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+    required:
+    - days
+    - title
+    - traffic_type
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchPackageData:
+    properties:
+      days:
+        maximum: 3650
+        minimum: 1
+        type: integer
+      is_active:
+        type: boolean
+      price_text:
+        maxLength: 64
+        type: string
+      title:
+        maxLength: 128
+        minLength: 2
+        type: string
+      traffic_size_gb:
+        maximum: 100000
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchSettingsData:
+    properties:
+      admin_chat_id:
+        type: integer
+      bot_token:
+        type: string
+      card_holder:
+        maxLength: 128
+        type: string
+      card_number:
+        maxLength: 64
+        type: string
+      default_language:
+        allOf:
+        - $ref: '#/definitions/models.TelegramLanguage'
+        enum:
+        - en
+        - fa
+        - ar
+        - ru
+        - zh-cn
+        - zh-tw
+        - it
+      enabled:
+        type: boolean
+      low_quota_threshold_mb:
+        maximum: 10240
+        minimum: 10
+        type: integer
+      ocserv_host:
+        type: string
+      support_username:
+        description: SupportUsername must be a Telegram handle without @ (5–32 chars,
+          a–z 0–9 _).
+        maxLength: 64
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RejectData:
+    properties:
+      admin_note:
+        maxLength: 1024
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RequestsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.TelegramRequest'
+        type: array
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse:
+    properties:
+      admin_chat_id:
+        type: integer
+      bot_token:
+        type: string
+      bot_username:
+        type: string
+      card_holder:
+        type: string
+      card_number:
+        type: string
+      default_language:
+        allOf:
+        - $ref: '#/definitions/models.TelegramLanguage'
+        enum:
+        - en
+        - fa
+        - ar
+        - ru
+        - zh-cn
+        - zh-tw
+        - it
+      enabled:
+        type: boolean
+      low_quota_threshold_mb:
+        type: integer
+      ocserv_host:
+        type: string
+      support_username:
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.TestData:
+    properties:
+      message:
+        type: string
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU:
     properties:
@@ -868,6 +1057,160 @@ definitions:
       ocserv_version:
         type: string
     type: object
+  models.TelegramAccount:
+    properties:
+      chat_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      language:
+        allOf:
+        - $ref: '#/definitions/models.TelegramLanguage'
+        enum:
+        - en
+        - fa
+        - ar
+        - ru
+        - zh-cn
+        - zh-tw
+        - it
+      last_low_quota_notified_at:
+        type: string
+      ocserv_user_id:
+        type: integer
+      telegram_username:
+        type: string
+    required:
+    - language
+    type: object
+  models.TelegramLanguage:
+    enum:
+    - en
+    - fa
+    - ar
+    - ru
+    - zh-cn
+    - zh-tw
+    - it
+    type: string
+    x-enum-varnames:
+    - TelegramLanguageEN
+    - TelegramLanguageFA
+    - TelegramLanguageAR
+    - TelegramLanguageRU
+    - TelegramLanguageZHCN
+    - TelegramLanguageZHTW
+    - TelegramLanguageIT
+  models.TelegramPackage:
+    properties:
+      created_at:
+        type: string
+      days:
+        type: integer
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      price_text:
+        type: string
+      title:
+        type: string
+      traffic_size_gb:
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+      updated_at:
+        type: string
+    required:
+    - traffic_type
+    type: object
+  models.TelegramRequest:
+    properties:
+      admin_note:
+        type: string
+      awaiting_payment_message_id:
+        description: |-
+          AwaitingPaymentMessageID is the Telegram message_id of the bot message sent when
+          the request moved to awaiting_payment (may contain card details). Used to delete
+          that message if the request is later rejected.
+        type: integer
+      chat_id:
+        type: integer
+      created_at:
+        type: string
+      delivered_at:
+        type: string
+      desired_username:
+        type: string
+      id:
+        type: integer
+      package_id:
+        type: integer
+      receipt_file_path:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.TelegramRequestStatus'
+        enum:
+        - pending
+        - awaiting_payment
+        - payment_uploaded
+        - approved
+        - rejected
+        - delivered
+      target_ocserv_user_id:
+        type: integer
+      telegram_username:
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/models.TelegramRequestType'
+        enum:
+        - new
+        - renew
+      updated_at:
+        type: string
+      user_message:
+        type: string
+    required:
+    - status
+    - type
+    type: object
+  models.TelegramRequestStatus:
+    enum:
+    - pending
+    - awaiting_payment
+    - payment_uploaded
+    - approved
+    - rejected
+    - delivered
+    type: string
+    x-enum-varnames:
+    - TelegramRequestStatusPending
+    - TelegramRequestStatusAwaitingPayment
+    - TelegramRequestStatusPaymentUploaded
+    - TelegramRequestStatusApproved
+    - TelegramRequestStatusRejected
+    - TelegramRequestStatusDelivered
+  models.TelegramRequestType:
+    enum:
+    - new
+    - renew
+    type: string
+    x-enum-varnames:
+    - TelegramRequestTypeNew
+    - TelegramRequestTypeRenew
   models.TrafficType:
     enum:
     - Free
@@ -1339,12 +1682,74 @@ definitions:
     - size
     - total_records
     type: object
-  runtime.ActionResponse:
+  runtime.ConfigResponse:
     properties:
-      message:
+      allow_update:
+        type: boolean
+      auth_timeout:
+        type: integer
+      ban_reset_time:
+        type: integer
+      banner:
         type: string
-    required:
-    - message
+      cisco_client_compat:
+        type: boolean
+      cookie_timeout:
+        type: integer
+      deny_roaming:
+        type: boolean
+      dns:
+        items:
+          type: string
+        type: array
+      dpd:
+        type: integer
+      dtls_legacy:
+        type: boolean
+      ipv4_network:
+        type: string
+      keepalive:
+        type: integer
+      log_level:
+        type: integer
+      max_ban_score:
+        type: integer
+      max_clients:
+        type: integer
+      max_same_clients:
+        type: integer
+      min_reauth_time:
+        type: integer
+      mobile_dpd:
+        type: integer
+      mtu:
+        type: integer
+      ping_leases:
+        type: boolean
+      pre_login_banner:
+        type: string
+      predictable_ips:
+        type: boolean
+      rate_limit_ms:
+        type: integer
+      rekey_method:
+        allOf:
+        - $ref: '#/definitions/system.RekeyMethod'
+        enum:
+        - ssl
+        - new-tunnel
+      rekey_time:
+        type: integer
+      switch_to_tcp_timeout:
+        type: integer
+      tcp_port:
+        type: integer
+      try_mtu_discovery:
+        type: boolean
+      tunnel_all_dns:
+        type: boolean
+      udp_port:
+        type: integer
     type: object
   runtime.OcservConfig:
     properties:
@@ -1413,10 +1818,35 @@ definitions:
       udp_port:
         type: integer
     type: object
-  runtime.StatusResponse:
+  servicecontrol.Action:
+    enum:
+    - restart
+    - enable
+    - disable
+    type: string
+    x-enum-varnames:
+    - ActionRestart
+    - ActionEnable
+    - ActionDisable
+  servicecontrol.ActionResponse:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  servicecontrol.StatusResponse:
     properties:
       active_state:
         type: string
+      allowed_actions:
+        items:
+          $ref: '#/definitions/servicecontrol.Action'
+          enum:
+          - restart
+          - enable
+          - disable
+        type: array
       cpu_usage_nsec:
         type: integer
       description:
@@ -1446,6 +1876,10 @@ definitions:
     - RekeyMethodNewTunnel
 info:
   contact: {}
+  description: Administrative API for managing Ocserv Dashboard users, groups, reports,
+    runtime, backups, system settings, Telegram integrations, and agent nodes.
+  title: Ocserv Dashboard Admin API
+  version: "1.0"
 paths:
   /auth/logout:
     post:
@@ -3023,7 +3457,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/runtime.OcservConfig'
+            $ref: '#/definitions/runtime.ConfigResponse'
         "400":
           description: Bad Request
           schema:
@@ -3042,6 +3476,8 @@ paths:
     patch:
       consumes:
       - application/json
+      description: Available only in normal/systemd mode; Docker deployments reject
+        updates.
       parameters:
       - description: Bearer TOKEN
         in: header
@@ -3103,6 +3539,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword'
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3114,6 +3555,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
       summary: Reset admin password by secret key
       tags:
       - System(User)
@@ -3313,7 +3758,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/runtime.ActionResponse'
+            $ref: '#/definitions/servicecontrol.ActionResponse'
         "400":
           description: Bad Request
           schema:
@@ -3328,7 +3773,7 @@ paths:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Disable Ocserv runtime
       tags:
-      - System
+      - Service Control
   /systemd/enable:
     post:
       parameters:
@@ -3341,7 +3786,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/runtime.ActionResponse'
+            $ref: '#/definitions/servicecontrol.ActionResponse'
         "400":
           description: Bad Request
           schema:
@@ -3356,7 +3801,7 @@ paths:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Enable Ocserv runtime
       tags:
-      - System
+      - Service Control
   /systemd/restart:
     post:
       parameters:
@@ -3369,7 +3814,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/runtime.ActionResponse'
+            $ref: '#/definitions/servicecontrol.ActionResponse'
         "400":
           description: Bad Request
           schema:
@@ -3384,7 +3829,7 @@ paths:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Restart Ocserv runtime
       tags:
-      - System
+      - Service Control
   /systemd/status:
     get:
       parameters:
@@ -3397,7 +3842,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/runtime.StatusResponse'
+            $ref: '#/definitions/servicecontrol.StatusResponse'
         "400":
           description: Bad Request
           schema:
@@ -3412,5 +3857,619 @@ paths:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Ocserv runtime status
       tags:
-      - System
+      - Service Control
+  /telegram/accounts:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv user ID
+        in: query
+        minimum: 1
+        name: ocserv_user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TelegramAccount'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List Telegram accounts for an Ocserv user
+      tags:
+      - Telegram
+  /telegram/accounts/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Telegram account ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete Telegram account link
+      tags:
+      - Telegram
+  /telegram/packages:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Include inactive packages
+        in: query
+        name: include_inactive
+        type: boolean
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TelegramPackage'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List Telegram packages
+      tags:
+      - Telegram
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Telegram package
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.CreatePackageData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.TelegramPackage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Create Telegram package
+      tags:
+      - Telegram
+  /telegram/packages/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Package ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete Telegram package
+      tags:
+      - Telegram
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Package ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Telegram package changes
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchPackageData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramPackage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Update Telegram package
+      tags:
+      - Telegram
+  /telegram/requests:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      - default: created_at
+        description: Field to order by
+        in: query
+        name: order
+        type: string
+      - default: DESC
+        description: Sort order
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: sort
+        type: string
+      - description: Request status
+        enum:
+        - pending
+        - awaiting_payment
+        - payment_uploaded
+        - approved
+        - rejected
+        - delivered
+        in: query
+        name: status
+        type: string
+      - description: Request type
+        enum:
+        - new
+        - renew
+        in: query
+        name: type
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RequestsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List Telegram requests
+      tags:
+      - Telegram
+  /telegram/requests/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete Telegram request
+      tags:
+      - Telegram
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Telegram request
+      tags:
+      - Telegram
+  /telegram/requests/{id}/approve:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Approval details
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ApproveData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Approve Telegram request
+      tags:
+      - Telegram
+  /telegram/requests/{id}/confirm-payment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Delivery overrides
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ConfirmPaymentData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Confirm Telegram request payment
+      tags:
+      - Telegram
+  /telegram/requests/{id}/receipt:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Receipt file
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Download Telegram request receipt
+      tags:
+      - Telegram
+  /telegram/requests/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Rejection details
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RejectData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Reject Telegram request
+      tags:
+      - Telegram
+  /telegram/settings:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Telegram settings
+      tags:
+      - Telegram
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Telegram settings changes
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchSettingsData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Update Telegram settings
+      tags:
+      - Telegram
+  /telegram/test:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Optional test message
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.TestData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Test Telegram bot delivery
+      tags:
+      - Telegram
+produces:
+- application/json
 swagger: "2.0"

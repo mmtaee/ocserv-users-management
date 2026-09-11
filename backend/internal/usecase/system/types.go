@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	ErrUnavailable     = errors.New("system service is unavailable")
-	ErrInvalidConfig   = errors.New("invalid ocserv configuration")
-	ErrNoConfigChanges = errors.New("no ocserv configuration changes provided")
+	ErrInvalidConfig    = errors.New("invalid ocserv configuration")
+	ErrNoConfigChanges  = errors.New("no ocserv configuration changes provided")
+	ErrUpdateNotAllowed = errors.New("ocserv configuration updates are not supported in this deployment mode")
 )
 
 // RekeyMethod is the supported Ocserv key renegotiation strategy.
@@ -21,24 +21,6 @@ const (
 
 func (method RekeyMethod) IsValid() bool {
 	return method == RekeyMethodSSL || method == RekeyMethodNewTunnel
-}
-
-// Status is a deployment-neutral view of the managed Ocserv runtime.
-type Status struct {
-	ID            string `json:"id"`
-	Description   string `json:"description"`
-	ActiveState   string `json:"active_state"`
-	SubState      string `json:"sub_state"`
-	UnitFileState string `json:"unit_file_state"`
-	MainPID       int    `json:"main_pid"`
-	StartTime     string `json:"start_time"`
-	Memory        int64  `json:"memory"`
-	CPUUsageNSec  int64  `json:"cpu_usage_nsec"`
-	Tasks         int    `json:"tasks"`
-}
-
-type ActionResult struct {
-	Message string `json:"message" validate:"required"`
 }
 
 // OcservConfig is the explicit allowlist of main ocserv.conf settings managed
@@ -75,11 +57,13 @@ type OcservConfig struct {
 	Banner             *string      `json:"banner,omitempty"`
 }
 
+type ConfigResponse struct {
+	OcservConfig
+	AllowUpdate bool `json:"allow_update"`
+}
+
 type Runtime interface {
-	Status(ctx context.Context) (*Status, error)
 	Restart(ctx context.Context) error
-	Enable(ctx context.Context) error
-	Disable(ctx context.Context) error
 }
 
 type ConfigStore interface {

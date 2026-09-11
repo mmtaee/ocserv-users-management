@@ -13,6 +13,16 @@ const ocservGroupDefaultsView = () =>
   import("@/views/OcservGroupDefaultsView.vue");
 const ocservGroupsView = () => import("@/views/OcservGroupsView.vue");
 const ocservUsersView = () => import("@/views/OcservUsersView.vue");
+const ocservSyncView = () => import("@/views/OcservSyncView.vue");
+const runtimeView = () => import("@/views/RuntimeView.vue");
+const statisticsView = () => import("@/views/StatisticsView.vue");
+const bandwidthsView = () => import("@/views/BandwidthsView.vue");
+const sessionLogsView = () => import("@/views/SessionLogsView.vue");
+const telegramRequestsView = () => import("@/views/TelegramRequestsView.vue");
+const telegramPackagesView = () => import("@/views/TelegramPackagesView.vue");
+const telegramSettingsView = () => import("@/views/TelegramSettingsView.vue");
+const backupView = () => import("@/views/BackupView.vue");
+const systemSettingsView = () => import("@/views/SystemSettingsView.vue");
 
 const dashboardComponents: Partial<
   Record<(typeof dashboardRoutes)[number]["name"], () => Promise<unknown>>
@@ -22,6 +32,16 @@ const dashboardComponents: Partial<
   "ocserv-group-defaults": ocservGroupDefaultsView,
   "ocserv-groups": ocservGroupsView,
   "ocserv-users": ocservUsersView,
+  "ocserv-sync": ocservSyncView,
+  "ocserv-runtime": runtimeView,
+  statistics: statisticsView,
+  bandwidths: bandwidthsView,
+  "session-logs": sessionLogsView,
+  "telegram-requests": telegramRequestsView,
+  "telegram-packages": telegramPackagesView,
+  "telegram-settings": telegramSettingsView,
+  backup: backupView,
+  "system-settings": systemSettingsView,
 };
 
 export const router = createRouter({
@@ -29,6 +49,7 @@ export const router = createRouter({
   routes: [
     ...dashboardRoutes.map((route) => ({
       path: route.path,
+      ...(route.alias ? { alias: route.alias } : {}),
       name: route.name,
       component: dashboardComponents[route.name] ?? emptyRouteView,
       meta: {
