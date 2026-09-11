@@ -86,11 +86,11 @@ onMounted(loadStatus);
       </Button>
     </div>
 
-    <Alert v-if="error" variant="destructive">
+    <Alert v-if="error" variant="error">
       <AlertTitle>{{ t("runtime.errorTitle") }}</AlertTitle>
       <AlertDescription>{{ error }}</AlertDescription>
     </Alert>
-    <Alert v-if="success">
+    <Alert v-if="success" variant="success">
       <AlertTitle>{{ t("runtime.successTitle") }}</AlertTitle>
       <AlertDescription>{{ success }}</AlertDescription>
     </Alert>

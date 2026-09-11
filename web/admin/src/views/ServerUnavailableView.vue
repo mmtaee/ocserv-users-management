@@ -50,7 +50,7 @@ async function retry(): Promise<void> {
         <CardDescription>{{ t("unavailable.description") }}</CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
-        <Alert v-if="systemInit.error" variant="destructive">
+        <Alert v-if="systemInit.error" variant="error">
           <AlertTitle>{{ t("unavailable.connectionFailed") }}</AlertTitle>
           <AlertDescription>{{ systemInit.error }}</AlertDescription>
         </Alert>

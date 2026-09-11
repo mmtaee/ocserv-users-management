@@ -67,7 +67,7 @@ onMounted(load);
         </p>
       </div>
 
-      <Alert v-if="error" variant="destructive">
+      <Alert v-if="error" variant="error">
         <AlertTitle>
           {{
             t(
@@ -89,7 +89,7 @@ onMounted(load);
         </AlertDescription>
       </Alert>
 
-      <Alert v-if="saved">
+      <Alert v-if="saved" variant="success">
         <AlertTitle>
           {{ t("groupDefaults.saveSuccess") }}
         </AlertTitle>

@@ -267,6 +267,8 @@ Requires=ocserv.service
 Type=simple
 User=root
 WorkingDirectory=${INSTALL_DIR}
+Environment=TELEGRAM_BOT_ENABLED=false
+Environment=CUSTOMER_API_ENABLED=true
 EnvironmentFile=${INSTALLED_ENV_FILE}
 Environment=SYSTEMD=true
 Environment=AGENT_NODE=${DEPLOYMENT_AGENT_NODE}

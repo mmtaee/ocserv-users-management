@@ -126,6 +126,8 @@ export default {
     telegramStatusDescription: "机器人可用性和配置状态。",
     telegramEnabled: "服务已启用",
     telegramDisabled: "服务已禁用",
+    telegramUnavailable:
+      "Telegram 服务不可用。请在服务器上启用 TELEGRAM_BOT_ENABLED，然后重启 systemd 服务或使用 down/up 重新创建容器。",
     telegramTokenConfigured: "机器人令牌已配置",
     telegramTokenMissing: "缺少机器人令牌",
     telegramUsernameMissing: "机器人用户名不可用",

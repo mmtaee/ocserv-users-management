@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  envPrefix: ["VITE_", "TELEGRAM_"],
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {

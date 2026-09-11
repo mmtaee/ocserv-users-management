@@ -106,11 +106,11 @@ onBeforeUnmount(() => {
         </p>
       </div>
 
-      <Alert v-if="error" variant="destructive">
+      <Alert v-if="error" variant="error">
         <AlertTitle>{{ t("auth.resetFailure") }}</AlertTitle>
         <AlertDescription>{{ error }}</AlertDescription>
       </Alert>
-      <Alert v-if="success">
+      <Alert v-if="success" variant="success">
         <AlertTitle>{{ t("auth.resetSuccess") }}</AlertTitle>
       </Alert>
 

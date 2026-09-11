@@ -205,7 +205,7 @@ function formatConfigValue(value: unknown): string {
         </section>
 
         <Separator />
-        <Alert v-if="activityError" variant="destructive">
+        <Alert v-if="activityError" variant="error">
           <AlertTitle>{{ t("ocservUsers.activityFailure") }}</AlertTitle>
           <AlertDescription>{{ activityError }}</AlertDescription>
         </Alert>

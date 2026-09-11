@@ -61,7 +61,7 @@ function submit(): void {
         </p>
       </div>
 
-      <Alert v-if="error" variant="destructive">
+      <Alert v-if="error" variant="error">
         <AlertTitle>{{ t("auth.failure") }}</AlertTitle>
         <AlertDescription>{{ error }}</AlertDescription>
       </Alert>

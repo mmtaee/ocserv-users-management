@@ -89,8 +89,7 @@ const isOnline = computed(
       </CardDescription>
     </CardHeader>
     <CardContent class="flex flex-col gap-6">
-      <Alert v-if="error" variant="destructive">
-        <CircleAlert />
+      <Alert v-if="error" variant="error">
         <AlertDescription>
           {{ t("dashboard.ocservStatisticsError") }}
         </AlertDescription>

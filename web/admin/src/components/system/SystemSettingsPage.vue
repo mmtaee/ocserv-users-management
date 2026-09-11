@@ -324,10 +324,10 @@ onMounted(refresh);
         />{{ t("systemSettings.refresh") }}</Button
       >
     </div>
-    <Alert v-if="error" variant="destructive"
+    <Alert v-if="error" variant="error"
       ><AlertTitle>{{ t("systemSettings.requestFailed") }}</AlertTitle
       ><AlertDescription>{{ error }}</AlertDescription></Alert
-    ><Alert v-if="success"
+    ><Alert v-if="success" variant="success"
       ><AlertTitle>{{ t("systemSettings.success") }}</AlertTitle
       ><AlertDescription>{{ success }}</AlertDescription></Alert
     >
@@ -365,12 +365,7 @@ onMounted(refresh);
         </div>
         <Alert
           class="sm:col-span-2"
-          :variant="updateAvailable ? 'destructive' : 'default'"
-          :class="
-            updateAvailable
-              ? 'border-destructive bg-destructive/10'
-              : 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-400'
-          "
+          :variant="updateAvailable ? 'warning' : 'success'"
         >
           <AlertDescription>{{
             t(

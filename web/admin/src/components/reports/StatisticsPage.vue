@@ -64,7 +64,7 @@ onMounted(load);
       :loading="loading"
       @apply="load"
     />
-    <Alert v-if="error" variant="destructive"
+    <Alert v-if="error" variant="error"
       ><AlertTitle>{{ t("reports.requestFailed") }}</AlertTitle
       ><AlertDescription>{{ error }}</AlertDescription></Alert
     >

@@ -2,6 +2,7 @@ import type { Pinia } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { getAccessToken } from "@/api/auth-token";
+import { telegramBotEnabled } from "@/config/features";
 import { dashboardRoutes } from "@/router/dashboard-routes";
 import { useAuthStore } from "@/stores/auth";
 import { useSystemInitStore } from "@/stores/system-init";
@@ -57,6 +58,7 @@ export const router = createRouter({
       meta: {
         titleKey: route.titleKey,
         superadminOnly: !route.adminVisible,
+        telegramOnly: route.telegramOnly,
       },
     })),
     {
@@ -87,6 +89,10 @@ export function installRouterGuards(pinia: Pinia): void {
   router.beforeEach(async (to) => {
     const systemInit = useSystemInitStore(pinia);
     const auth = useAuthStore(pinia);
+
+    if (to.meta.telegramOnly && !telegramBotEnabled) {
+      return { name: "home" };
+    }
 
     if (!systemInit.isAvailable) {
       return to.name === "server-unavailable"

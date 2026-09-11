@@ -131,6 +131,8 @@ export default {
     telegramStatusDescription: "حالة توفر البوت وإعداده.",
     telegramEnabled: "الخدمة مفعّلة",
     telegramDisabled: "الخدمة معطّلة",
+    telegramUnavailable:
+      "خدمة Telegram غير متاحة. فعّل TELEGRAM_BOT_ENABLED على الخادم، ثم أعد تشغيل خدمة systemd أو أعد إنشاء الحاويات باستخدام down/up.",
     telegramTokenConfigured: "رمز البوت مضبوط",
     telegramTokenMissing: "رمز البوت مفقود",
     telegramUsernameMissing: "اسم مستخدم البوت غير متاح",

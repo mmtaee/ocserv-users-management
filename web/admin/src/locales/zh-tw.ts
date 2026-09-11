@@ -127,6 +127,8 @@ export default {
     telegramStatusDescription: "機器人可用性與設定狀態。",
     telegramEnabled: "服務已啟用",
     telegramDisabled: "服務已停用",
+    telegramUnavailable:
+      "Telegram 服務無法使用。請在伺服器上啟用 TELEGRAM_BOT_ENABLED，然後重新啟動 systemd 服務，或使用 down/up 重新建立容器。",
     telegramTokenConfigured: "機器人權杖已設定",
     telegramTokenMissing: "缺少機器人權杖",
     telegramUsernameMissing: "機器人使用者名稱無法使用",

@@ -137,6 +137,8 @@ export default {
     telegramStatusDescription: "Disponibilità e configurazione del bot.",
     telegramEnabled: "Servizio attivo",
     telegramDisabled: "Servizio disattivato",
+    telegramUnavailable:
+      "Il servizio Telegram non è disponibile. Abilita TELEGRAM_BOT_ENABLED sul server, quindi riavvia il servizio systemd o ricrea i container con down/up.",
     telegramTokenConfigured: "Token del bot configurato",
     telegramTokenMissing: "Token del bot mancante",
     telegramUsernameMissing: "Nome utente del bot non disponibile",

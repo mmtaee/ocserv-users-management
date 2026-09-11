@@ -119,12 +119,12 @@ async function restore(): Promise<void> {
 
 <template>
   <div class="flex flex-col gap-6">
-    <Alert v-if="error" variant="destructive">
+    <Alert v-if="error" variant="error">
       <AlertTitle>{{ t("backups.requestFailed") }}</AlertTitle>
       <AlertDescription>{{ error }}</AlertDescription>
     </Alert>
 
-    <Alert v-if="result">
+    <Alert v-if="result" variant="success">
       <AlertTitle>{{ t("backups.restoreComplete") }}</AlertTitle>
       <AlertDescription>
         {{

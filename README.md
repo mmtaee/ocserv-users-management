@@ -374,6 +374,12 @@ Telegram settings and bot accounts are stored through the dashboard. Enable the 
 TELEGRAM_BOT_ENABLED=true
 ```
 
+The customer API is enabled by default and can be disabled independently:
+
+```env
+CUSTOMER_API_ENABLED=false
+```
+
 Production receipts are persisted at:
 
 ```text

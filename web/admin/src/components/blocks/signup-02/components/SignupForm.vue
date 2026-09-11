@@ -49,7 +49,7 @@ const form = reactive<SystemUpdateData>({
         </p>
       </div>
 
-      <Alert v-if="error" variant="destructive">
+      <Alert v-if="error" variant="error">
         <AlertTitle>{{ t("setup.failure") }}</AlertTitle>
         <AlertDescription>{{ error }}</AlertDescription>
       </Alert>

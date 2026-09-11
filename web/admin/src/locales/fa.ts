@@ -134,6 +134,8 @@ export default {
     telegramStatusDescription: "وضعیت دسترسی و پیکربندی ربات.",
     telegramEnabled: "سرویس فعال است",
     telegramDisabled: "سرویس غیرفعال است",
+    telegramUnavailable:
+      "سرویس تلگرام در دسترس نیست. TELEGRAM_BOT_ENABLED را روی سرور فعال کنید، سپس سرویس systemd را راه‌اندازی مجدد کنید یا کانتینرها را با down/up دوباره ایجاد کنید.",
     telegramTokenConfigured: "توکن ربات تنظیم شده",
     telegramTokenMissing: "توکن ربات موجود نیست",
     telegramUsernameMissing: "نام کاربری ربات در دسترس نیست",

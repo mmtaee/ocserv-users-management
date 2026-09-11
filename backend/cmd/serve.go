@@ -60,19 +60,21 @@ func serve() error {
 	}
 	defer database.Close()
 
-	telegramEnabled := strings.EqualFold(strings.TrimSpace(os.Getenv("TELEGRAM_BOT_ENABLED")), "true")
-	admin, err := adminapi.New(telegramEnabled || cfg.Debug, dockerMode)
+	admin, err := adminapi.New(cfg.TelegramEnabled, dockerMode)
 	if err != nil {
 		return err
 	}
-	customer := customerapi.New(cfg)
-	apiServer := httpserver.New(cfg, admin, customer)
+	registrars := []httpserver.RouteRegistrar{admin}
+	if cfg.CustomerAPIEnabled {
+		registrars = append(registrars, customerapi.New(cfg))
+	}
+	apiServer := httpserver.New(cfg, registrars...)
 	backgroundWorker := workerservice.New(dockerMode)
 
 	group, groupCtx := errgroup.WithContext(ctx)
 	group.Go(func() error { return apiServer.Run(groupCtx) })
 	group.Go(func() error { return backgroundWorker.Run(groupCtx) })
-	if telegramEnabled {
+	if cfg.TelegramEnabled {
 		receiptsDir := strings.TrimSpace(os.Getenv("TELEGRAM_RECEIPTS_DIR"))
 		if receiptsDir == "" {
 			receiptsDir = filepath.Join("uploads", "receipts")

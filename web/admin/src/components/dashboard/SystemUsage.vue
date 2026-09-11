@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CircleAlert } from "@lucide/vue";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -122,14 +121,12 @@ const metrics = computed(() => {
       </CardDescription>
     </CardHeader>
     <CardContent class="flex flex-col gap-6">
-      <Alert v-if="error" variant="destructive">
-        <CircleAlert />
+      <Alert v-if="error" variant="error">
         <AlertDescription>
           {{ t("dashboard.systemUsageError") }}
         </AlertDescription>
       </Alert>
-      <Alert v-if="containerError" variant="destructive">
-        <CircleAlert />
+      <Alert v-if="containerError" variant="error">
         <AlertDescription>
           {{ t("dashboard.containerUsageError") }}
         </AlertDescription>

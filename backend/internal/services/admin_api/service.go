@@ -73,7 +73,6 @@ func (s *Service) ServiceName() string { return "admin-api" }
 // New constructs the Admin API dependency graph.
 func New(telegramRoutes, dockerMode bool) (*Service, error) {
 	cfg := config.Get()
-	telegramRuntimeEnabled := strings.EqualFold(strings.TrimSpace(os.Getenv("TELEGRAM_BOT_ENABLED")), "true")
 	userRepository := repository.NewUserRepository()
 	sessionRepository := repository.NewUserTokenRepository()
 	accountStore := ocservaccount.NewOcservUser()
@@ -81,8 +80,13 @@ func New(telegramRoutes, dockerMode bool) (*Service, error) {
 	reportUC := reportusecase.New(repository.NewtReportRepository(), occtlUC)
 	ocservUserUC := userusecase.New(repository.NewtOcservUserRepository(), accountStore, occtlUC, reportUC)
 	ocservGroupUC := groupusecase.New(repository.NewOcservGroupRepository(), ocservUserUC, ocservgroupconfig.NewOcservGroup(), occtlUC)
-	telegramUC := telegramusecase.New(repository.NewTelegramRepository(), ocservUserUC, telegramclient.NewClient(&http.Client{Timeout: 8 * time.Second}))
-	dashboardUC := dashboardusecase.New(occtlUC, reportUC, telegramUC, telegramRuntimeEnabled)
+	var telegramUC *telegramusecase.Usecase
+	var telegram *telegramcontroller.Controller
+	if telegramRoutes {
+		telegramUC = telegramusecase.New(repository.NewTelegramRepository(), ocservUserUC, telegramclient.NewClient(&http.Client{Timeout: 8 * time.Second}))
+		telegram = telegramcontroller.New(telegramUC)
+	}
+	dashboardUC := dashboardusecase.New(occtlUC, reportUC, telegramUC, telegramRoutes)
 	runtimeService, err := servicecontrolcontroller.NewRuntime(
 		dockerMode,
 		strings.EqualFold(strings.TrimSpace(os.Getenv("SYSTEMD")), "true"),
@@ -111,12 +115,12 @@ func New(telegramRoutes, dockerMode bool) (*Service, error) {
 		system: systemcontroller.New(systemusecase.New(
 			repository.NewSystemRepository(), userRepository, sessionRepository, captcha.NewGoogleVerifier(), crypto.NewCustomPassword(),
 			systemusecase.Options{
-				SecretKey: cfg.SecretKey, CurrentRelease: os.Getenv("CURRENT_RELEASE"), TelegramEnabled: telegramRuntimeEnabled,
+				SecretKey: cfg.SecretKey, CurrentRelease: os.Getenv("CURRENT_RELEASE"), TelegramEnabled: telegramRoutes,
 				ReleaseTimeout: 5 * time.Second,
 			},
 		)),
 		runtime:        runtimecontroller.New(runtimeUC),
-		telegram:       telegramcontroller.New(telegramUC),
+		telegram:       telegram,
 		telegramRoutes: telegramRoutes,
 	}, nil
 }

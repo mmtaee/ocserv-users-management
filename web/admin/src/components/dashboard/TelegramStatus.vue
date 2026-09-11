@@ -3,6 +3,7 @@ import { Bot, KeyRound, Send } from "@lucide/vue";
 import { useI18n } from "vue-i18n";
 
 import type { TelegramService } from "@/api/services/dashboard";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -14,6 +15,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 defineProps<{
+  available: boolean;
   service: TelegramService | null;
   loading: boolean;
 }>();
@@ -22,7 +24,7 @@ const { t } = useI18n({ useScope: "global" });
 </script>
 
 <template>
-  <Card v-if="loading || service">
+  <Card v-if="!available || loading || service">
     <CardHeader>
       <CardTitle class="flex items-center gap-2">
         <Send />
@@ -33,7 +35,12 @@ const { t } = useI18n({ useScope: "global" });
       </CardDescription>
     </CardHeader>
     <CardContent>
-      <div v-if="loading && !service" class="flex flex-wrap gap-3">
+      <Alert v-if="!available" variant="error">
+        <AlertDescription>
+          {{ t("dashboard.telegramUnavailable") }}
+        </AlertDescription>
+      </Alert>
+      <div v-else-if="loading && !service" class="flex flex-wrap gap-3">
         <Skeleton class="h-6 w-24 rounded-full" />
         <Skeleton class="h-6 w-32 rounded-full" />
         <Skeleton class="h-6 w-40 rounded-full" />

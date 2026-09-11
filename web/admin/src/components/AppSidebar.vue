@@ -9,6 +9,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import NavMain from "@/components/NavMain.vue";
+import { telegramBotEnabled } from "@/config/features";
 import { dashboardRoutes } from "@/router/dashboard-routes";
 import { useAuthStore } from "@/stores/auth";
 
@@ -18,7 +19,9 @@ const auth = useAuthStore();
 
 const groups = computed(() => {
   const visibleRoutes = dashboardRoutes.filter(
-    (route) => auth.user?.superadmin || route.adminVisible,
+    (route) =>
+      (!route.telegramOnly || telegramBotEnabled) &&
+      (auth.user?.superadmin || route.adminVisible),
   );
   const sectionKeys = [
     ...new Set(visibleRoutes.map((route) => route.sectionKey)),

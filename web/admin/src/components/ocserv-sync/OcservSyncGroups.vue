@@ -112,11 +112,11 @@ onMounted(load);
 
 <template>
   <div class="flex flex-col gap-4">
-    <Alert v-if="error" variant="destructive">
+    <Alert v-if="error" variant="error">
       <AlertTitle>{{ t("ocservSync.error") }}</AlertTitle>
       <AlertDescription>{{ error }}</AlertDescription>
     </Alert>
-    <Alert v-if="result.length">
+    <Alert v-if="result.length" variant="success">
       <AlertTitle>{{ t("ocservSync.success") }}</AlertTitle>
       <AlertDescription>{{ result.join(", ") }}</AlertDescription>
     </Alert>

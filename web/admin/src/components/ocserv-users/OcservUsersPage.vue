@@ -297,11 +297,11 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col gap-6">
-    <Alert v-if="requestError" variant="destructive">
+    <Alert v-if="requestError" variant="error">
       <AlertTitle>{{ t("ocservUsers.requestFailure") }}</AlertTitle>
       <AlertDescription>{{ requestError }}</AlertDescription>
     </Alert>
-    <Alert v-if="success">
+    <Alert v-if="success" variant="success">
       <AlertTitle>{{ t("ocservUsers.success") }}</AlertTitle>
       <AlertDescription>{{ successMessage }}</AlertDescription>
     </Alert>

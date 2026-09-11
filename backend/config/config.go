@@ -1,19 +1,23 @@
 package config
 
 import (
-	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 )
 
 type Config struct {
-	Debug        bool
-	Host         string
-	Port         int
-	SecretKey    string
-	AgentNode    bool
-	AllowOrigins []string
-	DB           PostgresConfig
+	Debug              bool
+	Host               string
+	Port               int
+	SecretKey          string
+	AgentNode          bool
+	TelegramEnabled    bool
+	CustomerAPIEnabled bool
+	AllowOrigins       []string
+	DB                 PostgresConfig
 }
 
 type PostgresConfig struct {
@@ -39,13 +43,15 @@ func Init(debug bool, host string, port int) {
 	}
 
 	cfg = &Config{
-		Debug:        debug,
-		Host:         host,
-		Port:         port,
-		SecretKey:    secretKey,
-		AgentNode:    strings.EqualFold(strings.TrimSpace(os.Getenv("AGENT_NODE")), "true"),
-		AllowOrigins: strings.Split(allowOrigins, ","),
-		DB:           loadDatabaseEnv(),
+		Debug:              debug,
+		Host:               host,
+		Port:               port,
+		SecretKey:          secretKey,
+		AgentNode:          strings.EqualFold(strings.TrimSpace(os.Getenv("AGENT_NODE")), "true"),
+		TelegramEnabled:    getBoolEnv("TELEGRAM_BOT_ENABLED", false),
+		CustomerAPIEnabled: getBoolEnv("CUSTOMER_API_ENABLED", true),
+		AllowOrigins:       strings.Split(allowOrigins, ","),
+		DB:                 loadDatabaseEnv(),
 	}
 }
 
@@ -76,4 +82,16 @@ func getEnv(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func getBoolEnv(key string, fallback bool) bool {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return fallback
+	}
+	parsed, err := strconv.ParseBool(value)
+	if err != nil {
+		return fallback
+	}
+	return parsed
 }

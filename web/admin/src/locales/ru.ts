@@ -137,6 +137,8 @@ export default {
     telegramStatusDescription: "Доступность и состояние настройки бота.",
     telegramEnabled: "Сервис включён",
     telegramDisabled: "Сервис отключён",
+    telegramUnavailable:
+      "Сервис Telegram недоступен. Включите TELEGRAM_BOT_ENABLED на сервере, затем перезапустите службу systemd или пересоздайте контейнеры с помощью down/up.",
     telegramTokenConfigured: "Токен бота настроен",
     telegramTokenMissing: "Токен бота отсутствует",
     telegramUsernameMissing: "Имя бота недоступно",

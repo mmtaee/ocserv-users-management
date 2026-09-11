@@ -99,11 +99,11 @@ onMounted(() => refresh());
 
 <template>
   <div class="flex flex-col gap-6">
-    <Alert v-if="error" variant="destructive">
+    <Alert v-if="error" variant="error">
       <AlertTitle>{{ t("staffs.requestFailure") }}</AlertTitle>
       <AlertDescription>{{ error }}</AlertDescription>
     </Alert>
-    <Alert v-if="success">
+    <Alert v-if="success" variant="success">
       <AlertTitle>{{ t("staffs.success") }}</AlertTitle>
       <AlertDescription>{{ t(`staffs.${success}Success`) }}</AlertDescription>
     </Alert>

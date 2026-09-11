@@ -113,15 +113,15 @@ onMounted(loadServerInfo);
       </Button>
     </div>
 
-    <Alert v-show="serverError" variant="destructive">
+    <Alert v-show="serverError" variant="error">
       <AlertTitle>{{ t("occtl.serverRequestFailure") }}</AlertTitle>
       <AlertDescription>{{ serverError }}</AlertDescription>
     </Alert>
-    <Alert v-if="commandError" variant="destructive">
+    <Alert v-if="commandError" variant="error">
       <AlertTitle>{{ t("occtl.commandFailure") }}</AlertTitle>
       <AlertDescription>{{ commandError }}</AlertDescription>
     </Alert>
-    <Alert v-if="commandSuccess">
+    <Alert v-if="commandSuccess" variant="success">
       <AlertTitle>{{ t("occtl.success") }}</AlertTitle>
       <AlertDescription>{{ commandSuccess }}</AlertDescription>
     </Alert>

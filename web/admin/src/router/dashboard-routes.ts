@@ -27,6 +27,7 @@ export interface DashboardRoute {
   sectionKey: string;
   icon: LucideIcon;
   adminVisible: boolean;
+  telegramOnly?: boolean;
 }
 
 export const dashboardRoutes: DashboardRoute[] = [
@@ -133,6 +134,7 @@ export const dashboardRoutes: DashboardRoute[] = [
     sectionKey: "navigation.telegram",
     icon: Radio,
     adminVisible: false,
+    telegramOnly: true,
   },
   {
     path: "/telegram/packages",
@@ -141,6 +143,7 @@ export const dashboardRoutes: DashboardRoute[] = [
     sectionKey: "navigation.telegram",
     icon: Package,
     adminVisible: false,
+    telegramOnly: true,
   },
   {
     path: "/telegram/settings",
@@ -149,6 +152,7 @@ export const dashboardRoutes: DashboardRoute[] = [
     sectionKey: "navigation.telegram",
     icon: Settings,
     adminVisible: false,
+    telegramOnly: true,
   },
   {
     path: "/system",

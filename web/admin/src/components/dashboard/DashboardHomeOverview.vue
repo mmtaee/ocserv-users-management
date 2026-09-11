@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { CircleAlert } from "@lucide/vue";
 import type { DeepReadonly } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type { DashboardOverview } from "@/api/services/dashboard";
 import TelegramStatus from "@/components/dashboard/TelegramStatus.vue";
+import { telegramBotEnabled } from "@/config/features";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const props = defineProps<{
@@ -18,15 +18,15 @@ const { t } = useI18n({ useScope: "global" });
 
 <template>
   <section class="flex flex-col gap-6">
-    <Alert v-if="error" variant="destructive">
-      <CircleAlert />
+    <Alert v-if="error" variant="error">
       <AlertDescription>{{
         t("dashboard.homeOverviewError")
       }}</AlertDescription>
     </Alert>
     <TelegramStatus
+      :available="telegramBotEnabled"
       :service="props.overview?.telegram_service ?? null"
-      :loading="loading"
+      :loading="telegramBotEnabled && loading"
     />
   </section>
 </template>

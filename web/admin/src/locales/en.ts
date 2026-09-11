@@ -130,6 +130,8 @@ const en = {
     telegramStatusDescription: "Bot availability and configuration status.",
     telegramEnabled: "Service enabled",
     telegramDisabled: "Service disabled",
+    telegramUnavailable:
+      "Telegram service is unavailable. Enable TELEGRAM_BOT_ENABLED on the server, then restart the systemd service or recreate the containers with down/up.",
     telegramTokenConfigured: "Bot token configured",
     telegramTokenMissing: "Bot token missing",
     telegramUsernameMissing: "Bot username unavailable",
