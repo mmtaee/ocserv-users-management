@@ -7,6 +7,7 @@ import it from "@/locales/it";
 import { occtlMessages } from "@/locales/occtl";
 import { ocservGroupsMessages } from "@/locales/ocserv-groups";
 import { ocservUsersMessages } from "@/locales/ocserv-users";
+import { staffsMessages } from "@/locales/staffs";
 import ru from "@/locales/ru";
 import zhCn from "@/locales/zh-cn";
 import zhTw from "@/locales/zh-tw";
@@ -2032,6 +2033,7 @@ export const messages = {
     occtl: occtlMessages.en,
     ocservGroups: ocservGroupsMessages.en,
     ocservUsers: ocservUsersMessages.en,
+    staffs: staffsMessages.en,
     reports: reportsMessages.en,
     navUser: navUserMessages.en,
     systemSettings: systemSettingsMessages.en,
@@ -2044,6 +2046,7 @@ export const messages = {
     occtl: occtlMessages.it,
     ocservGroups: ocservGroupsMessages.it,
     ocservUsers: ocservUsersMessages.it,
+    staffs: staffsMessages.it,
     reports: reportsMessages.it,
     navUser: navUserMessages.it,
     systemSettings: systemSettingsMessages.it,
@@ -2056,6 +2059,7 @@ export const messages = {
     occtl: occtlMessages["zh-cn"],
     ocservGroups: ocservGroupsMessages["zh-cn"],
     ocservUsers: ocservUsersMessages["zh-cn"],
+    staffs: staffsMessages["zh-cn"],
     reports: reportsMessages["zh-cn"],
     navUser: navUserMessages["zh-cn"],
     systemSettings: systemSettingsMessages["zh-cn"],
@@ -2068,6 +2072,7 @@ export const messages = {
     occtl: occtlMessages["zh-tw"],
     ocservGroups: ocservGroupsMessages["zh-tw"],
     ocservUsers: ocservUsersMessages["zh-tw"],
+    staffs: staffsMessages["zh-tw"],
     reports: reportsMessages["zh-tw"],
     navUser: navUserMessages["zh-tw"],
     systemSettings: systemSettingsMessages["zh-tw"],
@@ -2080,6 +2085,7 @@ export const messages = {
     occtl: occtlMessages.ru,
     ocservGroups: ocservGroupsMessages.ru,
     ocservUsers: ocservUsersMessages.ru,
+    staffs: staffsMessages.ru,
     reports: reportsMessages.ru,
     navUser: navUserMessages.ru,
     systemSettings: systemSettingsMessages.ru,
@@ -2092,6 +2098,7 @@ export const messages = {
     occtl: occtlMessages.fa,
     ocservGroups: ocservGroupsMessages.fa,
     ocservUsers: ocservUsersMessages.fa,
+    staffs: staffsMessages.fa,
     reports: reportsMessages.fa,
     navUser: navUserMessages.fa,
     systemSettings: systemSettingsMessages.fa,
@@ -2104,6 +2111,7 @@ export const messages = {
     occtl: occtlMessages.ar,
     ocservGroups: ocservGroupsMessages.ar,
     ocservUsers: ocservUsersMessages.ar,
+    staffs: staffsMessages.ar,
     reports: reportsMessages.ar,
     navUser: navUserMessages.ar,
     systemSettings: systemSettingsMessages.ar,

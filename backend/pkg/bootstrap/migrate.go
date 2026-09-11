@@ -26,7 +26,11 @@ func MigrationsFor(agentNode bool) []*gormigrate.Migration {
 	} else {
 		selected = append(selected, migrations.Migration008)
 	}
-	return append(selected, migrations.Migration010)
+	selected = append(selected, migrations.Migration010)
+	if !agentNode {
+		selected = append(selected, migrations.Migration011)
+	}
+	return selected
 }
 
 func Migrate(db *gorm.DB) error {

@@ -23,6 +23,7 @@ type OcservAgent struct {
 	Name        string           `json:"name" gorm:"type:varchar(128);not null" validate:"required,max=128"`
 	AddressType AgentAddressType `json:"address_type" gorm:"type:varchar(16);not null" validate:"required,oneof=ip domain"`
 	Address     string           `json:"address" gorm:"type:varchar(255);not null;uniqueIndex" validate:"required,max=255"`
+	Port        int              `json:"port" gorm:"not null;default:8080" validate:"min=1,max=65535"`
 	Token       string           `json:"token" gorm:"type:varchar(512);not null" validate:"required,max=512"`
 	CreatedAt   time.Time        `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt   time.Time        `json:"updated_at" gorm:"autoUpdateTime"`

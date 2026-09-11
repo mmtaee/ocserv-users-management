@@ -655,6 +655,10 @@ definitions:
       name:
         maxLength: 128
         type: string
+      port:
+        maximum: 65535
+        minimum: 1
+        type: integer
       token:
         maxLength: 512
         type: string
@@ -1273,6 +1277,10 @@ definitions:
       name:
         maxLength: 128
         type: string
+      port:
+        maximum: 65535
+        minimum: 1
+        type: integer
       token:
         maxLength: 512
         type: string
@@ -1296,6 +1304,10 @@ definitions:
       name:
         maxLength: 128
         type: string
+      port:
+        maximum: 65535
+        minimum: 1
+        type: integer
       token:
         maxLength: 512
         type: string

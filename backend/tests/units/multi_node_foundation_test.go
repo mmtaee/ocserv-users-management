@@ -195,20 +195,30 @@ func TestMasterAgentCRUDUsesManuallyProvidedToken(t *testing.T) {
 	repository := newAgentRepository()
 	usecase := agents.New(repository)
 	created, err := usecase.Create(context.Background(), agents.CreateInput{
-		Name: "edge", AddressType: models.AgentAddressTypeDomain, Address: "VPN.Example.com", Token: "copied-agent-token",
+		Name: "edge", AddressType: models.AgentAddressTypeDomain, Address: "VPN.Example.com", Port: 8443, Token: "copied-agent-token",
 	})
 	require.NoError(t, err)
 	require.Equal(t, "vpn.example.com", created.Address)
+	require.Equal(t, 8443, created.Port)
 	require.Equal(t, "copied-agent-token", created.Token)
 
 	updated, err := usecase.Update(context.Background(), created.ID, agents.UpdateInput{
-		Name: "edge-2", AddressType: models.AgentAddressTypeIP, Address: "192.0.2.10", Token: "replacement-from-agent",
+		Name: "edge-2", AddressType: models.AgentAddressTypeIP, Address: "192.0.2.10", Port: 9443, Token: "replacement-from-agent",
 	})
 	require.NoError(t, err)
+	require.Equal(t, 9443, updated.Port)
 	require.Equal(t, "replacement-from-agent", updated.Token)
 	require.NoError(t, usecase.Delete(context.Background(), created.ID))
 	_, err = usecase.Get(context.Background(), created.ID)
 	require.Error(t, err)
+}
+
+func TestMasterAgentDefaultsPortForExistingClients(t *testing.T) {
+	created, err := agents.New(newAgentRepository()).Create(context.Background(), agents.CreateInput{
+		Name: "edge", AddressType: models.AgentAddressTypeDomain, Address: "vpn.example.com", Token: "manual",
+	})
+	require.NoError(t, err)
+	require.Equal(t, 8080, created.Port)
 }
 
 func TestMasterAgentRejectsAddressTypeMismatch(t *testing.T) {
@@ -217,6 +227,13 @@ func TestMasterAgentRejectsAddressTypeMismatch(t *testing.T) {
 		Name: "bad", AddressType: models.AgentAddressTypeIP, Address: "vpn.example.com", Token: "manual",
 	})
 	require.ErrorIs(t, err, agents.ErrInvalidAddress)
+}
+
+func TestMasterAgentRejectsInvalidPort(t *testing.T) {
+	_, err := agents.New(newAgentRepository()).Create(context.Background(), agents.CreateInput{
+		Name: "bad", AddressType: models.AgentAddressTypeDomain, Address: "vpn.example.com", Port: 65536, Token: "manual",
+	})
+	require.ErrorIs(t, err, agents.ErrInvalidPort)
 }
 
 type localAgentTokenRepository struct {

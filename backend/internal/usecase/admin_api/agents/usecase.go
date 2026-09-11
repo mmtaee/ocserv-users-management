@@ -9,7 +9,12 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 )
 
-var ErrInvalidAddress = errors.New("invalid agent address")
+var (
+	ErrInvalidAddress = errors.New("invalid agent address")
+	ErrInvalidPort    = errors.New("invalid agent port")
+)
+
+const defaultPort = 8080
 
 type Usecase struct {
 	repository Repository
@@ -47,7 +52,7 @@ func (u *Usecase) Update(ctx context.Context, id uint, input UpdateInput) (*mode
 	if err != nil {
 		return nil, err
 	}
-	stored.Name, stored.AddressType, stored.Address, stored.Token = agent.Name, agent.AddressType, agent.Address, agent.Token
+	stored.Name, stored.AddressType, stored.Address, stored.Port, stored.Token = agent.Name, agent.AddressType, agent.Address, agent.Port, agent.Token
 	if err := u.repository.Update(ctx, stored); err != nil {
 		return nil, err
 	}
@@ -62,6 +67,13 @@ func buildAgent(input CreateInput) (*models.OcservAgent, error) {
 	name := strings.TrimSpace(input.Name)
 	address := strings.TrimSpace(input.Address)
 	token := strings.TrimSpace(input.Token)
+	port := input.Port
+	if port == 0 {
+		port = defaultPort
+	}
+	if port < 1 || port > 65535 {
+		return nil, ErrInvalidPort
+	}
 	if name == "" || token == "" || !validAddress(input.AddressType, address) {
 		return nil, ErrInvalidAddress
 	}
@@ -70,7 +82,7 @@ func buildAgent(input CreateInput) (*models.OcservAgent, error) {
 	} else {
 		address = strings.ToLower(strings.TrimSuffix(address, "."))
 	}
-	return &models.OcservAgent{Name: name, AddressType: input.AddressType, Address: address, Token: token}, nil
+	return &models.OcservAgent{Name: name, AddressType: input.AddressType, Address: address, Port: port, Token: token}, nil
 }
 
 func validAddress(addressType models.AgentAddressType, address string) bool {

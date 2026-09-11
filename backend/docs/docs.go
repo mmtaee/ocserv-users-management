@@ -4900,6 +4900,11 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 128
                 },
+                "port": {
+                    "type": "integer",
+                    "maximum": 65535,
+                    "minimum": 1
+                },
                 "token": {
                     "type": "string",
                     "maxLength": 512
@@ -5737,6 +5742,11 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 128
                 },
+                "port": {
+                    "type": "integer",
+                    "maximum": 65535,
+                    "minimum": 1
+                },
                 "token": {
                     "type": "string",
                     "maxLength": 512
@@ -5770,6 +5780,11 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "maxLength": 128
+                },
+                "port": {
+                    "type": "integer",
+                    "maximum": 65535,
+                    "minimum": 1
                 },
                 "token": {
                     "type": "string",

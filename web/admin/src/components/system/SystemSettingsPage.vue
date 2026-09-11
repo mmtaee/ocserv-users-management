@@ -675,8 +675,8 @@ onMounted(refresh);
             ><SheetDescription>{{
               t("systemSettings.agentsDescription")
             }}</SheetDescription></SheetHeader
-          ><FieldGroup
-            ><Field
+          ><FieldGroup class="p-4"            >
+            <Field
               ><FieldLabel for="sheet-agent-name">{{
                 t("systemSettings.agentName")
               }}</FieldLabel

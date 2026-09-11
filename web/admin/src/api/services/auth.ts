@@ -5,13 +5,29 @@ import {
 } from "@/api/auth-token";
 import { api } from "@/api/client";
 import { isTestMode } from "@/api/environment";
+import { httpClient } from "@/api/http";
 import type {
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemLoginData,
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemUserLoginResponse,
   ModelsUser,
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemChangeUserPasswordBySelf,
 } from "@/api/generated";
-import { cloneMock, mockCurrentUser, mockLoginResponse } from "@/mocks";
+import {
+  cloneMock,
+  mockCurrentUser,
+  mockLoginResponse,
+  resetMockAdminPassword,
+} from "@/mocks";
+
+export interface ResetAdminPasswordRequest {
+  new_password: string;
+  secret_key: string;
+}
+
+export interface ResetAdminPasswordResponse {
+  token: string;
+  user: ModelsUser;
+}
 
 export async function login(
   credentials: GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemLoginData,
@@ -67,4 +83,16 @@ export async function changePassword(
     authorization: requireAuthorizationHeader(),
     request,
   });
+}
+
+export async function resetAdminPassword(
+  request: ResetAdminPasswordRequest,
+): Promise<ResetAdminPasswordResponse> {
+  if (isTestMode) return resetMockAdminPassword(request);
+
+  const response = await httpClient.post<ResetAdminPasswordResponse>(
+    "/system/user/reset-password",
+    request,
+  );
+  return response.data;
 }

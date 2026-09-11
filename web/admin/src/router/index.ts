@@ -18,6 +18,7 @@ const runtimeView = () => import("@/views/RuntimeView.vue");
 const statisticsView = () => import("@/views/StatisticsView.vue");
 const bandwidthsView = () => import("@/views/BandwidthsView.vue");
 const sessionLogsView = () => import("@/views/SessionLogsView.vue");
+const staffsView = () => import("@/views/StaffsView.vue");
 const telegramRequestsView = () => import("@/views/TelegramRequestsView.vue");
 const telegramPackagesView = () => import("@/views/TelegramPackagesView.vue");
 const telegramSettingsView = () => import("@/views/TelegramSettingsView.vue");
@@ -37,6 +38,7 @@ const dashboardComponents: Partial<
   statistics: statisticsView,
   bandwidths: bandwidthsView,
   "session-logs": sessionLogsView,
+  staffs: staffsView,
   "telegram-requests": telegramRequestsView,
   "telegram-packages": telegramPackagesView,
   "telegram-settings": telegramSettingsView,
@@ -61,6 +63,11 @@ export const router = createRouter({
       path: "/login",
       name: "login",
       component: () => import("@/views/LoginView.vue"),
+    },
+    {
+      path: "/reset-password",
+      name: "reset-password",
+      component: () => import("@/views/ResetPasswordView.vue"),
     },
     {
       path: "/setup",
@@ -91,7 +98,12 @@ export function installRouterGuards(pinia: Pinia): void {
       await auth.restoreSession();
     }
 
-    if (!auth.isAuthenticated && to.name !== "login") return { name: "login" };
+    if (
+      !auth.isAuthenticated &&
+      !["login", "reset-password"].includes(String(to.name))
+    ) {
+      return { name: "login" };
+    }
 
     if (!auth.isAuthenticated) return true;
 
@@ -101,6 +113,7 @@ export function installRouterGuards(pinia: Pinia): void {
 
     if (
       to.name === "login" ||
+      to.name === "reset-password" ||
       to.name === "system-setup" ||
       to.name === "server-unavailable"
     ) {

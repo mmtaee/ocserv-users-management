@@ -18,6 +18,7 @@ type CreateInput struct {
 	Name        string                  `json:"name" validate:"required,max=128"`
 	AddressType models.AgentAddressType `json:"address_type" validate:"required,oneof=ip domain"`
 	Address     string                  `json:"address" validate:"required,max=255"`
+	Port        int                     `json:"port" validate:"omitempty,min=1,max=65535"`
 	Token       string                  `json:"token" validate:"required,max=512"`
 }
 

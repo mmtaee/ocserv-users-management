@@ -115,6 +115,14 @@ function submit(): void {
           {{ t("auth.submit") }}
         </Button>
       </Field>
+      <div class="text-center text-sm">
+        <RouterLink
+          :to="{ name: 'reset-password' }"
+          class="underline underline-offset-4 hover:text-primary"
+        >
+          {{ t("auth.resetPassword") }}
+        </RouterLink>
+      </div>
     </FieldGroup>
   </form>
 </template>
