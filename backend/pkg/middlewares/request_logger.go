@@ -1,13 +1,16 @@
 package middlewares
 
 import (
-	"github.com/labstack/echo/v5"
-	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/labstack/echo/v5"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 )
 
-func RequestLoggerMiddleware() echo.MiddlewareFunc {
+func RequestLoggerMiddleware(service string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			start := time.Now()
@@ -20,16 +23,19 @@ func RequestLoggerMiddleware() echo.MiddlewareFunc {
 			if echoResponse, unwrapErr := echo.UnwrapResponse(res); unwrapErr == nil {
 				status = echoResponse.Status
 			}
-
-			logger.Info(
-				"%s %s | %s | %d %s | %.3fs",
-				req.Method,
-				req.URL.Path,
-				c.RealIP(),
-				status,
-				http.StatusText(status),
-				time.Since(start).Seconds(),
-			)
+			if err != nil && status < http.StatusBadRequest {
+				var httpErr *echo.HTTPError
+				if errors.As(err, &httpErr) {
+					status = httpErr.Code
+				} else {
+					status = http.StatusInternalServerError
+				}
+			}
+			path := c.Path()
+			if path == "" {
+				path = req.URL.Path
+			}
+			logger.Request(service, c.RealIP(), fmt.Sprintf("%s %s", req.Method, path), status, time.Since(start))
 
 			return err
 		}

@@ -15,6 +15,8 @@ type Service struct {
 	authenticate echo.MiddlewareFunc
 }
 
+func (s *Service) ServiceName() string { return "customer-api" }
+
 // New constructs the Customer API dependency graph.
 func New(cfg *config.Config) *Service {
 	usecase := customerusecase.New(

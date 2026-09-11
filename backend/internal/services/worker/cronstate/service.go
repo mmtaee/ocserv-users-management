@@ -2,12 +2,13 @@ package state
 
 import (
 	"fmt"
-	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 )
 
 const stateFile = "cron_journal/cron_state.txt"
@@ -57,14 +58,14 @@ func LoadStateOrDefault() *CronState {
 	defer stateMu.Unlock()
 
 	if err := ensureStateFile(); err != nil {
-		fmt.Println("Failed to create state file:", err)
+		logger.Error("Failed to create state file: %v", err)
 		return &CronState{}
 	}
 	logger.Info("Loading cron jobs state file")
 
 	data, err := os.ReadFile(stateFile)
 	if err != nil {
-		fmt.Println("Failed to read state:", err)
+		logger.Error("Failed to read state: %v", err)
 		return &CronState{}
 	}
 

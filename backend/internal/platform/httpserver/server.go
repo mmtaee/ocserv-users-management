@@ -20,6 +20,10 @@ type RouteRegistrar interface {
 	Register(group *echo.Group)
 }
 
+type namedRegistrar interface {
+	ServiceName() string
+}
+
 type Server struct {
 	http            *http.Server
 	shutdownTimeout time.Duration
@@ -28,7 +32,6 @@ type Server struct {
 func New(cfg *config.Config, registrars ...RouteRegistrar) *Server {
 	e := echo.New()
 	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(appmiddleware.RequestLoggerMiddleware())
 	e.Use(middleware.Recover())
 	e.Use(appmiddleware.TimeoutMiddleware(10 * time.Second))
 
@@ -47,15 +50,21 @@ func New(cfg *config.Config, registrars ...RouteRegistrar) *Server {
 			strings.HasPrefix(path, "/api/v1/ocserv/users/backup") ||
 			strings.HasPrefix(path, "/api/v1/ocserv/groups/backup")
 	}}))
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.GET("/swagger/*", echoSwagger.WrapHandler, appmiddleware.RequestLoggerMiddleware("http-server"))
 
 	api := e.Group("/api")
 	for _, registrar := range registrars {
-		registrar.Register(api)
+		serviceGroup := api.Group("")
+		serviceName := "backend-api"
+		if named, ok := registrar.(namedRegistrar); ok {
+			serviceName = named.ServiceName()
+		}
+		serviceGroup.Use(appmiddleware.RequestLoggerMiddleware(serviceName))
+		registrar.Register(serviceGroup)
 	}
 	e.GET("/health", func(c *echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "Healthy"})
-	})
+	}, appmiddleware.RequestLoggerMiddleware("http-server"))
 
 	return &Server{
 		http:            &http.Server{Addr: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), Handler: e, ReadHeaderTimeout: 10 * time.Second},

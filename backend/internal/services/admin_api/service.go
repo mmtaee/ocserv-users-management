@@ -68,6 +68,8 @@ type Service struct {
 	telegramRoutes bool
 }
 
+func (s *Service) ServiceName() string { return "admin-api" }
+
 // New constructs the Admin API dependency graph.
 func New(telegramRoutes, dockerMode bool) (*Service, error) {
 	cfg := config.Get()
