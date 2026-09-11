@@ -201,12 +201,12 @@ server {
         proxy_pass http://127.0.0.1:8080/health;
     }
 
-    location /swagger/ {
-        proxy_pass http://127.0.0.1:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+    location = /swagger {
+        return 404;
+    }
+
+    location ^~ /swagger/ {
+        return 404;
     }
 EOF
         if is_true "${CUSTOMER_API_ENABLED}"; then
