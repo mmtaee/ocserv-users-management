@@ -7,8 +7,8 @@ import (
 
 var ErrCertificateStoreUnavailable = errors.New("certificate store unavailable")
 
-func (u *Usecase) CertificatePath(ctx context.Context, credentials Credentials) (string, string, error) {
-	user, err := u.authenticate(ctx, credentials)
+func (u *Usecase) CertificatePath(ctx context.Context, username string) (string, string, error) {
+	user, err := u.user(ctx, username)
 	if err != nil {
 		return "", "", err
 	}
@@ -19,12 +19,8 @@ func (u *Usecase) CertificatePath(ctx context.Context, credentials Credentials) 
 	return path, user.Username, err
 }
 
-func (u *Usecase) CiscoCertificatePath(ctx context.Context, token string) (string, string, error) {
-	username, err := u.parseToken(token)
-	if err != nil {
-		return "", "", err
-	}
-	user, err := u.users.GetByUsername(ctx, username)
+func (u *Usecase) CiscoCertificatePath(ctx context.Context, username string) (string, string, error) {
+	user, err := u.user(ctx, username)
 	if err != nil {
 		return "", "", err
 	}

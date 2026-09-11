@@ -2,13 +2,12 @@ package customer
 
 import (
 	"context"
-	"net/url"
 
 	ocservuser "github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/user"
 )
 
-func (u *Usecase) CiscoSetup(ctx context.Context, credentials Credentials, publicBaseURL string) (*CiscoSetup, error) {
-	user, err := u.authenticate(ctx, credentials)
+func (u *Usecase) CiscoSetup(ctx context.Context, username, publicBaseURL string) (*CiscoSetup, error) {
+	user, err := u.user(ctx, username)
 	if err != nil {
 		return nil, err
 	}
@@ -28,12 +27,7 @@ func (u *Usecase) CiscoSetup(ctx context.Context, credentials Credentials, publi
 	if err != nil {
 		return nil, err
 	}
-	expiresAt := u.now().Add(ciscoSetupCertificateTokenTTL)
-	token, err := u.createToken(user.Username, expiresAt)
-	if err != nil {
-		return nil, err
-	}
-	certificateURI, err := ocservuser.BuildAnyConnectImportURI(publicBaseURL + "/api/customers/setup/cisco/certificate/" + url.PathEscape(token))
+	certificateURI, err := ocservuser.BuildAnyConnectImportURI(publicBaseURL + "/api/customers/setup/cisco/certificate")
 	if err != nil {
 		return nil, err
 	}
@@ -41,5 +35,5 @@ func (u *Usecase) CiscoSetup(ctx context.Context, credentials Credentials, publi
 	if err != nil {
 		return nil, err
 	}
-	return &CiscoSetup{CertificateImportURI: certificateURI, ConnectionCreateURI: connectionURI, CertificatePassword: user.Password, ConnectionName: connectionName, ServerAddress: serverAddress, ServerPort: serverPort, ExpiresAt: expiresAt}, nil
+	return &CiscoSetup{CertificateImportURI: certificateURI, ConnectionCreateURI: connectionURI, CertificatePassword: user.Password, ConnectionName: connectionName, ServerAddress: serverAddress, ServerPort: serverPort}, nil
 }

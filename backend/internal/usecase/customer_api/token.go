@@ -1,50 +1,66 @@
 package customer
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
-	"fmt"
-	"strconv"
 	"strings"
 	"time"
+
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 )
 
-func (u *Usecase) createToken(username string, expiresAt time.Time) (string, error) {
-	username = strings.TrimSpace(username)
-	if username == "" || strings.Contains(username, "|") {
-		return "", errors.New("invalid username")
-	}
-	payload := username + "|" + strconv.FormatInt(expiresAt.Unix(), 10)
-	signature, err := u.sign(payload)
-	if err != nil {
-		return "", err
-	}
-	return base64.RawURLEncoding.EncodeToString([]byte(payload + "|" + signature)), nil
+const accessTokenTTL = 7 * time.Hour
+
+var jwtHeader = base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
+
+var ErrInvalidToken = errors.New("invalid token")
+
+type tokenClaims struct {
+	UserID   uint   `json:"uid"`
+	Username string `json:"sub"`
+	IssuedAt int64  `json:"iat"`
+	Expires  int64  `json:"exp"`
 }
 
-func (u *Usecase) parseToken(token string) (string, error) {
-	raw, err := base64.RawURLEncoding.DecodeString(strings.TrimSpace(token))
-	if err != nil {
-		return "", errors.New("invalid token")
-	}
-	parts := strings.Split(string(raw), "|")
-	if len(parts) != 3 {
-		return "", errors.New("invalid token")
-	}
-	expires, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil || u.now().After(time.Unix(expires, 0)) {
-		return "", errors.New("token has expired")
-	}
-	expected, err := u.sign(parts[0] + "|" + parts[1])
+func (u *Usecase) createToken(userID uint, username string, expiresAt time.Time) (string, error) {
+	claims, err := json.Marshal(tokenClaims{UserID: userID, Username: username, IssuedAt: u.now().Unix(), Expires: expiresAt.Unix()})
 	if err != nil {
 		return "", err
 	}
-	if !hmac.Equal([]byte(expected), []byte(parts[2])) {
-		return "", errors.New("invalid token signature")
+	payload := base64.RawURLEncoding.EncodeToString(claims)
+	signature, err := u.sign(jwtHeader + "." + payload)
+	if err != nil {
+		return "", err
 	}
-	return parts[0], nil
+	return jwtHeader + "." + payload + "." + signature, nil
+}
+
+func (u *Usecase) AuthenticateToken(ctx context.Context, token string) (authz.Principal, error) {
+	parts := strings.Split(strings.TrimSpace(token), ".")
+	if len(parts) != 3 || parts[0] != jwtHeader {
+		return authz.Principal{}, ErrInvalidToken
+	}
+	expected, err := u.sign(parts[0] + "." + parts[1])
+	if err != nil || !hmac.Equal([]byte(expected), []byte(parts[2])) {
+		return authz.Principal{}, ErrInvalidToken
+	}
+	raw, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return authz.Principal{}, ErrInvalidToken
+	}
+	var claims tokenClaims
+	if json.Unmarshal(raw, &claims) != nil || claims.UserID == 0 || strings.TrimSpace(claims.Username) == "" || !u.now().Before(time.Unix(claims.Expires, 0)) {
+		return authz.Principal{}, ErrInvalidToken
+	}
+	user, err := u.users.GetByUsername(ctx, claims.Username)
+	if err != nil || user.ID != claims.UserID {
+		return authz.Principal{}, ErrInvalidToken
+	}
+	return authz.Principal{UserID: claims.UserID, Username: claims.Username}, nil
 }
 
 func (u *Usecase) sign(payload string) (string, error) {
@@ -52,8 +68,6 @@ func (u *Usecase) sign(payload string) (string, error) {
 		return "", errors.New("secret key is not configured")
 	}
 	mac := hmac.New(sha256.New, []byte(u.secretKey))
-	if _, err := mac.Write([]byte(payload)); err != nil {
-		return "", fmt.Errorf("sign token: %w", err)
-	}
+	_, _ = mac.Write([]byte(payload))
 	return base64.RawURLEncoding.EncodeToString(mac.Sum(nil)), nil
 }

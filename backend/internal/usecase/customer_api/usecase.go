@@ -8,8 +8,6 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 )
 
-const ciscoSetupCertificateTokenTTL = 10 * time.Minute
-
 var ErrInvalidCredentials = errors.New("invalid username or password")
 
 type Usecase struct {
@@ -35,10 +33,36 @@ func (u *Usecase) authenticate(ctx context.Context, credentials Credentials) (*m
 	}
 	user, err := u.users.GetByUsername(ctx, credentials.Username)
 	if err != nil {
-		return nil, err
+		return nil, ErrInvalidCredentials
 	}
 	if user.Password != credentials.Password {
 		return nil, ErrInvalidCredentials
+	}
+	if u.certificates != nil {
+		status := u.certificates.CertificateStatus(user.Username)
+		user.CertificateEnabled = status.Enabled
+		user.CertificateAvailable = status.Available
+	}
+	return user, nil
+}
+
+func (u *Usecase) Login(ctx context.Context, credentials Credentials) (*LoginResponse, error) {
+	user, err := u.authenticate(ctx, credentials)
+	if err != nil {
+		return nil, err
+	}
+	expiresAt := u.now().Add(accessTokenTTL)
+	token, err := u.createToken(user.ID, user.Username, expiresAt)
+	if err != nil {
+		return nil, err
+	}
+	return &LoginResponse{User: customerFromModel(user), Token: token, ExpiresAt: expiresAt}, nil
+}
+
+func (u *Usecase) user(ctx context.Context, username string) (*models.OcservUser, error) {
+	user, err := u.users.GetByUsername(ctx, username)
+	if err != nil {
+		return nil, err
 	}
 	if u.certificates != nil {
 		status := u.certificates.CertificateStatus(user.Username)

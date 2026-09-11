@@ -18,21 +18,16 @@ type TokenAuthenticator interface {
 func AuthMiddleware(authenticator TokenAuthenticator) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			authHeader := c.Request().Header.Get("Authorization")
-			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			tokenValue, err := BearerToken(c)
+			if err != nil {
 				return UnauthorizedError(c, "missing or invalid Authorization header")
-			}
-
-			tokenValue := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
-			if tokenValue == "" {
-				return UnauthorizedError(c, "invalid token")
 			}
 			session, err := authenticator.FindActiveByToken(c.Request().Context(), tokenValue)
 			if err != nil || session.ID == 0 || session.User.ID == 0 || session.User.Username == "" {
 				return UnauthorizedError(c, "invalid token")
 			}
 
-			c.Set(principalContextKey, authz.Principal{
+			SetPrincipal(c, authz.Principal{
 				SessionID: session.ID, UserID: session.User.ID,
 				Username: session.User.Username, Superadmin: session.User.Superadmin,
 			})
@@ -42,6 +37,22 @@ func AuthMiddleware(authenticator TokenAuthenticator) echo.MiddlewareFunc {
 }
 
 const principalContextKey = "principal"
+
+func BearerToken(c *echo.Context) (string, error) {
+	authHeader := c.Request().Header.Get("Authorization")
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		return "", authz.ErrForbidden
+	}
+	token := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
+	if token == "" {
+		return "", authz.ErrForbidden
+	}
+	return token, nil
+}
+
+func SetPrincipal(c *echo.Context, principal authz.Principal) {
+	c.Set(principalContextKey, principal)
+}
 
 func Principal(c *echo.Context) (authz.Principal, error) {
 	principal, ok := c.Get(principalContextKey).(authz.Principal)
