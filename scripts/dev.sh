@@ -18,7 +18,7 @@ readonly POSTGRES_PORT="${DEV_POSTGRES_PORT:-5435}"
 readonly OCSERV_DEBUG_LEVEL="${OCSERV_DEBUG:-999}"
 readonly DEVELOPMENT_LABEL="io.ocserv-dashboard.environment=development"
 
-declare -a docker_cmd
+declare -a docker_cmd=()
 
 log() {
     printf '\033[1;34m[dev]\033[0m %s\n' "$*"
@@ -93,10 +93,10 @@ validate_host() {
     [[ -f "${DOCKERFILE}" ]] \
         || die "development Dockerfile not found: ${DOCKERFILE}"
 
-    [[ -f "${PROJECT_ROOT}/deploy/docker/common/entrypoint.sh" ]] \
+    [[ -f "${PROJECT_ROOT}/deploy/docker/entrypoint.sh" ]] \
         || die "shared Docker entrypoint not found"
 
-    [[ -f "${PROJECT_ROOT}/deploy/docker/common/server.sh" ]] \
+    [[ -f "${PROJECT_ROOT}/deploy/docker/server.sh" ]] \
         || die "shared Docker server script not found"
 
     [[ -S /var/run/docker.sock ]] \
@@ -148,29 +148,12 @@ container_is_development() {
 }
 
 remove_previous_container() {
-    local environment_label
-    local existing_image
-
     if ! "${docker_cmd[@]}" container inspect "${CONTAINER_NAME}" >/dev/null 2>&1; then
         log "container name ${CONTAINER_NAME} is available"
         return
     fi
 
-    environment_label="$(
-        "${docker_cmd[@]}" container inspect \
-            --format '{{index .Config.Labels "io.ocserv-dashboard.environment"}}' \
-            "${CONTAINER_NAME}" 2>/dev/null || true
-    )"
-
-    existing_image="$(
-        "${docker_cmd[@]}" container inspect \
-            --format '{{.Config.Image}}' \
-            "${CONTAINER_NAME}" 2>/dev/null || true
-    )"
-
-    if [[ "${environment_label}" != development \
-        && "${existing_image}" != "${IMAGE_NAME}" \
-        && "${REPLACE_CONTAINER:-false}" != true ]]; then
+    if ! container_is_development && [[ "${REPLACE_CONTAINER:-false}" != true ]]; then
         die "container ${CONTAINER_NAME} is not marked as development; set REPLACE_CONTAINER=true to replace it explicitly"
     fi
 
@@ -284,15 +267,15 @@ up_services() {
 main() {
     local command="${1:-up}"
 
-    configure_commands
-
     case "${command}" in
         up)
             [[ $# -le 1 ]] || die "unexpected arguments for 'up'"
+            configure_commands
             up_services
             ;;
         down)
             [[ $# -le 1 ]] || die "unexpected arguments for 'down'"
+            configure_commands
             down_services
             ;;
         help | --help | -h)

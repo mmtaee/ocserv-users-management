@@ -248,7 +248,7 @@ The quickest development startup is:
 ./scripts/dev.sh
 ```
 
-The script validates Docker and TUN access, creates `.volume/` and its persistent directories, builds with detailed logs, replaces containers marked as development or using the configured development image, starts the stack, prints endpoint information, and follows container logs. Ctrl-C stops log viewing without stopping the container.
+The script validates Docker and TUN access, creates `.volume/` and its persistent directories, builds with detailed logs, replaces containers marked as development, starts the stack, prints endpoint information, and follows container logs. Ctrl-C stops log viewing without stopping the container.
 
 Useful overrides:
 
