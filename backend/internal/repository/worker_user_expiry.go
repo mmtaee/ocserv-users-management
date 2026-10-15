@@ -27,7 +27,7 @@ func (r *WorkerUserExpiryRepository) RecordFirstConnection(ctx context.Context, 
 		Updates(map[string]interface{}{
 			"first_connected_at": connectedAt.UTC(),
 			"expire_at": gorm.Expr(
-				"? + (expire_days_after_first_connection * INTERVAL '1 day')",
+				"CAST(? AS timestamptz) + (expire_days_after_first_connection * INTERVAL '1 day')",
 				connectedAt.UTC(),
 			),
 		})
